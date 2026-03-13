@@ -1,9 +1,9 @@
 // ============================================================
 // WD MÁQUINAS - SISTEMA DE FLUXO DE CAIXA 2026
-// script.js — PARTE 3 (Dados padrão + Funções base)
+// script.js — PARTE 3 (Dados REAIS da planilha + Funções base)
 // ============================================================
 
-// ==================== DADOS PADRÃO ====================
+// ==================== DADOS PADRÃO (REAIS DA PLANILHA) ====================
 function getDefaultData() {
     return {
         empresa: {
@@ -11,239 +11,258 @@ function getDefaultData() {
             cnpj: "29.595.239/0001-33",
             socios: ["Wander", "Daniel"],
             metaSalario: 6000,
-            metaVendas: 30000
+            metaVendas: 30000,
+            logo: ""
         },
         config: {
             vendedores: ["Wander", "Daniel"],
-            formasPagamento: ["Dinheiro", "PIX", "Cartão Crédito", "Cartão Débito", "Boleto", "Cheque", "Transferência"],
-            tiposUnidade: ["Unidade", "Metro", "Centímetro", "Milímetro", "Kg", "Litro", "Peça", "Par", "Caixa", "Rolo", "Pacote"],
+            formasPagamento: ["Boleto Bancário", "Caixa da Oficina", "Cartão MP", "Daniel", "Elo Grafite - Cartão", "Inter - Cartão", "Luisa - Cartão", "Nubank", "PIX", "Transferência Bancária", "Wander - Cartão", "WD - Cartão"],
+            tiposUnidade: ["Unidade", "Metro", "Centímetro", "Milímetro", "Kg", "Litro", "Peça", "Par", "Caixa", "Rolo", "Pacote", "Barra"],
             situacaoCompra: ["Pago", "Devendo", "Guardado"],
             tipoVenda: ["Direta", "Revenda"],
-            situacaoEntrega: ["Entregue", "Não Entregue"],
+            situacaoEntrega: ["Entregou", "Não Entregou"],
             situacaoGarantia: ["Ativa", "Vencida"],
-            situacaoCheque: ["Depositado", "Devolvido para o cliente", "Esperando para depositar"]
+            situacaoCheque: ["Depositado Esperando Compensar", "Devolvido Para o Cliente", "Esperando Para Depositar", "Passou Para Jotafran", "Passou Para PS Inox"]
         },
         clientes: [
-            { id: 1, nome: "Supermercado Bom Preço", cpfcnpj: "12.345.678/0001-99", telefone: "(34) 99999-1111", endereco: "Rua A, 100", numero: "100", cep: "38400-000", cidade: "Uberlândia", estado: "MG", imagem: "" },
-            { id: 2, nome: "Fazenda São José", cpfcnpj: "98.765.432/0001-11", telefone: "(34) 99999-2222", endereco: "Rod. BR-050, Km 10", numero: "S/N", cep: "38400-100", cidade: "Uberlândia", estado: "MG", imagem: "" },
-            { id: 3, nome: "Oficina do João", cpfcnpj: "111.222.333-44", telefone: "(34) 99999-3333", endereco: "Av. Brasil, 500", numero: "500", cep: "38400-200", cidade: "Uberlândia", estado: "MG", imagem: "" },
-            { id: 4, nome: "Construtora ABC", cpfcnpj: "22.333.444/0001-55", telefone: "(34) 99999-4444", endereco: "Rua das Flores, 200", numero: "200", cep: "38400-300", cidade: "Uberlândia", estado: "MG", imagem: "" },
-            { id: 5, nome: "Maria Silva", cpfcnpj: "555.666.777-88", telefone: "(34) 99999-5555", endereco: "Rua C, 50", numero: "50", cep: "38400-400", cidade: "Araguari", estado: "MG", imagem: "" },
-            { id: 6, nome: "Pedro Souza", cpfcnpj: "999.888.777-66", telefone: "(34) 99999-6666", endereco: "Av. Central, 800", numero: "800", cep: "38400-500", cidade: "Uberlândia", estado: "MG", imagem: "" },
-            { id: 7, nome: "Loja do Campo", cpfcnpj: "33.444.555/0001-66", telefone: "(34) 99999-7777", endereco: "Rua Rural, 300", numero: "300", cep: "38400-600", cidade: "Tupaciguara", estado: "MG", imagem: "" },
-            { id: 8, nome: "Auto Peças Central", cpfcnpj: "44.555.666/0001-77", telefone: "(34) 99999-8888", endereco: "Av. Industrial, 1500", numero: "1500", cep: "38400-700", cidade: "Uberlândia", estado: "MG", imagem: "" },
-            { id: 9, nome: "José Ferreira", cpfcnpj: "222.333.444-55", telefone: "(34) 99999-9999", endereco: "Rua D, 75", numero: "75", cep: "38400-800", cidade: "Uberlândia", estado: "MG", imagem: "" },
-            { id: 10, nome: "Marcenaria Elite", cpfcnpj: "55.666.777/0001-88", telefone: "(34) 98888-1111", endereco: "Rua E, 450", numero: "450", cep: "38400-900", cidade: "Uberlândia", estado: "MG", imagem: "" },
-            { id: 11, nome: "Serralheria Forte", cpfcnpj: "66.777.888/0001-99", telefone: "(34) 98888-2222", endereco: "Av. F, 600", numero: "600", cep: "38401-000", cidade: "Uberlândia", estado: "MG", imagem: "" },
-            { id: 12, nome: "Carlos Mendes", cpfcnpj: "333.444.555-66", telefone: "(34) 98888-3333", endereco: "Rua G, 120", numero: "120", cep: "38401-100", cidade: "Araguari", estado: "MG", imagem: "" }
+            { id: 1, nome: "RENATO (NOVA SERRANA)", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "Nova Serrana", estado: "MG", imagem: "" }
         ],
         fornecedores: [
-            { id: 1, nome: "Aço Forte Distribuidor", cpfcnpj: "11.222.333/0001-44", telefone: "(11) 3333-1111", endereco: "Rua Industrial, 1000", numero: "1000", cep: "01000-000", cidade: "São Paulo", estado: "SP", imagem: "" },
-            { id: 2, nome: "Ferramentas Brasil", cpfcnpj: "22.333.444/0001-55", telefone: "(11) 3333-2222", endereco: "Av. Máquinas, 500", numero: "500", cep: "02000-000", cidade: "São Paulo", estado: "SP", imagem: "" },
-            { id: 3, nome: "Motores & Cia", cpfcnpj: "33.444.555/0001-66", telefone: "(19) 3333-3333", endereco: "Rod. Campinas, Km 5", numero: "S/N", cep: "13000-000", cidade: "Campinas", estado: "SP", imagem: "" },
-            { id: 4, nome: "Hidráulica Total", cpfcnpj: "44.555.666/0001-77", telefone: "(34) 3333-4444", endereco: "Rua H, 200", numero: "200", cep: "38400-000", cidade: "Uberlândia", estado: "MG", imagem: "" },
-            { id: 5, nome: "Elétrica Master", cpfcnpj: "55.666.777/0001-88", telefone: "(34) 3333-5555", endereco: "Av. Energia, 300", numero: "300", cep: "38400-100", cidade: "Uberlândia", estado: "MG", imagem: "" },
-            { id: 6, nome: "Parafusos & Fixações", cpfcnpj: "66.777.888/0001-99", telefone: "(11) 3333-6666", endereco: "Rua Fixação, 150", numero: "150", cep: "03000-000", cidade: "São Paulo", estado: "SP", imagem: "" },
-            { id: 7, nome: "Soldas Profissionais", cpfcnpj: "77.888.999/0001-00", telefone: "(34) 3333-7777", endereco: "Rua Solda, 400", numero: "400", cep: "38400-200", cidade: "Uberlândia", estado: "MG", imagem: "" },
-            { id: 8, nome: "Rolamentos Express", cpfcnpj: "88.999.000/0001-11", telefone: "(11) 3333-8888", endereco: "Av. Rolamento, 700", numero: "700", cep: "04000-000", cidade: "São Paulo", estado: "SP", imagem: "" },
-            { id: 9, nome: "Bombas Hidráulicas SA", cpfcnpj: "99.000.111/0001-22", telefone: "(19) 3333-9999", endereco: "Rod. Industrial, Km 15", numero: "S/N", cep: "13100-000", cidade: "Campinas", estado: "SP", imagem: "" },
-            { id: 10, nome: "Correias & Polias", cpfcnpj: "10.111.222/0001-33", telefone: "(34) 3333-0000", endereco: "Rua Correia, 250", numero: "250", cep: "38400-300", cidade: "Uberlândia", estado: "MG", imagem: "" },
-            { id: 11, nome: "Tintas Industrial", cpfcnpj: "11.222.333/0001-44", telefone: "(34) 3334-1111", endereco: "Av. Tinta, 800", numero: "800", cep: "38400-400", cidade: "Uberlândia", estado: "MG", imagem: "" },
-            { id: 12, nome: "Mangueiras Flex", cpfcnpj: "12.333.444/0001-55", telefone: "(11) 3334-2222", endereco: "Rua Flex, 90", numero: "90", cep: "05000-000", cidade: "São Paulo", estado: "SP", imagem: "" },
-            { id: 13, nome: "Vedações Center", cpfcnpj: "13.444.555/0001-66", telefone: "(34) 3334-3333", endereco: "Rua Veda, 110", numero: "110", cep: "38400-500", cidade: "Uberlândia", estado: "MG", imagem: "" },
-            { id: 14, nome: "Compressores Max", cpfcnpj: "14.555.666/0001-77", telefone: "(19) 3334-4444", endereco: "Av. Ar, 600", numero: "600", cep: "13200-000", cidade: "Jundiaí", estado: "SP", imagem: "" },
-            { id: 15, nome: "Filtros Industrial", cpfcnpj: "15.666.777/0001-88", telefone: "(34) 3334-5555", endereco: "Rua Filtro, 350", numero: "350", cep: "38400-600", cidade: "Uberlândia", estado: "MG", imagem: "" },
-            { id: 16, nome: "Lubrificantes Pro", cpfcnpj: "16.777.888/0001-99", telefone: "(11) 3334-6666", endereco: "Av. Óleo, 450", numero: "450", cep: "06000-000", cidade: "Osasco", estado: "SP", imagem: "" },
-            { id: 17, nome: "Cabos de Aço Ltda", cpfcnpj: "17.888.999/0001-00", telefone: "(34) 3334-7777", endereco: "Rua Cabo, 500", numero: "500", cep: "38400-700", cidade: "Uberlândia", estado: "MG", imagem: "" },
-            { id: 18, nome: "Engrenagens Precisão", cpfcnpj: "18.999.000/0001-11", telefone: "(19) 3334-8888", endereco: "Rod. Engrenagem, Km 8", numero: "S/N", cep: "13300-000", cidade: "Campinas", estado: "SP", imagem: "" },
-            { id: 19, nome: "Materiais Gerais MG", cpfcnpj: "19.000.111/0001-22", telefone: "(34) 3334-9999", endereco: "Av. Geral, 1200", numero: "1200", cep: "38400-800", cidade: "Uberlândia", estado: "MG", imagem: "" }
+            { id: 1, nome: "JOTAFRAN", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
+            { id: 2, nome: "PS INOX", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
+            { id: 3, nome: "MERCADO LIVRE", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
+            { id: 4, nome: "FREITAS PARAFUSOS", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
+            { id: 5, nome: "AUTOMAÇÃO", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
+            { id: 6, nome: "EPF - ELETRO POSTE FORTE", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
+            { id: 7, nome: "NOVA LINEA", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
+            { id: 8, nome: "OXIFRANCA", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
+            { id: 9, nome: "CASA DAS BORRACHAS", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
+            { id: 10, nome: "GUERAÇO", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
+            { id: 11, nome: "CASA FORTE", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
+            { id: 12, nome: "DIVERSOS", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
+            { id: 13, nome: "SUPERMERCADO", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
+            { id: 14, nome: "POSTO DE COMBUSTIVEL", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
+            { id: 15, nome: "POLIMAQ", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
+            { id: 16, nome: "EMPRÉSTIMO NUBANK", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
+            { id: 17, nome: "BLING", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
+            { id: 18, nome: "GS1", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
+            { id: 19, nome: "FRENET", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
+            { id: 20, nome: "ALIEXPRESS", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
+            { id: 21, nome: "BRAVO 360", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
+            { id: 22, nome: "JAGUIMAR", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
+            { id: 23, nome: "PELPAN", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
+            { id: 24, nome: "CASA DE TINTA", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
+            { id: 25, nome: "PADOVA", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
+            { id: 26, nome: "HERATI - CERTIFICADO DIGITAL", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
+            { id: 27, nome: "CASA DO PLÁSTICO", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
+            { id: 28, nome: "PALÁCIO DAS BORRACHAS", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
+            { id: 29, nome: "VELOE", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" }
         ],
-        produtos: [
-            { id: 1, nome: "Motor Elétrico 5CV", valorCusto: 1200, valorRevenda: 1800, valorDireto: 2200, unidade: "Unidade", imagem: "" },
-            { id: 2, nome: "Bomba Hidráulica P30", valorCusto: 850, valorRevenda: 1300, valorDireto: 1600, unidade: "Unidade", imagem: "" },
-            { id: 3, nome: "Cilindro Hidráulico 50mm", valorCusto: 450, valorRevenda: 750, valorDireto: 950, unidade: "Unidade", imagem: "" },
-            { id: 4, nome: "Mangueira Hidráulica 1/2", valorCusto: 35, valorRevenda: 65, valorDireto: 80, unidade: "Metro", imagem: "" },
-            { id: 5, nome: "Rolamento 6205", valorCusto: 25, valorRevenda: 50, valorDireto: 65, unidade: "Unidade", imagem: "" },
-            { id: 6, nome: "Correia A-60", valorCusto: 18, valorRevenda: 35, valorDireto: 45, unidade: "Unidade", imagem: "" },
-            { id: 7, nome: "Válvula Direcional", valorCusto: 380, valorRevenda: 600, valorDireto: 750, unidade: "Unidade", imagem: "" },
-            { id: 8, nome: "Filtro Óleo Hidráulico", valorCusto: 45, valorRevenda: 85, valorDireto: 110, unidade: "Unidade", imagem: "" },
-            { id: 9, nome: "Óleo Hidráulico 68 (20L)", valorCusto: 180, valorRevenda: 280, valorDireto: 340, unidade: "Unidade", imagem: "" },
-            { id: 10, nome: "Retentor 50x70x10", valorCusto: 12, valorRevenda: 28, valorDireto: 35, unidade: "Unidade", imagem: "" },
-            { id: 11, nome: "Acoplamento Flexível", valorCusto: 95, valorRevenda: 160, valorDireto: 200, unidade: "Unidade", imagem: "" },
-            { id: 12, nome: "Chapa de Aço 3mm", valorCusto: 120, valorRevenda: 200, valorDireto: 250, unidade: "Metro", imagem: "" },
-            { id: 13, nome: "Tubo Hidráulico 1\"", valorCusto: 55, valorRevenda: 95, valorDireto: 120, unidade: "Metro", imagem: "" },
-            { id: 14, nome: "Manômetro 0-250 bar", valorCusto: 65, valorRevenda: 120, valorDireto: 150, unidade: "Unidade", imagem: "" },
-            { id: 15, nome: "Eletrodo Solda 3.25mm", valorCusto: 45, valorRevenda: 75, valorDireto: 90, unidade: "Kg", imagem: "" }
-        ],
-        pfornecedores: [
-            { id: 1, nome: "Motor Elétrico 5CV", valor: 1200, unidade: "Unidade", fornecedor: "Motores & Cia", imagem: "" },
-            { id: 2, nome: "Bomba Hidráulica P30", valor: 850, unidade: "Unidade", fornecedor: "Bombas Hidráulicas SA", imagem: "" },
-            { id: 3, nome: "Cilindro Hidráulico 50mm", valor: 450, unidade: "Unidade", fornecedor: "Hidráulica Total", imagem: "" },
-            { id: 4, nome: "Mangueira Hidráulica 1/2", valor: 35, unidade: "Metro", fornecedor: "Mangueiras Flex", imagem: "" },
-            { id: 5, nome: "Rolamento 6205", valor: 25, unidade: "Unidade", fornecedor: "Rolamentos Express", imagem: "" },
-            { id: 6, nome: "Correia A-60", valor: 18, unidade: "Unidade", fornecedor: "Correias & Polias", imagem: "" },
-            { id: 7, nome: "Válvula Direcional", valor: 380, unidade: "Unidade", fornecedor: "Hidráulica Total", imagem: "" },
-            { id: 8, nome: "Filtro Óleo Hidráulico", valor: 45, unidade: "Unidade", fornecedor: "Filtros Industrial", imagem: "" },
-            { id: 9, nome: "Óleo Hidráulico 68 (20L)", valor: 180, unidade: "Unidade", fornecedor: "Lubrificantes Pro", imagem: "" },
-            { id: 10, nome: "Retentor 50x70x10", valor: 12, unidade: "Unidade", fornecedor: "Vedações Center", imagem: "" },
-            { id: 11, nome: "Acoplamento Flexível", valor: 95, unidade: "Unidade", fornecedor: "Engrenagens Precisão", imagem: "" },
-            { id: 12, nome: "Chapa de Aço 3mm", valor: 120, unidade: "Metro", fornecedor: "Aço Forte Distribuidor", imagem: "" },
-            { id: 13, nome: "Tubo Hidráulico 1\"", valor: 55, unidade: "Metro", fornecedor: "Hidráulica Total", imagem: "" },
-            { id: 14, nome: "Manômetro 0-250 bar", valor: 65, unidade: "Unidade", fornecedor: "Hidráulica Total", imagem: "" },
-            { id: 15, nome: "Eletrodo Solda 3.25mm", valor: 45, unidade: "Kg", fornecedor: "Soldas Profissionais", imagem: "" },
-            { id: 16, nome: "Parafuso Sextavado M12", valor: 2.5, unidade: "Unidade", fornecedor: "Parafusos & Fixações", imagem: "" }
-        ],
+        produtos: [],
+        pfornecedores: [],
         compras: [
-            { id: 1, data: "2026-01-10", vencimento: "2026-02-10", produto: "Motor Elétrico 5CV", qtd: 2, valorUnit: 1200, fornecedor: "Motores & Cia", formaPagto: "Boleto", status: "Pago" },
-            { id: 2, data: "2026-01-15", vencimento: "2026-02-15", produto: "Bomba Hidráulica P30", qtd: 3, valorUnit: 850, fornecedor: "Bombas Hidráulicas SA", formaPagto: "PIX", status: "Pago" },
-            { id: 3, data: "2026-01-22", vencimento: "2026-03-22", produto: "Mangueira Hidráulica 1/2", qtd: 50, valorUnit: 35, fornecedor: "Mangueiras Flex", formaPagto: "Boleto", status: "Devendo" },
-            { id: 4, data: "2026-02-05", vencimento: "2026-03-05", produto: "Rolamento 6205", qtd: 20, valorUnit: 25, fornecedor: "Rolamentos Express", formaPagto: "Dinheiro", status: "Pago" },
-            { id: 5, data: "2026-02-18", vencimento: "2026-04-18", produto: "Válvula Direcional", qtd: 2, valorUnit: 380, fornecedor: "Hidráulica Total", formaPagto: "Cartão Crédito", status: "Devendo" },
-            { id: 6, data: "2026-03-01", vencimento: "2026-04-01", produto: "Óleo Hidráulico 68 (20L)", qtd: 5, valorUnit: 180, fornecedor: "Lubrificantes Pro", formaPagto: "PIX", status: "Pago" },
-            { id: 7, data: "2026-03-10", vencimento: "2026-05-10", produto: "Chapa de Aço 3mm", qtd: 10, valorUnit: 120, fornecedor: "Aço Forte Distribuidor", formaPagto: "Boleto", status: "Guardado" }
+            { id:1, data:"2026-01-01", vencimento:"2026-01-19", produto:"DIMMER 65 AMPER 12.000W/220V - 6.000W/110V", qtd:1, valorUnit:167.9, fornecedor:"MERCADO LIVRE", formaPagto:"Cartão MP", status:"Pago" },
+            { id:2, data:"2026-01-01", vencimento:"2026-01-30", produto:"EMPRESTIMO OFICINA", qtd:1, valorUnit:2368.63, fornecedor:"EMPRÉSTIMO NUBANK", formaPagto:"PIX", status:"Pago" },
+            { id:3, data:"2026-01-01", vencimento:"2026-01-24", produto:"CABO PP 3 X 4 mm", qtd:1, valorUnit:74, fornecedor:"AUTOMAÇÃO", formaPagto:"WD - Cartão", status:"Pago" },
+            { id:4, data:"2026-01-05", vencimento:"2026-01-10", produto:"ALUGUEL DO BARRACÃO", qtd:1, valorUnit:450, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Pago" },
+            { id:5, data:"2026-01-05", vencimento:"2026-01-10", produto:"AGUA E FORÇA", qtd:1, valorUnit:80, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Pago" },
+            { id:6, data:"2026-01-05", vencimento:"2026-02-10", produto:"RESISTÊNCIA CABIDE 4500 WATTS", qtd:1, valorUnit:80, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Pago" },
+            { id:7, data:"2026-01-05", vencimento:"2026-01-05", produto:"COMBUSTIVEL", qtd:1, valorUnit:50, fornecedor:"POSTO DE COMBUSTIVEL", formaPagto:"Daniel", status:"Pago" },
+            { id:8, data:"2026-01-05", vencimento:"2026-02-10", produto:"DISCO DE CORTE", qtd:1, valorUnit:300, fornecedor:"FREITAS PARAFUSOS", formaPagto:"Elo Grafite - Cartão", status:"Pago" },
+            { id:9, data:"2026-01-05", vencimento:"2026-02-10", produto:"BOMBONA 10 LITROS", qtd:2, valorUnit:49, fornecedor:"CASA DO PLÁSTICO", formaPagto:"Elo Grafite - Cartão", status:"Pago" },
+            { id:10, data:"2026-01-05", vencimento:"2026-02-10", produto:"ASSINATURA ANUAL", qtd:1, valorUnit:85, fornecedor:"FRENET", formaPagto:"PIX", status:"Pago" },
+            { id:11, data:"2026-01-05", vencimento:"2026-02-10", produto:"RESISTÊNCIA 4000 WATTS EM U VAPOR. - 220V - 400 x 80mm (N.S)", qtd:2, valorUnit:70, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Pago" },
+            { id:12, data:"2026-01-06", vencimento:"2026-01-06", produto:"FRETE", qtd:1, valorUnit:95, fornecedor:"NOVA LINEA", formaPagto:"PIX", status:"Pago" },
+            { id:13, data:"2026-01-06", vencimento:"2026-02-10", produto:"CHAPA INOX 430 - 3 METROS", qtd:1, valorUnit:947.84, fornecedor:"PS INOX", formaPagto:"Elo Grafite - Cartão", status:"Pago" },
+            { id:14, data:"2026-01-06", vencimento:"2026-02-10", produto:"TUBO DE INOX 1\"1/4 - METRO", qtd:6, valorUnit:40.27, fornecedor:"PS INOX", formaPagto:"Elo Grafite - Cartão", status:"Pago" },
+            { id:15, data:"2026-01-07", vencimento:"2026-02-10", produto:"VARETA DE INOX", qtd:1, valorUnit:100, fornecedor:"OXIFRANCA", formaPagto:"Elo Grafite - Cartão", status:"Pago" },
+            { id:16, data:"2026-01-07", vencimento:"2026-02-10", produto:"COMBUSTIVEL", qtd:1, valorUnit:100, fornecedor:"POSTO DE COMBUSTIVEL", formaPagto:"Elo Grafite - Cartão", status:"Pago" },
+            { id:17, data:"2026-01-07", vencimento:"2026-02-10", produto:"GUARNIÇÃO 15 X 15", qtd:1, valorUnit:388.75, fornecedor:"CASA DAS BORRACHAS", formaPagto:"Elo Grafite - Cartão", status:"Pago" },
+            { id:18, data:"2026-01-07", vencimento:"2026-02-10", produto:"RODÍZIO GIRATORIO COM PINO E FREIO 40kg SCHIOPPA GEL", qtd:1, valorUnit:60, fornecedor:"FREITAS PARAFUSOS", formaPagto:"Elo Grafite - Cartão", status:"Pago" },
+            { id:19, data:"2026-01-07", vencimento:"2026-02-10", produto:"CABO PP 3 X 4 mm", qtd:1, valorUnit:124, fornecedor:"AUTOMAÇÃO", formaPagto:"Elo Grafite - Cartão", status:"Pago" },
+            { id:20, data:"2026-01-07", vencimento:"2026-01-19", produto:"COTOVELO 1/2 INOX", qtd:10, valorUnit:16.9, fornecedor:"MERCADO LIVRE", formaPagto:"Cartão MP", status:"Pago" },
+            { id:21, data:"2026-01-09", vencimento:"2026-01-24", produto:"CABO PP 3 X 4 mm", qtd:1, valorUnit:71.8, fornecedor:"EPF - ELETRO POSTE FORTE", formaPagto:"Daniel", status:"Pago" },
+            { id:22, data:"2026-01-09", vencimento:"2026-01-24", produto:"DIVERSOS", qtd:1, valorUnit:18, fornecedor:"FREITAS PARAFUSOS", formaPagto:"Daniel", status:"Pago" },
+            { id:23, data:"2026-01-09", vencimento:"2026-02-10", produto:"DIVERSOS", qtd:1, valorUnit:160.65, fornecedor:"JAGUIMAR", formaPagto:"Elo Grafite - Cartão", status:"Pago" },
+            { id:24, data:"2026-01-09", vencimento:"2026-01-19", produto:"LUVA LISA 1\" 1/2 INOX 304", qtd:1, valorUnit:43.46, fornecedor:"MERCADO LIVRE", formaPagto:"Cartão MP", status:"Pago" },
+            { id:25, data:"2026-01-12", vencimento:"2026-02-10", produto:"CHAPA INOX", qtd:1, valorUnit:1413.35, fornecedor:"PS INOX", formaPagto:"Elo Grafite - Cartão", status:"Pago" },
+            { id:26, data:"2026-01-13", vencimento:"2026-02-10", produto:"CHAPA INOX", qtd:1, valorUnit:356, fornecedor:"GUERAÇO", formaPagto:"Elo Grafite - Cartão", status:"Pago" },
+            { id:27, data:"2026-01-13", vencimento:"2026-02-10", produto:"RESISTÊNCIA EM W 3000 WATTS SECA 220V - 800 x 300mm G. (N.S)", qtd:2, valorUnit:140, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Pago" },
+            { id:28, data:"2026-01-13", vencimento:"2026-02-10", produto:"RESISTÊNCIA 4000 WATTS EM U VAPOR. - 220V - 400 x 80mm (N.S)", qtd:2, valorUnit:70, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Pago" },
+            { id:29, data:"2026-01-13", vencimento:"2026-02-10", produto:"RESISTENCIA 3000 WATTS 600MM 220V MARMITEIRO", qtd:1, valorUnit:70, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Pago" },
+            { id:30, data:"2026-01-14", vencimento:"2026-02-10", produto:"DIVERSOS", qtd:1, valorUnit:227, fornecedor:"FREITAS PARAFUSOS", formaPagto:"Elo Grafite - Cartão", status:"Pago" },
+            { id:31, data:"2026-01-14", vencimento:"2026-02-10", produto:"ENGATE FLEXIVEL 40CM METAL SANCHEZ", qtd:1, valorUnit:18.5, fornecedor:"CASA FORTE", formaPagto:"WD - Cartão", status:"Pago" },
+            { id:32, data:"2026-01-15", vencimento:"2026-02-10", produto:"RESISTÊNCIA 4000 WATTS EM U VAPOR. - 220V - 400 x 80mm (N.S)", qtd:1, valorUnit:70, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Pago" },
+            { id:33, data:"2026-01-15", vencimento:"2026-02-10", produto:"CABO PP 3 X 4 mm", qtd:1, valorUnit:43, fornecedor:"EPF - ELETRO POSTE FORTE", formaPagto:"Elo Grafite - Cartão", status:"Pago" },
+            { id:34, data:"2026-01-19", vencimento:"2026-02-24", produto:"CAFÉ - FILTRO - PAPEL HIGIÊNICO", qtd:1, valorUnit:30, fornecedor:"SUPERMERCADO", formaPagto:"WD - Cartão", status:"Pago" },
+            { id:35, data:"2026-01-19", vencimento:"2026-02-24", produto:"BOMBONA 10 LITROS", qtd:1, valorUnit:182.68, fornecedor:"MERCADO LIVRE", formaPagto:"WD - Cartão", status:"Pago" },
+            { id:36, data:"2026-01-19", vencimento:"2026-02-19", produto:"BOMBONA 10 LITROS", qtd:1, valorUnit:196.74, fornecedor:"MERCADO LIVRE", formaPagto:"Cartão MP", status:"Pago" },
+            { id:37, data:"2026-01-19", vencimento:"2026-02-24", produto:"FLANGE DE 1/2 PARA BEBEDOURO", qtd:14, valorUnit:9.59, fornecedor:"MERCADO LIVRE", formaPagto:"WD - Cartão", status:"Pago" },
+            { id:38, data:"2026-01-20", vencimento:"2026-02-10", produto:"CHAPA INOX", qtd:1, valorUnit:1404, fornecedor:"PS INOX", formaPagto:"PIX", status:"Pago" },
+            { id:39, data:"2026-01-21", vencimento:"2026-01-21", produto:"FRETE", qtd:1, valorUnit:70, fornecedor:"NOVA LINEA", formaPagto:"PIX", status:"Pago" },
+            { id:40, data:"2026-01-21", vencimento:"2026-01-21", produto:"DIVERSOS", qtd:1, valorUnit:87, fornecedor:"DIVERSOS", formaPagto:"Daniel", status:"Pago" },
+            { id:41, data:"2026-01-21", vencimento:"2026-01-24", produto:"BLING", qtd:1, valorUnit:214.83, fornecedor:"BLING", formaPagto:"WD - Cartão", status:"Pago" },
+            { id:42, data:"2026-01-21", vencimento:"2026-01-24", produto:"REGISTRO DE PRODUTOS DO GS1", qtd:1, valorUnit:178.59, fornecedor:"GS1", formaPagto:"WD - Cartão", status:"Pago" },
+            { id:43, data:"2026-01-21", vencimento:"2026-02-10", produto:"RESISTÊNCIA CABIDE 4500 WATTS", qtd:3, valorUnit:80, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Pago" },
+            { id:44, data:"2026-01-21", vencimento:"2026-02-19", produto:"DISCO DE FLAP", qtd:1, valorUnit:184.99, fornecedor:"MERCADO LIVRE", formaPagto:"Cartão MP", status:"Pago" },
+            { id:45, data:"2026-01-22", vencimento:"2026-02-02", produto:"CHAPA INOX", qtd:1, valorUnit:822, fornecedor:"PS INOX", formaPagto:"PIX", status:"Pago" },
+            { id:46, data:"2026-01-22", vencimento:"2026-02-24", produto:"FRETE", qtd:1, valorUnit:80, fornecedor:"NOVA LINEA", formaPagto:"PIX", status:"Pago" },
+            { id:47, data:"2026-01-23", vencimento:"2026-02-24", produto:"COMBUSTIVEL", qtd:1, valorUnit:100, fornecedor:"POSTO DE COMBUSTIVEL", formaPagto:"Daniel", status:"Pago" },
+            { id:48, data:"2026-01-23", vencimento:"2026-02-24", produto:"DIVERSOS", qtd:1, valorUnit:35, fornecedor:"CASA FORTE", formaPagto:"Daniel", status:"Pago" },
+            { id:49, data:"2026-01-23", vencimento:"2026-02-24", produto:"CABO PP 3 X 4 mm", qtd:1, valorUnit:87, fornecedor:"EPF - ELETRO POSTE FORTE", formaPagto:"Daniel", status:"Pago" },
+            { id:50, data:"2026-01-23", vencimento:"2026-02-24", produto:"GUARNIÇÃO 15 X 15", qtd:1, valorUnit:24, fornecedor:"CASA DAS BORRACHAS", formaPagto:"Daniel", status:"Pago" },
+            { id:51, data:"2026-01-23", vencimento:"2026-02-10", produto:"RESISTÊNCIA 4000 WATTS EM U VAPOR. - 220V - 400 x 80mm (N.S)", qtd:7, valorUnit:70, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Pago" },
+            { id:52, data:"2026-01-23", vencimento:"2026-02-10", produto:"RESISTÊNCIA EM W 3000 WATTS SECA 220V - 800 x 300mm G. (N.S)", qtd:5, valorUnit:140, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Pago" },
+            { id:53, data:"2026-01-26", vencimento:"2026-02-24", produto:"DIVERSOS", qtd:1, valorUnit:13, fornecedor:"SUPERMERCADO", formaPagto:"WD - Cartão", status:"Pago" },
+            { id:54, data:"2026-01-26", vencimento:"2026-02-24", produto:"DIVERSOS", qtd:1, valorUnit:42, fornecedor:"SUPERMERCADO", formaPagto:"WD - Cartão", status:"Pago" },
+            { id:55, data:"2026-01-27", vencimento:"2026-02-24", produto:"GUARNIÇÃO 15 X 15", qtd:1, valorUnit:190, fornecedor:"PALÁCIO DAS BORRACHAS", formaPagto:"WD - Cartão", status:"Pago" },
+            { id:56, data:"2026-01-27", vencimento:"2026-02-24", produto:"PEDÁGIO", qtd:1, valorUnit:150, fornecedor:"VELOE", formaPagto:"WD - Cartão", status:"Pago" },
+            { id:57, data:"2026-01-27", vencimento:"2026-02-24", produto:"DIVERSOS", qtd:1, valorUnit:188, fornecedor:"FREITAS PARAFUSOS", formaPagto:"WD - Cartão", status:"Pago" },
+            { id:58, data:"2026-01-27", vencimento:"2026-02-24", produto:"CABO PP 3 x 2,5 mm", qtd:1, valorUnit:20, fornecedor:"EPF - ELETRO POSTE FORTE", formaPagto:"WD - Cartão", status:"Pago" },
+            { id:59, data:"2026-01-27", vencimento:"2026-02-10", produto:"RESISTENCIA 3000 WATTS 800MM 220V MARMITEIRO", qtd:1, valorUnit:90, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Pago" },
+            { id:60, data:"2026-01-27", vencimento:"2026-02-10", produto:"TERMOSTATO 20 A 120 GRAUS - 30A", qtd:1, valorUnit:60, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Pago" },
+            { id:61, data:"2026-01-27", vencimento:"2026-02-24", produto:"COMBUSTIVEL", qtd:1, valorUnit:100, fornecedor:"POSTO DE COMBUSTIVEL", formaPagto:"WD - Cartão", status:"Pago" },
+            { id:62, data:"2026-01-30", vencimento:"2026-02-24", produto:"FECHO ENGATE", qtd:20, valorUnit:8.07, fornecedor:"ALIEXPRESS", formaPagto:"WD - Cartão", status:"Pago" },
+            { id:63, data:"2026-01-30", vencimento:"2026-01-30", produto:"CERTIFICADO DIGITAL", qtd:1, valorUnit:199.9, fornecedor:"HERATI - CERTIFICADO DIGITAL", formaPagto:"PIX", status:"Pago" },
+            { id:64, data:"2026-02-02", vencimento:"2026-02-24", produto:"CHAPA INOX 304 - 3 METROS", qtd:1, valorUnit:1521, fornecedor:"PS INOX", formaPagto:"PIX", status:"Pago" },
+            { id:65, data:"2026-02-02", vencimento:"2026-03-10", produto:"RESISTÊNCIA EM W 3000 WATTS SECA 220V - 800 X 300mm G. (N.S)", qtd:3, valorUnit:140, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Pago" },
+            { id:66, data:"2026-02-02", vencimento:"2026-03-10", produto:"RESISTÊNCIA EM W 3500 WATTS SECA 220V - 800 X 300mm G. (N.S)", qtd:1, valorUnit:140, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Pago" },
+            { id:67, data:"2026-02-02", vencimento:"2026-02-24", produto:"FRETE", qtd:1, valorUnit:80, fornecedor:"NOVA LINEA", formaPagto:"PIX", status:"Pago" },
+            { id:68, data:"2026-02-03", vencimento:"2026-03-10", produto:"GUARNIÇÃO 15 X 15", qtd:1, valorUnit:48, fornecedor:"CASA DAS BORRACHAS", formaPagto:"Daniel", status:"Pago" },
+            { id:69, data:"2026-02-03", vencimento:"2026-03-10", produto:"GOOGLE VIEW", qtd:1, valorUnit:280, fornecedor:"BRAVO 360", formaPagto:"Elo Grafite - Cartão", status:"Pago" },
+            { id:70, data:"2026-02-03", vencimento:"2026-03-10", produto:"RESISTÊNCIA 3000 WATTS EM U VAPOR. - 220V - 200 x 80mm (N.S)", qtd:1, valorUnit:45, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Pago" },
+            { id:71, data:"2026-02-03", vencimento:"2026-02-10", produto:"ALUGUEL DO BARRACÃO", qtd:1, valorUnit:450, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Pago" },
+            { id:72, data:"2026-02-03", vencimento:"2026-02-10", produto:"AGUA E FORÇA", qtd:1, valorUnit:80, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Pago" },
+            { id:73, data:"2026-02-04", vencimento:"2026-02-24", produto:"COMBUSTIVEL", qtd:1, valorUnit:98.57, fornecedor:"POSTO DE COMBUSTIVEL", formaPagto:"WD - Cartão", status:"Pago" },
+            { id:74, data:"2026-02-09", vencimento:"2026-03-10", produto:"LIXA ABRASIVA 75 x 180 - 180 GRÃOS", qtd:1, valorUnit:60.25, fornecedor:"PELPAN", formaPagto:"Elo Grafite - Cartão", status:"Pago" },
+            { id:75, data:"2026-02-09", vencimento:"2026-03-10", produto:"GUARNIÇÃO 15 X 15", qtd:1, valorUnit:187.5, fornecedor:"CASA DAS BORRACHAS", formaPagto:"Elo Grafite - Cartão", status:"Pago" },
+            { id:76, data:"2026-02-09", vencimento:"2026-03-10", produto:"SPRAY DE TINTA", qtd:1, valorUnit:138, fornecedor:"CASA DE TINTA", formaPagto:"Elo Grafite - Cartão", status:"Pago" },
+            { id:77, data:"2026-02-11", vencimento:"2026-02-19", produto:"DIVERSOS", qtd:1, valorUnit:214.06, fornecedor:"MERCADO LIVRE", formaPagto:"Cartão MP", status:"Pago" },
+            { id:78, data:"2026-02-12", vencimento:"2026-03-10", produto:"SINALEIRO DE 3/8 (OLHO DE BOI)", qtd:3, valorUnit:6, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Pago" },
+            { id:79, data:"2026-02-12", vencimento:"2026-03-10", produto:"DIVERSOS", qtd:1, valorUnit:34.9, fornecedor:"DIVERSOS", formaPagto:"Elo Grafite - Cartão", status:"Pago" },
+            { id:80, data:"2026-02-17", vencimento:"2026-03-10", produto:"DETERGENTE NEUTRO", qtd:1, valorUnit:30, fornecedor:"SUPERMERCADO", formaPagto:"Elo Grafite - Cartão", status:"Pago" },
+            { id:81, data:"2026-02-19", vencimento:"2026-03-10", produto:"RESISTÊNCIA 3000 WATTS EM U VAPOR. - 220V - 200 x 80mm (N.S)", qtd:5, valorUnit:45, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Pago" },
+            { id:82, data:"2026-02-20", vencimento:"2026-02-28", produto:"EMPRESTIMO OFICINA", qtd:1, valorUnit:2368.63, fornecedor:"EMPRÉSTIMO NUBANK", formaPagto:"PIX", status:"Pago" },
+            { id:83, data:"2026-02-23", vencimento:"2026-03-24", produto:"CHAVE CADEADO 63 AMPERS", qtd:1, valorUnit:78.03, fornecedor:"MERCADO LIVRE", formaPagto:"Cartão MP", status:"Pago" },
+            { id:84, data:"2026-02-23", vencimento:"2026-02-24", produto:"BLING", qtd:1, valorUnit:214.83, fornecedor:"BLING", formaPagto:"WD - Cartão", status:"Pago" },
+            { id:85, data:"2026-02-23", vencimento:"2026-02-24", produto:"ENGATE FLEXIVEL 40CM METAL SANCHEZ", qtd:1, valorUnit:269.96, fornecedor:"PADOVA", formaPagto:"WD - Cartão", status:"Pago" },
+            { id:86, data:"2026-02-23", vencimento:"2026-02-24", produto:"DIVERSOS", qtd:1, valorUnit:178.59, fornecedor:"DIVERSOS", formaPagto:"WD - Cartão", status:"Pago" },
+            { id:87, data:"2026-02-23", vencimento:"2026-03-24", produto:"DIVERSOS", qtd:1, valorUnit:2672.52, fornecedor:"DIVERSOS", formaPagto:"Inter - Cartão", status:"Devendo" },
+            { id:88, data:"2026-02-25", vencimento:"2026-03-24", produto:"DIVERSOS", qtd:1, valorUnit:143.99, fornecedor:"DIVERSOS", formaPagto:"WD - Cartão", status:"Pago" },
+            { id:89, data:"2026-02-26", vencimento:"2026-03-10", produto:"CABO PP 3 x 6 mm", qtd:1, valorUnit:70.47, fornecedor:"POLIMAQ", formaPagto:"Daniel", status:"Pago" },
+            { id:90, data:"2026-03-01", vencimento:"2026-03-10", produto:"ALUGUEL DO BARRACÃO", qtd:1, valorUnit:450, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Pago" },
+            { id:91, data:"2026-03-01", vencimento:"2026-03-10", produto:"AGUA E FORÇA", qtd:1, valorUnit:80, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Pago" },
+            { id:92, data:"2026-03-05", vencimento:"2026-03-05", produto:"FRETE", qtd:1, valorUnit:80, fornecedor:"NOVA LINEA", formaPagto:"PIX", status:"Pago" },
+            { id:93, data:"2026-03-05", vencimento:"2026-03-05", produto:"SERVIÇOS DE FRETE", qtd:1, valorUnit:85, fornecedor:"FRENET", formaPagto:"PIX", status:"Pago" },
+            { id:94, data:"2026-03-05", vencimento:"2026-04-10", produto:"CHAPA INOX 304 - 3 METROS", qtd:1, valorUnit:1436, fornecedor:"PS INOX", formaPagto:"PIX", status:"Devendo" },
+            { id:95, data:"2026-03-05", vencimento:"2026-04-10", produto:"RESISTÊNCIA 4000 WATTS EM U VAPOR. - 220V - 400 x 80mm (N.S)", qtd:2, valorUnit:70, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Devendo" },
+            { id:96, data:"2026-03-05", vencimento:"2026-04-10", produto:"RESISTÊNCIA 3000 WATTS EM U VAPOR. - 220V - 200 x 80mm (N.S)", qtd:1, valorUnit:45, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Devendo" },
+            { id:97, data:"2026-03-05", vencimento:"2026-04-10", produto:"RESISTÊNCIA CABIDE 4500 WATTS", qtd:1, valorUnit:80, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Devendo" },
+            { id:98, data:"2026-03-11", vencimento:"2026-04-10", produto:"COMBUSTIVEL", qtd:1, valorUnit:100, fornecedor:"POSTO DE COMBUSTIVEL", formaPagto:"Elo Grafite - Cartão", status:"Devendo" },
+            { id:99, data:"2026-03-11", vencimento:"2026-04-10", produto:"DIVERSOS", qtd:1, valorUnit:165, fornecedor:"POLIMAQ", formaPagto:"Elo Grafite - Cartão", status:"Devendo" },
+            { id:100, data:"2026-03-13", vencimento:"2026-03-30", produto:"EMPRESTIMO NO CARTÃO CREDITO", qtd:1, valorUnit:2368.63, fornecedor:"EMPRÉSTIMO NUBANK", formaPagto:"PIX", status:"Devendo" }
         ],
-        vendas: [
-            { id: 1, data: "2026-01-08", produto: "Motor Elétrico 5CV", vendedor: "Wander", qtd: 1, valor: 2200, cliente: "Oficina do João", tipoVenda: "Direta", status: "Pago", entrega: "Entregue" },
-            { id: 2, data: "2026-01-12", produto: "Bomba Hidráulica P30", vendedor: "Daniel", qtd: 2, valor: 1600, cliente: "Fazenda São José", tipoVenda: "Direta", status: "Pago", entrega: "Entregue" },
-            { id: 3, data: "2026-01-25", produto: "Cilindro Hidráulico 50mm", vendedor: "Daniel", qtd: 3, valor: 950, cliente: "Construtora ABC", tipoVenda: "Direta", status: "Devendo", entrega: "Entregue" },
-            { id: 4, data: "2026-02-03", produto: "Mangueira Hidráulica 1/2", vendedor: "Wander", qtd: 20, valor: 80, cliente: "Auto Peças Central", tipoVenda: "Revenda", status: "Pago", entrega: "Entregue" },
-            { id: 5, data: "2026-02-14", produto: "Rolamento 6205", vendedor: "Daniel", qtd: 10, valor: 65, cliente: "Serralheria Forte", tipoVenda: "Revenda", status: "Pago", entrega: "Entregue" },
-            { id: 6, data: "2026-03-02", produto: "Válvula Direcional", vendedor: "Wander", qtd: 1, valor: 750, cliente: "Marcenaria Elite", tipoVenda: "Direta", status: "Devendo", entrega: "Não Entregue" },
-            { id: 7, data: "2026-03-08", produto: "Motor Elétrico 5CV", vendedor: "Daniel", qtd: 1, valor: 1800, cliente: "Loja do Campo", tipoVenda: "Revenda", status: "Pago", entrega: "Entregue" }
-        ],
-        estoque: [
-            { id: 1, produto: "Motor Elétrico 5CV", emEstoque: 4, compras: 6, vendas: 2, valorCompra: 1200, valorVenda: 2000 },
-            { id: 2, produto: "Bomba Hidráulica P30", emEstoque: 3, compras: 5, vendas: 2, valorCompra: 850, valorVenda: 1450 },
-            { id: 3, produto: "Cilindro Hidráulico 50mm", emEstoque: 5, compras: 8, vendas: 3, valorCompra: 450, valorVenda: 850 },
-            { id: 4, produto: "Mangueira Hidráulica 1/2", emEstoque: 80, compras: 100, vendas: 20, valorCompra: 35, valorVenda: 72.5 },
-            { id: 5, produto: "Rolamento 6205", emEstoque: 30, compras: 40, vendas: 10, valorCompra: 25, valorVenda: 57.5 },
-            { id: 6, produto: "Correia A-60", emEstoque: 15, compras: 20, vendas: 5, valorCompra: 18, valorVenda: 40 },
-            { id: 7, produto: "Válvula Direcional", emEstoque: 2, compras: 4, vendas: 2, valorCompra: 380, valorVenda: 675 },
-            { id: 8, produto: "Filtro Óleo Hidráulico", emEstoque: 12, compras: 15, vendas: 3, valorCompra: 45, valorVenda: 97.5 },
-            { id: 9, produto: "Óleo Hidráulico 68 (20L)", emEstoque: 8, compras: 13, vendas: 5, valorCompra: 180, valorVenda: 310 },
-            { id: 10, produto: "Retentor 50x70x10", emEstoque: 25, compras: 30, vendas: 5, valorCompra: 12, valorVenda: 31.5 }
-        ],
-        boletos: [
-            { id: 1, dataSaida: "2026-01-15", cliente: "Construtora ABC", valor: 2850, vencimento: "2026-02-15", dataReceber: "2026-02-20", situacao: "Pago" },
-            { id: 2, dataSaida: "2026-02-10", cliente: "Fazenda São José", valor: 3200, vencimento: "2026-03-10", dataReceber: "", situacao: "A Vencer" },
-            { id: 3, dataSaida: "2026-03-05", cliente: "Serralheria Forte", valor: 1650, vencimento: "2026-04-05", dataReceber: "", situacao: "A Vencer" }
-        ],
-        cheques: [
-            { id: 1, data: "2026-01-20", cliente: "Oficina do João", banco: "Bradesco", numCheque: "001234", valor: 2200, vencimento: "2026-02-20", compensou: "2026-02-22", situacao: "Depositado", obs: "" },
-            { id: 2, data: "2026-02-15", cliente: "Auto Peças Central", banco: "Itaú", numCheque: "005678", valor: 1600, vencimento: "2026-03-15", compensou: "", situacao: "Esperando para depositar", obs: "Aguardando data" }
-        ],
+        vendas: [],
+        estoque: [],
+        boletos: [],
+        cheques: [],
         prestacoes: [
-            { id: 1, nome: "Nubank", valorParcela: 2368.63, numParcelas: 5, meses: [2368.63, 2368.63, 2368.63, 2368.63, 2368.63, 0, 0, 0, 0, 0, 0, 0] },
-            { id: 2, nome: "Financiamento Veículo", valorParcela: 450, numParcelas: 12, meses: [450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 450] },
-            { id: 3, nome: "Empréstimo Banco", valorParcela: 280, numParcelas: 8, meses: [280, 280, 280, 280, 280, 280, 280, 280, 0, 0, 0, 0] },
-            { id: 4, nome: "Cartão Corporativo", valorParcela: 156.84, numParcelas: 3, meses: [156.84, 156.84, 156.84, 0, 0, 0, 0, 0, 0, 0, 0, 0] },
-            { id: 5, nome: "Equipamento Solda", valorParcela: 32, numParcelas: 6, meses: [32, 32, 32, 32, 32, 32, 0, 0, 0, 0, 0, 0] }
+            { id:1, nome:"Emprestimo", valorParcela:2368.63, numParcelas:5, meses:[0,0,2368.63,2368.63,2368.63,2368.63,2368.63,0,0,0,0,0] },
+            { id:2, nome:"Bling", valorParcela:214.83, numParcelas:1, meses:[0,0,214.83,0,0,0,0,0,0,0,0,0] },
+            { id:3, nome:"Frenet", valorParcela:85, numParcelas:10, meses:[0,0,85,85,85,85,85,85,85,85,85,85] },
+            { id:4, nome:"Flexivel 1/2 C.WD", valorParcela:269.96, numParcelas:1, meses:[0,0,269.96,0,0,0,0,0,0,0,0,0] },
+            { id:5, nome:"WD", valorParcela:349.05, numParcelas:1, meses:[0,0,0,349.05,0,0,0,0,0,0,0,0] }
         ],
         projetos: [
-            { id: 1, nome: "Reforma Galpão", valorParcela: 1500, numParcelas: 4, meses: [1500, 1500, 1500, 1500, 0, 0, 0, 0, 0, 0, 0, 0] },
-            { id: 2, nome: "Compra Torno CNC", valorParcela: 3000, numParcelas: 6, meses: [3000, 3000, 3000, 3000, 3000, 3000, 0, 0, 0, 0, 0, 0] }
+            { id:1, nome:"Cons. Carro", valorParcela:500, numParcelas:12, meses:[0,500,501,502,503,504,505,506,507,508,509,510] },
+            { id:2, nome:"C. Chapa", valorParcela:500, numParcelas:12, meses:[0,500,501,502,503,504,505,506,507,508,509,510] }
         ],
         pagClientes: [
-            { id: 1, data: "2026-01-20", cliente: "Construtora ABC", valor: 1500, formaPagto: "PIX", obs: "Parcela 1" },
-            { id: 2, data: "2026-02-10", cliente: "Construtora ABC", valor: 1350, formaPagto: "Boleto", obs: "Parcela 2" },
-            { id: 3, data: "2026-02-20", cliente: "Fazenda São José", valor: 3200, formaPagto: "Transferência", obs: "Pagamento total" }
+            { id:1, data:"2026-02-01", cliente:"RENATO (NOVA SERRANA)", valor:610, formaPagto:"PIX", obs:"" },
+            { id:2, data:"2026-02-01", cliente:"RENATO (NOVA SERRANA)", valor:1300, formaPagto:"PIX", obs:"" },
+            { id:3, data:"2026-02-10", cliente:"RENATO (NOVA SERRANA)", valor:1500, formaPagto:"PIX", obs:"" }
         ],
-        garantias: [
-            { id: 1, inicio: "2026-01-08", cliente: "Oficina do João", produto: "Motor Elétrico 5CV", vencimento: "2027-01-08", situacao: "Ativa" },
-            { id: 2, inicio: "2026-01-12", cliente: "Fazenda São José", produto: "Bomba Hidráulica P30", vencimento: "2027-01-12", situacao: "Ativa" },
-            { id: 3, inicio: "2025-06-15", cliente: "Maria Silva", produto: "Rolamento 6205", vencimento: "2025-12-15", situacao: "Vencida" },
-            { id: 4, inicio: "2026-02-03", cliente: "Auto Peças Central", produto: "Mangueira Hidráulica 1/2", vencimento: "2026-08-03", situacao: "Ativa" }
-        ],
-        notasEntrada: [
-            { id: 1, data: "2026-01-10", fornecedor: "Motores & Cia", valor: 2400, mesRef: 0 },
-            { id: 2, data: "2026-01-15", fornecedor: "Bombas Hidráulicas SA", valor: 2550, mesRef: 0 },
-            { id: 3, data: "2026-02-05", fornecedor: "Rolamentos Express", valor: 500, mesRef: 1 },
-            { id: 4, data: "2026-03-01", fornecedor: "Lubrificantes Pro", valor: 900, mesRef: 2 }
-        ],
-        notasSaida: [
-            { id: 1, data: "2026-01-08", cliente: "Oficina do João", valor: 2200, mesRef: 0 },
-            { id: 2, data: "2026-01-12", cliente: "Fazenda São José", valor: 3200, mesRef: 0 },
-            { id: 3, data: "2026-02-03", cliente: "Auto Peças Central", valor: 1600, mesRef: 1 },
-            { id: 4, data: "2026-03-02", cliente: "Marcenaria Elite", valor: 750, mesRef: 2 }
-        ],
+        garantias: [],
+        notasEntrada: [],
+        notasSaida: [],
         fluxoCaixa: {
             janeiro: {
                 entradas: [
-                    [5765.34, 0, 0, 0, 0, 0, 0, 2200, 0, 0, 0, 0, 3200, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2850, 0, 5765.34, 0, 0, 1932.78, 6300],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                    [539.45,0,0,0,0,0,0,1500,400,0,0,900,0,1500,1150,0,0,0,900,0,1000,0,0,0,0,5623.96,285,1660,0,2880,0],
+                    [0,0,0,0,0,0,0,0,760,0,0,0,0,180,1200,0,0,0,0,0,0,0,0,0,0,1135.05,0,990,0,350,0],
+                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2850,0,1710,0,0,0],
+                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
                 ],
-                dinheiro: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                wander: [0, 0, 0, 0, 0, 0, 0, 2200, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5765.34, 0, 0, 1932.78, 1414.72],
-                daniel: [5765.34, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3200, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2850, 0, 0, 0, 0, 0, 11147.28],
+                dinheiro: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,250,0,0,0,0,0,0,0,0,0,0,0,0,250,0,0],
+                wander: [0,0,0,0,0,0,0,0,1000,0,0,350,0,0,1000,0,0,0,250,0,0,0,0,0,0,2000,400,1000,0,1000,0],
+                daniel: [0,0,0,0,0,0,0,0,1000,0,0,350,0,0,1000,0,0,0,250,0,0,0,0,0,0,2000,400,1000,0,1000,0],
                 saidas: [
-                    [0, 0, 0, 0, 0, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0, 0, 0, 0, 0, 0, 0, 1200, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                    [0,0,0,0,85,95,160.9,12,89.9,0,0,100,0,97,768.63,187.09,0,0,400,33.9,70,0,0,0,0,74,1979.2,640.65,0,822,0],
+                    [0,0,0,0,50,0,0,79.8,530,0,0,43.95,0,18.5,1000,0,0,0,82.05,0,87,0,0,0,0,84.18,25,1404,0,382,0],
+                    [0,0,0,0,0,0,0,0,0,0,0,88.67,0,0,0,0,0,0,0,0,600,0,0,0,0,80,227,44,0,33.9,0],
+                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,393.42,0,0,0,0,246,0,199.9,0,360,0],
+                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,347,0,0,0,12.77,0],
+                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1713.35,0,0,0,0,0],
+                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,200,0,0,0,0,0],
+                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,65.7,0,0,0,0,0],
+                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
                 ],
-                combustivel: [0, 0, 0, 0, 0, 250, 0, 0, 0, 0, 250, 0, 0, 0, 0, 0, 250, 0, 0, 0, 0, 0, 250, 0, 0, 0, 0, 0, 0, 250, 0]
+                combustivel: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
             },
             fevereiro: {
                 entradas: [
-                    [0, 0, 1600, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 650, 0, 0, 0, 0, 0, 3200, 0, 0, 0, 0, 0, 0, 2500, 4266.10],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                    [0,0,0,610,300,1000,0,0,0,1500,990,0,150,0,0,0,0,1180,716.1,750,0,0,1200,1400,140,800,450,0],
+                    [0,0,0,0,0,0,0,0,0,0,30,0,0,0,0,0,0,0,0,0,0,0,0,0,1000,0,0,0],
+                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
                 ],
-                dinheiro: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                wander: [0, 0, 1600, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4266.10],
-                daniel: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 650, 0, 0, 0, 0, 0, 3200, 0, 0, 0, 0, 0, 0, 2500, 0],
+                dinheiro: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                wander: [0,0,0,0,0,0,0,0,0,500,0,0,0,0,0,0,0,0,500,350,0,0,500,0,0,0,0,0],
+                daniel: [0,0,0,0,0,0,0,0,0,500,0,0,0,0,0,0,0,0,500,350,0,0,500,0,0,0,0,0],
                 saidas: [
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 380, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                    [0,0,0,250,58,97,0,0,0,500,242.67,0,0,0,0,0,0,50,928,77.44,0,0,200,82.05,93.9,0,70.47,0],
+                    [0,0,0,25,0,1135,0,0,0,0,700,0,0,0,0,0,0,12,0,0,0,0,0,1300,1064.05,0,22.9,0],
+                    [0,0,0,48,0,30,0,0,0,0,58.28,0,0,0,0,0,0,31.4,0,0,0,0,0,0,0,0,0,0],
+                    [0,0,0,80,0,0,0,0,0,0,0,0,0,0,0,0,0,24.84,0,0,0,0,0,0,0,0,0,0],
+                    [0,0,0,178.47,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
                 ],
-                combustivel: [0, 0, 0, 0, 200, 0, 0, 0, 0, 200, 0, 0, 0, 0, 0, 200, 0, 0, 0, 0, 200, 0, 0, 0, 0, 0, 0, 156.63]
+                combustivel: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
             },
             marco: {
                 entradas: [
-                    [0, 750, 0, 0, 0, 0, 0, 1800, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4748.68],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                    [4198.68,700,0,400,0,0,1400,0,0,500,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    [100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
                 ],
-                dinheiro: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                wander: [0, 750, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4748.68],
-                daniel: [0, 0, 0, 0, 0, 0, 0, 1800, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                dinheiro: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                wander: [1000,0,0,0,0,0,500,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                daniel: [1000,0,0,0,0,0,500,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                 saidas: [
-                    [900, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                    [1521,85,0,225.84,0,0,31.98,0,0,0,241.2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    [177.68,80,0,0,0,0,0,0,0,0,755,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    [600,173,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    [0,162,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    [0,144,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
                 ],
-                combustivel: [0, 0, 0, 0, 200, 0, 0, 0, 0, 200, 0, 0, 0, 0, 0, 200, 0, 0, 0, 0, 200, 0, 0, 0, 0, 0, 0, 0, 0, 0, 98.68]
+                combustivel: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
             }
         }
     };
@@ -288,7 +307,8 @@ function loadData() {
     } else {
         appData = getDefaultData();
     }
-    // Garantir campos
+    if (!appData.empresa) appData.empresa = getDefaultData().empresa;
+    if (!appData.empresa.logo) appData.empresa.logo = "";
     if (!appData.config) appData.config = getDefaultData().config;
     if (!appData.clientes) appData.clientes = [];
     if (!appData.fornecedores) appData.fornecedores = [];
@@ -306,10 +326,23 @@ function loadData() {
     if (!appData.notasEntrada) appData.notasEntrada = [];
     if (!appData.notasSaida) appData.notasSaida = [];
     if (!appData.fluxoCaixa) appData.fluxoCaixa = {};
+    updateSidebarLogo();
 }
 
 function saveData() {
     localStorage.setItem('wdmaquinas_data', JSON.stringify(appData));
+}
+
+function updateSidebarLogo() {
+    var logoEl = document.getElementById('sidebarLogo');
+    var titleEl = document.getElementById('sidebarTitle');
+    if (appData.empresa && appData.empresa.logo) {
+        if (logoEl) { logoEl.src = appData.empresa.logo; logoEl.style.display = 'block'; }
+        if (titleEl) titleEl.style.display = 'none';
+    } else {
+        if (logoEl) logoEl.style.display = 'none';
+        if (titleEl) titleEl.style.display = 'block';
+    }
 }
 
 function formatCurrency(v) {
@@ -379,26 +412,18 @@ function getDiasEntreHoje(dataStr) {
 // ==================== NAVEGAÇÃO ====================
 function navigateTo(page) {
     currentPage = page;
-
-    // Remover active de todas as páginas
     var pages = document.querySelectorAll('.page');
     for (var i = 0; i < pages.length; i++) {
         pages[i].classList.remove('active');
     }
-
-    // Ativar página
     var target = document.getElementById('page-' + page);
     if (target) target.classList.add('active');
-
-    // Atualizar nav
     var navItems = document.querySelectorAll('.nav-item');
     for (var j = 0; j < navItems.length; j++) {
         navItems[j].classList.remove('active');
     }
     var clickedNav = event ? event.currentTarget : null;
     if (clickedNav) clickedNav.classList.add('active');
-
-    // Atualizar título
     var titles = {
         dashboard: 'Dashboard', janeiro: 'Janeiro 2026', fevereiro: 'Fevereiro 2026', marco: 'Março 2026',
         abril: 'Abril 2026', maio: 'Maio 2026', junho: 'Junho 2026', julho: 'Julho 2026',
@@ -411,11 +436,7 @@ function navigateTo(page) {
         configuracoes: 'Configurações', backup: 'Backup & Restauração'
     };
     document.getElementById('topbarTitle').textContent = titles[page] || page;
-
-    // Fechar sidebar mobile
     document.getElementById('sidebar').classList.remove('open');
-
-    // Renderizar conteúdo da página
     renderPage(page);
 }
 
@@ -441,7 +462,6 @@ function renderPage(page) {
     else if (page === 'configuracoes') renderConfiguracoes();
     else if (page === 'backup') renderBackupInfo();
     else {
-        // Meses
         for (var m = 0; m < MESES_CONFIG.length; m++) {
             if (page === MESES_CONFIG[m].chave) {
                 renderFluxoMes(MESES_CONFIG[m]);
@@ -454,6 +474,7 @@ function renderPage(page) {
 function toggleSidebar() {
     document.getElementById('sidebar').classList.toggle('open');
 }
+
 
 // ============================================================
 // PARTE 4 — DASHBOARD + FLUXO DE CAIXA MENSAL
