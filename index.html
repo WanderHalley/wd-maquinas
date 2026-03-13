@@ -1,1703 +1,1778 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WD Máquinas - Sistema de Gestão Financeira</title>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-
-:root {
-  --bg-primary: #0d0d0d;
-  --bg-secondary: #1a1a1a;
-  --bg-tertiary: #252525;
-  --bg-card: #1e1e1e;
-  --bg-card-hover: #2a2a2a;
-  --bg-input: #2d2d2d;
-  --orange-primary: #ff6600;
-  --orange-light: #ff8533;
-  --orange-dark: #cc5200;
-  --orange-glow: rgba(255, 102, 0, 0.15);
-  --orange-glow2: rgba(255, 102, 0, 0.08);
-  --text-primary: #f0f0f0;
-  --text-secondary: #a0a0a0;
-  --text-muted: #666;
-  --border-color: #333;
-  --border-light: #444;
-  --green: #00c853;
-  --green-dark: #1b5e20;
-  --red: #ff1744;
-  --red-dark: #b71c1c;
-  --blue: #2979ff;
-  --yellow: #ffd600;
-  --purple: #aa00ff;
-  --shadow: 0 4px 24px rgba(0,0,0,0.4);
-  --shadow-orange: 0 4px 24px rgba(255,102,0,0.2);
-  --radius: 12px;
-  --radius-sm: 8px;
-  --transition: all 0.3s ease;
-}
-
-* { margin: 0; padding: 0; box-sizing: border-box; }
-
-body {
-  font-family: 'Inter', sans-serif;
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  min-height: 100vh;
-  overflow-x: hidden;
-}
-
-/* SCROLLBAR */
-::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-track { background: var(--bg-secondary); }
-::-webkit-scrollbar-thumb { background: var(--orange-primary); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: var(--orange-light); }
-
-/* SIDEBAR */
-.sidebar {
-  position: fixed;
-  left: 0; top: 0;
-  width: 260px;
-  height: 100vh;
-  background: var(--bg-secondary);
-  border-right: 1px solid var(--border-color);
-  z-index: 1000;
-  display: flex;
-  flex-direction: column;
-  transition: var(--transition);
-  overflow-y: auto;
-}
-
-.sidebar-header {
-  padding: 20px;
-  text-align: center;
-  border-bottom: 1px solid var(--border-color);
-  background: linear-gradient(135deg, var(--bg-tertiary), var(--bg-secondary));
-}
-
-.sidebar-logo {
-  width: 60px; height: 60px;
-  background: var(--orange-primary);
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  margin: 0 auto 10px;
-  font-weight: 900; font-size: 22px; color: #000;
-  box-shadow: var(--shadow-orange);
-}
-
-.sidebar-header h2 {
-  font-size: 16px; font-weight: 700;
-  color: var(--orange-primary);
-  letter-spacing: 1px;
-}
-
-.sidebar-header small {
-  color: var(--text-secondary);
-  font-size: 11px;
-}
-
-.sidebar-nav { padding: 10px 0; flex: 1; }
-
-.nav-section {
-  padding: 8px 20px 4px;
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-}
-
-.nav-item {
-  display: flex; align-items: center; gap: 10px;
-  padding: 10px 20px;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: var(--transition);
-  font-size: 13px;
-  font-weight: 500;
-  border-left: 3px solid transparent;
-}
-
-.nav-item:hover {
-  background: var(--orange-glow2);
-  color: var(--text-primary);
-  border-left-color: var(--orange-primary);
-}
-
-.nav-item.active {
-  background: var(--orange-glow);
-  color: var(--orange-primary);
-  border-left-color: var(--orange-primary);
-  font-weight: 600;
-}
-
-.nav-item .nav-icon { font-size: 16px; width: 20px; text-align: center; }
-
-/* MAIN CONTENT */
-.main-content {
-  margin-left: 260px;
-  min-height: 100vh;
-  background: var(--bg-primary);
-}
-
-/* TOPBAR */
-.topbar {
-  position: sticky; top: 0;
-  background: rgba(13,13,13,0.95);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--border-color);
-  padding: 15px 30px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  z-index: 500;
-}
-
-.topbar-left { display: flex; align-items: center; gap: 15px; }
-
-.topbar-title {
-  font-size: 20px; font-weight: 700;
-  color: var(--text-primary);
-}
-
-.topbar-date {
-  font-size: 13px;
-  color: var(--text-secondary);
-  background: var(--bg-tertiary);
-  padding: 6px 14px;
-  border-radius: 20px;
-  border: 1px solid var(--border-color);
-}
-
-.topbar-actions { display: flex; gap: 10px; }
-
-.btn {
-  padding: 8px 18px;
-  border: none;
-  border-radius: var(--radius-sm);
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: var(--transition);
-  display: flex; align-items: center; gap: 6px;
-}
-
-.btn-primary {
-  background: var(--orange-primary);
-  color: #000;
-}
-.btn-primary:hover {
-  background: var(--orange-light);
-  box-shadow: var(--shadow-orange);
-  transform: translateY(-1px);
-}
-
-.btn-secondary {
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
-}
-.btn-secondary:hover {
-  background: var(--bg-card-hover);
-  border-color: var(--orange-primary);
-}
-
-.btn-danger {
-  background: var(--red);
-  color: #fff;
-}
-.btn-danger:hover { background: #ff3d00; }
-
-.btn-success {
-  background: var(--green);
-  color: #000;
-}
-.btn-success:hover { background: #00e676; }
-
-.btn-sm { padding: 6px 12px; font-size: 12px; }
-
-/* PAGES */
-.page { display: none; padding: 30px; }
-.page.active { display: block; }
-
-/* DASHBOARD CARDS */
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 20px;
-  margin-bottom: 30px;
-}
-
-.dash-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius);
-  padding: 22px;
-  transition: var(--transition);
-  position: relative;
-  overflow: hidden;
-}
-
-.dash-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 3px;
-  background: var(--orange-primary);
-  opacity: 0;
-  transition: var(--transition);
-}
-
-.dash-card:hover {
-  border-color: var(--orange-primary);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-orange);
-}
-
-.dash-card:hover::before { opacity: 1; }
-
-.dash-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-}
-
-.dash-card-title {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.dash-card-icon {
-  width: 36px; height: 36px;
-  border-radius: var(--radius-sm);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px;
-}
-
-.dash-card-value {
-  font-size: 28px;
-  font-weight: 800;
-  color: var(--text-primary);
-  margin-bottom: 4px;
-}
-
-.dash-card-sub {
-  font-size: 12px;
-  color: var(--text-secondary);
-}
-
-.dash-card-sub.positive { color: var(--green); }
-.dash-card-sub.negative { color: var(--red); }
-
-/* CHARTS AREA */
-.charts-grid {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 20px;
-  margin-bottom: 30px;
-}
-
-.chart-container {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius);
-  padding: 22px;
-}
-
-.chart-title {
-  font-size: 15px;
-  font-weight: 700;
-  margin-bottom: 20px;
-  color: var(--text-primary);
-  display: flex; align-items: center; gap: 8px;
-}
-
-.chart-title span { color: var(--orange-primary); }
-
-/* BAR CHART CSS */
-.bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 200px; padding-top: 10px; }
-
-.bar-group {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  height: 100%;
-  justify-content: flex-end;
-}
-
-.bar-pair { display: flex; gap: 3px; align-items: flex-end; width: 100%; justify-content: center; }
-
-.bar {
-  width: 14px;
-  border-radius: 3px 3px 0 0;
-  transition: var(--transition);
-  min-height: 2px;
-  position: relative;
-}
-
-.bar.entrada { background: var(--orange-primary); }
-.bar.saida { background: var(--red); opacity: 0.7; }
-
-.bar:hover { opacity: 0.8; transform: scaleY(1.02); }
-
-.bar-label {
-  font-size: 10px;
-  color: var(--text-secondary);
-  font-weight: 600;
-  margin-top: 6px;
-}
-
-/* VENDEDORES CHART */
-.vendedor-item {
-  display: flex; align-items: center; gap: 12px;
-  margin-bottom: 16px;
-}
-
-.vendedor-avatar {
-  width: 40px; height: 40px;
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-weight: 700; font-size: 14px; color: #000;
-}
-
-.vendedor-info { flex: 1; }
-.vendedor-name { font-size: 14px; font-weight: 600; }
-.vendedor-value { font-size: 12px; color: var(--text-secondary); }
-
-.progress-bar {
-  height: 8px;
-  background: var(--bg-tertiary);
-  border-radius: 4px;
-  margin-top: 6px;
-  overflow: hidden;
-}
-
-.progress-fill {
-  height: 100%;
-  border-radius: 4px;
-  transition: width 1s ease;
-}
-
-/* RECENT TABLE */
-.table-container {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius);
-  overflow: hidden;
-  margin-bottom: 20px;
-}
-
-.table-header {
-  padding: 16px 22px;
-  border-bottom: 1px solid var(--border-color);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.table-header h3 { font-size: 15px; font-weight: 700; }
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-thead th {
-  background: var(--bg-tertiary);
-  padding: 12px 16px;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  text-align: left;
-  border-bottom: 1px solid var(--border-color);
-}
-
-tbody td {
-  padding: 12px 16px;
-  font-size: 13px;
-  border-bottom: 1px solid var(--border-color);
-  color: var(--text-primary);
-}
-
-tbody tr:hover { background: var(--orange-glow2); }
-
-.status-badge {
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 11px;
-  font-weight: 600;
-}
-
-.status-pago { background: rgba(0,200,83,0.15); color: var(--green); }
-.status-devendo { background: rgba(255,23,68,0.15); color: var(--red); }
-.status-guardado { background: rgba(255,214,0,0.15); color: var(--yellow); }
-
-/* CONFIG PAGE */
-.config-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 20px;
-}
-
-.config-section {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius);
-  overflow: hidden;
-}
-
-.config-section-header {
-  padding: 16px 20px;
-  background: var(--bg-tertiary);
-  border-bottom: 1px solid var(--border-color);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.config-section-header h3 {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--orange-primary);
-}
-
-.config-list { padding: 10px; max-height: 300px; overflow-y: auto; }
-
-.config-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 12px;
-  border-radius: var(--radius-sm);
-  transition: var(--transition);
-}
-
-.config-item:hover { background: var(--bg-tertiary); }
-
-.config-item-name { font-size: 13px; font-weight: 500; }
-
-.config-item-actions { display: flex; gap: 6px; }
-
-.btn-icon {
-  width: 30px; height: 30px;
-  border: none;
-  border-radius: 6px;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer;
-  transition: var(--transition);
-  font-size: 13px;
-}
-
-.btn-icon.edit { background: rgba(41,121,255,0.15); color: var(--blue); }
-.btn-icon.edit:hover { background: rgba(41,121,255,0.3); }
-.btn-icon.delete { background: rgba(255,23,68,0.15); color: var(--red); }
-.btn-icon.delete:hover { background: rgba(255,23,68,0.3); }
-
-/* ADD FORM */
-.add-form {
-  display: flex; gap: 8px;
-  padding: 12px;
-  border-top: 1px solid var(--border-color);
-}
-
-.add-form input {
-  flex: 1;
-  padding: 8px 12px;
-  background: var(--bg-input);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  color: var(--text-primary);
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  outline: none;
-  transition: var(--transition);
-}
-
-.add-form input:focus { border-color: var(--orange-primary); }
-
-/* MODAL */
-.modal-overlay {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.7);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
-}
-
-.modal-overlay.show { display: flex; }
-
-.modal {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius);
-  width: 90%;
-  max-width: 500px;
-  box-shadow: var(--shadow);
-}
-
-.modal-header {
-  padding: 20px 24px;
-  border-bottom: 1px solid var(--border-color);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.modal-header h3 { font-size: 16px; font-weight: 700; color: var(--orange-primary); }
-
-.modal-close {
-  width: 32px; height: 32px;
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  color: var(--text-secondary);
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 16px;
-  transition: var(--transition);
-}
-.modal-close:hover { background: var(--red); color: #fff; border-color: var(--red); }
-
-.modal-body { padding: 24px; }
-
-.modal-footer {
-  padding: 16px 24px;
-  border-top: 1px solid var(--border-color);
-  display: flex; justify-content: flex-end; gap: 10px;
-}
-
-.form-group { margin-bottom: 16px; }
-
-.form-group label {
-  display: block;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  margin-bottom: 6px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.form-group input, .form-group select, .form-group textarea {
-  width: 100%;
-  padding: 10px 14px;
-  background: var(--bg-input);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  color: var(--text-primary);
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  outline: none;
-  transition: var(--transition);
-}
-
-.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-  border-color: var(--orange-primary);
-  box-shadow: 0 0 0 3px var(--orange-glow);
-}
-
-/* BACKUP SECTION */
-.backup-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  margin-top: 20px;
-}
-
-.backup-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius);
-  padding: 30px;
-  text-align: center;
-}
-
-.backup-card:hover { border-color: var(--orange-primary); }
-
-.backup-icon {
-  font-size: 48px;
-  margin-bottom: 16px;
-}
-
-.backup-card h3 {
-  font-size: 18px;
-  font-weight: 700;
-  margin-bottom: 8px;
-}
-
-.backup-card p {
-  font-size: 13px;
-  color: var(--text-secondary);
-  margin-bottom: 20px;
-}
-
-/* INFO CARDS ROW */
-.info-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 20px;
-  margin-bottom: 30px;
-}
-
-.info-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius);
-  padding: 20px;
-}
-
-.info-card h4 {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--orange-primary);
-  margin-bottom: 12px;
-}
-
-.info-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 8px 0;
-  border-bottom: 1px solid var(--border-color);
-  font-size: 13px;
-}
-
-.info-item:last-child { border-bottom: none; }
-.info-item .label { color: var(--text-secondary); }
-.info-item .value { font-weight: 600; }
-
-/* TOAST */
-.toast-container {
-  position: fixed;
-  top: 20px; right: 20px;
-  z-index: 3000;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.toast {
-  padding: 14px 20px;
-  border-radius: var(--radius-sm);
-  font-size: 13px;
-  font-weight: 500;
-  box-shadow: var(--shadow);
-  animation: slideIn 0.3s ease;
-  display: flex; align-items: center; gap: 8px;
-}
-
-.toast.success { background: var(--green); color: #000; }
-.toast.error { background: var(--red); color: #fff; }
-.toast.info { background: var(--orange-primary); color: #000; }
-
-@keyframes slideIn {
-  from { transform: translateX(100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
-}
-
-/* MOBILE */
-.menu-toggle {
-  display: none;
-  background: var(--orange-primary);
-  border: none;
-  color: #000;
-  padding: 8px 12px;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  font-size: 18px;
-}
-
-@media (max-width: 768px) {
-  .sidebar { transform: translateX(-100%); }
-  .sidebar.open { transform: translateX(0); }
-  .main-content { margin-left: 0; }
-  .menu-toggle { display: block; }
-  .charts-grid { grid-template-columns: 1fr; }
-  .backup-grid { grid-template-columns: 1fr; }
-  .dashboard-grid { grid-template-columns: 1fr 1fr; }
-}
-
-/* HIDDEN FILE INPUT */
-.hidden-input { display: none; }
-
-/* BADGE COUNTER */
-.nav-badge {
-  background: var(--red);
-  color: #fff;
-  font-size: 10px;
-  font-weight: 700;
-  padding: 2px 6px;
-  border-radius: 10px;
-  margin-left: auto;
-}
-
-/* META PROGRESS */
-.meta-container { margin-top: 10px; }
-
-.meta-bar {
-  height: 12px;
-  background: var(--bg-tertiary);
-  border-radius: 6px;
-  overflow: hidden;
-  position: relative;
-}
-
-.meta-fill {
-  height: 100%;
-  border-radius: 6px;
-  transition: width 1.5s ease;
-  background: linear-gradient(90deg, var(--orange-primary), var(--orange-light));
-}
-
-.meta-text {
-  display: flex;
-  justify-content: space-between;
-  font-size: 11px;
-  color: var(--text-secondary);
-  margin-top: 6px;
-}
-
-/* DIVIDAS ALERT */
-.alert-box {
-  background: rgba(255,23,68,0.1);
-  border: 1px solid rgba(255,23,68,0.3);
-  border-radius: var(--radius-sm);
-  padding: 12px 16px;
-  margin-bottom: 15px;
-  display: flex; align-items: center; gap: 8px;
-  font-size: 13px;
-  color: var(--red);
-}
-
-.alert-box.warning {
-  background: rgba(255,214,0,0.1);
-  border-color: rgba(255,214,0,0.3);
-  color: var(--yellow);
-}
-
-.alert-box.success-alert {
-  background: rgba(0,200,83,0.1);
-  border-color: rgba(0,200,83,0.3);
-  color: var(--green);
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WD Máquinas - Sistema de Fluxo de Caixa 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-tertiary: #1a1a1a;
+            --bg-card: #161616;
+            --bg-hover: #1e1e1e;
+            --orange-primary: #ff6600;
+            --orange-secondary: #ff8533;
+            --orange-dark: #cc5200;
+            --orange-light: #ffad75;
+            --orange-glow: rgba(255, 102, 0, 0.15);
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --text-muted: #666666;
+            --border-color: #2a2a2a;
+            --success: #00c853;
+            --danger: #ff1744;
+            --warning: #ffc107;
+            --info: #2196f3;
+            --shadow: 0 4px 24px rgba(0,0,0,0.4);
+            --radius: 12px;
+            --radius-sm: 8px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-secondary); }
+        ::-webkit-scrollbar-thumb { background: var(--orange-primary); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--orange-secondary); }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 260px;
+            min-width: 260px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            transition: var(--transition);
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--orange-primary);
+            letter-spacing: 1px;
+        }
+
+        .sidebar-header p {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+            letter-spacing: 0.5px;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 0;
+        }
+
+        .nav-section {
+            margin-bottom: 8px;
+        }
+
+        .nav-section-title {
+            padding: 8px 20px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.85rem;
+            font-weight: 500;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            background: var(--orange-glow);
+            color: var(--orange-primary);
+            border-left-color: var(--orange-primary);
+        }
+
+        .nav-item .nav-icon {
+            width: 20px;
+            margin-right: 12px;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        /* TOPBAR */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .topbar {
+            height: 60px;
+            min-height: 60px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .topbar-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .topbar-date {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: var(--orange-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--orange-secondary);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 102, 0, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-hover);
+            border-color: var(--orange-primary);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 0.75rem;
+        }
+
+        /* CONTENT AREA */
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* CARDS */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 20px;
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            border-color: var(--orange-primary);
+            box-shadow: 0 0 20px var(--orange-glow);
+        }
+
+        .card-icon {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+
+        .card-value {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--orange-primary);
+            margin-bottom: 4px;
+        }
+
+        .card-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* TABLES */
+        .table-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .table-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .table-header h3 {
+            font-size: 0.95rem;
+            font-weight: 700;
+        }
+
+        .table-scroll {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 12px 16px;
+            font-size: 0.83rem;
+            border-bottom: 1px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        tr:hover td {
+            background: var(--bg-hover);
+        }
+
+        /* FLUXO MENSAL */
+        .fluxo-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .fluxo-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 12px;
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .fluxo-summary .summary-card {
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-sm);
+            padding: 14px;
+            text-align: center;
+        }
+
+        .summary-card .s-value {
+            font-size: 1.2rem;
+            font-weight: 800;
+        }
+
+        .summary-card .s-label {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .fluxo-scroll {
+            overflow-x: auto;
+            overflow-y: auto;
+            max-height: 65vh;
+        }
+
+        .fluxo-scroll table th,
+        .fluxo-scroll table td {
+            padding: 6px 10px;
+            font-size: 0.75rem;
+            min-width: 90px;
+            text-align: center;
+        }
+
+        .fluxo-scroll table .col-desc {
+            min-width: 160px;
+            text-align: left;
+            position: sticky;
+            left: 0;
+            background: var(--bg-card);
+            z-index: 2;
+            font-weight: 600;
+        }
+
+        .fluxo-scroll table th.col-desc {
+            background: var(--bg-tertiary);
+        }
+
+        .fluxo-scroll .row-header td {
+            background: var(--orange-primary);
+            color: white;
+            font-weight: 700;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+        }
+
+        .fluxo-scroll .row-total td {
+            background: var(--bg-tertiary);
+            font-weight: 700;
+            color: var(--orange-primary);
+        }
+
+        .fluxo-scroll .row-separator td {
+            height: 4px;
+            padding: 0;
+            background: var(--orange-primary);
+        }
+
+        .fluxo-scroll .row-saldo td {
+            background: var(--bg-tertiary);
+            font-weight: 600;
+            color: var(--success);
+        }
+
+        .fluxo-scroll .editable:hover {
+            background: var(--orange-glow);
+            cursor: pointer;
+        }
+
+        .fluxo-scroll input.cell-edit {
+            width: 80px;
+            background: var(--bg-primary);
+            border: 1px solid var(--orange-primary);
+            color: var(--text-primary);
+            padding: 2px 4px;
+            font-size: 0.75rem;
+            text-align: center;
+            border-radius: 4px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* MODAL */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            width: 90%;
+            max-width: 600px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-header h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--orange-primary);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .modal-close:hover {
+            color: var(--danger);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-footer {
+            padding: 16px 20px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            transition: var(--transition);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--orange-primary);
+            box-shadow: 0 0 0 3px var(--orange-glow);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        /* TOAST */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2000;
+        }
+
+        .toast {
+            background: var(--bg-card);
+            border: 1px solid var(--orange-primary);
+            border-radius: var(--radius-sm);
+            padding: 14px 20px;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            box-shadow: var(--shadow);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* PROGRESS BAR */
+        .progress-container {
+            margin-bottom: 16px;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            margin-bottom: 6px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--orange-primary), var(--orange-secondary));
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        /* BADGES */
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .badge-success { background: rgba(0,200,83,0.15); color: var(--success); }
+        .badge-danger { background: rgba(255,23,68,0.15); color: var(--danger); }
+        .badge-warning { background: rgba(255,193,7,0.15); color: var(--warning); }
+        .badge-info { background: rgba(33,150,243,0.15); color: var(--info); }
+        .badge-orange { background: var(--orange-glow); color: var(--orange-primary); }
+
+        /* SEARCH */
+        .search-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .search-bar input {
+            flex: 1;
+            padding: 10px 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            border-color: var(--orange-primary);
+        }
+
+        /* CONFIG LIST */
+        .config-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+
+        .config-section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 20px;
+            background: var(--bg-tertiary);
+            cursor: pointer;
+        }
+
+        .config-section-header h4 {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--orange-primary);
+        }
+
+        .config-section-body {
+            padding: 16px 20px;
+        }
+
+        .config-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-sm);
+            margin-bottom: 6px;
+            font-size: 0.83rem;
+        }
+
+        .config-item-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .config-item-actions button {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: var(--transition);
+        }
+
+        .config-item-actions button:hover {
+            color: var(--orange-primary);
+        }
+
+        .config-item-actions button.del:hover {
+            color: var(--danger);
+        }
+
+        .config-add {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .config-add input {
+            flex: 1;
+            padding: 8px 12px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.83rem;
+        }
+
+        .config-add input:focus {
+            outline: none;
+            border-color: var(--orange-primary);
+        }
+
+        /* BACKUP PAGE */
+        .backup-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .backup-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 24px;
+            text-align: center;
+        }
+
+        .backup-card h4 {
+            color: var(--orange-primary);
+            margin-bottom: 8px;
+        }
+
+        .backup-card p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        /* CADASTRO STYLES */
+        .cadastro-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--orange-primary);
+        }
+
+        .cadastro-avatar-placeholder {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg-tertiary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            color: var(--text-muted);
+            border: 2px solid var(--border-color);
+        }
+
+        .produto-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .produto-card:hover {
+            border-color: var(--orange-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        }
+
+        .produto-card-img {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+            background: var(--bg-tertiary);
+        }
+
+        .produto-card-body {
+            padding: 14px;
+        }
+
+        .produto-card-body h4 {
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+        }
+
+        .produto-card-body .preco {
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--orange-primary);
+        }
+
+        .produto-card-body .preco-label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+        }
+
+        .produto-card-actions {
+            padding: 10px 14px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 6px;
+        }
+
+        .img-upload-area {
+            border: 2px dashed var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-bottom: 12px;
+        }
+
+        .img-upload-area:hover {
+            border-color: var(--orange-primary);
+        }
+
+        .img-upload-area img {
+            max-width: 100%;
+            max-height: 120px;
+            border-radius: var(--radius-sm);
+        }
+
+        .img-upload-area p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* ESTOQUE BAR */
+        .estoque-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--bg-primary);
+            border-radius: 3px;
+            margin-top: 4px;
+        }
+
+        .estoque-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s;
+        }
+
+        .estoque-baixo .estoque-bar-fill { background: var(--danger); }
+        .estoque-medio .estoque-bar-fill { background: var(--warning); }
+        .estoque-alto .estoque-bar-fill { background: var(--success); }
+
+        /* VENDOR BADGES */
+        .badge-wander { background: rgba(33,150,243,0.15); color: #2196f3; }
+        .badge-daniel { background: rgba(0,200,83,0.15); color: #00c853; }
+
+        /* PRESTACAO / PROJETO CARDS */
+        .prestacao-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .prestacao-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            background: var(--bg-tertiary);
+        }
+
+        .prestacao-card-header h4 {
+            color: var(--orange-primary);
+            font-size: 0.9rem;
+        }
+
+        .prestacao-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 8px;
+            padding: 16px 20px;
+        }
+
+        .prestacao-mes {
+            text-align: center;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-sm);
+            padding: 10px 6px;
+        }
+
+        .prestacao-mes .mes-nome {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .prestacao-mes .mes-valor {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--orange-primary);
+            margin-top: 4px;
+        }
+
+        /* GARANTIA DIAS */
+        .dias-restantes { font-weight: 700; }
+        .dias-ok { color: var(--success); }
+        .dias-alerta { color: var(--warning); }
+        .dias-vencido { color: var(--danger); }
+
+        /* RELATORIOS */
+        .relatorio-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .relatorio-section-header {
+            padding: 16px 20px;
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .relatorio-section-header h4 {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--orange-primary);
+        }
+
+        .relatorio-section-body {
+            padding: 20px;
+        }
+
+        .relatorio-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.85rem;
+        }
+
+        .relatorio-item:last-child {
+            border-bottom: none;
+        }
+
+        .relatorio-total {
+            font-weight: 800;
+            color: var(--orange-primary);
+            font-size: 1rem;
+        }
+
+        /* MEI DOCUMENT */
+        .mei-doc {
+            background: white;
+            color: #333;
+            padding: 40px;
+            border-radius: var(--radius);
+            max-width: 800px;
+            margin: 0 auto;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .mei-doc h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+
+        .mei-doc table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+
+        .mei-doc table th,
+        .mei-doc table td {
+            border: 1px solid #999;
+            padding: 8px 12px;
+            font-size: 0.85rem;
+            color: #333;
+            background: white;
+        }
+
+        .mei-doc table th {
+            background: #eee;
+            font-weight: 700;
+            text-transform: none;
+            letter-spacing: 0;
+        }
+
+        /* CHART BAR (CSS only) */
+        .chart-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .chart-container h3 {
+            font-size: 0.9rem;
+            margin-bottom: 16px;
+            color: var(--orange-primary);
+        }
+
+        .chart-bars {
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+            height: 200px;
+            padding-top: 20px;
+        }
+
+        .chart-bar-group {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100%;
+            justify-content: flex-end;
+        }
+
+        .chart-bar {
+            width: 30px;
+            border-radius: 4px 4px 0 0;
+            transition: height 0.5s ease;
+        }
+
+        .chart-bar.entrada { background: var(--orange-primary); }
+        .chart-bar.saida { background: var(--text-muted); }
+
+        .chart-bar-label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+
+        .chart-bar-value {
+            font-size: 0.6rem;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .chart-bars-double {
+            display: flex;
+            gap: 4px;
+            align-items: flex-end;
+            height: 100%;
+        }
+
+        /* FILTER BAR */
+        .filter-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .filter-bar select {
+            padding: 8px 12px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.83rem;
+        }
+
+        .filter-bar select:focus {
+            outline: none;
+            border-color: var(--orange-primary);
+        }
+
+        /* COUNTER */
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .page-header h2 {
+            font-size: 1.2rem;
+            font-weight: 800;
+        }
+
+        .page-header .counter {
+            background: var(--orange-glow);
+            color: var(--orange-primary);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        /* VIEW MODAL */
+        .view-detail {
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+        }
+
+        .view-detail .view-label {
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .view-avatar-lg {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--orange-primary);
+            margin: 0 auto 16px auto;
+            display: block;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: -260px;
+            }
+
+            .sidebar.open {
+                left: 0;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            .cards-grid {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .fluxo-summary {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            }
+        }
+    </style>
 </head>
 <body>
-
-<!-- SIDEBAR -->
-<aside class="sidebar" id="sidebar">
-  <div class="sidebar-header">
-    <div class="sidebar-logo">WD</div>
-    <h2>WD MÁQUINAS</h2>
-    <small id="sidebarDate"></small>
-  </div>
-  <nav class="sidebar-nav">
-    <div class="nav-section">Principal</div>
-    <div class="nav-item active" onclick="navigateTo('dashboard')">
-      <span class="nav-icon">📊</span> Dashboard
-    </div>
-
-    <div class="nav-section">Fluxo de Caixa</div>
-    <div class="nav-item" onclick="navigateTo('janeiro')"><span class="nav-icon">📅</span> Janeiro</div>
-    <div class="nav-item" onclick="navigateTo('fevereiro')"><span class="nav-icon">📅</span> Fevereiro</div>
-    <div class="nav-item" onclick="navigateTo('marco')"><span class="nav-icon">📅</span> Março</div>
-    <div class="nav-item" onclick="navigateTo('abril')"><span class="nav-icon">📅</span> Abril</div>
-    <div class="nav-item" onclick="navigateTo('maio')"><span class="nav-icon">📅</span> Maio</div>
-    <div class="nav-item" onclick="navigateTo('junho')"><span class="nav-icon">📅</span> Junho</div>
-    <div class="nav-item" onclick="navigateTo('julho')"><span class="nav-icon">📅</span> Julho</div>
-    <div class="nav-item" onclick="navigateTo('agosto')"><span class="nav-icon">📅</span> Agosto</div>
-    <div class="nav-item" onclick="navigateTo('setembro')"><span class="nav-icon">📅</span> Setembro</div>
-    <div class="nav-item" onclick="navigateTo('outubro')"><span class="nav-icon">📅</span> Outubro</div>
-    <div class="nav-item" onclick="navigateTo('novembro')"><span class="nav-icon">📅</span> Novembro</div>
-    <div class="nav-item" onclick="navigateTo('dezembro')"><span class="nav-icon">📅</span> Dezembro</div>
-
-    <div class="nav-section">Gestão</div>
-    <div class="nav-item" onclick="navigateTo('compras')"><span class="nav-icon">🛒</span> Compras</div>
-    <div class="nav-item" onclick="navigateTo('vendas')"><span class="nav-icon">💰</span> Vendas</div>
-    <div class="nav-item" onclick="navigateTo('estoque')"><span class="nav-icon">📦</span> Estoque</div>
-    <div class="nav-item" onclick="navigateTo('produtos')"><span class="nav-icon">🏷️</span> Produtos</div>
-
-    <div class="nav-section">Cadastros</div>
-    <div class="nav-item" onclick="navigateTo('clientes')"><span class="nav-icon">👥</span> Clientes</div>
-    <div class="nav-item" onclick="navigateTo('fornecedores')"><span class="nav-icon">🏭</span> Fornecedores</div>
-    <div class="nav-item" onclick="navigateTo('pfornecedores')"><span class="nav-icon">📋</span> P. Fornecedores</div>
-
-    <div class="nav-section">Financeiro</div>
-    <div class="nav-item" onclick="navigateTo('boletos')"><span class="nav-icon">📄</span> Boletos</div>
-    <div class="nav-item" onclick="navigateTo('cheques')"><span class="nav-icon">📝</span> Cheques</div>
-    <div class="nav-item" onclick="navigateTo('prestacoes')"><span class="nav-icon">💳</span> Prestações</div>
-    <div class="nav-item" onclick="navigateTo('projetos')"><span class="nav-icon">🎯</span> Projetos</div>
-    <div class="nav-item" onclick="navigateTo('pagclientes')"><span class="nav-icon">💵</span> Pag. Clientes</div>
-    <div class="nav-item" onclick="navigateTo('garantias')"><span class="nav-icon">🛡️</span> Garantias</div>
-
-    <div class="nav-section">Relatórios</div>
-    <div class="nav-item" onclick="navigateTo('relatorios')"><span class="nav-icon">📈</span> Relatórios</div>
-    <div class="nav-item" onclick="navigateTo('notasentrada')"><span class="nav-icon">📥</span> Notas Entrada</div>
-    <div class="nav-item" onclick="navigateTo('notassaida')"><span class="nav-icon">📤</span> Notas Saída</div>
-    <div class="nav-item" onclick="navigateTo('receitasmei')"><span class="nav-icon">📑</span> Receitas MEI</div>
-
-    <div class="nav-section">Sistema</div>
-    <div class="nav-item" onclick="navigateTo('configuracoes')"><span class="nav-icon">⚙️</span> Configurações</div>
-    <div class="nav-item" onclick="navigateTo('backup')"><span class="nav-icon">💾</span> Backup</div>
-  </nav>
-</aside>
-
-<!-- MAIN -->
-<main class="main-content">
-  <!-- TOPBAR -->
-  <header class="topbar">
-    <div class="topbar-left">
-      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
-      <h1 class="topbar-title" id="pageTitle">Dashboard</h1>
-      <span class="topbar-date" id="topbarDate"></span>
-    </div>
-    <div class="topbar-actions">
-      <button class="btn btn-secondary btn-sm" onclick="navigateTo('backup')">💾 Backup</button>
-      <button class="btn btn-primary btn-sm" onclick="navigateTo('configuracoes')">⚙️ Config</button>
-    </div>
-  </header>
-
-  <!-- DASHBOARD PAGE -->
-  <div class="page active" id="page-dashboard">
-    <!-- ALERTS -->
-    <div id="dashAlerts"></div>
-
-    <!-- KPI CARDS -->
-    <div class="dashboard-grid" id="dashCards"></div>
-
-    <!-- META VENDAS -->
-    <div class="info-row">
-      <div class="info-card">
-        <h4>📊 Meta de Vendas Mensal</h4>
-        <div class="meta-container">
-          <div class="meta-bar">
-            <div class="meta-fill" id="metaVendasFill" style="width: 0%"></div>
-          </div>
-          <div class="meta-text">
-            <span id="metaVendasAtual">R$ 0,00</span>
-            <span>Meta: R$ 30.000,00</span>
-          </div>
-        </div>
-      </div>
-      <div class="info-card">
-        <h4>👤 Meta Salário - WANDER</h4>
-        <div class="meta-container">
-          <div class="meta-bar">
-            <div class="meta-fill" id="metaWanderFill" style="width: 0%"></div>
-          </div>
-          <div class="meta-text">
-            <span id="metaWanderAtual">R$ 0,00</span>
-            <span>Meta: R$ 6.000,00</span>
-          </div>
-        </div>
-      </div>
-      <div class="info-card">
-        <h4>👤 Meta Salário - DANIEL</h4>
-        <div class="meta-container">
-          <div class="meta-bar">
-            <div class="meta-fill" id="metaDanielFill" style="width: 0%"></div>
-          </div>
-          <div class="meta-text">
-            <span id="metaDanielAtual">R$ 0,00</span>
-            <span>Meta: R$ 6.000,00</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- CHARTS -->
-    <div class="charts-grid">
-      <div class="chart-container">
-        <div class="chart-title"><span>📊</span> Entradas vs Saídas por Mês</div>
-        <div class="bar-chart" id="barChart"></div>
-      </div>
-      <div class="chart-container">
-        <div class="chart-title"><span>👥</span> Vendedores</div>
-        <div id="vendedoresChart"></div>
-      </div>
-    </div>
-
-    <!-- INFO CARDS -->
-    <div class="info-row">
-      <div class="info-card">
-        <h4>💰 Resumo Financeiro Mensal</h4>
-        <div id="resumoMensal"></div>
-      </div>
-      <div class="info-card">
-        <h4>📋 Compras a Vencer</h4>
-        <div id="comprasVencer"></div>
-      </div>
-      <div class="info-card">
-        <h4>💳 Prestações do Mês</h4>
-        <div id="prestacoesResumo"></div>
-      </div>
-    </div>
-
-    <!-- RECENT TABLES -->
-    <div class="table-container">
-      <div class="table-header">
-        <h3>🛒 Últimas Compras</h3>
-      </div>
-      <div style="overflow-x: auto;">
-        <table>
-          <thead>
-            <tr>
-              <th>Data</th><th>Produto</th><th>Fornecedor</th><th>Valor</th><th>Situação</th>
-            </tr>
-          </thead>
-          <tbody id="recentCompras"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <div class="table-container">
-      <div class="table-header">
-        <h3>💰 Últimas Vendas</h3>
-      </div>
-      <div style="overflow-x: auto;">
-        <table>
-          <thead>
-            <tr>
-              <th>Data</th><th>Produto</th><th>Cliente</th><th>Vendedor</th><th>Valor</th><th>Situação</th>
-            </tr>
-          </thead>
-          <tbody id="recentVendas"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- CONFIGURAÇÕES PAGE -->
-  <div class="page" id="page-configuracoes">
-    <div class="config-grid" id="configGrid"></div>
-  </div>
-
-  <!-- BACKUP PAGE -->
-  <div class="page" id="page-backup">
-    <div style="text-align:center; margin-bottom:30px;">
-      <h2 style="font-size:24px; font-weight:800; margin-bottom:8px;">💾 Backup e Restauração</h2>
-      <p style="color:var(--text-secondary);">Exporte ou importe todos os dados do sistema localmente</p>
-    </div>
-    <div class="backup-grid">
-      <div class="backup-card">
-        <div class="backup-icon">📤</div>
-        <h3>Exportar Backup</h3>
-        <p>Salva todos os dados do sistema em um arquivo JSON no seu computador</p>
-        <button class="btn btn-primary" onclick="exportBackup()">📤 Exportar Agora</button>
-      </div>
-      <div class="backup-card">
-        <div class="backup-icon">📥</div>
-        <h3>Restaurar Backup</h3>
-        <p>Importa dados de um arquivo JSON previamente exportado</p>
-        <button class="btn btn-success" onclick="document.getElementById('importFile').click()">📥 Importar Arquivo</button>
-        <input type="file" id="importFile" class="hidden-input" accept=".json" onchange="importBackup(event)">
-      </div>
-    </div>
-    <div class="backup-grid" style="margin-top:20px;">
-      <div class="backup-card">
-        <div class="backup-icon">🗑️</div>
-        <h3>Limpar Dados</h3>
-        <p>Remove todos os dados do sistema. Esta ação é irreversível!</p>
-        <button class="btn btn-danger" onclick="clearAllData()">🗑️ Limpar Tudo</button>
-      </div>
-      <div class="backup-card">
-        <div class="backup-icon">🔄</div>
-        <h3>Restaurar Padrão</h3>
-        <p>Restaura os dados originais do Excel da WD Máquinas</p>
-        <button class="btn btn-secondary" onclick="restoreDefaults()">🔄 Restaurar Padrão</button>
-      </div>
-    </div>
-    <div class="info-card" style="margin-top:20px;">
-      <h4>ℹ️ Informações do Sistema</h4>
-      <div id="backupInfo"></div>
-    </div>
-  </div>
-
-  <!-- PLACEHOLDER PAGES (Parte 2-6) -->
-  <div class="page" id="page-janeiro"><div class="info-card"><h4>📅 Janeiro - Fluxo de Caixa</h4><p style="color:var(--text-secondary);margin-top:10px;">Será implementado na Parte 3</p></div></div>
-  <div class="page" id="page-fevereiro"><div class="info-card"><h4>📅 Fevereiro - Fluxo de Caixa</h4><p style="color:var(--text-secondary);margin-top:10px;">Será implementado na Parte 3</p></div></div>
-  <div class="page" id="page-marco"><div class="info-card"><h4>📅 Março - Fluxo de Caixa</h4><p style="color:var(--text-secondary);margin-top:10px;">Será implementado na Parte 3</p></div></div>
-  <div class="page" id="page-abril"><div class="info-card"><h4>📅 Abril</h4><p style="color:var(--text-secondary);margin-top:10px;">Será implementado na Parte 3</p></div></div>
-  <div class="page" id="page-maio"><div class="info-card"><h4>📅 Maio</h4><p style="color:var(--text-secondary);margin-top:10px;">Será implementado na Parte 3</p></div></div>
-  <div class="page" id="page-junho"><div class="info-card"><h4>📅 Junho</h4><p style="color:var(--text-secondary);margin-top:10px;">Será implementado na Parte 3</p></div></div>
-  <div class="page" id="page-julho"><div class="info-card"><h4>📅 Julho</h4><p style="color:var(--text-secondary);margin-top:10px;">Será implementado na Parte 3</p></div></div>
-  <div class="page" id="page-agosto"><div class="info-card"><h4>📅 Agosto</h4><p style="color:var(--text-secondary);margin-top:10px;">Será implementado na Parte 3</p></div></div>
-  <div class="page" id="page-setembro"><div class="info-card"><h4>📅 Setembro</h4><p style="color:var(--text-secondary);margin-top:10px;">Será implementado na Parte 3</p></div></div>
-  <div class="page" id="page-outubro"><div class="info-card"><h4>📅 Outubro</h4><p style="color:var(--text-secondary);margin-top:10px;">Será implementado na Parte 3</p></div></div>
-  <div class="page" id="page-novembro"><div class="info-card"><h4>📅 Novembro</h4><p style="color:var(--text-secondary);margin-top:10px;">Será implementado na Parte 3</p></div></div>
-  <div class="page" id="page-dezembro"><div class="info-card"><h4>📅 Dezembro</h4><p style="color:var(--text-secondary);margin-top:10px;">Será implementado na Parte 3</p></div></div>
-  <div class="page" id="page-compras"><div class="info-card"><h4>🛒 Compras</h4><p style="color:var(--text-secondary);margin-top:10px;">Será implementado na Parte 4</p></div></div>
-  <div class="page" id="page-vendas"><div class="info-card"><h4>💰 Vendas</h4><p style="color:var(--text-secondary);margin-top:10px;">Será implementado na Parte 4</p></div></div>
-  <div class="page" id="page-estoque"><div class="info-card"><h4>📦 Estoque</h4><p style="color:var(--text-secondary);margin-top:10px;">Será implementado na Parte 4</p></div></div>
-  <div class="page" id="page-produtos"><div class="info-card"><h4>🏷️ Produtos</h4><p style="color:var(--text-secondary);margin-top:10px;">Será implementado na Parte 2</p></div></div>
-  <div class="page" id="page-clientes"><div class="info-card"><h4>👥 Clientes</h4><p style="color:var(--text-secondary);margin-top:10px;">Será implementado na Parte 2</p></div></div>
-  <div class="page" id="page-fornecedores"><div class="info-card"><h4>🏭 Fornecedores</h4><p style="color:var(--text-secondary);margin-top:10px;">Será implementado na Parte 2</p></div></div>
-  <div class="page" id="page-pfornecedores"><div class="info-card"><h4>📋 P. Fornecedores</h4><p style="color:var(--text-secondary);margin-top:10px;">Será implementado na Parte 2</p></div></div>
-  <div class="page" id="page-boletos"><div class="info-card"><h4>📄 Boletos</h4><p style="color:var(--text-secondary);margin-top:10px;">Será implementado na Parte 5</p></div></div>
-  <div class="page" id="page-cheques"><div class="info-card"><h4>📝 Cheques</h4><p style="color:var(--text-secondary);margin-top:10px;">Será implementado na Parte 5</p></div></div>
-  <div class="page" id="page-prestacoes"><div class="info-card"><h4>💳 Prestações</h4><p style="color:var(--text-secondary);margin-top:10px;">Será implementado na Parte 5</p></div></div>
-  <div class="page" id="page-projetos"><div class="info-card"><h4>🎯 Projetos</h4><p style="color:var(--text-secondary);margin-top:10px;">Será implementado na Parte 5</p></div></div>
-  <div class="page" id="page-pagclientes"><div class="info-card"><h4>💵 Pag. Clientes</h4><p style="color:var(--text-secondary);margin-top:10px;">Será implementado na Parte 5</p></div></div>
-  <div class="page" id="page-garantias"><div class="info-card"><h4>🛡️ Garantias</h4><p style="color:var(--text-secondary);margin-top:10px;">Será implementado na Parte 5</p></div></div>
-  <div class="page" id="page-relatorios"><div class="info-card"><h4>📈 Relatórios</h4><p style="color:var(--text-secondary);margin-top:10px;">Será implementado na Parte 6</p></div></div>
-  <div class="page" id="page-notasentrada"><div class="info-card"><h4>📥 Notas Entrada</h4><p style="color:var(--text-secondary);margin-top:10px;">Será implementado na Parte 6</p></div></div>
-  <div class="page" id="page-notassaida"><div class="info-card"><h4>📤 Notas Saída</h4><p style="color:var(--text-secondary);margin-top:10px;">Será implementado na Parte 6</p></div></div>
-  <div class="page" id="page-receitasmei"><div class="info-card"><h4>📑 Receitas MEI</h4><p style="color:var(--text-secondary);margin-top:10px;">Será implementado na Parte 6</p></div></div>
-</main>
-
-<!-- MODAL -->
-<div class="modal-overlay" id="modalOverlay">
-  <div class="modal">
-    <div class="modal-header">
-      <h3 id="modalTitle">Editar</h3>
-      <button class="modal-close" onclick="closeModal()">✕</button>
-    </div>
-    <div class="modal-body" id="modalBody"></div>
-    <div class="modal-footer" id="modalFooter"></div>
-  </div>
-</div>
-
-<!-- TOAST -->
-<div class="toast-container" id="toastContainer"></div>
-
-<script>
-// ============================================
-// DATA STORE - DADOS INICIAIS DO EXCEL
-// ============================================
-const DEFAULT_DATA = {
-  empresa: {
-    nome: "WD MÁQUINAS",
-    cnpj: "29.595.239/0001-33",
-    empreendedor: "WANDER HALLEY LEE ALVES",
-    metaVendasMensal: 30000,
-    metaSalario: 6000
-  },
-  config: {
-    vendedores: ["WANDER", "DANIEL"],
-    formasPagamento: [
-      "BOLETO BANCÁRIO", "CAIXA DA OFICINA", "CARTÃO MP", "DANIEL",
-      "ELO GRAFITE - CARTÃO", "INTER - CARTÃO", "LUISA - CARTÃO",
-      "NUBANK", "PIX", "TRANSFERÊNCIA BANCÁRIA", "WANDER - CARTÃO", "WD - CARTÃO"
-    ],
-    tiposUnidade: ["Unidade", "Metro", "Centímetro", "Kilo", "Barra", "Chapa", "Rolo", "Litro", "Pacote", "Caixa"],
-    situacaoCompra: ["PAGO", "DEVENDO", "GUARDADO"],
-    tipoVenda: ["DIRETA", "REVENDA"],
-    situacaoEntrega: ["ENTREGOU", "NÃO ENTREGOU"],
-    situacaoGarantia: ["Ativa", "Vencida"],
-    situacaoCheque: [
-      "Depositado Esperando Compensar",
-      "Devolvido Para o Cliente",
-      "Esperando Para Depositar",
-      "Passou Para Jotafran",
-      "Passou Para PS Inox"
-    ]
-  },
-  fluxoCaixa: {
-    janeiro: {
-      entradas: [
-        { valores: { 1:539.45, 8:1500, 9:400, 12:900, 14:1500, 15:1150, 19:900, 21:1000, 26:5623.96, 27:285, 28:1660, 30:2880 }},
-        { valores: { 9:760, 14:180, 15:1200, 26:1135.05, 28:990, 30:350 }},
-        { valores: { 26:2850, 28:1710 }},
-        { valores: {} }, { valores: {} }, { valores: {} }
-      ],
-      dinheiro: { 16:250, 29:250 },
-      saidas: {
-        wander: { 9:1000, 12:350, 15:1000, 19:250, 26:2000, 27:400, 28:1000, 30:1000 },
-        daniel: { 9:1000, 12:350, 15:1000, 19:250, 26:2000, 27:400, 28:1000, 30:1000 },
-        outras: [
-          { valores: { 5:85, 6:95, 7:160.9, 8:12, 9:89.9, 12:100, 14:97, 15:768.63, 16:187.09, 19:400, 20:33.9, 21:70, 26:74, 27:1979.2, 28:640.65, 30:822 }},
-          { valores: { 5:50, 8:79.8, 9:530, 12:43.95, 14:18.5, 15:1000, 19:82.05, 21:87, 26:84.18, 27:25, 28:1404, 30:382 }},
-          { valores: { 12:88.67, 21:600, 26:80, 27:227, 28:44, 30:33.9 }},
-          { valores: { 21:393.42, 26:246, 28:199.9, 30:360 }},
-          { valores: { 26:347, 30:12.77 }},
-          { valores: { 26:1713.35 }},
-          { valores: { 26:200 }},
-          { valores: { 26:65.7 }}
-        ]
-      },
-      totalEntradas: 28013.46,
-      totalSaidas: 28013.46
-    },
-    fevereiro: {
-      entradas: [
-        { valores: { 4:610, 5:300, 6:1000, 10:1500, 11:990, 13:150, 18:1180, 19:716.1, 20:750, 23:1200, 24:1400, 25:140, 26:800, 27:450 }},
-        { valores: { 11:30, 25:1000 }},
-        { valores: {} }, { valores: {} }, { valores: {} }, { valores: {} }
-      ],
-      dinheiro: {},
-      saidas: {
-        wander: { 10:500, 19:500, 20:350, 23:500 },
-        daniel: { 10:500, 19:500, 20:350, 23:500 },
-        outras: [
-          { valores: { 4:250, 5:58, 6:97, 10:500, 11:242.67, 18:50, 19:928, 20:77.44, 23:200, 24:82.05, 25:93.9, 27:70.47 }},
-          { valores: { 4:25, 6:1135, 11:700, 18:12, 24:1300, 25:1064.05, 27:22.9 }},
-          { valores: { 4:48, 6:30, 11:58.28, 18:31.4 }},
-          { valores: { 4:80, 18:24.84 }},
-          { valores: { 4:178.47 }},
-          { valores: {} }, { valores: {} }, { valores: {} }
-        ]
-      },
-      totalEntradas: 12216.10,
-      totalSaidas: 11059.47
-    },
-    marco: {
-      entradas: [
-        { valores: { 1:4198.68, 2:700, 4:400, 7:1400, 10:500 }},
-        { valores: { 1:100 }},
-        { valores: {} }, { valores: {} }, { valores: {} }, { valores: {} }
-      ],
-      dinheiro: {},
-      saidas: {
-        wander: { 1:1000, 7:500 },
-        daniel: { 1:1000, 7:500 },
-        outras: [
-          { valores: { 1:1521, 2:85, 4:225.84, 7:31.98, 11:241.2 }},
-          { valores: { 1:177.68, 2:80, 11:755 }},
-          { valores: { 1:600, 2:173 }},
-          { valores: { 2:162 }},
-          { valores: { 2:144 }},
-          { valores: {} }, { valores: {} }, { valores: {} }
-        ]
-      },
-      totalEntradas: 7298.68,
-      totalSaidas: 7196.70
-    }
-  },
-  compras: [
-    { data:"2026-01-01", venc:"2026-01-19", produto:"DIMMER 65 AMPER", quant:1, valor:167.9, fornecedor:"MERCADO LIVRE", pagto:"CARTÃO MP", status:"PAGO", total:167.9 },
-    { data:"2026-01-05", venc:"2026-01-10", produto:"ALUGUEL DO BARRACÃO", quant:1, valor:450, fornecedor:"JOTAFRAN", pagto:"TRANSFERÊNCIA BANCÁRIA", status:"PAGO", total:450 },
-    { data:"2026-03-05", venc:"2026-04-10", produto:"CHAPA INOX 304 - 3 METROS", quant:1, valor:1436, fornecedor:"PS INOX", pagto:"PIX", status:"DEVENDO", total:1436 },
-    { data:"2026-03-05", venc:"2026-04-10", produto:"RESISTÊNCIA 4000W", quant:2, valor:70, fornecedor:"JOTAFRAN", pagto:"TRANSFERÊNCIA BANCÁRIA", status:"DEVENDO", total:140 },
-    { data:"2026-03-13", venc:"2026-03-30", produto:"EMPRESTIMO NO CARTÃO CREDITO", quant:1, valor:2368.63, fornecedor:"EMPRÉSTIMO NUBANK", pagto:"PIX", status:"DEVENDO", total:2368.63 },
-    { data:"2026-03-11", venc:"2026-04-10", produto:"COMBUSTIVEL", quant:1, valor:100, fornecedor:"POSTO DE COMBUSTIVEL", pagto:"ELO GRAFITE - CARTÃO", status:"DEVENDO", total:100 },
-    { data:"2026-03-11", venc:"2026-04-10", produto:"DIVERSOS", quant:1, valor:165, fornecedor:"POLIMAQ", pagto:"ELO GRAFITE - CARTÃO", status:"DEVENDO", total:165 }
-  ],
-  vendas: [
-    { data:"2026-02-03", receber:"2026-02-03", produto:"BOIA DE INOX", vendedor:"WANDER", quant:1, valor:99.9, cliente:"MERCADO LIVRE", status:"PAGO", entrega:"ENTREGOU" },
-    { data:"2026-02-10", receber:"2026-02-20", produto:"COLHER DE CALÇADEIRA", vendedor:"DANIEL", quant:20, valor:25, cliente:"RENATO (NOVA SERRANA)", status:"PAGO", entrega:"ENTREGOU" },
-    { data:"2026-02-19", receber:"2026-02-27", produto:"RESISTÊNCIA 3000W", vendedor:"DANIEL", quant:5, valor:90, cliente:"RENATO (NOVA SERRANA)", status:"DEVENDO", entrega:"ENTREGOU" },
-    { data:"2026-03-03", receber:"2026-03-03", produto:"BALÃO DA BOIA DE INOX", vendedor:"WANDER", quant:1, valor:100, cliente:"BALCÃO", status:"PAGO", entrega:"ENTREGOU" },
-    { data:"2026-03-03", receber:"2026-06-03", produto:"VAPORIZADOR DE BICO TIPO CANALETA", vendedor:"DANIEL", quant:1, valor:2400, cliente:"LUZIMAQ", status:"DEVENDO", entrega:"ENTREGOU" },
-    { data:"2026-03-09", receber:"2026-03-20", produto:"CAIXA DE INOX", vendedor:"WANDER", quant:1, valor:1950, cliente:"WESLEY (MORTE)", status:"DEVENDO", entrega:"NÃO ENTREGOU" },
-    { data:"2026-03-09", receber:"2026-03-20", produto:"REFORMA DO VAPORIZADOR", vendedor:"WANDER", quant:1, valor:2700, cliente:"BALCÃO", status:"DEVENDO", entrega:"NÃO ENTREGOU" }
-  ],
-  prestacoes: [
-    { nome:"Empréstimo", valorParcela:2368.63, parcelas:5, total:11843.15, meses:{mar:2368.63,abr:2368.63,mai:2368.63,jun:2368.63,jul:2368.63} },
-    { nome:"Bling", valorParcela:214.83, parcelas:1, total:214.83, meses:{mar:214.83} },
-    { nome:"Frenet", valorParcela:85, parcelas:10, total:850, meses:{mar:85,abr:85,mai:85,jun:85,jul:85,ago:85,set:85,out:85,nov:85,dez:85} },
-    { nome:"Flexível 1/2 C.WD", valorParcela:269.96, parcelas:1, total:269.96, meses:{mar:269.96} },
-    { nome:"WD", valorParcela:349.05, parcelas:1, total:349.05, meses:{abr:349.05} }
-  ],
-  boletos: [
-    { data:"2026-01-16", cliente:"SNEAKERS", valor:1137, vencimento:"2026-01-23", recebe:"2026-01-26", status:"Pago" },
-    { data:"2026-02-02", cliente:"KARLITOS", valor:400, vencimento:"2026-02-12", recebe:"2026-02-12", status:"Pago" },
-    { data:"2026-02-02", cliente:"FERRACINI", valor:320, vencimento:"2026-02-17", recebe:"2026-02-17", status:"Pago" }
-  ],
-  garantias: [
-    { inicio:"2025-10-31", cliente:"OTICA SOTELO", produto:"MAQUINA PARA COLORAÇÃO PARA OTICA COM 6 COPOS 127V", vencimento:"2026-10-31", situacao:"Ativa" },
-    { inicio:"2025-12-05", cliente:"JOÃO FAVA CALÇADOS", produto:"VAPORIZADOR DE BICO TIPO PIRAMIDE ABERTO", vencimento:"2026-12-05", situacao:"Ativa" },
-    { inicio:"2026-01-05", cliente:"MAFER CALÇADOS", produto:"VAPORIZADOR DE BICO TIPO PIRAMIDE ABERTO", vencimento:"2027-01-05", situacao:"Ativa" },
-    { inicio:"2026-02-23", cliente:"PRIMAVERA CALÇADOS", produto:"VAPORIZADOR DE BICO TIPO CANALETA", vencimento:"2027-02-23", situacao:"Ativa" }
-  ],
-  estoque: [
-    { produto:"BALÃO DE INOX", estoque:3, compras:13, vendas:10, tCompra:233.67, tVenda:980 },
-    { produto:"BOIA DE INOX", estoque:17, compras:221, vendas:204, tCompra:11432.93, tVenda:51284.47 },
-    { produto:"BOMBONA 10 LITROS", estoque:4, compras:71, vendas:67, tCompra:2832.01, tVenda:4730 },
-    { produto:"CHAVE CADEADO", estoque:11, compras:175, vendas:164, tCompra:15913.58, tVenda:31120 },
-    { produto:"FECHO ENGATE", estoque:28, compras:542, vendas:514, tCompra:3988.47, tVenda:25700 },
-    { produto:"FLANGE DE 1/2", estoque:7, compras:174, vendas:167, tCompra:1550.66, tVenda:5090 },
-    { produto:"FLEXIVEL DE INOX DE 1/2", estoque:40, compras:213, vendas:173, tCompra:3088.50, tVenda:6760 },
-    { produto:"PINO GONZO 3/8 INOX", estoque:4, compras:70, vendas:66, tCompra:842.17, tVenda:3300 },
-    { produto:"SINALEIRO 22MM", estoque:6, compras:211, vendas:205, tCompra:1981.60, tVenda:4080 },
-    { produto:"COTOVELO DE INOX", estoque:1, compras:53, vendas:52, tCompra:953.33, tVenda:3900 }
-  ],
-  comprasAnual: 30603.85,
-  vendasAnual: 58274.84,
-  comprasMes: 7007.15,
-  vendasMes: 9351,
-  totalDividas: 13527,
-  totalPrestacoesMes: 3287.47
-};
-
-// ============================================
-// APP STATE
-// ============================================
-let appData = {};
-
-function loadData() {
-  const saved = localStorage.getItem('wd_maquinas_data');
-  if (saved) {
-    try {
-      appData = JSON.parse(saved);
-    } catch(e) {
-      appData = JSON.parse(JSON.stringify(DEFAULT_DATA));
-    }
-  } else {
-    appData = JSON.parse(JSON.stringify(DEFAULT_DATA));
-  }
-}
-
-function saveData() {
-  localStorage.setItem('wd_maquinas_data', JSON.stringify(appData));
-}
-
-// ============================================
-// NAVIGATION
-// ============================================
-const pageTitles = {
-  dashboard:"Dashboard", configuracoes:"Configurações", backup:"Backup e Restauração",
-  janeiro:"Janeiro", fevereiro:"Fevereiro", marco:"Março", abril:"Abril",
-  maio:"Maio", junho:"Junho", julho:"Julho", agosto:"Agosto",
-  setembro:"Setembro", outubro:"Outubro", novembro:"Novembro", dezembro:"Dezembro",
-  compras:"Compras", vendas:"Vendas", estoque:"Estoque", produtos:"Produtos",
-  clientes:"Clientes", fornecedores:"Fornecedores", pfornecedores:"P. Fornecedores",
-  boletos:"Boletos", cheques:"Cheques", prestacoes:"Prestações", projetos:"Projetos",
-  pagclientes:"Pag. Clientes", garantias:"Garantias", relatorios:"Relatórios",
-  notasentrada:"Notas de Entrada", notassaida:"Notas de Saída", receitasmei:"Receitas MEI"
-};
-
-function navigateTo(page) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-
-  const pageEl = document.getElementById('page-' + page);
-  if (pageEl) pageEl.classList.add('active');
-
-  const navItems = document.querySelectorAll('.nav-item');
-  navItems.forEach(n => {
-    if (n.getAttribute('onclick') && n.getAttribute('onclick').includes(page)) {
-      n.classList.add('active');
-    }
-  });
-
-  document.getElementById('pageTitle').textContent = pageTitles[page] || page;
-
-  if (page === 'dashboard') renderDashboard();
-  if (page === 'configuracoes') renderConfig();
-  if (page === 'backup') renderBackupInfo();
-
-  // Close sidebar on mobile
-  document.getElementById('sidebar').classList.remove('open');
-}
-
-function toggleSidebar() {
-  document.getElementById('sidebar').classList.toggle('open');
-}
-
-// ============================================
-// DATE HELPERS
-// ============================================
-function formatDate(date) {
-  const d = new Date(date || Date.now());
-  const dias = ['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'];
-  const meses = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
-  return `${dias[d.getDay()]}, ${d.getDate()} de ${meses[d.getMonth()]} de ${d.getFullYear()}`;
-}
-
-function formatCurrency(val) {
-  return 'R$ ' + Number(val || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-
-function daysUntil(dateStr) {
-  const target = new Date(dateStr);
-  const now = new Date();
-  return Math.ceil((target - now) / (1000 * 60 * 60 * 24));
-}
-
-// ============================================
-// DASHBOARD
-// ============================================
-function renderDashboard() {
-  const d = appData;
-  const alertsHtml = [];
-
-  // Compras a vencer
-  const devendo = (d.compras || []).filter(c => c.status === 'DEVENDO');
-  if (devendo.length > 0) {
-    alertsHtml.push(`<div class="alert-box warning">⚠️ Você tem ${devendo.length} compra(s) pendente(s) de pagamento!</div>`);
-  }
-
-  // Prestações
-  if (d.totalPrestacoesMes > 0) {
-    alertsHtml.push(`<div class="alert-box">💳 Prestações do mês: ${formatCurrency(d.totalPrestacoesMes)}</div>`);
-  }
-
-  document.getElementById('dashAlerts').innerHTML = alertsHtml.join('');
-
-  // KPI Cards
-  const totalEntradasMes = d.fluxoCaixa?.marco?.totalEntradas || 7298.68;
-  const totalSaidasMes = d.fluxoCaixa?.marco?.totalSaidas || 7196.70;
-  const saldoMes = totalEntradasMes - totalSaidasMes;
-  const lucroCV = (d.vendasMes || 9351) - (d.comprasMes || 7007.15);
-  const totalAPagar = devendo.reduce((s,c) => s + (c.total||0), 0);
-
-  const cards = [
-    { title:"CAIXA ATUAL (MAR)", value: formatCurrency(101.98), icon:"💰", color:"var(--green)", sub:"Saldo acumulado" },
-    { title:"ENTRADAS DO MÊS", value: formatCurrency(totalEntradasMes), icon:"📈", color:"var(--green)", sub:`+${formatCurrency(totalEntradasMes)}`, subClass:"positive" },
-    { title:"SAÍDAS DO MÊS", value: formatCurrency(totalSaidasMes), icon:"📉", color:"var(--red)", sub:`-${formatCurrency(totalSaidasMes)}`, subClass:"negative" },
-    { title:"VENDAS DO MÊS", value: formatCurrency(d.vendasMes || 9351), icon:"🛒", color:"var(--orange-primary)", sub:"Meta: R$ 30.000,00" },
-    { title:"COMPRAS DO MÊS", value: formatCurrency(d.comprasMes || 7007.15), icon:"📦", color:"var(--blue)", sub:"Fornecedores diversos" },
-    { title:"LUCRO C/V MÊS", value: formatCurrency(lucroCV), icon:"📊", color: lucroCV >= 0 ? "var(--green)" : "var(--red)", sub: lucroCV >= 0 ? "Positivo" : "Negativo", subClass: lucroCV >= 0 ? "positive" : "negative" },
-    { title:"VENDAS ANUAL", value: formatCurrency(d.vendasAnual || 58274.84), icon:"🏆", color:"var(--yellow)", sub:"Acumulado 2026" },
-    { title:"TOTAL A PAGAR", value: formatCurrency(totalAPagar), icon:"⚠️", color:"var(--red)", sub:`${devendo.length} pendência(s)`, subClass:"negative" },
-    { title:"TOTAL DÍVIDAS", value: formatCurrency(d.totalDividas || 13527), icon:"💳", color:"var(--purple)", sub:`Mensal: ${formatCurrency(d.totalPrestacoesMes || 3287.47)}` },
-    { title:"ESTOQUE (VALOR)", value: formatCurrency(2494.74), icon:"📦", color:"var(--blue)", sub:"Valor estocado" },
-    { title:"GARANTIAS ATIVAS", value: (d.garantias || []).filter(g=>g.situacao==='Ativa').length, icon:"🛡️", color:"var(--green)", sub:"Produtos com garantia" },
-    { title:"BOLETOS PAGOS", value: formatCurrency(1857), icon:"📄", color:"var(--green)", sub:"Total anual" }
-  ];
-
-  document.getElementById('dashCards').innerHTML = cards.map(c => `
-    <div class="dash-card">
-      <div class="dash-card-header">
-        <span class="dash-card-title">${c.title}</span>
-        <div class="dash-card-icon" style="background:${c.color}20;color:${c.color}">${c.icon}</div>
-      </div>
-      <div class="dash-card-value">${c.value}</div>
-      <div class="dash-card-sub ${c.subClass||''}">${c.sub}</div>
-    </div>
-  `).join('');
-
-  // Meta Vendas
-  const metaPct = Math.min(((d.vendasMes || 9351) / 30000) * 100, 100);
-  document.getElementById('metaVendasFill').style.width = metaPct + '%';
-  document.getElementById('metaVendasAtual').textContent = formatCurrency(d.vendasMes || 9351);
-
-  // Meta Wander
-  const wanderSalario = 1500;
-  const wanderPct = Math.min((wanderSalario / 6000) * 100, 100);
-  document.getElementById('metaWanderFill').style.width = wanderPct + '%';
-  document.getElementById('metaWanderAtual').textContent = formatCurrency(wanderSalario);
-
-  // Meta Daniel
-  const danielSalario = 1500;
-  const danielPct = Math.min((danielSalario / 6000) * 100, 100);
-  document.getElementById('metaDanielFill').style.width = danielPct + '%';
-  document.getElementById('metaDanielAtual').textContent = formatCurrency(danielSalario);
-
-  // Bar Chart
-  const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-  const entradas = [28013.46, 12216.10, 7298.68, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-  const saidas = [28013.46, 11059.47, 7196.70, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-  const maxVal = Math.max(...entradas, ...saidas, 1);
-
-  document.getElementById('barChart').innerHTML = meses.map((m, i) => {
-    const hE = Math.max((entradas[i] / maxVal) * 180, 2);
-    const hS = Math.max((saidas[i] / maxVal) * 180, 2);
-    return `
-      <div class="bar-group">
-        <div class="bar-pair">
-          <div class="bar entrada" style="height:${hE}px" title="${m} Entradas: ${formatCurrency(entradas[i])}"></div>
-          <div class="bar saida" style="height:${hS}px" title="${m} Saídas: ${formatCurrency(saidas[i])}"></div>
-        </div>
-        <span class="bar-label">${m}</span>
-      </div>
-    `;
-  }).join('');
-
-  // Vendedores
-  const wanderVendas = 23312.84;
-  const danielVendas = 34962;
-  const totalV = wanderVendas + danielVendas;
-  document.getElementById('vendedoresChart').innerHTML = `
-    <div class="vendedor-item">
-      <div class="vendedor-avatar" style="background:var(--orange-primary)">W</div>
-      <div class="vendedor-info">
-        <div class="vendedor-name">WANDER</div>
-        <div class="vendedor-value">${formatCurrency(wanderVendas)} (${((wanderVendas/totalV)*100).toFixed(1)}%)</div>
-        <div class="progress-bar"><div class="progress-fill" style="width:${(wanderVendas/totalV)*100}%;background:var(--orange-primary)"></div></div>
-      </div>
-    </div>
-    <div class="vendedor-item">
-      <div class="vendedor-avatar" style="background:var(--blue)">D</div>
-      <div class="vendedor-info">
-        <div class="vendedor-name">DANIEL</div>
-        <div class="vendedor-value">${formatCurrency(danielVendas)} (${((danielVendas/totalV)*100).toFixed(1)}%)</div>
-        <div class="progress-bar"><div class="progress-fill" style="width:${(danielVendas/totalV)*100}%;background:var(--blue)"></div></div>
-      </div>
-    </div>
-    <div style="margin-top:20px; padding-top:16px; border-top:1px solid var(--border-color);">
-      <div class="info-item"><span class="label">Total Anual</span><span class="value">${formatCurrency(totalV)}</span></div>
-      <div class="info-item"><span class="label">Diferença</span><span class="value" style="color:var(--blue)">${formatCurrency(danielVendas - wanderVendas)}</span></div>
-    </div>
-  `;
-
-  // Resumo Mensal
-  document.getElementById('resumoMensal').innerHTML = `
-    <div class="info-item"><span class="label">Compras do Mês</span><span class="value">${formatCurrency(d.comprasMes||7007.15)}</span></div>
-    <div class="info-item"><span class="label">Vendas do Mês</span><span class="value">${formatCurrency(d.vendasMes||9351)}</span></div>
-    <div class="info-item"><span class="label">Lucro C/V Mês</span><span class="value" style="color:var(--green)">${formatCurrency(lucroCV)}</span></div>
-    <div class="info-item"><span class="label">Lucro C/V Ano</span><span class="value" style="color:var(--green)">${formatCurrency(27670.99)}</span></div>
-    <div class="info-item"><span class="label">Projeção Lucro W&D</span><span class="value">${formatCurrency(1171.93)}</span></div>
-  `;
-
-  // Compras a vencer
-  document.getElementById('comprasVencer').innerHTML = devendo.length > 0 ? devendo.map(c => {
-    const dias = daysUntil(c.venc);
-    return `<div class="info-item">
-      <span class="label">${c.fornecedor}</span>
-      <span class="value" style="color:${dias<=7?'var(--red)':'var(--yellow)'}">
-        ${formatCurrency(c.total)} - ${dias}d
-      </span>
-    </div>`;
-  }).join('') : '<p style="color:var(--text-secondary);font-size:13px;padding:10px 0;">Nenhuma compra pendente</p>';
-
-  // Prestações
-  document.getElementById('prestacoesResumo').innerHTML = (d.prestacoes||[]).map(p => `
-    <div class="info-item">
-      <span class="label">${p.nome}</span>
-      <span class="value">${formatCurrency(p.valorParcela)} x ${p.parcelas}</span>
-    </div>
-  `).join('') + `
-    <div class="info-item" style="border-top:2px solid var(--orange-primary);margin-top:8px;padding-top:10px;">
-      <span class="label" style="font-weight:700;color:var(--orange-primary)">TOTAL MÊS</span>
-      <span class="value" style="color:var(--orange-primary)">${formatCurrency(d.totalPrestacoesMes||3287.47)}</span>
-    </div>
-  `;
-
-  // Recent Compras
-  const recentC = (d.compras||[]).slice(-5).reverse();
-  document.getElementById('recentCompras').innerHTML = recentC.map(c => `
-    <tr>
-      <td>${c.data}</td>
-      <td>${c.produto}</td>
-      <td>${c.fornecedor}</td>
-      <td>${formatCurrency(c.total)}</td>
-      <td><span class="status-badge status-${c.status.toLowerCase()}">${c.status}</span></td>
-    </tr>
-  `).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--text-secondary)">Sem dados</td></tr>';
-
-  // Recent Vendas
-  const recentV = (d.vendas||[]).slice(-5).reverse();
-  document.getElementById('recentVendas').innerHTML = recentV.map(v => `
-    <tr>
-      <td>${v.data}</td>
-      <td>${v.produto}</td>
-      <td>${v.cliente}</td>
-      <td>${v.vendedor}</td>
-      <td>${formatCurrency(v.valor * (v.quant||1))}</td>
-      <td><span class="status-badge status-${v.status.toLowerCase()}">${v.status}</span></td>
-    </tr>
-  `).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--text-secondary)">Sem dados</td></tr>';
-}
-
-// ============================================
-// CONFIGURAÇÕES
-// ============================================
-function renderConfig() {
-  const sections = [
-    { key: 'vendedores', title: '👥 Vendedores', icon: '👥' },
-    { key: 'formasPagamento', title: '💳 Formas de Pagamento', icon: '💳' },
-    { key: 'tiposUnidade', title: '📏 Tipos de Unidade', icon: '📏' },
-    { key: 'situacaoCompra', title: '🛒 Situação da Compra', icon: '🛒' },
-    { key: 'tipoVenda', title: '🏷️ Tipo de Venda', icon: '🏷️' },
-    { key: 'situacaoEntrega', title: '📦 Situação de Entrega', icon: '📦' },
-    { key: 'situacaoGarantia', title: '🛡️ Situação de Garantia', icon: '🛡️' },
-    { key: 'situacaoCheque', title: '📝 Situação do Cheque', icon: '📝' }
-  ];
-
-  document.getElementById('configGrid').innerHTML = sections.map(s => `
-    <div class="config-section">
-      <div class="config-section-header">
-        <h3>${s.title}</h3>
-        <span style="font-size:12px;color:var(--text-secondary)">${(appData.config[s.key]||[]).length} itens</span>
-      </div>
-      <div class="config-list" id="configList_${s.key}">
-        ${(appData.config[s.key]||[]).map((item, i) => `
-          <div class="config-item">
-            <span class="config-item-name">${item}</span>
-            <div class="config-item-actions">
-              <button class="btn-icon edit" onclick="editConfigItem('${s.key}', ${i})" title="Editar">✏️</button>
-              <button class="btn-icon delete" onclick="deleteConfigItem('${s.key}', ${i})" title="Excluir">🗑️</button>
+    <div class="app-container">
+        <!-- SIDEBAR -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h1>WD MÁQUINAS</h1>
+                <p>CNPJ: 29.595.239/0001-33</p>
             </div>
-          </div>
-        `).join('')}
-      </div>
-      <div class="add-form">
-        <input type="text" id="addInput_${s.key}" placeholder="Adicionar novo..." onkeypress="if(event.key==='Enter')addConfigItem('${s.key}')">
-        <button class="btn btn-primary btn-sm" onclick="addConfigItem('${s.key}')">+</button>
-      </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Principal</div>
+                    <div class="nav-item active" onclick="navigateTo('dashboard')">
+                        <span class="nav-icon">📊</span> Dashboard
+                    </div>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Fluxo de Caixa</div>
+                    <div class="nav-item" onclick="navigateTo('janeiro')">
+                        <span class="nav-icon">📅</span> Janeiro
+                    </div>
+                    <div class="nav-item" onclick="navigateTo('fevereiro')">
+                        <span class="nav-icon">📅</span> Fevereiro
+                    </div>
+                    <div class="nav-item" onclick="navigateTo('marco')">
+                        <span class="nav-icon">📅</span> Março
+                    </div>
+                    <div class="nav-item" onclick="navigateTo('abril')">
+                        <span class="nav-icon">📅</span> Abril
+                    </div>
+                    <div class="nav-item" onclick="navigateTo('maio')">
+                        <span class="nav-icon">📅</span> Maio
+                    </div>
+                    <div class="nav-item" onclick="navigateTo('junho')">
+                        <span class="nav-icon">📅</span> Junho
+                    </div>
+                    <div class="nav-item" onclick="navigateTo('julho')">
+                        <span class="nav-icon">📅</span> Julho
+                    </div>
+                    <div class="nav-item" onclick="navigateTo('agosto')">
+                        <span class="nav-icon">📅</span> Agosto
+                    </div>
+                    <div class="nav-item" onclick="navigateTo('setembro')">
+                        <span class="nav-icon">📅</span> Setembro
+                    </div>
+                    <div class="nav-item" onclick="navigateTo('outubro')">
+                        <span class="nav-icon">📅</span> Outubro
+                    </div>
+                    <div class="nav-item" onclick="navigateTo('novembro')">
+                        <span class="nav-icon">📅</span> Novembro
+                    </div>
+                    <div class="nav-item" onclick="navigateTo('dezembro')">
+                        <span class="nav-icon">📅</span> Dezembro
+                    </div>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Gestão</div>
+                    <div class="nav-item" onclick="navigateTo('compras')">
+                        <span class="nav-icon">🛒</span> Compras
+                    </div>
+                    <div class="nav-item" onclick="navigateTo('vendas')">
+                        <span class="nav-icon">💰</span> Vendas
+                    </div>
+                    <div class="nav-item" onclick="navigateTo('estoque')">
+                        <span class="nav-icon">📦</span> Estoque
+                    </div>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Cadastros</div>
+                    <div class="nav-item" onclick="navigateTo('produtos')">
+                        <span class="nav-icon">🏷️</span> Produtos
+                    </div>
+                    <div class="nav-item" onclick="navigateTo('clientes')">
+                        <span class="nav-icon">👥</span> Clientes
+                    </div>
+                    <div class="nav-item" onclick="navigateTo('fornecedores')">
+                        <span class="nav-icon">🏭</span> Fornecedores
+                    </div>
+                    <div class="nav-item" onclick="navigateTo('pfornecedores')">
+                        <span class="nav-icon">📋</span> P. Fornecedores
+                    </div>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Financeiro</div>
+                    <div class="nav-item" onclick="navigateTo('boletos')">
+                        <span class="nav-icon">🔖</span> Boletos
+                    </div>
+                    <div class="nav-item" onclick="navigateTo('cheques')">
+                        <span class="nav-icon">📝</span> Cheques
+                    </div>
+                    <div class="nav-item" onclick="navigateTo('prestacoes')">
+                        <span class="nav-icon">💳</span> Prestações
+                    </div>
+                    <div class="nav-item" onclick="navigateTo('projetos')">
+                        <span class="nav-icon">📐</span> Projetos
+                    </div>
+                    <div class="nav-item" onclick="navigateTo('pagclientes')">
+                        <span class="nav-icon">🤝</span> Pag. Clientes
+                    </div>
+                    <div class="nav-item" onclick="navigateTo('garantias')">
+                        <span class="nav-icon">🛡️</span> Garantias
+                    </div>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Relatórios</div>
+                    <div class="nav-item" onclick="navigateTo('relatorios')">
+                        <span class="nav-icon">📈</span> Relatórios
+                    </div>
+                    <div class="nav-item" onclick="navigateTo('notasentrada')">
+                        <span class="nav-icon">📥</span> Notas Entrada
+                    </div>
+                    <div class="nav-item" onclick="navigateTo('notassaida')">
+                        <span class="nav-icon">📤</span> Notas Saída
+                    </div>
+                    <div class="nav-item" onclick="navigateTo('receitasmei')">
+                        <span class="nav-icon">📄</span> Receitas MEI
+                    </div>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Sistema</div>
+                    <div class="nav-item" onclick="navigateTo('configuracoes')">
+                        <span class="nav-icon">⚙️</span> Configurações
+                    </div>
+                    <div class="nav-item" onclick="navigateTo('backup')">
+                        <span class="nav-icon">💾</span> Backup
+                    </div>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- MAIN -->
+        <main class="main-content">
+            <div class="topbar">
+                <div class="topbar-left">
+                    <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+                    <span class="topbar-title" id="topbarTitle">Dashboard</span>
+                </div>
+                <div class="topbar-right">
+                    <span class="topbar-date" id="topbarDate"></span>
+                </div>
+            </div>
+
+            <div class="content-area">
+
+                <!-- ==================== DASHBOARD ==================== -->
+                <div class="page active" id="page-dashboard">
+                    <div class="cards-grid" id="dashboardCards"></div>
+
+                    <div class="cards-grid">
+                        <div class="card">
+                            <div class="progress-container">
+                                <div class="progress-label">
+                                    <span>Meta Vendas Mensal</span>
+                                    <span id="metaVendasValue">R$ 0 / R$ 30.000</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="metaVendasBar" style="width:0%"></div>
+                                </div>
+                            </div>
+                            <div class="progress-container">
+                                <div class="progress-label">
+                                    <span>Salário Wander</span>
+                                    <span id="metaWanderValue">R$ 0 / R$ 6.000</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="metaWanderBar" style="width:0%"></div>
+                                </div>
+                            </div>
+                            <div class="progress-container">
+                                <div class="progress-label">
+                                    <span>Salário Daniel</span>
+                                    <span id="metaDanielValue">R$ 0 / R$ 6.000</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="metaDanielBar" style="width:0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <h3>📊 Entradas vs Saídas por Mês</h3>
+                        <div class="chart-bars" id="chartEntradasSaidas"></div>
+                    </div>
+
+                    <div class="chart-container">
+                        <h3>👥 Vendas por Vendedor</h3>
+                        <div id="chartVendedores" style="display:flex;gap:24px;align-items:center;padding:10px 0;"></div>
+                    </div>
+
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                        <div class="table-container">
+                            <div class="table-header"><h3>🛒 Últimas Compras</h3></div>
+                            <div class="table-scroll">
+                                <table><thead><tr><th>Data</th><th>Produto</th><th>Valor</th><th>Status</th></tr></thead>
+                                <tbody id="dashUltimasCompras"></tbody></table>
+                            </div>
+                        </div>
+                        <div class="table-container">
+                            <div class="table-header"><h3>💰 Últimas Vendas</h3></div>
+                            <div class="table-scroll">
+                                <table><thead><tr><th>Data</th><th>Produto</th><th>Valor</th><th>Vendedor</th></tr></thead>
+                                <tbody id="dashUltimasVendas"></tbody></table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;">
+                        <div class="table-container">
+                            <div class="table-header"><h3>⚠️ Compras Pendentes</h3></div>
+                            <div class="table-scroll">
+                                <table><thead><tr><th>Produto</th><th>Fornecedor</th><th>Valor</th><th>Vencimento</th></tr></thead>
+                                <tbody id="dashComprasPendentes"></tbody></table>
+                            </div>
+                        </div>
+                        <div class="table-container">
+                            <div class="table-header"><h3>💳 Prestações do Mês</h3></div>
+                            <div class="table-scroll">
+                                <table><thead><tr><th>Nome</th><th>Parcela</th><th>Valor</th></tr></thead>
+                                <tbody id="dashPrestacoes"></tbody></table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== MESES (JAN-DEZ) ==================== -->
+                <div class="page" id="page-janeiro"><div class="fluxo-container"><div class="fluxo-summary" id="sumJaneiro"></div><div class="fluxo-scroll"><table id="fluxoJaneiro"></table></div></div></div>
+                <div class="page" id="page-fevereiro"><div class="fluxo-container"><div class="fluxo-summary" id="sumFevereiro"></div><div class="fluxo-scroll"><table id="fluxoFevereiro"></table></div></div></div>
+                <div class="page" id="page-marco"><div class="fluxo-container"><div class="fluxo-summary" id="sumMarco"></div><div class="fluxo-scroll"><table id="fluxoMarco"></table></div></div></div>
+                <div class="page" id="page-abril"><div class="fluxo-container"><div class="fluxo-summary" id="sumAbril"></div><div class="fluxo-scroll"><table id="fluxoAbril"></table></div></div></div>
+                <div class="page" id="page-maio"><div class="fluxo-container"><div class="fluxo-summary" id="sumMaio"></div><div class="fluxo-scroll"><table id="fluxoMaio"></table></div></div></div>
+                <div class="page" id="page-junho"><div class="fluxo-container"><div class="fluxo-summary" id="sumJunho"></div><div class="fluxo-scroll"><table id="fluxoJunho"></table></div></div></div>
+                <div class="page" id="page-julho"><div class="fluxo-container"><div class="fluxo-summary" id="sumJulho"></div><div class="fluxo-scroll"><table id="fluxoJulho"></table></div></div></div>
+                <div class="page" id="page-agosto"><div class="fluxo-container"><div class="fluxo-summary" id="sumAgosto"></div><div class="fluxo-scroll"><table id="fluxoAgosto"></table></div></div></div>
+                <div class="page" id="page-setembro"><div class="fluxo-container"><div class="fluxo-summary" id="sumSetembro"></div><div class="fluxo-scroll"><table id="fluxoSetembro"></table></div></div></div>
+                <div class="page" id="page-outubro"><div class="fluxo-container"><div class="fluxo-summary" id="sumOutubro"></div><div class="fluxo-scroll"><table id="fluxoOutubro"></table></div></div></div>
+                <div class="page" id="page-novembro"><div class="fluxo-container"><div class="fluxo-summary" id="sumNovembro"></div><div class="fluxo-scroll"><table id="fluxoNovembro"></table></div></div></div>
+                <div class="page" id="page-dezembro"><div class="fluxo-container"><div class="fluxo-summary" id="sumDezembro"></div><div class="fluxo-scroll"><table id="fluxoDezembro"></table></div></div></div>
+
+                <!-- ==================== COMPRAS ==================== -->
+                <div class="page" id="page-compras">
+                    <div class="page-header">
+                        <h2>🛒 Compras</h2>
+                        <button class="btn btn-primary" onclick="openCompraModal()">+ Nova Compra</button>
+                    </div>
+                    <div class="fluxo-summary" id="comprasCards"></div>
+                    <div class="filter-bar">
+                        <input type="text" id="comprasBusca" placeholder="Buscar produto, fornecedor..." oninput="renderCompras()" style="flex:1;padding:8px 12px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:var(--radius-sm);color:var(--text-primary);font-family:'Inter',sans-serif;">
+                        <select id="comprasFilterStatus" onchange="renderCompras()">
+                            <option value="">Todos Status</option>
+                        </select>
+                    </div>
+                    <div class="table-container">
+                        <div class="table-scroll">
+                            <table><thead><tr><th>Data</th><th>Venc.</th><th>Produto</th><th>Qtd</th><th>V.Unit</th><th>Fornecedor</th><th>Pagto</th><th>Total</th><th>Status</th><th>Dias</th><th>Ações</th></tr></thead>
+                            <tbody id="comprasBody"></tbody></table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== VENDAS ==================== -->
+                <div class="page" id="page-vendas">
+                    <div class="page-header">
+                        <h2>💰 Vendas</h2>
+                        <button class="btn btn-primary" onclick="openVendaModal()">+ Nova Venda</button>
+                    </div>
+                    <div class="fluxo-summary" id="vendasCards"></div>
+                    <div class="filter-bar">
+                        <input type="text" id="vendasBusca" placeholder="Buscar produto, cliente..." oninput="renderVendas()" style="flex:1;padding:8px 12px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:var(--radius-sm);color:var(--text-primary);font-family:'Inter',sans-serif;">
+                        <select id="vendasFilterStatus" onchange="renderVendas()">
+                            <option value="">Todos Status</option>
+                        </select>
+                        <select id="vendasFilterVendedor" onchange="renderVendas()">
+                            <option value="">Todos Vendedores</option>
+                        </select>
+                    </div>
+                    <div class="table-container">
+                        <div class="table-scroll">
+                            <table><thead><tr><th>Data</th><th>Produto</th><th>Vendedor</th><th>Qtd</th><th>Valor</th><th>Cliente</th><th>Total</th><th>Status</th><th>Entrega</th><th>Ações</th></tr></thead>
+                            <tbody id="vendasBody"></tbody></table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== ESTOQUE ==================== -->
+                <div class="page" id="page-estoque">
+                    <div class="page-header">
+                        <h2>📦 Estoque</h2>
+                    </div>
+                    <div class="fluxo-summary" id="estoqueCards"></div>
+                    <div class="search-bar">
+                        <input type="text" id="estoqueBusca" placeholder="Buscar produto..." oninput="renderEstoque()">
+                    </div>
+                    <div class="table-container">
+                        <div class="table-scroll">
+                            <table><thead><tr><th>Produto</th><th>Em Estoque</th><th>Compras</th><th>Vendas</th><th>T. Compra</th><th>T. Venda</th><th>Lucros</th><th>V. Estoque</th></tr></thead>
+                            <tbody id="estoqueBody"></tbody></table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== PRODUTOS ==================== -->
+                <div class="page" id="page-produtos">
+                    <div class="page-header">
+                        <h2>🏷️ Produtos <span class="counter" id="produtosCount">0</span></h2>
+                        <button class="btn btn-primary" onclick="openCadastroModal('produtos')">+ Novo Produto</button>
+                    </div>
+                    <div class="search-bar">
+                        <input type="text" id="produtosBusca" placeholder="Buscar produto..." oninput="renderProdutos()">
+                    </div>
+                    <div class="cards-grid" id="produtosGrid" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr));"></div>
+                </div>
+
+                <!-- ==================== CLIENTES ==================== -->
+                <div class="page" id="page-clientes">
+                    <div class="page-header">
+                        <h2>👥 Clientes <span class="counter" id="clientesCount">0</span></h2>
+                        <button class="btn btn-primary" onclick="openCadastroModal('clientes')">+ Novo Cliente</button>
+                    </div>
+                    <div class="search-bar">
+                        <input type="text" id="clientesBusca" placeholder="Buscar nome, CPF/CNPJ, cidade..." oninput="renderClientes()">
+                    </div>
+                    <div class="table-container">
+                        <div class="table-scroll">
+                            <table><thead><tr><th></th><th>Nome</th><th>CPF/CNPJ</th><th>Telefone</th><th>Cidade/UF</th><th>Ações</th></tr></thead>
+                            <tbody id="clientesBody"></tbody></table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== FORNECEDORES ==================== -->
+                <div class="page" id="page-fornecedores">
+                    <div class="page-header">
+                        <h2>🏭 Fornecedores <span class="counter" id="fornecedoresCount">0</span></h2>
+                        <button class="btn btn-primary" onclick="openCadastroModal('fornecedores')">+ Novo Fornecedor</button>
+                    </div>
+                    <div class="search-bar">
+                        <input type="text" id="fornecedoresBusca" placeholder="Buscar nome, CPF/CNPJ, cidade..." oninput="renderFornecedores()">
+                    </div>
+                    <div class="table-container">
+                        <div class="table-scroll">
+                            <table><thead><tr><th></th><th>Nome</th><th>CPF/CNPJ</th><th>Telefone</th><th>Cidade/UF</th><th>Ações</th></tr></thead>
+                            <tbody id="fornecedoresBody"></tbody></table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== P. FORNECEDORES ==================== -->
+                <div class="page" id="page-pfornecedores">
+                    <div class="page-header">
+                        <h2>📋 Produtos dos Fornecedores <span class="counter" id="pfornecedoresCount">0</span></h2>
+                        <button class="btn btn-primary" onclick="openCadastroModal('pfornecedores')">+ Novo Produto</button>
+                    </div>
+                    <div class="search-bar">
+                        <input type="text" id="pfornecedoresBusca" placeholder="Buscar produto..." oninput="renderPFornecedores()">
+                    </div>
+                    <div class="cards-grid" id="pfornecedoresGrid" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr));"></div>
+                </div>
+
+                <!-- ==================== BOLETOS ==================== -->
+                <div class="page" id="page-boletos">
+                    <div class="page-header">
+                        <h2>🔖 Boletos</h2>
+                        <button class="btn btn-primary" onclick="openBoletoModal()">+ Novo Boleto</button>
+                    </div>
+                    <div class="fluxo-summary" id="boletosCards"></div>
+                    <div class="table-container">
+                        <div class="table-scroll">
+                            <table><thead><tr><th>Data Saída</th><th>Cliente</th><th>Valor</th><th>Vencimento</th><th>Data Receber</th><th>Situação</th><th>Ações</th></tr></thead>
+                            <tbody id="boletosBody"></tbody></table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== CHEQUES ==================== -->
+                <div class="page" id="page-cheques">
+                    <div class="page-header">
+                        <h2>📝 Cheques</h2>
+                        <button class="btn btn-primary" onclick="openChequeModal()">+ Novo Cheque</button>
+                    </div>
+                    <div class="fluxo-summary" id="chequesCards"></div>
+                    <div class="table-container">
+                        <div class="table-scroll">
+                            <table><thead><tr><th>Data</th><th>Cliente</th><th>Banco</th><th>Nº Cheque</th><th>Valor</th><th>Vencimento</th><th>Compensou</th><th>Situação</th><th>Obs</th><th>Ações</th></tr></thead>
+                            <tbody id="chequesBody"></tbody></table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== PRESTAÇÕES ==================== -->
+                <div class="page" id="page-prestacoes">
+                    <div class="page-header">
+                        <h2>💳 Prestações</h2>
+                        <button class="btn btn-primary" onclick="openPrestacaoModal()">+ Nova Prestação</button>
+                    </div>
+                    <div class="fluxo-summary" id="prestacoesCards"></div>
+                    <div id="prestacoesLista"></div>
+                </div>
+
+                <!-- ==================== PROJETOS ==================== -->
+                <div class="page" id="page-projetos">
+                    <div class="page-header">
+                        <h2>📐 Projetos</h2>
+                        <button class="btn btn-primary" onclick="openProjetoModal()">+ Novo Projeto</button>
+                    </div>
+                    <div class="fluxo-summary" id="projetosCards"></div>
+                    <div id="projetosLista"></div>
+                </div>
+
+                <!-- ==================== PAG. CLIENTES ==================== -->
+                <div class="page" id="page-pagclientes">
+                    <div class="page-header">
+                        <h2>🤝 Pagamentos de Clientes</h2>
+                        <button class="btn btn-primary" onclick="openPagClienteModal()">+ Novo Pagamento</button>
+                    </div>
+                    <div class="fluxo-summary" id="pagclientesCards"></div>
+                    <div class="table-container">
+                        <div class="table-scroll">
+                            <table><thead><tr><th>Data</th><th>Cliente</th><th>Valor</th><th>Forma Pagto</th><th>Obs</th><th>Ações</th></tr></thead>
+                            <tbody id="pagclientesBody"></tbody></table>
+                        </div>
+                    </div>
+                    <div id="pagclientesResumo" style="margin-top:16px;"></div>
+                </div>
+
+                <!-- ==================== GARANTIAS ==================== -->
+                <div class="page" id="page-garantias">
+                    <div class="page-header">
+                        <h2>🛡️ Garantias</h2>
+                        <button class="btn btn-primary" onclick="openGarantiaModal()">+ Nova Garantia</button>
+                    </div>
+                    <div class="fluxo-summary" id="garantiasCards"></div>
+                    <div class="table-container">
+                        <div class="table-scroll">
+                            <table><thead><tr><th>Início</th><th>Cliente</th><th>Produto</th><th>Vencimento</th><th>Situação</th><th>Tempo</th><th>Ações</th></tr></thead>
+                            <tbody id="garantiasBody"></tbody></table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== RELATÓRIOS ==================== -->
+                <div class="page" id="page-relatorios">
+                    <div class="page-header">
+                        <h2>📈 Relatórios</h2>
+                        <div>
+                            <select id="relatorioMes" onchange="renderRelatorios()" style="padding:8px 12px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:var(--radius-sm);color:var(--text-primary);font-family:'Inter',sans-serif;">
+                                <option value="0">Janeiro</option><option value="1">Fevereiro</option><option value="2">Março</option>
+                                <option value="3">Abril</option><option value="4">Maio</option><option value="5">Junho</option>
+                                <option value="6">Julho</option><option value="7">Agosto</option><option value="8">Setembro</option>
+                                <option value="9">Outubro</option><option value="10">Novembro</option><option value="11">Dezembro</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="relatoriosContent"></div>
+                </div>
+
+                <!-- ==================== NOTAS ENTRADA ==================== -->
+                <div class="page" id="page-notasentrada">
+                    <div class="page-header">
+                        <h2>📥 Notas de Entrada</h2>
+                        <button class="btn btn-primary" onclick="openNotaEntradaModal()">+ Nova Nota</button>
+                    </div>
+                    <div class="fluxo-summary" id="notasEntradaCards"></div>
+                    <div class="table-container">
+                        <div class="table-scroll">
+                            <table><thead><tr><th>Data</th><th>Fornecedor</th><th>Valor</th><th>Mês Ref.</th><th>Ações</th></tr></thead>
+                            <tbody id="notasEntradaBody"></tbody></table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== NOTAS SAÍDA ==================== -->
+                <div class="page" id="page-notassaida">
+                    <div class="page-header">
+                        <h2>📤 Notas de Saída</h2>
+                        <button class="btn btn-primary" onclick="openNotaSaidaModal()">+ Nova Nota</button>
+                    </div>
+                    <div class="fluxo-summary" id="notasSaidaCards"></div>
+                    <div class="table-container">
+                        <div class="table-scroll">
+                            <table><thead><tr><th>Data</th><th>Cliente</th><th>Valor</th><th>Mês Ref.</th><th>Ações</th></tr></thead>
+                            <tbody id="notasSaidaBody"></tbody></table>
+                        </div>
+                    </div>
+                    <div class="relatorio-section" style="margin-top:16px;">
+                        <div class="relatorio-section-header"><h4>Resumo Fiscal</h4></div>
+                        <div class="relatorio-section-body" id="notasSaidaFiscal"></div>
+                    </div>
+                </div>
+
+                <!-- ==================== RECEITAS MEI ==================== -->
+                <div class="page" id="page-receitasmei">
+                    <div class="page-header">
+                        <h2>📄 Relatório Mensal das Receitas Brutas - MEI</h2>
+                        <button class="btn btn-primary" onclick="gerarPDFMei()">📄 Gerar PDF</button>
+                    </div>
+                    <div style="margin-bottom:16px;">
+                        <select id="meiMes" onchange="renderReceitasMei()" style="padding:8px 12px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:var(--radius-sm);color:var(--text-primary);font-family:'Inter',sans-serif;">
+                            <option value="0">Janeiro</option><option value="1">Fevereiro</option><option value="2">Março</option>
+                            <option value="3">Abril</option><option value="4">Maio</option><option value="5">Junho</option>
+                            <option value="6">Julho</option><option value="7">Agosto</option><option value="8">Setembro</option>
+                            <option value="9">Outubro</option><option value="10">Novembro</option><option value="11">Dezembro</option>
+                        </select>
+                    </div>
+                    <div id="meiDocumento"></div>
+                </div>
+
+                <!-- ==================== CONFIGURAÇÕES ==================== -->
+                <div class="page" id="page-configuracoes">
+                    <div class="page-header">
+                        <h2>⚙️ Configurações</h2>
+                    </div>
+                    <div id="configContent"></div>
+                </div>
+
+                <!-- ==================== BACKUP ==================== -->
+                <div class="page" id="page-backup">
+                    <div class="page-header">
+                        <h2>💾 Backup & Restauração</h2>
+                    </div>
+                    <div class="backup-grid">
+                        <div class="backup-card">
+                            <h4>📥 Exportar Backup</h4>
+                            <p>Baixar todos os dados em arquivo JSON</p>
+                            <button class="btn btn-primary" onclick="exportBackup()">Exportar JSON</button>
+                        </div>
+                        <div class="backup-card">
+                            <h4>📤 Importar Backup</h4>
+                            <p>Restaurar dados de um arquivo JSON</p>
+                            <input type="file" id="importFile" accept=".json" onchange="importBackup(event)" style="display:none;">
+                            <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">Importar JSON</button>
+                        </div>
+                        <div class="backup-card">
+                            <h4>🗑️ Limpar Dados</h4>
+                            <p>Remover todos os dados do sistema</p>
+                            <button class="btn btn-danger" onclick="clearAllData()">Limpar Tudo</button>
+                        </div>
+                        <div class="backup-card">
+                            <h4>🔄 Restaurar Padrão</h4>
+                            <p>Voltar aos dados originais do Excel</p>
+                            <button class="btn btn-secondary" onclick="restoreDefaults()">Restaurar</button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <div class="table-header"><h3>ℹ️ Informações do Sistema</h3></div>
+                        <div style="padding:20px;" id="backupInfo"></div>
+                    </div>
+                </div>
+
+            </div><!-- /content-area -->
+        </main>
+    </div><!-- /app-container -->
+
+    <!-- ==================== MODAL CADASTRO ==================== -->
+    <div class="modal-overlay" id="cadastroModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="cadastroModalTitle">Novo</h3>
+                <button class="modal-close" onclick="closeCadastroModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="cadastroModalBody"></div>
+            <div class="modal-footer" id="cadastroModalFooter">
+                <button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button>
+                <button class="btn btn-primary" id="cadastroModalSaveBtn" onclick="saveCadastro()">Salvar</button>
+            </div>
+        </div>
     </div>
-  `).join('');
-}
 
-function addConfigItem(key) {
-  const input = document.getElementById('addInput_' + key);
-  const val = input.value.trim();
-  if (!val) return;
-  if (!appData.config[key]) appData.config[key] = [];
-  if (appData.config[key].includes(val)) {
-    showToast('Item já existe!', 'error');
-    return;
-  }
-  appData.config[key].push(val);
-  input.value = '';
-  saveData();
-  renderConfig();
-  showToast('Item adicionado com sucesso!', 'success');
-}
-
-function editConfigItem(key, index) {
-  const current = appData.config[key][index];
-  document.getElementById('modalTitle').textContent = 'Editar Item';
-  document.getElementById('modalBody').innerHTML = `
-    <div class="form-group">
-      <label>Nome</label>
-      <input type="text" id="editConfigInput" value="${current}">
+    <!-- ==================== MODAL VISUALIZAÇÃO ==================== -->
+    <div class="modal-overlay" id="viewModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="viewModalTitle">Detalhes</h3>
+                <button class="modal-close" onclick="closeViewModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="viewModalBody"></div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeViewModal()">Fechar</button>
+            </div>
+        </div>
     </div>
-  `;
-  document.getElementById('modalFooter').innerHTML = `
-    <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
-    <button class="btn btn-primary" onclick="saveConfigEdit('${key}', ${index})">Salvar</button>
-  `;
-  openModal();
-}
 
-function saveConfigEdit(key, index) {
-  const val = document.getElementById('editConfigInput').value.trim();
-  if (!val) return;
-  appData.config[key][index] = val;
-  saveData();
-  renderConfig();
-  closeModal();
-  showToast('Item atualizado!', 'success');
-}
+    <!-- TOAST -->
+    <div class="toast-container" id="toastContainer"></div>
 
-function deleteConfigItem(key, index) {
-  if (!confirm('Tem certeza que deseja excluir?')) return;
-  appData.config[key].splice(index, 1);
-  saveData();
-  renderConfig();
-  showToast('Item excluído!', 'info');
-}
-
-// ============================================
-// BACKUP / RESTORE
-// ============================================
-function exportBackup() {
-  const data = JSON.stringify(appData, null, 2);
-  const blob = new Blob([data], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  const now = new Date();
-  a.download = `WD_Maquinas_Backup_${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
-  showToast('Backup exportado com sucesso!', 'success');
-}
-
-function importBackup(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      const data = JSON.parse(e.target.result);
-      if (data.empresa || data.config) {
-        appData = data;
-        saveData();
-        showToast('Backup restaurado com sucesso!', 'success');
-        renderDashboard();
-        renderBackupInfo();
-      } else {
-        showToast('Arquivo inválido!', 'error');
-      }
-    } catch(err) {
-      showToast('Erro ao ler arquivo: ' + err.message, 'error');
-    }
-  };
-  reader.readAsText(file);
-  event.target.value = '';
-}
-
-function clearAllData() {
-  if (!confirm('ATENÇÃO! Todos os dados serão perdidos. Tem certeza?')) return;
-  if (!confirm('Última chance! Isso não pode ser desfeito. Continuar?')) return;
-  localStorage.removeItem('wd_maquinas_data');
-  appData = { empresa: { nome:"WD MÁQUINAS" }, config: { vendedores:[], formasPagamento:[], tiposUnidade:[], situacaoCompra:[], tipoVenda:[], situacaoEntrega:[], situacaoGarantia:[], situacaoCheque:[] }, compras:[], vendas:[], prestacoes:[], boletos:[], garantias:[], estoque:[], fluxoCaixa:{} };
-  saveData();
-  showToast('Todos os dados foram removidos!', 'info');
-  renderDashboard();
-  renderBackupInfo();
-}
-
-function restoreDefaults() {
-  if (!confirm('Restaurar dados originais do Excel? Dados atuais serão substituídos.')) return;
-  appData = JSON.parse(JSON.stringify(DEFAULT_DATA));
-  saveData();
-  showToast('Dados padrão restaurados!', 'success');
-  renderDashboard();
-  renderBackupInfo();
-}
-
-function renderBackupInfo() {
-  const dataStr = JSON.stringify(appData);
-  const sizeKB = (new Blob([dataStr]).size / 1024).toFixed(1);
-  const info = [
-    { label: 'Tamanho dos dados', value: sizeKB + ' KB' },
-    { label: 'Compras registradas', value: (appData.compras||[]).length },
-    { label: 'Vendas registradas', value: (appData.vendas||[]).length },
-    { label: 'Prestações', value: (appData.prestacoes||[]).length },
-    { label: 'Boletos', value: (appData.boletos||[]).length },
-    { label: 'Garantias', value: (appData.garantias||[]).length },
-    { label: 'Produtos no estoque', value: (appData.estoque||[]).length },
-    { label: 'Vendedores', value: (appData.config?.vendedores||[]).length },
-    { label: 'Formas de pagamento', value: (appData.config?.formasPagamento||[]).length }
-  ];
-  document.getElementById('backupInfo').innerHTML = info.map(i => `
-    <div class="info-item"><span class="label">${i.label}</span><span class="value">${i.value}</span></div>
-  `).join('');
-}
-
-// ============================================
-// MODAL
-// ============================================
-function openModal() { document.getElementById('modalOverlay').classList.add('show'); }
-function closeModal() { document.getElementById('modalOverlay').classList.remove('show'); }
-
-// ============================================
-// TOAST
-// ============================================
-function showToast(message, type = 'info') {
-  const container = document.getElementById('toastContainer');
-  const icons = { success: '✅', error: '❌', info: '🔔' };
-  const toast = document.createElement('div');
-  toast.className = `toast ${type}`;
-  toast.innerHTML = `${icons[type]||''} ${message}`;
-  container.appendChild(toast);
-  setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateX(100%)'; setTimeout(() => toast.remove(), 300); }, 3000);
-}
-
-// ============================================
-// INIT
-// ============================================
-function init() {
-  loadData();
-  const dateStr = formatDate();
-  document.getElementById('sidebarDate').textContent = dateStr;
-  document.getElementById('topbarDate').textContent = dateStr;
-  renderDashboard();
-}
-
-// Close modal on overlay click
-document.getElementById('modalOverlay').addEventListener('click', function(e) {
-  if (e.target === this) closeModal();
-});
-
-// Init
-init();
-</script>
+    <!-- JAVASCRIPT EXTERNO -->
+    <script src="script.js"></script>
 </body>
 </html>
