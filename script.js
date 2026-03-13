@@ -2931,6 +2931,7 @@ function gerarPDFMei() {
 }
 
 // ==================== CONFIGURAÇÕES ====================
+// ==================== CONFIGURAÇÕES ====================
 function renderConfiguracoes() {
     var configs = [
         { key: 'vendedores', label: 'Vendedores', icon: '👥' },
@@ -2943,7 +2944,26 @@ function renderConfiguracoes() {
         { key: 'situacaoCheque', label: 'Situação do Cheque', icon: '📝' }
     ];
 
+    // LOGO DA EMPRESA
     var html = '';
+    html += '<div class="config-section">';
+    html += '<div class="config-section-header"><h4>🏢 Logo da Empresa</h4></div>';
+    html += '<div class="config-section-body">';
+    html += '<p style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:12px;">Proporção recomendada: <strong>260 x 70 pixels</strong> (retangular horizontal). Tamanho máximo: 500KB. Formatos: PNG, JPG, SVG.</p>';
+    html += '<div class="img-upload-area" onclick="document.getElementById(\'logoUploadInput\').click()" style="max-width:300px;">';
+    if (appData.empresa && appData.empresa.logo) {
+        html += '<img src="' + appData.empresa.logo + '" id="logoPreview" style="max-width:260px;max-height:70px;object-fit:contain;">';
+    } else {
+        html += '<p id="logoPreview">📷 Clique para adicionar o logo (260x70px)</p>';
+    }
+    html += '</div>';
+    html += '<input type="file" id="logoUploadInput" accept="image/*" style="display:none" onchange="handleLogoUpload(event)">';
+    if (appData.empresa && appData.empresa.logo) {
+        html += '<button class="btn btn-danger btn-sm" onclick="removeLogo()" style="margin-top:8px;">🗑️ Remover Logo</button>';
+    }
+    html += '</div></div>';
+
+    // LISTAS DE CONFIGURAÇÕES
     for (var c = 0; c < configs.length; c++) {
         var cfg = configs[c];
         var items = appData.config[cfg.key] || [];
@@ -2969,38 +2989,38 @@ function renderConfiguracoes() {
     document.getElementById('configContent').innerHTML = html;
 }
 
-function addConfigItem(key) {
-    var input = document.getElementById('configAdd_' + key);
-    var valor = input.value.trim();
-    if (!valor) { showToast('Digite um valor!'); return; }
+function handleLogoUpload(event) {
+    var file = event.target.files[0];
+    if (!file) return;
 
-    if (!appData.config[key]) appData.config[key] = [];
-    appData.config[key].push(valor);
-    saveData();
-    renderConfiguracoes();
-    showToast('Item adicionado!');
+    if (file.size > 500000) {
+        showToast('Imagem muito grande! Máximo 500KB.');
+        return;
+    }
+
+    var reader = new FileReader();
+    reader.onload = function (e) {
+        var imgData = e.target.result;
+        if (!appData.empresa) appData.empresa = getDefaultData().empresa;
+        appData.empresa.logo = imgData;
+        saveData();
+        updateSidebarLogo();
+        renderConfiguracoes();
+        showToast('Logo atualizado com sucesso!');
+    };
+    reader.readAsDataURL(file);
+    event.target.value = '';
 }
 
-function editConfigItem(key, index) {
-    var items = appData.config[key] || [];
-    var novoValor = prompt('Editar valor:', items[index]);
-    if (novoValor === null) return;
-    novoValor = novoValor.trim();
-    if (!novoValor) { showToast('Valor não pode ser vazio!'); return; }
-
-    appData.config[key][index] = novoValor;
+function removeLogo() {
+    if (!confirm('Remover o logo da empresa?')) return;
+    appData.empresa.logo = "";
     saveData();
+    updateSidebarLogo();
     renderConfiguracoes();
-    showToast('Item atualizado!');
+    showToast('Logo removido!');
 }
 
-function deleteConfigItem(key, index) {
-    if (!confirm('Excluir este item?')) return;
-    appData.config[key].splice(index, 1);
-    saveData();
-    renderConfiguracoes();
-    showToast('Item excluído!');
-}
 
 // ==================== BACKUP ====================
 function exportBackup() {
