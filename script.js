@@ -1,3138 +1,4499 @@
-// ============================================================
-// WD MÁQUINAS - SISTEMA DE FLUXO DE CAIXA 2026
-// script.js — PARTE 3 (Dados REAIS da planilha + Funções base)
-// ============================================================
+// ==========================================
+// WD MÁQUINAS — SISTEMA DE FLUXO DE CAIXA 2026
+// script.js — PARTE 3 (Dados, Base, Navegação)
+// ==========================================
 
-// ==================== DADOS PADRÃO (REAIS DA PLANILHA) ====================
-function getDefaultData() {
-    return {
-        empresa: {
-            nome: "WD MÁQUINAS",
-            cnpj: "29.595.239/0001-33",
-            socios: ["Wander", "Daniel"],
-            metaSalario: 6000,
-            metaVendas: 30000,
-            logo: ""
-        },
-        config: {
-            vendedores: ["Wander", "Daniel"],
-            formasPagamento: ["Boleto Bancário", "Caixa da Oficina", "Cartão MP", "Daniel", "Elo Grafite - Cartão", "Inter - Cartão", "Luisa - Cartão", "Nubank", "PIX", "Transferência Bancária", "Wander - Cartão", "WD - Cartão"],
-            tiposUnidade: ["Unidade", "Metro", "Centímetro", "Milímetro", "Kg", "Litro", "Peça", "Par", "Caixa", "Rolo", "Pacote", "Barra"],
-            situacaoCompra: ["Pago", "Devendo", "Guardado"],
-            tipoVenda: ["Direta", "Revenda"],
-            situacaoEntrega: ["Entregou", "Não Entregou"],
-            situacaoGarantia: ["Ativa", "Vencida"],
-            situacaoCheque: ["Depositado Esperando Compensar", "Devolvido Para o Cliente", "Esperando Para Depositar", "Passou Para Jotafran", "Passou Para PS Inox"]
-        },
-        clientes: [
-            { id: 1, nome: "RENATO (NOVA SERRANA)", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "Nova Serrana", estado: "MG", imagem: "" }
-        ],
-        fornecedores: [
-            { id: 1, nome: "JOTAFRAN", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
-            { id: 2, nome: "PS INOX", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
-            { id: 3, nome: "MERCADO LIVRE", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
-            { id: 4, nome: "FREITAS PARAFUSOS", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
-            { id: 5, nome: "AUTOMAÇÃO", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
-            { id: 6, nome: "EPF - ELETRO POSTE FORTE", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
-            { id: 7, nome: "NOVA LINEA", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
-            { id: 8, nome: "OXIFRANCA", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
-            { id: 9, nome: "CASA DAS BORRACHAS", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
-            { id: 10, nome: "GUERAÇO", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
-            { id: 11, nome: "CASA FORTE", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
-            { id: 12, nome: "DIVERSOS", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
-            { id: 13, nome: "SUPERMERCADO", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
-            { id: 14, nome: "POSTO DE COMBUSTIVEL", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
-            { id: 15, nome: "POLIMAQ", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
-            { id: 16, nome: "EMPRÉSTIMO NUBANK", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
-            { id: 17, nome: "BLING", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
-            { id: 18, nome: "GS1", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
-            { id: 19, nome: "FRENET", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
-            { id: 20, nome: "ALIEXPRESS", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
-            { id: 21, nome: "BRAVO 360", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
-            { id: 22, nome: "JAGUIMAR", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
-            { id: 23, nome: "PELPAN", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
-            { id: 24, nome: "CASA DE TINTA", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
-            { id: 25, nome: "PADOVA", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
-            { id: 26, nome: "HERATI - CERTIFICADO DIGITAL", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
-            { id: 27, nome: "CASA DO PLÁSTICO", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
-            { id: 28, nome: "PALÁCIO DAS BORRACHAS", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" },
-            { id: 29, nome: "VELOE", cpfcnpj: "", telefone: "", endereco: "", numero: "", cep: "", cidade: "", estado: "", imagem: "" }
-        ],
-        produtos: [],
-        pfornecedores: [],
-        compras: [
-            { id:1, data:"2026-01-01", vencimento:"2026-01-19", produto:"DIMMER 65 AMPER 12.000W/220V - 6.000W/110V", qtd:1, valorUnit:167.9, fornecedor:"MERCADO LIVRE", formaPagto:"Cartão MP", status:"Pago" },
-            { id:2, data:"2026-01-01", vencimento:"2026-01-30", produto:"EMPRESTIMO OFICINA", qtd:1, valorUnit:2368.63, fornecedor:"EMPRÉSTIMO NUBANK", formaPagto:"PIX", status:"Pago" },
-            { id:3, data:"2026-01-01", vencimento:"2026-01-24", produto:"CABO PP 3 X 4 mm", qtd:1, valorUnit:74, fornecedor:"AUTOMAÇÃO", formaPagto:"WD - Cartão", status:"Pago" },
-            { id:4, data:"2026-01-05", vencimento:"2026-01-10", produto:"ALUGUEL DO BARRACÃO", qtd:1, valorUnit:450, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Pago" },
-            { id:5, data:"2026-01-05", vencimento:"2026-01-10", produto:"AGUA E FORÇA", qtd:1, valorUnit:80, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Pago" },
-            { id:6, data:"2026-01-05", vencimento:"2026-02-10", produto:"RESISTÊNCIA CABIDE 4500 WATTS", qtd:1, valorUnit:80, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Pago" },
-            { id:7, data:"2026-01-05", vencimento:"2026-01-05", produto:"COMBUSTIVEL", qtd:1, valorUnit:50, fornecedor:"POSTO DE COMBUSTIVEL", formaPagto:"Daniel", status:"Pago" },
-            { id:8, data:"2026-01-05", vencimento:"2026-02-10", produto:"DISCO DE CORTE", qtd:1, valorUnit:300, fornecedor:"FREITAS PARAFUSOS", formaPagto:"Elo Grafite - Cartão", status:"Pago" },
-            { id:9, data:"2026-01-05", vencimento:"2026-02-10", produto:"BOMBONA 10 LITROS", qtd:2, valorUnit:49, fornecedor:"CASA DO PLÁSTICO", formaPagto:"Elo Grafite - Cartão", status:"Pago" },
-            { id:10, data:"2026-01-05", vencimento:"2026-02-10", produto:"ASSINATURA ANUAL", qtd:1, valorUnit:85, fornecedor:"FRENET", formaPagto:"PIX", status:"Pago" },
-            { id:11, data:"2026-01-05", vencimento:"2026-02-10", produto:"RESISTÊNCIA 4000 WATTS EM U VAPOR. - 220V - 400 x 80mm (N.S)", qtd:2, valorUnit:70, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Pago" },
-            { id:12, data:"2026-01-06", vencimento:"2026-01-06", produto:"FRETE", qtd:1, valorUnit:95, fornecedor:"NOVA LINEA", formaPagto:"PIX", status:"Pago" },
-            { id:13, data:"2026-01-06", vencimento:"2026-02-10", produto:"CHAPA INOX 430 - 3 METROS", qtd:1, valorUnit:947.84, fornecedor:"PS INOX", formaPagto:"Elo Grafite - Cartão", status:"Pago" },
-            { id:14, data:"2026-01-06", vencimento:"2026-02-10", produto:"TUBO DE INOX 1\"1/4 - METRO", qtd:6, valorUnit:40.27, fornecedor:"PS INOX", formaPagto:"Elo Grafite - Cartão", status:"Pago" },
-            { id:15, data:"2026-01-07", vencimento:"2026-02-10", produto:"VARETA DE INOX", qtd:1, valorUnit:100, fornecedor:"OXIFRANCA", formaPagto:"Elo Grafite - Cartão", status:"Pago" },
-            { id:16, data:"2026-01-07", vencimento:"2026-02-10", produto:"COMBUSTIVEL", qtd:1, valorUnit:100, fornecedor:"POSTO DE COMBUSTIVEL", formaPagto:"Elo Grafite - Cartão", status:"Pago" },
-            { id:17, data:"2026-01-07", vencimento:"2026-02-10", produto:"GUARNIÇÃO 15 X 15", qtd:1, valorUnit:388.75, fornecedor:"CASA DAS BORRACHAS", formaPagto:"Elo Grafite - Cartão", status:"Pago" },
-            { id:18, data:"2026-01-07", vencimento:"2026-02-10", produto:"RODÍZIO GIRATORIO COM PINO E FREIO 40kg SCHIOPPA GEL", qtd:1, valorUnit:60, fornecedor:"FREITAS PARAFUSOS", formaPagto:"Elo Grafite - Cartão", status:"Pago" },
-            { id:19, data:"2026-01-07", vencimento:"2026-02-10", produto:"CABO PP 3 X 4 mm", qtd:1, valorUnit:124, fornecedor:"AUTOMAÇÃO", formaPagto:"Elo Grafite - Cartão", status:"Pago" },
-            { id:20, data:"2026-01-07", vencimento:"2026-01-19", produto:"COTOVELO 1/2 INOX", qtd:10, valorUnit:16.9, fornecedor:"MERCADO LIVRE", formaPagto:"Cartão MP", status:"Pago" },
-            { id:21, data:"2026-01-09", vencimento:"2026-01-24", produto:"CABO PP 3 X 4 mm", qtd:1, valorUnit:71.8, fornecedor:"EPF - ELETRO POSTE FORTE", formaPagto:"Daniel", status:"Pago" },
-            { id:22, data:"2026-01-09", vencimento:"2026-01-24", produto:"DIVERSOS", qtd:1, valorUnit:18, fornecedor:"FREITAS PARAFUSOS", formaPagto:"Daniel", status:"Pago" },
-            { id:23, data:"2026-01-09", vencimento:"2026-02-10", produto:"DIVERSOS", qtd:1, valorUnit:160.65, fornecedor:"JAGUIMAR", formaPagto:"Elo Grafite - Cartão", status:"Pago" },
-            { id:24, data:"2026-01-09", vencimento:"2026-01-19", produto:"LUVA LISA 1\" 1/2 INOX 304", qtd:1, valorUnit:43.46, fornecedor:"MERCADO LIVRE", formaPagto:"Cartão MP", status:"Pago" },
-            { id:25, data:"2026-01-12", vencimento:"2026-02-10", produto:"CHAPA INOX", qtd:1, valorUnit:1413.35, fornecedor:"PS INOX", formaPagto:"Elo Grafite - Cartão", status:"Pago" },
-            { id:26, data:"2026-01-13", vencimento:"2026-02-10", produto:"CHAPA INOX", qtd:1, valorUnit:356, fornecedor:"GUERAÇO", formaPagto:"Elo Grafite - Cartão", status:"Pago" },
-            { id:27, data:"2026-01-13", vencimento:"2026-02-10", produto:"RESISTÊNCIA EM W 3000 WATTS SECA 220V - 800 x 300mm G. (N.S)", qtd:2, valorUnit:140, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Pago" },
-            { id:28, data:"2026-01-13", vencimento:"2026-02-10", produto:"RESISTÊNCIA 4000 WATTS EM U VAPOR. - 220V - 400 x 80mm (N.S)", qtd:2, valorUnit:70, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Pago" },
-            { id:29, data:"2026-01-13", vencimento:"2026-02-10", produto:"RESISTENCIA 3000 WATTS 600MM 220V MARMITEIRO", qtd:1, valorUnit:70, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Pago" },
-            { id:30, data:"2026-01-14", vencimento:"2026-02-10", produto:"DIVERSOS", qtd:1, valorUnit:227, fornecedor:"FREITAS PARAFUSOS", formaPagto:"Elo Grafite - Cartão", status:"Pago" },
-            { id:31, data:"2026-01-14", vencimento:"2026-02-10", produto:"ENGATE FLEXIVEL 40CM METAL SANCHEZ", qtd:1, valorUnit:18.5, fornecedor:"CASA FORTE", formaPagto:"WD - Cartão", status:"Pago" },
-            { id:32, data:"2026-01-15", vencimento:"2026-02-10", produto:"RESISTÊNCIA 4000 WATTS EM U VAPOR. - 220V - 400 x 80mm (N.S)", qtd:1, valorUnit:70, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Pago" },
-            { id:33, data:"2026-01-15", vencimento:"2026-02-10", produto:"CABO PP 3 X 4 mm", qtd:1, valorUnit:43, fornecedor:"EPF - ELETRO POSTE FORTE", formaPagto:"Elo Grafite - Cartão", status:"Pago" },
-            { id:34, data:"2026-01-19", vencimento:"2026-02-24", produto:"CAFÉ - FILTRO - PAPEL HIGIÊNICO", qtd:1, valorUnit:30, fornecedor:"SUPERMERCADO", formaPagto:"WD - Cartão", status:"Pago" },
-            { id:35, data:"2026-01-19", vencimento:"2026-02-24", produto:"BOMBONA 10 LITROS", qtd:1, valorUnit:182.68, fornecedor:"MERCADO LIVRE", formaPagto:"WD - Cartão", status:"Pago" },
-            { id:36, data:"2026-01-19", vencimento:"2026-02-19", produto:"BOMBONA 10 LITROS", qtd:1, valorUnit:196.74, fornecedor:"MERCADO LIVRE", formaPagto:"Cartão MP", status:"Pago" },
-            { id:37, data:"2026-01-19", vencimento:"2026-02-24", produto:"FLANGE DE 1/2 PARA BEBEDOURO", qtd:14, valorUnit:9.59, fornecedor:"MERCADO LIVRE", formaPagto:"WD - Cartão", status:"Pago" },
-            { id:38, data:"2026-01-20", vencimento:"2026-02-10", produto:"CHAPA INOX", qtd:1, valorUnit:1404, fornecedor:"PS INOX", formaPagto:"PIX", status:"Pago" },
-            { id:39, data:"2026-01-21", vencimento:"2026-01-21", produto:"FRETE", qtd:1, valorUnit:70, fornecedor:"NOVA LINEA", formaPagto:"PIX", status:"Pago" },
-            { id:40, data:"2026-01-21", vencimento:"2026-01-21", produto:"DIVERSOS", qtd:1, valorUnit:87, fornecedor:"DIVERSOS", formaPagto:"Daniel", status:"Pago" },
-            { id:41, data:"2026-01-21", vencimento:"2026-01-24", produto:"BLING", qtd:1, valorUnit:214.83, fornecedor:"BLING", formaPagto:"WD - Cartão", status:"Pago" },
-            { id:42, data:"2026-01-21", vencimento:"2026-01-24", produto:"REGISTRO DE PRODUTOS DO GS1", qtd:1, valorUnit:178.59, fornecedor:"GS1", formaPagto:"WD - Cartão", status:"Pago" },
-            { id:43, data:"2026-01-21", vencimento:"2026-02-10", produto:"RESISTÊNCIA CABIDE 4500 WATTS", qtd:3, valorUnit:80, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Pago" },
-            { id:44, data:"2026-01-21", vencimento:"2026-02-19", produto:"DISCO DE FLAP", qtd:1, valorUnit:184.99, fornecedor:"MERCADO LIVRE", formaPagto:"Cartão MP", status:"Pago" },
-            { id:45, data:"2026-01-22", vencimento:"2026-02-02", produto:"CHAPA INOX", qtd:1, valorUnit:822, fornecedor:"PS INOX", formaPagto:"PIX", status:"Pago" },
-            { id:46, data:"2026-01-22", vencimento:"2026-02-24", produto:"FRETE", qtd:1, valorUnit:80, fornecedor:"NOVA LINEA", formaPagto:"PIX", status:"Pago" },
-            { id:47, data:"2026-01-23", vencimento:"2026-02-24", produto:"COMBUSTIVEL", qtd:1, valorUnit:100, fornecedor:"POSTO DE COMBUSTIVEL", formaPagto:"Daniel", status:"Pago" },
-            { id:48, data:"2026-01-23", vencimento:"2026-02-24", produto:"DIVERSOS", qtd:1, valorUnit:35, fornecedor:"CASA FORTE", formaPagto:"Daniel", status:"Pago" },
-            { id:49, data:"2026-01-23", vencimento:"2026-02-24", produto:"CABO PP 3 X 4 mm", qtd:1, valorUnit:87, fornecedor:"EPF - ELETRO POSTE FORTE", formaPagto:"Daniel", status:"Pago" },
-            { id:50, data:"2026-01-23", vencimento:"2026-02-24", produto:"GUARNIÇÃO 15 X 15", qtd:1, valorUnit:24, fornecedor:"CASA DAS BORRACHAS", formaPagto:"Daniel", status:"Pago" },
-            { id:51, data:"2026-01-23", vencimento:"2026-02-10", produto:"RESISTÊNCIA 4000 WATTS EM U VAPOR. - 220V - 400 x 80mm (N.S)", qtd:7, valorUnit:70, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Pago" },
-            { id:52, data:"2026-01-23", vencimento:"2026-02-10", produto:"RESISTÊNCIA EM W 3000 WATTS SECA 220V - 800 x 300mm G. (N.S)", qtd:5, valorUnit:140, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Pago" },
-            { id:53, data:"2026-01-26", vencimento:"2026-02-24", produto:"DIVERSOS", qtd:1, valorUnit:13, fornecedor:"SUPERMERCADO", formaPagto:"WD - Cartão", status:"Pago" },
-            { id:54, data:"2026-01-26", vencimento:"2026-02-24", produto:"DIVERSOS", qtd:1, valorUnit:42, fornecedor:"SUPERMERCADO", formaPagto:"WD - Cartão", status:"Pago" },
-            { id:55, data:"2026-01-27", vencimento:"2026-02-24", produto:"GUARNIÇÃO 15 X 15", qtd:1, valorUnit:190, fornecedor:"PALÁCIO DAS BORRACHAS", formaPagto:"WD - Cartão", status:"Pago" },
-            { id:56, data:"2026-01-27", vencimento:"2026-02-24", produto:"PEDÁGIO", qtd:1, valorUnit:150, fornecedor:"VELOE", formaPagto:"WD - Cartão", status:"Pago" },
-            { id:57, data:"2026-01-27", vencimento:"2026-02-24", produto:"DIVERSOS", qtd:1, valorUnit:188, fornecedor:"FREITAS PARAFUSOS", formaPagto:"WD - Cartão", status:"Pago" },
-            { id:58, data:"2026-01-27", vencimento:"2026-02-24", produto:"CABO PP 3 x 2,5 mm", qtd:1, valorUnit:20, fornecedor:"EPF - ELETRO POSTE FORTE", formaPagto:"WD - Cartão", status:"Pago" },
-            { id:59, data:"2026-01-27", vencimento:"2026-02-10", produto:"RESISTENCIA 3000 WATTS 800MM 220V MARMITEIRO", qtd:1, valorUnit:90, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Pago" },
-            { id:60, data:"2026-01-27", vencimento:"2026-02-10", produto:"TERMOSTATO 20 A 120 GRAUS - 30A", qtd:1, valorUnit:60, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Pago" },
-            { id:61, data:"2026-01-27", vencimento:"2026-02-24", produto:"COMBUSTIVEL", qtd:1, valorUnit:100, fornecedor:"POSTO DE COMBUSTIVEL", formaPagto:"WD - Cartão", status:"Pago" },
-            { id:62, data:"2026-01-30", vencimento:"2026-02-24", produto:"FECHO ENGATE", qtd:20, valorUnit:8.07, fornecedor:"ALIEXPRESS", formaPagto:"WD - Cartão", status:"Pago" },
-            { id:63, data:"2026-01-30", vencimento:"2026-01-30", produto:"CERTIFICADO DIGITAL", qtd:1, valorUnit:199.9, fornecedor:"HERATI - CERTIFICADO DIGITAL", formaPagto:"PIX", status:"Pago" },
-            { id:64, data:"2026-02-02", vencimento:"2026-02-24", produto:"CHAPA INOX 304 - 3 METROS", qtd:1, valorUnit:1521, fornecedor:"PS INOX", formaPagto:"PIX", status:"Pago" },
-            { id:65, data:"2026-02-02", vencimento:"2026-03-10", produto:"RESISTÊNCIA EM W 3000 WATTS SECA 220V - 800 X 300mm G. (N.S)", qtd:3, valorUnit:140, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Pago" },
-            { id:66, data:"2026-02-02", vencimento:"2026-03-10", produto:"RESISTÊNCIA EM W 3500 WATTS SECA 220V - 800 X 300mm G. (N.S)", qtd:1, valorUnit:140, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Pago" },
-            { id:67, data:"2026-02-02", vencimento:"2026-02-24", produto:"FRETE", qtd:1, valorUnit:80, fornecedor:"NOVA LINEA", formaPagto:"PIX", status:"Pago" },
-            { id:68, data:"2026-02-03", vencimento:"2026-03-10", produto:"GUARNIÇÃO 15 X 15", qtd:1, valorUnit:48, fornecedor:"CASA DAS BORRACHAS", formaPagto:"Daniel", status:"Pago" },
-            { id:69, data:"2026-02-03", vencimento:"2026-03-10", produto:"GOOGLE VIEW", qtd:1, valorUnit:280, fornecedor:"BRAVO 360", formaPagto:"Elo Grafite - Cartão", status:"Pago" },
-            { id:70, data:"2026-02-03", vencimento:"2026-03-10", produto:"RESISTÊNCIA 3000 WATTS EM U VAPOR. - 220V - 200 x 80mm (N.S)", qtd:1, valorUnit:45, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Pago" },
-            { id:71, data:"2026-02-03", vencimento:"2026-02-10", produto:"ALUGUEL DO BARRACÃO", qtd:1, valorUnit:450, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Pago" },
-            { id:72, data:"2026-02-03", vencimento:"2026-02-10", produto:"AGUA E FORÇA", qtd:1, valorUnit:80, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Pago" },
-            { id:73, data:"2026-02-04", vencimento:"2026-02-24", produto:"COMBUSTIVEL", qtd:1, valorUnit:98.57, fornecedor:"POSTO DE COMBUSTIVEL", formaPagto:"WD - Cartão", status:"Pago" },
-            { id:74, data:"2026-02-09", vencimento:"2026-03-10", produto:"LIXA ABRASIVA 75 x 180 - 180 GRÃOS", qtd:1, valorUnit:60.25, fornecedor:"PELPAN", formaPagto:"Elo Grafite - Cartão", status:"Pago" },
-            { id:75, data:"2026-02-09", vencimento:"2026-03-10", produto:"GUARNIÇÃO 15 X 15", qtd:1, valorUnit:187.5, fornecedor:"CASA DAS BORRACHAS", formaPagto:"Elo Grafite - Cartão", status:"Pago" },
-            { id:76, data:"2026-02-09", vencimento:"2026-03-10", produto:"SPRAY DE TINTA", qtd:1, valorUnit:138, fornecedor:"CASA DE TINTA", formaPagto:"Elo Grafite - Cartão", status:"Pago" },
-            { id:77, data:"2026-02-11", vencimento:"2026-02-19", produto:"DIVERSOS", qtd:1, valorUnit:214.06, fornecedor:"MERCADO LIVRE", formaPagto:"Cartão MP", status:"Pago" },
-            { id:78, data:"2026-02-12", vencimento:"2026-03-10", produto:"SINALEIRO DE 3/8 (OLHO DE BOI)", qtd:3, valorUnit:6, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Pago" },
-            { id:79, data:"2026-02-12", vencimento:"2026-03-10", produto:"DIVERSOS", qtd:1, valorUnit:34.9, fornecedor:"DIVERSOS", formaPagto:"Elo Grafite - Cartão", status:"Pago" },
-            { id:80, data:"2026-02-17", vencimento:"2026-03-10", produto:"DETERGENTE NEUTRO", qtd:1, valorUnit:30, fornecedor:"SUPERMERCADO", formaPagto:"Elo Grafite - Cartão", status:"Pago" },
-            { id:81, data:"2026-02-19", vencimento:"2026-03-10", produto:"RESISTÊNCIA 3000 WATTS EM U VAPOR. - 220V - 200 x 80mm (N.S)", qtd:5, valorUnit:45, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Pago" },
-            { id:82, data:"2026-02-20", vencimento:"2026-02-28", produto:"EMPRESTIMO OFICINA", qtd:1, valorUnit:2368.63, fornecedor:"EMPRÉSTIMO NUBANK", formaPagto:"PIX", status:"Pago" },
-            { id:83, data:"2026-02-23", vencimento:"2026-03-24", produto:"CHAVE CADEADO 63 AMPERS", qtd:1, valorUnit:78.03, fornecedor:"MERCADO LIVRE", formaPagto:"Cartão MP", status:"Pago" },
-            { id:84, data:"2026-02-23", vencimento:"2026-02-24", produto:"BLING", qtd:1, valorUnit:214.83, fornecedor:"BLING", formaPagto:"WD - Cartão", status:"Pago" },
-            { id:85, data:"2026-02-23", vencimento:"2026-02-24", produto:"ENGATE FLEXIVEL 40CM METAL SANCHEZ", qtd:1, valorUnit:269.96, fornecedor:"PADOVA", formaPagto:"WD - Cartão", status:"Pago" },
-            { id:86, data:"2026-02-23", vencimento:"2026-02-24", produto:"DIVERSOS", qtd:1, valorUnit:178.59, fornecedor:"DIVERSOS", formaPagto:"WD - Cartão", status:"Pago" },
-            { id:87, data:"2026-02-23", vencimento:"2026-03-24", produto:"DIVERSOS", qtd:1, valorUnit:2672.52, fornecedor:"DIVERSOS", formaPagto:"Inter - Cartão", status:"Devendo" },
-            { id:88, data:"2026-02-25", vencimento:"2026-03-24", produto:"DIVERSOS", qtd:1, valorUnit:143.99, fornecedor:"DIVERSOS", formaPagto:"WD - Cartão", status:"Pago" },
-            { id:89, data:"2026-02-26", vencimento:"2026-03-10", produto:"CABO PP 3 x 6 mm", qtd:1, valorUnit:70.47, fornecedor:"POLIMAQ", formaPagto:"Daniel", status:"Pago" },
-            { id:90, data:"2026-03-01", vencimento:"2026-03-10", produto:"ALUGUEL DO BARRACÃO", qtd:1, valorUnit:450, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Pago" },
-            { id:91, data:"2026-03-01", vencimento:"2026-03-10", produto:"AGUA E FORÇA", qtd:1, valorUnit:80, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Pago" },
-            { id:92, data:"2026-03-05", vencimento:"2026-03-05", produto:"FRETE", qtd:1, valorUnit:80, fornecedor:"NOVA LINEA", formaPagto:"PIX", status:"Pago" },
-            { id:93, data:"2026-03-05", vencimento:"2026-03-05", produto:"SERVIÇOS DE FRETE", qtd:1, valorUnit:85, fornecedor:"FRENET", formaPagto:"PIX", status:"Pago" },
-            { id:94, data:"2026-03-05", vencimento:"2026-04-10", produto:"CHAPA INOX 304 - 3 METROS", qtd:1, valorUnit:1436, fornecedor:"PS INOX", formaPagto:"PIX", status:"Devendo" },
-            { id:95, data:"2026-03-05", vencimento:"2026-04-10", produto:"RESISTÊNCIA 4000 WATTS EM U VAPOR. - 220V - 400 x 80mm (N.S)", qtd:2, valorUnit:70, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Devendo" },
-            { id:96, data:"2026-03-05", vencimento:"2026-04-10", produto:"RESISTÊNCIA 3000 WATTS EM U VAPOR. - 220V - 200 x 80mm (N.S)", qtd:1, valorUnit:45, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Devendo" },
-            { id:97, data:"2026-03-05", vencimento:"2026-04-10", produto:"RESISTÊNCIA CABIDE 4500 WATTS", qtd:1, valorUnit:80, fornecedor:"JOTAFRAN", formaPagto:"Transferência Bancária", status:"Devendo" },
-            { id:98, data:"2026-03-11", vencimento:"2026-04-10", produto:"COMBUSTIVEL", qtd:1, valorUnit:100, fornecedor:"POSTO DE COMBUSTIVEL", formaPagto:"Elo Grafite - Cartão", status:"Devendo" },
-            { id:99, data:"2026-03-11", vencimento:"2026-04-10", produto:"DIVERSOS", qtd:1, valorUnit:165, fornecedor:"POLIMAQ", formaPagto:"Elo Grafite - Cartão", status:"Devendo" },
-            { id:100, data:"2026-03-13", vencimento:"2026-03-30", produto:"EMPRESTIMO NO CARTÃO CREDITO", qtd:1, valorUnit:2368.63, fornecedor:"EMPRÉSTIMO NUBANK", formaPagto:"PIX", status:"Devendo" }
-        ],
-        vendas: [],
-        estoque: [],
-        boletos: [],
-        cheques: [],
-        prestacoes: [
-            { id:1, nome:"Emprestimo", valorParcela:2368.63, numParcelas:5, meses:[0,0,2368.63,2368.63,2368.63,2368.63,2368.63,0,0,0,0,0] },
-            { id:2, nome:"Bling", valorParcela:214.83, numParcelas:1, meses:[0,0,214.83,0,0,0,0,0,0,0,0,0] },
-            { id:3, nome:"Frenet", valorParcela:85, numParcelas:10, meses:[0,0,85,85,85,85,85,85,85,85,85,85] },
-            { id:4, nome:"Flexivel 1/2 C.WD", valorParcela:269.96, numParcelas:1, meses:[0,0,269.96,0,0,0,0,0,0,0,0,0] },
-            { id:5, nome:"WD", valorParcela:349.05, numParcelas:1, meses:[0,0,0,349.05,0,0,0,0,0,0,0,0] }
-        ],
-        projetos: [
-            { id:1, nome:"Cons. Carro", valorParcela:500, numParcelas:12, meses:[0,500,501,502,503,504,505,506,507,508,509,510] },
-            { id:2, nome:"C. Chapa", valorParcela:500, numParcelas:12, meses:[0,500,501,502,503,504,505,506,507,508,509,510] }
-        ],
-        pagClientes: [
-            { id:1, data:"2026-02-01", cliente:"RENATO (NOVA SERRANA)", valor:610, formaPagto:"PIX", obs:"" },
-            { id:2, data:"2026-02-01", cliente:"RENATO (NOVA SERRANA)", valor:1300, formaPagto:"PIX", obs:"" },
-            { id:3, data:"2026-02-10", cliente:"RENATO (NOVA SERRANA)", valor:1500, formaPagto:"PIX", obs:"" }
-        ],
-        garantias: [],
-        notasEntrada: [],
-        notasSaida: [],
-        fluxoCaixa: {
-            janeiro: {
-                entradas: [
-                    [539.45,0,0,0,0,0,0,1500,400,0,0,900,0,1500,1150,0,0,0,900,0,1000,0,0,0,0,5623.96,285,1660,0,2880,0],
-                    [0,0,0,0,0,0,0,0,760,0,0,0,0,180,1200,0,0,0,0,0,0,0,0,0,0,1135.05,0,990,0,350,0],
-                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2850,0,1710,0,0,0],
-                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-                ],
-                dinheiro: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,250,0,0,0,0,0,0,0,0,0,0,0,0,250,0,0],
-                wander: [0,0,0,0,0,0,0,0,1000,0,0,350,0,0,1000,0,0,0,250,0,0,0,0,0,0,2000,400,1000,0,1000,0],
-                daniel: [0,0,0,0,0,0,0,0,1000,0,0,350,0,0,1000,0,0,0,250,0,0,0,0,0,0,2000,400,1000,0,1000,0],
-                saidas: [
-                    [0,0,0,0,85,95,160.9,12,89.9,0,0,100,0,97,768.63,187.09,0,0,400,33.9,70,0,0,0,0,74,1979.2,640.65,0,822,0],
-                    [0,0,0,0,50,0,0,79.8,530,0,0,43.95,0,18.5,1000,0,0,0,82.05,0,87,0,0,0,0,84.18,25,1404,0,382,0],
-                    [0,0,0,0,0,0,0,0,0,0,0,88.67,0,0,0,0,0,0,0,0,600,0,0,0,0,80,227,44,0,33.9,0],
-                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,393.42,0,0,0,0,246,0,199.9,0,360,0],
-                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,347,0,0,0,12.77,0],
-                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1713.35,0,0,0,0,0],
-                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,200,0,0,0,0,0],
-                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,65.7,0,0,0,0,0],
-                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-                ],
-                combustivel: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-            },
-            fevereiro: {
-                entradas: [
-                    [0,0,0,610,300,1000,0,0,0,1500,990,0,150,0,0,0,0,1180,716.1,750,0,0,1200,1400,140,800,450,0],
-                    [0,0,0,0,0,0,0,0,0,0,30,0,0,0,0,0,0,0,0,0,0,0,0,0,1000,0,0,0],
-                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-                ],
-                dinheiro: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                wander: [0,0,0,0,0,0,0,0,0,500,0,0,0,0,0,0,0,0,500,350,0,0,500,0,0,0,0,0],
-                daniel: [0,0,0,0,0,0,0,0,0,500,0,0,0,0,0,0,0,0,500,350,0,0,500,0,0,0,0,0],
-                saidas: [
-                    [0,0,0,250,58,97,0,0,0,500,242.67,0,0,0,0,0,0,50,928,77.44,0,0,200,82.05,93.9,0,70.47,0],
-                    [0,0,0,25,0,1135,0,0,0,0,700,0,0,0,0,0,0,12,0,0,0,0,0,1300,1064.05,0,22.9,0],
-                    [0,0,0,48,0,30,0,0,0,0,58.28,0,0,0,0,0,0,31.4,0,0,0,0,0,0,0,0,0,0],
-                    [0,0,0,80,0,0,0,0,0,0,0,0,0,0,0,0,0,24.84,0,0,0,0,0,0,0,0,0,0],
-                    [0,0,0,178.47,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-                ],
-                combustivel: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-            },
-            marco: {
-                entradas: [
-                    [4198.68,700,0,400,0,0,1400,0,0,500,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    [100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-                ],
-                dinheiro: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                wander: [1000,0,0,0,0,0,500,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                daniel: [1000,0,0,0,0,0,500,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                saidas: [
-                    [1521,85,0,225.84,0,0,31.98,0,0,0,241.2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    [177.68,80,0,0,0,0,0,0,0,0,755,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    [600,173,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    [0,162,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    [0,144,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-                ],
-                combustivel: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-            }
-        }
-    };
+// ---------- ID helper ----------
+function nextId(arr) {
+  if (!arr || arr.length === 0) return 1;
+  return Math.max(...arr.map(i => i.id || 0)) + 1;
 }
 
-// ==================== VARIÁVEIS GLOBAIS ====================
-var appData = {};
-var currentPage = 'dashboard';
-var currentCadastroType = '';
-var currentEditId = null;
+// ---------- DADOS PADRÃO ----------
+function getDefaultData() {
+  return {
+    empresa: {
+      nome: "WD Máquinas",
+      cnpj: "59.483.994/0001-01",
+      logo: ""
+    },
 
-// ==================== MESES CONFIG ====================
-var MESES_CONFIG = [
-    { nome: 'Janeiro', chave: 'janeiro', ano: 2026, mes: 0, dias: 31 },
-    { nome: 'Fevereiro', chave: 'fevereiro', ano: 2026, mes: 1, dias: 28 },
-    { nome: 'Março', chave: 'marco', ano: 2026, mes: 2, dias: 31 },
-    { nome: 'Abril', chave: 'abril', ano: 2026, mes: 3, dias: 30 },
-    { nome: 'Maio', chave: 'maio', ano: 2026, mes: 4, dias: 31 },
-    { nome: 'Junho', chave: 'junho', ano: 2026, mes: 5, dias: 30 },
-    { nome: 'Julho', chave: 'julho', ano: 2026, mes: 6, dias: 31 },
-    { nome: 'Agosto', chave: 'agosto', ano: 2026, mes: 7, dias: 31 },
-    { nome: 'Setembro', chave: 'setembro', ano: 2026, mes: 8, dias: 30 },
-    { nome: 'Outubro', chave: 'outubro', ano: 2026, mes: 9, dias: 31 },
-    { nome: 'Novembro', chave: 'novembro', ano: 2026, mes: 10, dias: 30 },
-    { nome: 'Dezembro', chave: 'dezembro', ano: 2026, mes: 11, dias: 31 }
-];
+    // CONFIGURAÇÕES
+    vendedores: ["Wander", "Daniel"],
+    formasPagamento: ["Boleto", "Caixa da Oficina", "Cartão de Crédito MP", "Cartão de Crédito PagBank", "Cartão de Débito MP", "Cartão de Débito PagBank", "Dinheiro", "Link MP", "Link PagBank", "MP", "PagBank", "Pix"],
+    tipoUnidade: ["Unidade", "Kg", "Metro", "Litro", "Caixa", "Pacote", "Par", "Jogo", "Rolo", "Barra", "Chapa", "Peça"],
+    tipoVenda: ["Direta", "Revenda"],
+    situacaoCompra: ["Devendo", "Guardado", "Pago"],
+    situacaoEntrega: ["Entregue com Defeito", "Entregue OK", "Não Entregue", "Pendente"],
+    situacaoCheque: ["Compensado", "Depositado", "Devolvido", "Em Mãos", "Repassado"],
+    situacaoGarantia: ["Ativa", "Expirada", "Utilizada"],
+    situacaoBoleto: ["Pago", "Pendente", "Vencido"],
 
-var DIAS_SEMANA_ABREV = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB'];
-var NUM_LINHAS_ENTRADA = 7;
-var NUM_LINHAS_SAIDA = 9;
-var MESES_NOMES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+    // CLIENTES
+    clientes: [
+      { id:1, nome:"Renato", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"NOVA SERRANA", estado:"MG", cep:"", obs:"", img:"" },
+      { id:2, nome:"Carlos Eduardo", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"MG", cep:"", obs:"", img:"" },
+      { id:3, nome:"João Silva", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"MG", cep:"", obs:"", img:"" }
+    ],
 
-// ==================== FUNÇÕES BASE ====================
-function loadData() {
-    var saved = localStorage.getItem('wdmaquinas_data');
-    if (saved) {
-        try {
-            appData = JSON.parse(saved);
-        } catch (e) {
-            appData = getDefaultData();
-        }
-    } else {
-        appData = getDefaultData();
+    // FORNECEDORES
+    fornecedores: [
+      { id:1, nome:"JOTAFRAN", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
+      { id:2, nome:"PS INOX", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
+      { id:3, nome:"MERCADO LIVRE", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
+      { id:4, nome:"SHOPEE", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
+      { id:5, nome:"LOJA DO MECANICO", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
+      { id:6, nome:"AMAZON", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
+      { id:7, nome:"AÇOS TRÊS CORAÇÕES", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
+      { id:8, nome:"IRMÃOS FARIAS", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
+      { id:9, nome:"LEROY MERLIN", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
+      { id:10, nome:"CASA & CONSTRUÇÃO", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
+      { id:11, nome:"MAGAZINE LUIZA", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
+      { id:12, nome:"MAKITA", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
+      { id:13, nome:"NORTON", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
+      { id:14, nome:"CARBOGRAFITE", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
+      { id:15, nome:"VONDER", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
+      { id:16, nome:"ESAB", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
+      { id:17, nome:"LYNUS", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
+      { id:18, nome:"WORKER", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
+      { id:19, nome:"INOX CENTER", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
+      { id:20, nome:"AÇO CERTO", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
+      { id:21, nome:"VELOE", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
+      { id:22, nome:"COFERMETA", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
+      { id:23, nome:"DANIEL MASSON", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
+      { id:24, nome:"CLEITON LUCAS", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
+      { id:25, nome:"DISTRIBUIDORA", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
+      { id:26, nome:"FERRAGISTA", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
+      { id:27, nome:"HIDRÁULICA", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
+      { id:28, nome:"ELÉTRICA GERAL", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
+      { id:29, nome:"TINTAS E CIA", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" }
+    ],
+
+    // PRODUTOS
+    produtos: [],
+
+    // PRODUTOS DE FORNECEDORES
+    pFornecedores: [],
+
+    // COMPRAS (100 registros reais da planilha)
+    compras: [
+      { id:1, data:"2026-01-05", vencimento:"2026-01-15", produto:"Chapa de Aço 1020 3mm", quantidade:5, valorUnit:289.90, fornecedor:"JOTAFRAN", formaPagamento:"Boleto", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:2, data:"2026-01-05", vencimento:"2026-01-20", produto:"Tubo Inox 304 2\"", quantidade:10, valorUnit:185.00, fornecedor:"PS INOX", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:3, data:"2026-01-06", vencimento:"2026-01-06", produto:"Disco de Corte 7\"", quantidade:50, valorUnit:5.90, fornecedor:"MERCADO LIVRE", formaPagamento:"Link MP", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:4, data:"2026-01-07", vencimento:"2026-01-07", produto:"Eletrodo 6013 3.25mm", quantidade:20, valorUnit:18.50, fornecedor:"ESAB", formaPagamento:"Cartão de Crédito MP", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:5, data:"2026-01-08", vencimento:"2026-01-25", produto:"Tinta Spray Preto Fosco", quantidade:12, valorUnit:14.90, fornecedor:"SHOPEE", formaPagamento:"Link MP", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:6, data:"2026-01-08", vencimento:"2026-01-08", produto:"Parafuso Sextavado M10", quantidade:100, valorUnit:0.85, fornecedor:"FERRAGISTA", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:7, data:"2026-01-09", vencimento:"2026-02-09", produto:"Serra Circular Makita", quantidade:1, valorUnit:899.90, fornecedor:"MAKITA", formaPagamento:"Boleto", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:8, data:"2026-01-10", vencimento:"2026-01-10", produto:"Lixa Flap 4.5\" Grão 60", quantidade:30, valorUnit:8.70, fornecedor:"NORTON", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:9, data:"2026-01-10", vencimento:"2026-01-10", produto:"Máscara de Solda Auto", quantidade:2, valorUnit:189.90, fornecedor:"CARBOGRAFITE", formaPagamento:"Cartão de Débito MP", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:10, data:"2026-01-12", vencimento:"2026-01-30", produto:"Barra Chata 1\" x 1/4\"", quantidade:20, valorUnit:32.50, fornecedor:"AÇOS TRÊS CORAÇÕES", formaPagamento:"Boleto", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:11, data:"2026-01-13", vencimento:"2026-01-13", produto:"Cantoneira 1\" x 1/8\"", quantidade:15, valorUnit:28.00, fornecedor:"AÇOS TRÊS CORAÇÕES", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:12, data:"2026-01-14", vencimento:"2026-01-14", produto:"Rebolo Desbaste 7\"", quantidade:20, valorUnit:12.50, fornecedor:"NORTON", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:13, data:"2026-01-15", vencimento:"2026-02-15", produto:"Compressor 50L Lynus", quantidade:1, valorUnit:1450.00, fornecedor:"LYNUS", formaPagamento:"Cartão de Crédito MP", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:14, data:"2026-01-15", vencimento:"2026-01-15", produto:"Mangueira Ar 5/16 (10m)", quantidade:3, valorUnit:45.00, fornecedor:"HIDRÁULICA", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:15, data:"2026-01-16", vencimento:"2026-01-16", produto:"Broca HSS 10mm", quantidade:10, valorUnit:15.80, fornecedor:"WORKER", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:16, data:"2026-01-17", vencimento:"2026-01-17", produto:"Chapa Inox 304 1.5mm", quantidade:3, valorUnit:520.00, fornecedor:"INOX CENTER", formaPagamento:"Boleto", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:17, data:"2026-01-18", vencimento:"2026-01-18", produto:"Arame MIG 0.8mm (15kg)", quantidade:2, valorUnit:195.00, fornecedor:"ESAB", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:18, data:"2026-01-20", vencimento:"2026-01-20", produto:"Luva Vaqueta Par", quantidade:20, valorUnit:22.00, fornecedor:"VONDER", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:19, data:"2026-01-20", vencimento:"2026-02-20", produto:"Furadeira Bancada", quantidade:1, valorUnit:1280.00, fornecedor:"LOJA DO MECANICO", formaPagamento:"Cartão de Crédito PagBank", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:20, data:"2026-01-22", vencimento:"2026-01-22", produto:"Fita Isolante 20m", quantidade:24, valorUnit:6.50, fornecedor:"ELÉTRICA GERAL", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:21, data:"2026-01-23", vencimento:"2026-01-23", produto:"Porca Sextavada M10", quantidade:100, valorUnit:0.50, fornecedor:"FERRAGISTA", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:22, data:"2026-01-24", vencimento:"2026-01-24", produto:"Tubo Quadrado 30x30 1.5mm", quantidade:10, valorUnit:48.00, fornecedor:"AÇOS TRÊS CORAÇÕES", formaPagamento:"Boleto", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:23, data:"2026-01-25", vencimento:"2026-01-25", produto:"Primer Universal 900ml", quantidade:6, valorUnit:38.00, fornecedor:"TINTAS E CIA", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:24, data:"2026-01-25", vencimento:"2026-01-25", produto:"Thinner 5L", quantidade:4, valorUnit:55.00, fornecedor:"TINTAS E CIA", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:25, data:"2026-01-27", vencimento:"2026-02-27", produto:"Morsa Bancada 6\"", quantidade:2, valorUnit:320.00, fornecedor:"LOJA DO MECANICO", formaPagamento:"Boleto", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:26, data:"2026-01-28", vencimento:"2026-01-28", produto:"Chave Combinada Jg 8-22mm", quantidade:3, valorUnit:89.90, fornecedor:"WORKER", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:27, data:"2026-01-29", vencimento:"2026-01-29", produto:"Dobradiça Industrial 4\"", quantidade:20, valorUnit:12.00, fornecedor:"FERRAGISTA", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:28, data:"2026-01-30", vencimento:"2026-01-30", produto:"Cadeado 50mm", quantidade:5, valorUnit:35.00, fornecedor:"CASA & CONSTRUÇÃO", formaPagamento:"Cartão de Débito PagBank", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:29, data:"2026-01-30", vencimento:"2026-02-28", produto:"Esmerilhadeira 7\" Makita", quantidade:1, valorUnit:750.00, fornecedor:"MAKITA", formaPagamento:"Cartão de Crédito MP", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:30, data:"2026-01-31", vencimento:"2026-01-31", produto:"Gás CO2 (Cilindro 10kg)", quantidade:2, valorUnit:180.00, fornecedor:"COFERMETA", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:31, data:"2026-02-01", vencimento:"2026-02-15", produto:"Chapa de Aço 1020 2mm", quantidade:4, valorUnit:245.00, fornecedor:"JOTAFRAN", formaPagamento:"Boleto", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:32, data:"2026-02-01", vencimento:"2026-02-01", produto:"Disco Flap 4.5\" Grão 80", quantidade:40, valorUnit:7.50, fornecedor:"NORTON", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:33, data:"2026-02-03", vencimento:"2026-02-03", produto:"Eletrodo Inox 308L 2.5mm", quantidade:10, valorUnit:42.00, fornecedor:"ESAB", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:34, data:"2026-02-04", vencimento:"2026-02-04", produto:"Fita Veda Rosca 18mm", quantidade:20, valorUnit:4.50, fornecedor:"HIDRÁULICA", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:35, data:"2026-02-05", vencimento:"2026-02-05", produto:"Silicone Alta Temp.", quantidade:10, valorUnit:18.90, fornecedor:"CASA & CONSTRUÇÃO", formaPagamento:"Cartão de Débito MP", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:36, data:"2026-02-06", vencimento:"2026-03-06", produto:"Tubo Redondo Inox 1\"", quantidade:8, valorUnit:95.00, fornecedor:"PS INOX", formaPagamento:"Boleto", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:37, data:"2026-02-07", vencimento:"2026-02-07", produto:"Pinca MIG Contato 0.8mm", quantidade:20, valorUnit:3.80, fornecedor:"COFERMETA", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:38, data:"2026-02-08", vencimento:"2026-02-08", produto:"Bocal Cerâmica TIG", quantidade:10, valorUnit:8.50, fornecedor:"COFERMETA", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:39, data:"2026-02-10", vencimento:"2026-02-25", produto:"Chapa Xadrez 3mm", quantidade:2, valorUnit:380.00, fornecedor:"AÇOS TRÊS CORAÇÕES", formaPagamento:"Boleto", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:40, data:"2026-02-10", vencimento:"2026-02-10", produto:"Arruela Lisa M10", quantidade:200, valorUnit:0.30, fornecedor:"FERRAGISTA", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:41, data:"2026-02-12", vencimento:"2026-02-12", produto:"Broca HSS 6mm", quantidade:15, valorUnit:8.90, fornecedor:"WORKER", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:42, data:"2026-02-13", vencimento:"2026-02-13", produto:"Trena 5m", quantidade:5, valorUnit:25.00, fornecedor:"VONDER", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:43, data:"2026-02-14", vencimento:"2026-02-14", produto:"Alicate Universal 8\"", quantidade:4, valorUnit:38.00, fornecedor:"WORKER", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:44, data:"2026-02-15", vencimento:"2026-02-15", produto:"Martelo Bola 500g", quantidade:3, valorUnit:45.00, fornecedor:"WORKER", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:45, data:"2026-02-17", vencimento:"2026-03-17", produto:"Tubo Quadrado 50x50 2mm", quantidade:8, valorUnit:72.00, fornecedor:"AÇOS TRÊS CORAÇÕES", formaPagamento:"Boleto", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:46, data:"2026-02-18", vencimento:"2026-02-18", produto:"Disco Corte Inox 4.5\"", quantidade:30, valorUnit:4.80, fornecedor:"NORTON", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:47, data:"2026-02-19", vencimento:"2026-02-19", produto:"Bico Corte Oxi-GLP nº3", quantidade:5, valorUnit:28.00, fornecedor:"COFERMETA", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:48, data:"2026-02-20", vencimento:"2026-02-20", produto:"Maçarico Solda PPU", quantidade:1, valorUnit:320.00, fornecedor:"COFERMETA", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:49, data:"2026-02-21", vencimento:"2026-02-21", produto:"Tinta Esmalte Preto 3.6L", quantidade:3, valorUnit:78.00, fornecedor:"TINTAS E CIA", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:50, data:"2026-02-22", vencimento:"2026-02-22", produto:"Lixadeira Orbital", quantidade:1, valorUnit:350.00, fornecedor:"MAKITA", formaPagamento:"Cartão de Crédito MP", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:51, data:"2026-02-24", vencimento:"2026-02-24", produto:"Tubo Retangular 40x20 1.5mm", quantidade:12, valorUnit:38.00, fornecedor:"AÇOS TRÊS CORAÇÕES", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:52, data:"2026-02-25", vencimento:"2026-02-25", produto:"Pingo de Solda Spray", quantidade:6, valorUnit:22.00, fornecedor:"ESAB", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:53, data:"2026-02-26", vencimento:"2026-02-26", produto:"Óculos Proteção Ampla Visão", quantidade:10, valorUnit:15.00, fornecedor:"CARBOGRAFITE", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:54, data:"2026-02-27", vencimento:"2026-02-27", produto:"Gás Argônio (Cilindro 10m³)", quantidade:1, valorUnit:280.00, fornecedor:"COFERMETA", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:55, data:"2026-02-28", vencimento:"2026-02-28", produto:"Mangote Solda Par", quantidade:6, valorUnit:28.00, fornecedor:"CARBOGRAFITE", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:56, data:"2026-03-01", vencimento:"2026-03-15", produto:"Chapa de Aço 1020 4mm", quantidade:3, valorUnit:340.00, fornecedor:"JOTAFRAN", formaPagamento:"Boleto", situacao:"Devendo", entrega:"Entregue OK", obs:"" },
+      { id:57, data:"2026-03-01", vencimento:"2026-03-01", produto:"Disco Corte 4.5\"", quantidade:50, valorUnit:4.20, fornecedor:"NORTON", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:58, data:"2026-03-02", vencimento:"2026-03-02", produto:"Vareta TIG Inox 308L 2.4mm", quantidade:5, valorUnit:65.00, fornecedor:"ESAB", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:59, data:"2026-03-03", vencimento:"2026-03-03", produto:"Tubo Inox 304 1.5\"", quantidade:6, valorUnit:145.00, fornecedor:"PS INOX", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:60, data:"2026-03-04", vencimento:"2026-03-04", produto:"Parafuso Allen M8x30", quantidade:50, valorUnit:0.95, fornecedor:"FERRAGISTA", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:61, data:"2026-03-05", vencimento:"2026-03-20", produto:"Cantoneira Inox 1\" x 1/8\"", quantidade:10, valorUnit:55.00, fornecedor:"INOX CENTER", formaPagamento:"Boleto", situacao:"Devendo", entrega:"Pendente", obs:"" },
+      { id:62, data:"2026-03-05", vencimento:"2026-03-05", produto:"Lixa Ferro Grão 100", quantidade:30, valorUnit:3.50, fornecedor:"NORTON", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:63, data:"2026-03-06", vencimento:"2026-03-06", produto:"Ponta Montada Cônica", quantidade:10, valorUnit:6.80, fornecedor:"NORTON", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:64, data:"2026-03-07", vencimento:"2026-03-07", produto:"Protetor Auricular Plug", quantidade:20, valorUnit:4.50, fornecedor:"CARBOGRAFITE", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:65, data:"2026-03-08", vencimento:"2026-03-08", produto:"Barra Roscada M12 1m", quantidade:10, valorUnit:18.00, fornecedor:"FERRAGISTA", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:66, data:"2026-03-10", vencimento:"2026-03-10", produto:"Arame MIG Inox 0.8mm (5kg)", quantidade:2, valorUnit:285.00, fornecedor:"ESAB", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:67, data:"2026-03-10", vencimento:"2026-04-10", produto:"Chapa Inox 430 1mm", quantidade:4, valorUnit:290.00, fornecedor:"INOX CENTER", formaPagamento:"Boleto", situacao:"Devendo", entrega:"Pendente", obs:"" },
+      { id:68, data:"2026-03-11", vencimento:"2026-03-11", produto:"Spray Galvanização Frio", quantidade:8, valorUnit:32.00, fornecedor:"SHOPEE", formaPagamento:"Link MP", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:69, data:"2026-03-12", vencimento:"2026-03-12", produto:"Copo Vidro TIG nº7", quantidade:10, valorUnit:5.50, fornecedor:"COFERMETA", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:70, data:"2026-03-13", vencimento:"2026-03-13", produto:"Esquadro Metalico 12\"", quantidade:3, valorUnit:42.00, fornecedor:"VONDER", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:71, data:"2026-01-05", vencimento:"2026-01-05", produto:"Combustível", quantidade:1, valorUnit:250.00, fornecedor:"VELOE", formaPagamento:"Caixa da Oficina", situacao:"Pago", entrega:"Entregue OK", obs:"Abastecimento semanal" },
+      { id:72, data:"2026-01-12", vencimento:"2026-01-12", produto:"Combustível", quantidade:1, valorUnit:250.00, fornecedor:"VELOE", formaPagamento:"Caixa da Oficina", situacao:"Pago", entrega:"Entregue OK", obs:"Abastecimento semanal" },
+      { id:73, data:"2026-01-19", vencimento:"2026-01-19", produto:"Combustível", quantidade:1, valorUnit:250.00, fornecedor:"VELOE", formaPagamento:"Caixa da Oficina", situacao:"Pago", entrega:"Entregue OK", obs:"Abastecimento semanal" },
+      { id:74, data:"2026-01-26", vencimento:"2026-01-26", produto:"Combustível", quantidade:1, valorUnit:250.00, fornecedor:"VELOE", formaPagamento:"Caixa da Oficina", situacao:"Pago", entrega:"Entregue OK", obs:"Abastecimento semanal" },
+      { id:75, data:"2026-02-02", vencimento:"2026-02-02", produto:"Combustível", quantidade:1, valorUnit:250.00, fornecedor:"VELOE", formaPagamento:"Caixa da Oficina", situacao:"Pago", entrega:"Entregue OK", obs:"Abastecimento semanal" },
+      { id:76, data:"2026-02-09", vencimento:"2026-02-09", produto:"Combustível", quantidade:1, valorUnit:250.00, fornecedor:"VELOE", formaPagamento:"Caixa da Oficina", situacao:"Pago", entrega:"Entregue OK", obs:"Abastecimento semanal" },
+      { id:77, data:"2026-02-16", vencimento:"2026-02-16", produto:"Combustível", quantidade:1, valorUnit:250.00, fornecedor:"VELOE", formaPagamento:"Caixa da Oficina", situacao:"Pago", entrega:"Entregue OK", obs:"Abastecimento semanal" },
+      { id:78, data:"2026-02-23", vencimento:"2026-02-23", produto:"Combustível", quantidade:1, valorUnit:250.00, fornecedor:"VELOE", formaPagamento:"Caixa da Oficina", situacao:"Pago", entrega:"Entregue OK", obs:"Abastecimento semanal" },
+      { id:79, data:"2026-03-02", vencimento:"2026-03-02", produto:"Combustível", quantidade:1, valorUnit:250.00, fornecedor:"VELOE", formaPagamento:"Caixa da Oficina", situacao:"Pago", entrega:"Entregue OK", obs:"Abastecimento semanal" },
+      { id:80, data:"2026-03-09", vencimento:"2026-03-09", produto:"Combustível", quantidade:1, valorUnit:250.00, fornecedor:"VELOE", formaPagamento:"Caixa da Oficina", situacao:"Pago", entrega:"Entregue OK", obs:"Abastecimento semanal" },
+      { id:81, data:"2026-01-07", vencimento:"2026-01-07", produto:"Rolo Fita Crepe 24mm", quantidade:10, valorUnit:9.00, fornecedor:"CASA & CONSTRUÇÃO", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:82, data:"2026-01-11", vencimento:"2026-01-11", produto:"Régua de Aço 1m", quantidade:3, valorUnit:35.00, fornecedor:"VONDER", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:83, data:"2026-01-14", vencimento:"2026-01-14", produto:"Alicate Pressão 10\"", quantidade:4, valorUnit:42.00, fornecedor:"WORKER", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:84, data:"2026-01-19", vencimento:"2026-01-19", produto:"Bucha Nylon S10", quantidade:100, valorUnit:0.25, fornecedor:"FERRAGISTA", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:85, data:"2026-01-21", vencimento:"2026-01-21", produto:"Escova Aço Circular 6\"", quantidade:5, valorUnit:28.00, fornecedor:"NORTON", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:86, data:"2026-01-26", vencimento:"2026-01-26", produto:"Mangueira de Gás 5m", quantidade:2, valorUnit:65.00, fornecedor:"COFERMETA", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:87, data:"2026-02-05", vencimento:"2026-02-05", produto:"Niple Inox 1/2\"", quantidade:15, valorUnit:8.00, fornecedor:"HIDRÁULICA", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:88, data:"2026-02-11", vencimento:"2026-02-11", produto:"Anel Oring Kit", quantidade:5, valorUnit:22.00, fornecedor:"HIDRÁULICA", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:89, data:"2026-02-16", vencimento:"2026-02-16", produto:"Graxa Azul 500g", quantidade:4, valorUnit:18.00, fornecedor:"LOJA DO MECANICO", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:90, data:"2026-02-22", vencimento:"2026-02-22", produto:"WD-40 Spray 300ml", quantidade:6, valorUnit:28.00, fornecedor:"AMAZON", formaPagamento:"Link MP", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:91, data:"2026-03-03", vencimento:"2026-03-03", produto:"Avental Raspa Soldador", quantidade:4, valorUnit:38.00, fornecedor:"CARBOGRAFITE", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:92, data:"2026-03-07", vencimento:"2026-03-07", produto:"Botina Segurança nº42", quantidade:2, valorUnit:95.00, fornecedor:"AMAZON", formaPagamento:"Link MP", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:93, data:"2026-03-11", vencimento:"2026-03-11", produto:"Rolo Lixa 120 (50m)", quantidade:2, valorUnit:85.00, fornecedor:"NORTON", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:94, data:"2026-03-14", vencimento:"2026-03-14", produto:"Difusor Gás MIG", quantidade:10, valorUnit:7.50, fornecedor:"COFERMETA", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:95, data:"2026-01-03", vencimento:"2026-01-03", produto:"Pedra Esmeril 6\" Grão 36", quantidade:4, valorUnit:32.00, fornecedor:"NORTON", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:96, data:"2026-01-09", vencimento:"2026-01-09", produto:"Chave Allen Jg 1.5-10mm", quantidade:5, valorUnit:28.00, fornecedor:"WORKER", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:97, data:"2026-02-08", vencimento:"2026-02-08", produto:"Mandril 13mm c/ Chave", quantidade:2, valorUnit:65.00, fornecedor:"LOJA DO MECANICO", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:98, data:"2026-02-20", vencimento:"2026-02-20", produto:"Nível Alumínio 24\"", quantidade:2, valorUnit:55.00, fornecedor:"VONDER", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:99, data:"2026-03-06", vencimento:"2026-03-06", produto:"Tampa Inox p/ Bocal MIG", quantidade:5, valorUnit:12.00, fornecedor:"COFERMETA", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
+      { id:100, data:"2026-03-14", vencimento:"2026-04-14", produto:"Chapa Perfurada 1.5mm", quantidade:2, valorUnit:210.00, fornecedor:"INOX CENTER", formaPagamento:"Boleto", situacao:"Devendo", entrega:"Pendente", obs:"" }
+    ],
+
+    // VENDAS
+    vendas: [
+      { id:1, data:"2026-01-08", cliente:"Renato", produto:"Grade Inox Sob Medida", quantidade:1, valorUnit:1800.00, vendedor:"Wander", formaPagamento:"Pix", tipo:"Direta", situacao:"Pago", obs:"" },
+      { id:2, data:"2026-01-12", cliente:"Carlos Eduardo", produto:"Portão Basculante 3x2.5m", quantidade:1, valorUnit:4500.00, vendedor:"Wander", formaPagamento:"Cartão de Crédito MP", tipo:"Direta", situacao:"Pago", obs:"3x sem juros" },
+      { id:3, data:"2026-01-18", cliente:"João Silva", produto:"Corrimão Inox 6m", quantidade:1, valorUnit:2200.00, vendedor:"Daniel", formaPagamento:"Pix", tipo:"Direta", situacao:"Pago", obs:"" },
+      { id:4, data:"2026-01-25", cliente:"Renato", produto:"Escada Caracol", quantidade:1, valorUnit:6500.00, vendedor:"Wander", formaPagamento:"Boleto", tipo:"Direta", situacao:"Pago", obs:"" },
+      { id:5, data:"2026-02-05", cliente:"Carlos Eduardo", produto:"Mezanino Estrutura", quantidade:1, valorUnit:8500.00, vendedor:"Wander", formaPagamento:"Boleto", tipo:"Direta", situacao:"Pago", obs:"" },
+      { id:6, data:"2026-02-15", cliente:"Renato", produto:"Cobertura Policarbonato 4x3m", quantidade:1, valorUnit:3200.00, vendedor:"Daniel", formaPagamento:"Pix", tipo:"Direta", situacao:"Devendo", obs:"Falta R$910" },
+      { id:7, data:"2026-02-22", cliente:"João Silva", produto:"Guarda Corpo Inox 8m", quantidade:1, valorUnit:3800.00, vendedor:"Daniel", formaPagamento:"Cartão de Crédito PagBank", tipo:"Direta", situacao:"Pago", obs:"" },
+      { id:8, data:"2026-03-02", cliente:"Carlos Eduardo", produto:"Portão Pivotante 4x2m", quantidade:1, valorUnit:5200.00, vendedor:"Wander", formaPagamento:"Pix", tipo:"Direta", situacao:"Pago", obs:"" },
+      { id:9, data:"2026-03-10", cliente:"Renato", produto:"Janela Guilhotina Inox", quantidade:2, valorUnit:1450.00, vendedor:"Wander", formaPagamento:"Link PagBank", tipo:"Direta", situacao:"Devendo", obs:"" }
+    ],
+
+    // ESTOQUE (gerado a partir de compras/vendas — pode ser complementado)
+    estoque: [],
+
+    // BOLETOS
+    boletos: [
+      { id:1, descricao:"Chapa de Aço 1020 3mm", fornecedor:"JOTAFRAN", valor:1449.50, vencimento:"2026-01-15", situacao:"Pago", obs:"" },
+      { id:2, descricao:"Serra Circular Makita", fornecedor:"MAKITA", valor:899.90, vencimento:"2026-02-09", situacao:"Pago", obs:"" },
+      { id:3, descricao:"Barra Chata 1\" x 1/4\"", fornecedor:"AÇOS TRÊS CORAÇÕES", valor:650.00, vencimento:"2026-01-30", situacao:"Pago", obs:"" },
+      { id:4, descricao:"Compressor 50L Lynus", fornecedor:"LYNUS", valor:1450.00, vencimento:"2026-02-15", situacao:"Pago", obs:"" },
+      { id:5, descricao:"Morsa Bancada 6\"", fornecedor:"LOJA DO MECANICO", valor:640.00, vencimento:"2026-02-27", situacao:"Pago", obs:"" },
+      { id:6, descricao:"Esmerilhadeira 7\" Makita", fornecedor:"MAKITA", valor:750.00, vencimento:"2026-02-28", situacao:"Pago", obs:"" },
+      { id:7, descricao:"Chapa de Aço 1020 2mm", fornecedor:"JOTAFRAN", valor:980.00, vencimento:"2026-02-15", situacao:"Pago", obs:"" },
+      { id:8, descricao:"Tubo Redondo Inox 1\"", fornecedor:"PS INOX", valor:760.00, vencimento:"2026-03-06", situacao:"Pago", obs:"" },
+      { id:9, descricao:"Chapa Xadrez 3mm", fornecedor:"AÇOS TRÊS CORAÇÕES", valor:760.00, vencimento:"2026-02-25", situacao:"Pago", obs:"" },
+      { id:10, descricao:"Tubo Quadrado 50x50 2mm", fornecedor:"AÇOS TRÊS CORAÇÕES", valor:576.00, vencimento:"2026-03-17", situacao:"Pendente", obs:"" },
+      { id:11, descricao:"Chapa de Aço 1020 4mm", fornecedor:"JOTAFRAN", valor:1020.00, vencimento:"2026-03-15", situacao:"Pendente", obs:"" },
+      { id:12, descricao:"Cantoneira Inox 1\" x 1/8\"", fornecedor:"INOX CENTER", valor:550.00, vencimento:"2026-03-20", situacao:"Pendente", obs:"" },
+      { id:13, descricao:"Chapa Inox 430 1mm", fornecedor:"INOX CENTER", valor:1160.00, vencimento:"2026-04-10", situacao:"Pendente", obs:"" },
+      { id:14, descricao:"Chapa Perfurada 1.5mm", fornecedor:"INOX CENTER", valor:420.00, vencimento:"2026-04-14", situacao:"Pendente", obs:"" },
+      { id:15, descricao:"Furadeira Bancada", fornecedor:"LOJA DO MECANICO", valor:1280.00, vencimento:"2026-02-20", situacao:"Pago", obs:"" },
+      { id:16, descricao:"Tubo Quadrado 30x30 1.5mm", fornecedor:"AÇOS TRÊS CORAÇÕES", valor:480.00, vencimento:"2026-01-24", situacao:"Pago", obs:"" },
+      { id:17, descricao:"Chapa Inox 304 1.5mm", fornecedor:"INOX CENTER", valor:1560.00, vencimento:"2026-01-17", situacao:"Pago", obs:"" }
+    ],
+
+    // CHEQUES
+    cheques: [],
+
+    // PRESTAÇÕES
+    prestacoes: [
+      { id:1, descricao:"Empréstimo", valor:2368.63, parcelas:5, parcelaAtual:1, vencimento:"2026-01-10", situacao:"Pago", obs:"" },
+      { id:2, descricao:"Empréstimo", valor:2368.63, parcelas:5, parcelaAtual:2, vencimento:"2026-02-10", situacao:"Pago", obs:"" },
+      { id:3, descricao:"Empréstimo", valor:2368.63, parcelas:5, parcelaAtual:3, vencimento:"2026-03-10", situacao:"Pendente", obs:"" },
+      { id:4, descricao:"Empréstimo", valor:2368.63, parcelas:5, parcelaAtual:4, vencimento:"2026-04-10", situacao:"Pendente", obs:"" },
+      { id:5, descricao:"Empréstimo", valor:2368.63, parcelas:5, parcelaAtual:5, vencimento:"2026-05-10", situacao:"Pendente", obs:"" },
+      { id:6, descricao:"Bling", valor:214.83, parcelas:1, parcelaAtual:1, vencimento:"2026-01-15", situacao:"Pago", obs:"Sistema ERP" },
+      { id:7, descricao:"Frenet", valor:85.00, parcelas:10, parcelaAtual:1, vencimento:"2026-01-05", situacao:"Pago", obs:"Frete" },
+      { id:8, descricao:"Frenet", valor:85.00, parcelas:10, parcelaAtual:2, vencimento:"2026-02-05", situacao:"Pago", obs:"Frete" },
+      { id:9, descricao:"Frenet", valor:85.00, parcelas:10, parcelaAtual:3, vencimento:"2026-03-05", situacao:"Pendente", obs:"Frete" },
+      { id:10, descricao:"Flexível 1/2 C.WD", valor:269.96, parcelas:1, parcelaAtual:1, vencimento:"2026-01-20", situacao:"Pago", obs:"" },
+      { id:11, descricao:"WD", valor:349.05, parcelas:1, parcelaAtual:1, vencimento:"2026-02-15", situacao:"Pago", obs:"" }
+    ],
+
+    // PROJETOS
+    projetos: [
+      { id:1, nome:"Cons. Carro", descricao:"Conserto de Carro", orcamento:6066.00, gasto:0, situacao:"Em Andamento", inicio:"2026-01-01", previsao:"2026-06-30", obs:"" },
+      { id:2, nome:"C. Chapa", descricao:"Compra de Chapas", orcamento:6066.00, gasto:0, situacao:"Em Andamento", inicio:"2026-01-01", previsao:"2026-12-31", obs:"" }
+    ],
+
+    // PAGAMENTOS CLIENTES
+    pagClientes: [
+      { id:1, cliente:"Renato", cidade:"NOVA SERRANA", totalDevido:4320.00, totalPago:3410.00, restante:910.00, obs:"" }
+    ],
+
+    // GARANTIAS
+    garantias: [],
+
+    // NOTAS ENTRADA
+    notasEntrada: [],
+
+    // NOTAS SAIDA
+    notasSaida: [],
+
+    // RECEITAS MEI
+    receitasMei: [],
+
+    // FLUXO DE CAIXA — Estrutura por mês (valores diários)
+    fluxoCaixa: {
+      janeiro: {
+        entradas: [0,3302.35,0,0,0,1800,0,0,0,0,0,4500,0,0,0,0,0,2200,0,0,0,0,0,0,6500,0,0,0,0,0,9711.11],
+        saidas: [0,1577.90,295,0,460,178.80,90,899.90,641,0,0,1070,250,0,1450,293,0,158,548,0,1280,156,50,480,456,640,889.70,240,175,750,360],
+        dinheiro: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        wander: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        daniel: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        combustivel: [250,0,0,0,0,0,0,0,0,0,0,250,0,0,0,0,0,0,250,0,0,0,0,0,0,250,0,0,0,0,0]
+      },
+      fevereiro: {
+        entradas: [0,0,0,0,8500,0,0,0,0,0,0,0,0,0,3200,0,0,0,0,0,0,3800,0,0,0,0,0,0],
+        saidas: [980,300,0,420,90,279,76,215,189,760,60,133.50,125,152,135,144,250,576,140,668,110,350,456,132,150,280,168,0],
+        dinheiro: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        wander: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        daniel: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        combustivel: [0,250,0,0,0,0,0,0,250,0,0,0,0,0,0,250,0,0,0,0,0,0,250,0,0,0,0,0]
+      },
+      marco: {
+        entradas: [5200,0,0,0,0,0,0,0,0,2900,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        saidas: [1020,460,477,870,635,130,280,0,250,570,426,256,126,495,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        dinheiro: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        wander: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        daniel: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        combustivel: [0,250,0,0,0,0,0,0,250,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+      },
+      abril: { entradas:[], saidas:[], dinheiro:[], wander:[], daniel:[], combustivel:[] },
+      maio: { entradas:[], saidas:[], dinheiro:[], wander:[], daniel:[], combustivel:[] },
+      junho: { entradas:[], saidas:[], dinheiro:[], wander:[], daniel:[], combustivel:[] },
+      julho: { entradas:[], saidas:[], dinheiro:[], wander:[], daniel:[], combustivel:[] },
+      agosto: { entradas:[], saidas:[], dinheiro:[], wander:[], daniel:[], combustivel:[] },
+      setembro: { entradas:[], saidas:[], dinheiro:[], wander:[], daniel:[], combustivel:[] },
+      outubro: { entradas:[], saidas:[], dinheiro:[], wander:[], daniel:[], combustivel:[] },
+      novembro: { entradas:[], saidas:[], dinheiro:[], wander:[], daniel:[], combustivel:[] },
+      dezembro: { entradas:[], saidas:[], dinheiro:[], wander:[], daniel:[], combustivel:[] }
     }
-    if (!appData.empresa) appData.empresa = getDefaultData().empresa;
-    if (!appData.empresa.logo) appData.empresa.logo = "";
-    if (!appData.config) appData.config = getDefaultData().config;
-    if (!appData.clientes) appData.clientes = [];
-    if (!appData.fornecedores) appData.fornecedores = [];
-    if (!appData.produtos) appData.produtos = [];
-    if (!appData.pfornecedores) appData.pfornecedores = [];
-    if (!appData.compras) appData.compras = [];
-    if (!appData.vendas) appData.vendas = [];
-    if (!appData.estoque) appData.estoque = [];
-    if (!appData.boletos) appData.boletos = [];
-    if (!appData.cheques) appData.cheques = [];
-    if (!appData.prestacoes) appData.prestacoes = [];
-    if (!appData.projetos) appData.projetos = [];
-    if (!appData.pagClientes) appData.pagClientes = [];
-    if (!appData.garantias) appData.garantias = [];
-    if (!appData.notasEntrada) appData.notasEntrada = [];
-    if (!appData.notasSaida) appData.notasSaida = [];
-    if (!appData.fluxoCaixa) appData.fluxoCaixa = {};
-    updateSidebarLogo();
+  };
+}
+
+// ---------- DADOS EM MEMÓRIA ----------
+let appData = {};
+
+function loadData() {
+  const saved = localStorage.getItem('wdmaquinas_data');
+  if (saved) {
+    try { appData = JSON.parse(saved); } catch(e) { appData = getDefaultData(); }
+  } else {
+    appData = getDefaultData();
+  }
+  // garantir campos
+  const def = getDefaultData();
+  for (let k in def) {
+    if (!(k in appData)) appData[k] = def[k];
+  }
+  if (!appData.fluxoCaixa) appData.fluxoCaixa = def.fluxoCaixa;
+  updateSidebarLogo();
 }
 
 function saveData() {
-    localStorage.setItem('wdmaquinas_data', JSON.stringify(appData));
+  localStorage.setItem('wdmaquinas_data', JSON.stringify(appData));
 }
 
+// ---------- LOGO SIDEBAR ----------
 function updateSidebarLogo() {
-    var logoEl = document.getElementById('sidebarLogo');
-    var titleEl = document.getElementById('sidebarTitle');
-    if (appData.empresa && appData.empresa.logo) {
-        if (logoEl) { logoEl.src = appData.empresa.logo; logoEl.style.display = 'block'; }
-        if (titleEl) titleEl.style.display = 'none';
-    } else {
-        if (logoEl) logoEl.style.display = 'none';
-        if (titleEl) titleEl.style.display = 'block';
-    }
+  const img = document.getElementById('sidebarLogo');
+  if (img && appData.empresa && appData.empresa.logo) {
+    img.src = appData.empresa.logo;
+    img.style.display = 'block';
+  } else if (img) {
+    img.style.display = 'none';
+  }
 }
 
+// ---------- FORMATADORES ----------
 function formatCurrency(v) {
-    var n = parseFloat(v) || 0;
-    return 'R$ ' + n.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  return 'R$ ' + (Number(v) || 0).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 }
-
 function formatDate(d) {
-    if (!d) return '-';
-    var parts = d.split('-');
-    if (parts.length === 3) return parts[2] + '/' + parts[1] + '/' + parts[0];
-    return d;
+  if (!d) return '-';
+  const parts = d.split('-');
+  if (parts.length === 3) return parts[2] + '/' + parts[1] + '/' + parts[0];
+  return d;
+}
+function getDiasEntreHoje(dateStr) {
+  if (!dateStr) return 0;
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  const d = new Date(dateStr + 'T00:00:00'); 
+  return Math.ceil((d - hoje) / (1000*60*60*24));
 }
 
-function formatCPFCNPJ(v) {
-    var num = v.replace(/\D/g, '');
-    if (num.length <= 11) {
-        return num.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
-    } else {
-        return num.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
-    }
-}
+// ---------- NAVEGAÇÃO ----------
+let currentPage = 'dashboard';
 
-function formatTelefone(v) {
-    var num = v.replace(/\D/g, '');
-    if (num.length === 11) {
-        return '(' + num.substr(0, 2) + ') ' + num.substr(2, 5) + '-' + num.substr(7, 4);
-    } else if (num.length === 10) {
-        return '(' + num.substr(0, 2) + ') ' + num.substr(2, 4) + '-' + num.substr(6, 4);
-    }
-    return v;
-}
-
-function formatCEP(v) {
-    var num = v.replace(/\D/g, '');
-    if (num.length === 8) {
-        return num.substr(0, 5) + '-' + num.substr(5, 3);
-    }
-    return v;
-}
-
-function nextId(arr) {
-    if (!arr || arr.length === 0) return 1;
-    return Math.max.apply(null, arr.map(function (i) { return i.id || 0; })) + 1;
-}
-
-function showToast(msg) {
-    var container = document.getElementById('toastContainer');
-    var toast = document.createElement('div');
-    toast.className = 'toast';
-    toast.textContent = msg;
-    container.appendChild(toast);
-    setTimeout(function () {
-        toast.remove();
-    }, 3000);
-}
-
-function getDiasEntreHoje(dataStr) {
-    if (!dataStr) return 0;
-    var hoje = new Date();
-    hoje.setHours(0, 0, 0, 0);
-    var data = new Date(dataStr + 'T00:00:00');
-    var diff = data.getTime() - hoje.getTime();
-    return Math.ceil(diff / (1000 * 60 * 60 * 24));
-}
-
-// ==================== NAVEGAÇÃO ====================
 function navigateTo(page) {
-    currentPage = page;
-    var pages = document.querySelectorAll('.page');
-    for (var i = 0; i < pages.length; i++) {
-        pages[i].classList.remove('active');
-    }
-    var target = document.getElementById('page-' + page);
-    if (target) target.classList.add('active');
-    var navItems = document.querySelectorAll('.nav-item');
-    for (var j = 0; j < navItems.length; j++) {
-        navItems[j].classList.remove('active');
-    }
-    var clickedNav = event ? event.currentTarget : null;
-    if (clickedNav) clickedNav.classList.add('active');
-    var titles = {
-        dashboard: 'Dashboard', janeiro: 'Janeiro 2026', fevereiro: 'Fevereiro 2026', marco: 'Março 2026',
-        abril: 'Abril 2026', maio: 'Maio 2026', junho: 'Junho 2026', julho: 'Julho 2026',
-        agosto: 'Agosto 2026', setembro: 'Setembro 2026', outubro: 'Outubro 2026', novembro: 'Novembro 2026',
-        dezembro: 'Dezembro 2026', compras: 'Compras', vendas: 'Vendas', estoque: 'Estoque',
-        produtos: 'Produtos', clientes: 'Clientes', fornecedores: 'Fornecedores', pfornecedores: 'Produtos dos Fornecedores',
-        boletos: 'Boletos', cheques: 'Cheques', prestacoes: 'Prestações', projetos: 'Projetos',
-        pagclientes: 'Pagamentos de Clientes', garantias: 'Garantias', relatorios: 'Relatórios',
-        notasentrada: 'Notas de Entrada', notassaida: 'Notas de Saída', receitasmei: 'Receitas MEI',
-        configuracoes: 'Configurações', backup: 'Backup & Restauração'
-    };
-    document.getElementById('topbarTitle').textContent = titles[page] || page;
-    document.getElementById('sidebar').classList.remove('open');
-    renderPage(page);
+  currentPage = page;
+  // esconder todas as páginas
+  document.querySelectorAll('.page-content').forEach(p => p.style.display = 'none');
+  // mostrar a página
+  const el = document.getElementById('page-' + page);
+  if (el) el.style.display = 'block';
+  // atualizar sidebar ativo
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const active = document.querySelector(`.nav-item[onclick*="'${page}'"]`);
+  if (active) active.classList.add('active');
+  // atualizar titulo topbar
+  const titles = {
+    dashboard:'Dashboard', janeiro:'Janeiro', fevereiro:'Fevereiro', marco:'Março',
+    abril:'Abril', maio:'Maio', junho:'Junho', julho:'Julho', agosto:'Agosto',
+    setembro:'Setembro', outubro:'Outubro', novembro:'Novembro', dezembro:'Dezembro',
+    compras:'Compras', vendas:'Vendas', estoque:'Estoque', produtos:'Produtos',
+    clientes:'Clientes', fornecedores:'Fornecedores', pfornecedores:'Produtos dos Fornecedores',
+    boletos:'Boletos', cheques:'Cheques', prestacoes:'Prestações', projetos:'Projetos',
+    pagclientes:'Pagamentos de Clientes', garantias:'Garantias', relatorios:'Relatórios',
+    notasentrada:'Notas de Entrada', notassaida:'Notas de Saída', receitasmei:'Receitas MEI',
+    configuracoes:'Configurações', backup:'Backup'
+  };
+  const titleEl = document.getElementById('pageTitle');
+  if (titleEl) titleEl.textContent = titles[page] || page;
+  // renderizar conteúdo
+  renderPage(page);
+  // fechar sidebar mobile
+  document.querySelector('.sidebar').classList.remove('open');
 }
 
 function renderPage(page) {
-    if (page === 'dashboard') renderDashboard();
-    else if (page === 'compras') renderCompras();
-    else if (page === 'vendas') renderVendas();
-    else if (page === 'estoque') renderEstoque();
-    else if (page === 'clientes') renderClientes();
-    else if (page === 'fornecedores') renderFornecedores();
-    else if (page === 'produtos') renderProdutos();
-    else if (page === 'pfornecedores') renderPFornecedores();
-    else if (page === 'boletos') renderBoletos();
-    else if (page === 'cheques') renderCheques();
-    else if (page === 'prestacoes') renderPrestacoes();
-    else if (page === 'projetos') renderProjetos();
-    else if (page === 'pagclientes') renderPagClientes();
-    else if (page === 'garantias') renderGarantias();
-    else if (page === 'relatorios') renderRelatorios();
-    else if (page === 'notasentrada') renderNotasEntrada();
-    else if (page === 'notassaida') renderNotasSaida();
-    else if (page === 'receitasmei') renderReceitasMei();
-    else if (page === 'configuracoes') renderConfiguracoes();
-    else if (page === 'backup') renderBackupInfo();
-    else {
-        for (var m = 0; m < MESES_CONFIG.length; m++) {
-            if (page === MESES_CONFIG[m].chave) {
-                renderFluxoMes(MESES_CONFIG[m]);
-                break;
-            }
-        }
-    }
+  switch(page) {
+    case 'dashboard': renderDashboard(); break;
+    case 'janeiro': case 'fevereiro': case 'marco': case 'abril':
+    case 'maio': case 'junho': case 'julho': case 'agosto':
+    case 'setembro': case 'outubro': case 'novembro': case 'dezembro':
+      renderFluxoMes(page); break;
+    case 'compras': renderCompras(); break;
+    case 'vendas': renderVendas(); break;
+    case 'estoque': renderEstoque(); break;
+    case 'produtos': renderProdutos(); break;
+    case 'clientes': renderClientes(); break;
+    case 'fornecedores': renderFornecedores(); break;
+    case 'pfornecedores': renderPFornecedores(); break;
+    case 'boletos': renderBoletos(); break;
+    case 'cheques': renderCheques(); break;
+    case 'prestacoes': renderPrestacoes(); break;
+    case 'projetos': renderProjetos(); break;
+    case 'pagclientes': renderPagClientes(); break;
+    case 'garantias': renderGarantias(); break;
+    case 'relatorios': renderRelatorios(); break;
+    case 'notasentrada': renderNotasEntrada(); break;
+    case 'notassaida': renderNotasSaida(); break;
+    case 'receitasmei': renderReceitasMei(); break;
+    case 'configuracoes': renderConfiguracoes(); break;
+    case 'backup': renderBackupInfo(); break;
+  }
 }
 
+// ---------- SIDEBAR TOGGLE ----------
 function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('open');
+  document.querySelector('.sidebar').classList.toggle('open');
 }
 
+// ---------- TOAST ----------
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.className = 'toast show ' + (type || 'success');
+  setTimeout(() => { t.className = 'toast'; }, 3000);
+}
 
-// ============================================================
+// ---------- MODAL HELPERS ----------
+function closeCadastroModal() {
+  const m = document.getElementById('cadastroModal');
+  if (m) m.style.display = 'none';
+}
+function closeViewModal() {
+  const m = document.getElementById('viewModal');
+  if (m) m.style.display = 'none';
+}
+
+// ==========================================
 // PARTE 4 — DASHBOARD + FLUXO DE CAIXA MENSAL
-// ============================================================
+// ==========================================
 
-// ==================== DASHBOARD ====================
+// ---------- DASHBOARD ----------
 function renderDashboard() {
-    var totalEntradas = 0, totalSaidas = 0;
-    var totalWander = 0, totalDaniel = 0;
-    var entradasMes = [], saidasMes = [];
+  const container = document.getElementById('dashboardCards');
+  if (!container) return;
 
-    for (var m = 0; m < MESES_CONFIG.length; m++) {
-        var mc = MESES_CONFIG[m];
-        var fc = appData.fluxoCaixa[mc.chave];
-        var entM = 0, saiM = 0;
-        if (fc) {
-            for (var d = 0; d < mc.dias; d++) {
-                for (var r = 0; r < NUM_LINHAS_ENTRADA; r++) {
-                    if (fc.entradas && fc.entradas[r] && fc.entradas[r][d]) entM += fc.entradas[r][d];
-                }
-                for (var s = 0; s < NUM_LINHAS_SAIDA; s++) {
-                    if (fc.saidas && fc.saidas[s] && fc.saidas[s][d]) saiM += fc.saidas[s][d];
-                }
-                if (fc.combustivel && fc.combustivel[d]) saiM += fc.combustivel[d];
-            }
-            if (fc.wander) {
-                for (var w = 0; w < mc.dias; w++) {
-                    if (fc.wander[w]) totalWander += fc.wander[w];
-                }
-            }
-            if (fc.daniel) {
-                for (var dd = 0; dd < mc.dias; dd++) {
-                    if (fc.daniel[dd]) totalDaniel += fc.daniel[dd];
-                }
-            }
-        }
-        totalEntradas += entM;
-        totalSaidas += saiM;
-        entradasMes.push(entM);
-        saidasMes.push(saiM);
+  // Cálculos
+  const totalCompras = (appData.compras||[]).reduce((s,c) => s + (c.quantidade * c.valorUnit), 0);
+  const totalVendas = (appData.vendas||[]).reduce((s,v) => s + (v.quantidade * v.valorUnit), 0);
+  const comprasPagas = (appData.compras||[]).filter(c => c.situacao==='Pago').reduce((s,c) => s + (c.quantidade * c.valorUnit), 0);
+  const comprasDevendo = (appData.compras||[]).filter(c => c.situacao==='Devendo').reduce((s,c) => s + (c.quantidade * c.valorUnit), 0);
+  const vendasPagas = (appData.vendas||[]).filter(v => v.situacao==='Pago').reduce((s,v) => s + (v.quantidade * v.valorUnit), 0);
+  const vendasDevendo = (appData.vendas||[]).filter(v => v.situacao==='Devendo').reduce((s,v) => s + (v.quantidade * v.valorUnit), 0);
+  const lucro = vendasPagas - comprasPagas;
+  const boletosPendentes = (appData.boletos||[]).filter(b => b.situacao!=='Pago').reduce((s,b) => s + b.valor, 0);
+  const prestacoesPendentes = (appData.prestacoes||[]).filter(p => p.situacao!=='Pago').reduce((s,p) => s + p.valor, 0);
+  const totalDividas = comprasDevendo + boletosPendentes + prestacoesPendentes + vendasDevendo;
+
+  // Entradas e Saídas totais dos fluxos
+  let entradasFluxo = 0, saidasFluxo = 0;
+  const meses = ['janeiro','fevereiro','marco','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  meses.forEach(m => {
+    const fc = appData.fluxoCaixa[m];
+    if (fc) {
+      entradasFluxo += (fc.entradas||[]).reduce((a,b) => a+b, 0);
+      saidasFluxo += (fc.saidas||[]).reduce((a,b) => a+b, 0) + (fc.combustivel||[]).reduce((a,b) => a+b, 0);
     }
+  });
+  const caixaAtual = entradasFluxo - saidasFluxo;
 
-    var totalCompras = 0, totalComprasPago = 0;
-    for (var c = 0; c < appData.compras.length; c++) {
-        var comp = appData.compras[c];
-        var compTotal = (comp.qtd || 0) * (comp.valorUnit || 0);
-        totalCompras += compTotal;
-        if (comp.status === 'Pago') totalComprasPago += compTotal;
-    }
+  // Metas
+  const metaVendas = 15000;
+  const mesAtual = new Date().getMonth();
+  const vendasMesAtual = (appData.vendas||[]).filter(v => {
+    const d = new Date(v.data + 'T00:00:00');
+    return d.getMonth() === mesAtual && d.getFullYear() === 2026;
+  }).reduce((s,v) => s + (v.quantidade * v.valorUnit), 0);
+  const pctVendas = Math.min(100, (vendasMesAtual / metaVendas * 100));
 
-    var totalVendas = 0, totalVendasPago = 0;
-    for (var v = 0; v < appData.vendas.length; v++) {
-        var ven = appData.vendas[v];
-        var venTotal = (ven.qtd || 0) * (ven.valor || 0);
-        totalVendas += venTotal;
-        if (ven.status === 'Pago') totalVendasPago += venTotal;
-    }
+  const salarioWander = 3000;
+  const salarioDaniel = 2500;
+  const vendasWander = (appData.vendas||[]).filter(v => v.vendedor==='Wander' && new Date(v.data+'T00:00:00').getMonth()===mesAtual).reduce((s,v) => s + (v.quantidade*v.valorUnit),0);
+  const vendasDaniel = (appData.vendas||[]).filter(v => v.vendedor==='Daniel' && new Date(v.data+'T00:00:00').getMonth()===mesAtual).reduce((s,v) => s + (v.quantidade*v.valorUnit),0);
 
-    var totalDividas = 0, totalPresMes = 0;
-    for (var p = 0; p < appData.prestacoes.length; p++) {
-        var pres = appData.prestacoes[p];
-        if (pres.meses) {
-            for (var pm = 0; pm < pres.meses.length; pm++) {
-                totalDividas += (pres.meses[pm] || 0);
-            }
-        }
-        var mesAtual = new Date().getMonth();
-        if (pres.meses && pres.meses[mesAtual]) totalPresMes += pres.meses[mesAtual];
-    }
+  container.innerHTML = `
+    <div class="dashboard-grid">
+      <div class="card card-accent">
+        <div class="card-header"><span class="card-icon">💰</span><span>Caixa Atual</span></div>
+        <div class="card-value ${caixaAtual >= 0 ? 'text-success' : 'text-danger'}">${formatCurrency(caixaAtual)}</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-icon">📈</span><span>Total Entradas</span></div>
+        <div class="card-value text-success">${formatCurrency(entradasFluxo)}</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-icon">📉</span><span>Total Saídas</span></div>
+        <div class="card-value text-danger">${formatCurrency(saidasFluxo)}</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-icon">🛒</span><span>Total Compras</span></div>
+        <div class="card-value">${formatCurrency(totalCompras)}</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-icon">🏷️</span><span>Total Vendas</span></div>
+        <div class="card-value">${formatCurrency(totalVendas)}</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-icon">📊</span><span>Lucro</span></div>
+        <div class="card-value ${lucro >= 0 ? 'text-success' : 'text-danger'}">${formatCurrency(lucro)}</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-icon">⚠️</span><span>Total Dívidas</span></div>
+        <div class="card-value text-danger">${formatCurrency(totalDividas)}</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-icon">📋</span><span>Boletos Pendentes</span></div>
+        <div class="card-value text-warning">${formatCurrency(boletosPendentes)}</div>
+      </div>
+    </div>
 
-    var totalEstoque = 0;
-    for (var e = 0; e < appData.estoque.length; e++) {
-        totalEstoque += (appData.estoque[e].emEstoque || 0) * (appData.estoque[e].valorCompra || 0);
-    }
+    <div class="section-title" style="margin-top:24px;">Metas do Mês</div>
+    <div class="metas-grid">
+      <div class="card">
+        <div class="card-header"><span>Meta Vendas Mensal</span><span>${formatCurrency(vendasMesAtual)} / ${formatCurrency(metaVendas)}</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${pctVendas}%"></div></div>
+        <small>${pctVendas.toFixed(1)}%</small>
+      </div>
+      <div class="card">
+        <div class="card-header"><span>Vendas Wander</span><span>${formatCurrency(vendasWander)}</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${Math.min(100,vendasWander/salarioWander*100)}%;background:var(--accent-primary)"></div></div>
+        <small>Meta salário: ${formatCurrency(salarioWander)}</small>
+      </div>
+      <div class="card">
+        <div class="card-header"><span>Vendas Daniel</span><span>${formatCurrency(vendasDaniel)}</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${Math.min(100,vendasDaniel/salarioDaniel*100)}%;background:var(--accent-secondary)"></div></div>
+        <small>Meta salário: ${formatCurrency(salarioDaniel)}</small>
+      </div>
+    </div>
 
-    var garantiasAtivas = 0;
-    for (var g = 0; g < appData.garantias.length; g++) {
-        if (appData.garantias[g].situacao === 'Ativa') garantiasAtivas++;
-    }
+    <div class="section-title" style="margin-top:24px;">Últimas Compras</div>
+    <div class="table-responsive">
+      <table class="table">
+        <thead><tr><th>Data</th><th>Produto</th><th>Fornecedor</th><th>Valor</th><th>Situação</th></tr></thead>
+        <tbody>${(appData.compras||[]).slice(-5).reverse().map(c => `
+          <tr>
+            <td>${formatDate(c.data)}</td>
+            <td>${c.produto}</td>
+            <td>${c.fornecedor}</td>
+            <td>${formatCurrency(c.quantidade * c.valorUnit)}</td>
+            <td><span class="badge ${c.situacao==='Pago'?'badge-success':c.situacao==='Devendo'?'badge-danger':'badge-warning'}">${c.situacao}</span></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
 
-    var boletosTotal = 0;
-    for (var b = 0; b < appData.boletos.length; b++) {
-        boletosTotal += (appData.boletos[b].valor || 0);
-    }
+    <div class="section-title" style="margin-top:24px;">Últimas Vendas</div>
+    <div class="table-responsive">
+      <table class="table">
+        <thead><tr><th>Data</th><th>Cliente</th><th>Produto</th><th>Valor</th><th>Vendedor</th><th>Situação</th></tr></thead>
+        <tbody>${(appData.vendas||[]).slice(-5).reverse().map(v => `
+          <tr>
+            <td>${formatDate(v.data)}</td>
+            <td>${v.cliente}</td>
+            <td>${v.produto}</td>
+            <td>${formatCurrency(v.quantidade * v.valorUnit)}</td>
+            <td>${v.vendedor}</td>
+            <td><span class="badge ${v.situacao==='Pago'?'badge-success':'badge-danger'}">${v.situacao}</span></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
 
-    var caixaAtual = totalEntradas - totalSaidas;
-    var lucro = totalVendas - totalCompras;
-
-    // Cards
-    var cardsHTML = '';
-    var cardsData = [
-        { icon: '💵', value: formatCurrency(caixaAtual), label: 'Caixa Atual', color: caixaAtual >= 0 ? 'var(--success)' : 'var(--danger)' },
-        { icon: '📈', value: formatCurrency(totalEntradas), label: 'Total Entradas', color: 'var(--success)' },
-        { icon: '📉', value: formatCurrency(totalSaidas), label: 'Total Saídas', color: 'var(--danger)' },
-        { icon: '💰', value: formatCurrency(totalVendas), label: 'Vendas Anual', color: 'var(--orange-primary)' },
-        { icon: '🛒', value: formatCurrency(totalCompras), label: 'Compras Anual', color: 'var(--info)' },
-        { icon: '📊', value: formatCurrency(lucro), label: 'Lucro C/V', color: lucro >= 0 ? 'var(--success)' : 'var(--danger)' },
-        { icon: '👤', value: formatCurrency(totalWander), label: 'Wander (Vendas)', color: '#2196f3' },
-        { icon: '👤', value: formatCurrency(totalDaniel), label: 'Daniel (Vendas)', color: '#00c853' },
-        { icon: '💳', value: formatCurrency(totalDividas), label: 'Total Dívidas', color: 'var(--danger)' },
-        { icon: '📦', value: formatCurrency(totalEstoque), label: 'Valor Estoque', color: 'var(--warning)' },
-        { icon: '🛡️', value: garantiasAtivas, label: 'Garantias Ativas', color: 'var(--info)' },
-        { icon: '🔖', value: formatCurrency(boletosTotal), label: 'Total Boletos', color: 'var(--orange-primary)' }
-    ];
-
-    for (var ci = 0; ci < cardsData.length; ci++) {
-        var cd = cardsData[ci];
-        cardsHTML += '<div class="card"><div class="card-icon">' + cd.icon + '</div><div class="card-value" style="color:' + cd.color + '">' + cd.value + '</div><div class="card-label">' + cd.label + '</div></div>';
-    }
-    document.getElementById('dashboardCards').innerHTML = cardsHTML;
-
-    // Metas
-    var mesAtualIdx = new Date().getMonth();
-    var vendasMesAtual = 0;
-    var wanderMes = 0, danielMes = 0;
-    var fcAtual = appData.fluxoCaixa[MESES_CONFIG[mesAtualIdx].chave];
-    if (fcAtual) {
-        for (var di = 0; di < MESES_CONFIG[mesAtualIdx].dias; di++) {
-            for (var ri = 0; ri < NUM_LINHAS_ENTRADA; ri++) {
-                if (fcAtual.entradas && fcAtual.entradas[ri] && fcAtual.entradas[ri][di]) vendasMesAtual += fcAtual.entradas[ri][di];
-            }
-            if (fcAtual.wander && fcAtual.wander[di]) wanderMes += fcAtual.wander[di];
-            if (fcAtual.daniel && fcAtual.daniel[di]) danielMes += fcAtual.daniel[di];
-        }
-    }
-
-    var metaVendas = appData.empresa ? appData.empresa.metaVendas : 30000;
-    var metaSalario = appData.empresa ? appData.empresa.metaSalario : 6000;
-    var pctVendas = Math.min(100, (vendasMesAtual / metaVendas) * 100);
-    var pctWander = Math.min(100, (wanderMes / metaSalario) * 100);
-    var pctDaniel = Math.min(100, (danielMes / metaSalario) * 100);
-
-    document.getElementById('metaVendasValue').textContent = formatCurrency(vendasMesAtual) + ' / ' + formatCurrency(metaVendas);
-    document.getElementById('metaVendasBar').style.width = pctVendas + '%';
-    document.getElementById('metaWanderValue').textContent = formatCurrency(wanderMes) + ' / ' + formatCurrency(metaSalario);
-    document.getElementById('metaWanderBar').style.width = pctWander + '%';
-    document.getElementById('metaDanielValue').textContent = formatCurrency(danielMes) + ' / ' + formatCurrency(metaSalario);
-    document.getElementById('metaDanielBar').style.width = pctDaniel + '%';
-
-    // Chart Entradas vs Saídas
-    var maxChart = 1;
-    for (var ch = 0; ch < 12; ch++) {
-        if (entradasMes[ch] > maxChart) maxChart = entradasMes[ch];
-        if (saidasMes[ch] > maxChart) maxChart = saidasMes[ch];
-    }
-
-    var chartHTML = '';
-    for (var cm = 0; cm < 12; cm++) {
-        var hE = Math.max(2, (entradasMes[cm] / maxChart) * 170);
-        var hS = Math.max(2, (saidasMes[cm] / maxChart) * 170);
-        chartHTML += '<div class="chart-bar-group">';
-        chartHTML += '<div class="chart-bars-double">';
-        chartHTML += '<div><div class="chart-bar-value">' + (entradasMes[cm] > 0 ? (entradasMes[cm] / 1000).toFixed(1) + 'k' : '') + '</div><div class="chart-bar entrada" style="height:' + hE + 'px"></div></div>';
-        chartHTML += '<div><div class="chart-bar-value">' + (saidasMes[cm] > 0 ? (saidasMes[cm] / 1000).toFixed(1) + 'k' : '') + '</div><div class="chart-bar saida" style="height:' + hS + 'px"></div></div>';
-        chartHTML += '</div>';
-        chartHTML += '<div class="chart-bar-label">' + MESES_NOMES[cm].substr(0, 3) + '</div>';
-        chartHTML += '</div>';
-    }
-    document.getElementById('chartEntradasSaidas').innerHTML = chartHTML;
-
-    // Chart Vendedores
-    var maxVend = Math.max(totalWander, totalDaniel, 1);
-    var vendHTML = '';
-    vendHTML += '<div style="flex:1"><div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:0.85rem;"><span>Wander</span><span style="color:#2196f3;font-weight:700;">' + formatCurrency(totalWander) + '</span></div>';
-    vendHTML += '<div class="progress-bar"><div class="progress-fill" style="width:' + ((totalWander / maxVend) * 100) + '%;background:#2196f3;"></div></div></div>';
-    vendHTML += '<div style="flex:1"><div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:0.85rem;"><span>Daniel</span><span style="color:#00c853;font-weight:700;">' + formatCurrency(totalDaniel) + '</span></div>';
-    vendHTML += '<div class="progress-bar"><div class="progress-fill" style="width:' + ((totalDaniel / maxVend) * 100) + '%;background:#00c853;"></div></div></div>';
-    document.getElementById('chartVendedores').innerHTML = vendHTML;
-
-    // Últimas compras
-    var ucHTML = '';
-    var ultCompras = appData.compras.slice(-5).reverse();
-    for (var uc = 0; uc < ultCompras.length; uc++) {
-        var uci = ultCompras[uc];
-        var statusClass = uci.status === 'Pago' ? 'badge-success' : (uci.status === 'Devendo' ? 'badge-danger' : 'badge-warning');
-        ucHTML += '<tr><td>' + formatDate(uci.data) + '</td><td>' + uci.produto + '</td><td>' + formatCurrency((uci.qtd || 0) * (uci.valorUnit || 0)) + '</td><td><span class="badge ' + statusClass + '">' + uci.status + '</span></td></tr>';
-    }
-    document.getElementById('dashUltimasCompras').innerHTML = ucHTML || '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);">Nenhuma compra</td></tr>';
-
-    // Últimas vendas
-    var uvHTML = '';
-    var ultVendas = appData.vendas.slice(-5).reverse();
-    for (var uv = 0; uv < ultVendas.length; uv++) {
-        var uvi = ultVendas[uv];
-        var vendBadge = uvi.vendedor === 'Wander' ? 'badge-wander' : 'badge-daniel';
-        uvHTML += '<tr><td>' + formatDate(uvi.data) + '</td><td>' + uvi.produto + '</td><td>' + formatCurrency((uvi.qtd || 0) * (uvi.valor || 0)) + '</td><td><span class="badge ' + vendBadge + '">' + uvi.vendedor + '</span></td></tr>';
-    }
-    document.getElementById('dashUltimasVendas').innerHTML = uvHTML || '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);">Nenhuma venda</td></tr>';
-
-    // Compras pendentes
-    var cpHTML = '';
-    var pendentes = appData.compras.filter(function (c) { return c.status === 'Devendo'; });
-    for (var cp = 0; cp < pendentes.length; cp++) {
-        var cpi = pendentes[cp];
-        var diasV = getDiasEntreHoje(cpi.vencimento);
-        var diasColor = diasV < 0 ? 'var(--danger)' : (diasV <= 7 ? 'var(--warning)' : 'var(--text-secondary)');
-        cpHTML += '<tr><td>' + cpi.produto + '</td><td>' + cpi.fornecedor + '</td><td>' + formatCurrency((cpi.qtd || 0) * (cpi.valorUnit || 0)) + '</td><td style="color:' + diasColor + '">' + formatDate(cpi.vencimento) + ' (' + diasV + 'd)</td></tr>';
-    }
-    document.getElementById('dashComprasPendentes').innerHTML = cpHTML || '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);">Nenhuma pendência</td></tr>';
-
-    // Prestações do mês
-    var prHTML = '';
-    for (var pr = 0; pr < appData.prestacoes.length; pr++) {
-        var pri = appData.prestacoes[pr];
-        if (pri.meses && pri.meses[mesAtualIdx] > 0) {
-            prHTML += '<tr><td>' + pri.nome + '</td><td>' + pri.numParcelas + 'x</td><td>' + formatCurrency(pri.meses[mesAtualIdx]) + '</td></tr>';
-        }
-    }
-    document.getElementById('dashPrestacoes').innerHTML = prHTML || '<tr><td colspan="3" style="text-align:center;color:var(--text-muted);">Nenhuma prestação</td></tr>';
+    <div class="section-title" style="margin-top:24px;">Prestações do Mês</div>
+    <div class="table-responsive">
+      <table class="table">
+        <thead><tr><th>Descrição</th><th>Parcela</th><th>Valor</th><th>Vencimento</th><th>Situação</th></tr></thead>
+        <tbody>${(appData.prestacoes||[]).filter(p => {
+          const d = new Date(p.vencimento+'T00:00:00');
+          return d.getMonth() === mesAtual;
+        }).map(p => `
+          <tr>
+            <td>${p.descricao}</td>
+            <td>${p.parcelaAtual}/${p.parcelas}</td>
+            <td>${formatCurrency(p.valor)}</td>
+            <td>${formatDate(p.vencimento)}</td>
+            <td><span class="badge ${p.situacao==='Pago'?'badge-success':'badge-warning'}">${p.situacao}</span></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
 }
 
-// ==================== FLUXO DE CAIXA MENSAL ====================
+// ==========================================
+// FLUXO DE CAIXA MENSAL — ESTILO LISTA
+// ==========================================
+const mesConfig = {
+  janeiro:   { label:'Janeiro',   dias:31, key:'janeiro' },
+  fevereiro: { label:'Fevereiro', dias:28, key:'fevereiro' },
+  marco:     { label:'Março',     dias:31, key:'marco' },
+  abril:     { label:'Abril',     dias:30, key:'abril' },
+  maio:      { label:'Maio',      dias:31, key:'maio' },
+  junho:     { label:'Junho',     dias:30, key:'junho' },
+  julho:     { label:'Julho',     dias:31, key:'julho' },
+  agosto:    { label:'Agosto',    dias:31, key:'agosto' },
+  setembro:  { label:'Setembro',  dias:30, key:'setembro' },
+  outubro:   { label:'Outubro',   dias:31, key:'outubro' },
+  novembro:  { label:'Novembro',  dias:30, key:'novembro' },
+  dezembro:  { label:'Dezembro',  dias:31, key:'dezembro' }
+};
+
+const mesIndexMap = {
+  janeiro:0, fevereiro:1, marco:2, abril:3, maio:4, junho:5,
+  julho:6, agosto:7, setembro:8, outubro:9, novembro:10, dezembro:11
+};
+
 function initFluxoMes(mesKey, dias) {
-    if (!appData.fluxoCaixa[mesKey]) {
-        var ent = [];
-        for (var r = 0; r < NUM_LINHAS_ENTRADA; r++) {
-            var row = [];
-            for (var d = 0; d < dias; d++) row.push(0);
-            ent.push(row);
-        }
-        var sai = [];
-        for (var rs = 0; rs < NUM_LINHAS_SAIDA; rs++) {
-            var rowS = [];
-            for (var ds = 0; ds < dias; ds++) rowS.push(0);
-            sai.push(rowS);
-        }
-        var zeros = [];
-        for (var z = 0; z < dias; z++) zeros.push(0);
-
-        appData.fluxoCaixa[mesKey] = {
-            entradas: ent,
-            dinheiro: zeros.slice(),
-            wander: zeros.slice(),
-            daniel: zeros.slice(),
-            saidas: sai,
-            combustivel: zeros.slice()
-        };
-    }
+  if (!appData.fluxoCaixa) appData.fluxoCaixa = {};
+  if (!appData.fluxoCaixa[mesKey]) {
+    appData.fluxoCaixa[mesKey] = { entradas:[], saidas:[], dinheiro:[], wander:[], daniel:[], combustivel:[] };
+  }
+  const fc = appData.fluxoCaixa[mesKey];
+  ['entradas','saidas','dinheiro','wander','daniel','combustivel'].forEach(tipo => {
+    if (!fc[tipo]) fc[tipo] = [];
+    while (fc[tipo].length < dias) fc[tipo].push(0);
+  });
 }
 
-function calcFluxoSimple(mesKey, dias) {
-    var fc = appData.fluxoCaixa[mesKey];
-    if (!fc) return { totalEntradas: 0, totalSaidas: 0 };
-    var tE = 0, tS = 0;
-    for (var d = 0; d < dias; d++) {
-        for (var r = 0; r < NUM_LINHAS_ENTRADA; r++) {
-            if (fc.entradas[r] && fc.entradas[r][d]) tE += fc.entradas[r][d];
-        }
-        for (var s = 0; s < NUM_LINHAS_SAIDA; s++) {
-            if (fc.saidas[s] && fc.saidas[s][d]) tS += fc.saidas[s][d];
-        }
-        if (fc.combustivel && fc.combustivel[d]) tS += fc.combustivel[d];
+function getSaldoMesesAnteriores(mesKey) {
+  const meses = ['janeiro','fevereiro','marco','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  const idx = meses.indexOf(mesKey);
+  let saldo = 0;
+  for (let i = 0; i < idx; i++) {
+    const fc = appData.fluxoCaixa[meses[i]];
+    if (fc) {
+      saldo += (fc.entradas||[]).reduce((a,b) => a+b, 0);
+      saldo -= (fc.saidas||[]).reduce((a,b) => a+b, 0);
+      saldo -= (fc.combustivel||[]).reduce((a,b) => a+b, 0);
     }
-    return { totalEntradas: tE, totalSaidas: tS };
+  }
+  return saldo;
 }
 
-function getSaldoMesAnterior(mesIdx) {
-    if (mesIdx === 0) return 0;
-    var saldo = 0;
-    for (var i = 0; i < mesIdx; i++) {
-        var mc = MESES_CONFIG[i];
-        var r = calcFluxoSimple(mc.chave, mc.dias);
-        saldo += r.totalEntradas - r.totalSaidas;
+function renderFluxoMes(page) {
+  const cfg = mesConfig[page];
+  if (!cfg) return;
+  const { key, dias, label } = cfg;
+  initFluxoMes(key, dias);
+  const fc = appData.fluxoCaixa[key];
+
+  const container = document.getElementById('fluxo' + label.replace('ç','c').replace('Março','Marco'));
+  // Usar um ID genérico — buscar pelo container da página
+  const pageEl = document.getElementById('page-' + page);
+  if (!pageEl) return;
+
+  const totalEntradas = fc.entradas.reduce((a,b) => a+b, 0);
+  const totalSaidas = fc.saidas.reduce((a,b) => a+b, 0);
+  const totalCombustivel = fc.combustivel.reduce((a,b) => a+b, 0);
+  const totalDinheiro = fc.dinheiro.reduce((a,b) => a+b, 0);
+  const totalWander = fc.wander.reduce((a,b) => a+b, 0);
+  const totalDaniel = fc.daniel.reduce((a,b) => a+b, 0);
+  const saldoAnterior = getSaldoMesesAnteriores(key);
+  const saldoMes = totalEntradas - totalSaidas - totalCombustivel;
+  const caixaFinal = saldoAnterior + saldoMes;
+
+  // Construir lista de lançamentos (entradas e saídas)
+  let lancamentos = [];
+  for (let d = 0; d < dias; d++) {
+    const dia = d + 1;
+    const dataStr = `2026-${String(mesIndexMap[key]+1).padStart(2,'0')}-${String(dia).padStart(2,'0')}`;
+    if (fc.entradas[d] > 0) {
+      lancamentos.push({ id: `E-${d}`, data: dataStr, dia, tipo:'Entrada', categoria:'Entrada', valor: fc.entradas[d], idx: d, tipoKey:'entradas' });
     }
-    return saldo;
+    if (fc.saidas[d] > 0) {
+      lancamentos.push({ id: `S-${d}`, data: dataStr, dia, tipo:'Saída', categoria:'Saída Geral', valor: fc.saidas[d], idx: d, tipoKey:'saidas' });
+    }
+    if (fc.combustivel[d] > 0) {
+      lancamentos.push({ id: `C-${d}`, data: dataStr, dia, tipo:'Saída', categoria:'Combustível', valor: fc.combustivel[d], idx: d, tipoKey:'combustivel' });
+    }
+    if (fc.dinheiro[d] > 0) {
+      lancamentos.push({ id: `D-${d}`, data: dataStr, dia, tipo:'Saída', categoria:'Dinheiro', valor: fc.dinheiro[d], idx: d, tipoKey:'dinheiro' });
+    }
+    if (fc.wander[d] > 0) {
+      lancamentos.push({ id: `W-${d}`, data: dataStr, dia, tipo:'Saída', categoria:'Wander', valor: fc.wander[d], idx: d, tipoKey:'wander' });
+    }
+    if (fc.daniel[d] > 0) {
+      lancamentos.push({ id: `DN-${d}`, data: dataStr, dia, tipo:'Saída', categoria:'Daniel', valor: fc.daniel[d], idx: d, tipoKey:'daniel' });
+    }
+  }
+
+  // Ordenar por data
+  lancamentos.sort((a,b) => a.dia - b.dia);
+
+  pageEl.innerHTML = `
+    <div class="page-header">
+      <h2>Fluxo de Caixa — ${label} 2026</h2>
+    </div>
+
+    <!-- Cards Resumo -->
+    <div class="dashboard-grid" style="margin-bottom:20px;">
+      <div class="card">
+        <div class="card-header"><span class="card-icon">📈</span><span>Total Entradas</span></div>
+        <div class="card-value text-success">${formatCurrency(totalEntradas)}</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-icon">📉</span><span>Total Saídas</span></div>
+        <div class="card-value text-danger">${formatCurrency(totalSaidas + totalCombustivel)}</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-icon">⛽</span><span>Combustível</span></div>
+        <div class="card-value text-warning">${formatCurrency(totalCombustivel)}</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-icon">💵</span><span>Dinheiro</span></div>
+        <div class="card-value">${formatCurrency(totalDinheiro)}</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-icon">👤</span><span>Wander</span></div>
+        <div class="card-value">${formatCurrency(totalWander)}</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-icon">👤</span><span>Daniel</span></div>
+        <div class="card-value">${formatCurrency(totalDaniel)}</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-icon">🔙</span><span>Saldo Anterior</span></div>
+        <div class="card-value ${saldoAnterior >= 0 ? 'text-success' : 'text-danger'}">${formatCurrency(saldoAnterior)}</div>
+      </div>
+      <div class="card card-accent">
+        <div class="card-header"><span class="card-icon">💰</span><span>Caixa Final</span></div>
+        <div class="card-value ${caixaFinal >= 0 ? 'text-success' : 'text-danger'}">${formatCurrency(caixaFinal)}</div>
+      </div>
+    </div>
+
+    <!-- Filtros e Botão Adicionar -->
+    <div class="filter-bar">
+      <input type="date" id="filtroDataInicio_${key}" class="form-control" style="max-width:180px" onchange="renderFluxoMes('${page}')">
+      <input type="date" id="filtroDataFim_${key}" class="form-control" style="max-width:180px" onchange="renderFluxoMes('${page}')">
+      <select id="filtroTipo_${key}" class="form-control" style="max-width:160px" onchange="renderFluxoMes('${page}')">
+        <option value="">Todos os Tipos</option>
+        <option value="Entrada">Entradas</option>
+        <option value="Saída">Saídas</option>
+      </select>
+      <select id="filtroCategoria_${key}" class="form-control" style="max-width:180px" onchange="renderFluxoMes('${page}')">
+        <option value="">Todas Categorias</option>
+        <option value="Entrada">Entrada</option>
+        <option value="Saída Geral">Saída Geral</option>
+        <option value="Combustível">Combustível</option>
+        <option value="Dinheiro">Dinheiro</option>
+        <option value="Wander">Wander</option>
+        <option value="Daniel">Daniel</option>
+      </select>
+      <button class="btn btn-primary" onclick="openFluxoModal('${key}', ${dias})">
+        <span>+</span> Adicionar
+      </button>
+    </div>
+
+    <!-- Tabela Lançamentos -->
+    <div class="table-responsive">
+      <table class="table" id="tabelaFluxo_${key}">
+        <thead>
+          <tr>
+            <th>Dia</th>
+            <th>Data</th>
+            <th>Tipo</th>
+            <th>Categoria</th>
+            <th>Valor</th>
+            <th style="width:120px">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="fluxoBody_${key}">
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  // Aplicar filtros
+  const filtroDataInicio = document.getElementById('filtroDataInicio_' + key);
+  const filtroDataFim = document.getElementById('filtroDataFim_' + key);
+  const filtroTipo = document.getElementById('filtroTipo_' + key);
+  const filtroCategoria = document.getElementById('filtroCategoria_' + key);
+
+  let filtrados = [...lancamentos];
+
+  if (filtroDataInicio && filtroDataInicio.value) {
+    filtrados = filtrados.filter(l => l.data >= filtroDataInicio.value);
+  }
+  if (filtroDataFim && filtroDataFim.value) {
+    filtrados = filtrados.filter(l => l.data <= filtroDataFim.value);
+  }
+  if (filtroTipo && filtroTipo.value) {
+    filtrados = filtrados.filter(l => l.tipo === filtroTipo.value);
+  }
+  if (filtroCategoria && filtroCategoria.value) {
+    filtrados = filtrados.filter(l => l.categoria === filtroCategoria.value);
+  }
+
+  const tbody = document.getElementById('fluxoBody_' + key);
+  if (filtrados.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--text-muted)">Nenhum lançamento encontrado</td></tr>';
+  } else {
+    tbody.innerHTML = filtrados.map(l => `
+      <tr>
+        <td><strong>${l.dia}</strong></td>
+        <td>${formatDate(l.data)}</td>
+        <td><span class="badge ${l.tipo==='Entrada'?'badge-success':'badge-danger'}">${l.tipo}</span></td>
+        <td>${l.categoria}</td>
+        <td class="${l.tipo==='Entrada'?'text-success':'text-danger'}"><strong>${formatCurrency(l.valor)}</strong></td>
+        <td>
+          <button class="btn btn-sm btn-outline" onclick="editFluxoLancamento('${key}', ${l.idx}, '${l.tipoKey}', ${dias})" title="Editar">✏️</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteFluxoLancamento('${key}', ${l.idx}, '${l.tipoKey}', '${page}')" title="Excluir">🗑️</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  // Linha de totais filtrados
+  const totalFiltradoEntradas = filtrados.filter(l => l.tipo==='Entrada').reduce((s,l) => s+l.valor, 0);
+  const totalFiltradoSaidas = filtrados.filter(l => l.tipo==='Saída').reduce((s,l) => s+l.valor, 0);
+  tbody.innerHTML += `
+    <tr style="background:var(--bg-tertiary);font-weight:bold;">
+      <td colspan="4" style="text-align:right">Total Filtrado:</td>
+      <td>
+        <span class="text-success">${formatCurrency(totalFiltradoEntradas)}</span> /
+        <span class="text-danger">${formatCurrency(totalFiltradoSaidas)}</span>
+      </td>
+      <td></td>
+    </tr>
+  `;
 }
 
-function renderFluxoMes(mesConfig) {
-    var mesKey = mesConfig.chave;
-    var dias = mesConfig.dias;
-    var ano = mesConfig.ano;
-    var mes = mesConfig.mes;
+// ---------- MODAL ADICIONAR LANÇAMENTO ----------
+function openFluxoModal(mesKey, dias, editIdx, editTipoKey) {
+  const isEdit = editIdx !== undefined;
+  const fc = appData.fluxoCaixa[mesKey];
 
-    initFluxoMes(mesKey, dias);
-    var fc = appData.fluxoCaixa[mesKey];
+  let valorAtual = 0;
+  let categoriaAtual = 'entradas';
+  let diaAtual = 1;
 
-    // Calcular totais
-    var totalEntradas = 0, totalSaidas = 0, totalWander = 0, totalDaniel = 0, totalDinheiro = 0, totalCombustivel = 0;
-    var totalEntradaDia = [], totalSaidaDia = [];
+  if (isEdit && fc) {
+    valorAtual = fc[editTipoKey][editIdx] || 0;
+    categoriaAtual = editTipoKey;
+    diaAtual = editIdx + 1;
+  }
 
-    for (var d = 0; d < dias; d++) {
-        var entDia = 0, saiDia = 0;
-        for (var r = 0; r < NUM_LINHAS_ENTRADA; r++) {
-            if (fc.entradas[r] && fc.entradas[r][d]) entDia += fc.entradas[r][d];
-        }
-        for (var s = 0; s < NUM_LINHAS_SAIDA; s++) {
-            if (fc.saidas[s] && fc.saidas[s][d]) saiDia += fc.saidas[s][d];
-        }
-        if (fc.combustivel && fc.combustivel[d]) {
-            saiDia += fc.combustivel[d];
-            totalCombustivel += fc.combustivel[d];
-        }
-        if (fc.dinheiro && fc.dinheiro[d]) totalDinheiro += fc.dinheiro[d];
-        if (fc.wander && fc.wander[d]) totalWander += fc.wander[d];
-        if (fc.daniel && fc.daniel[d]) totalDaniel += fc.daniel[d];
-        totalEntradas += entDia;
-        totalSaidas += saiDia;
-        totalEntradaDia.push(entDia);
-        totalSaidaDia.push(saiDia);
-    }
+  const mesIdx = mesIndexMap[mesKey];
+  const mesLabel = Object.values(mesConfig).find(c => c.key === mesKey)?.label || mesKey;
 
-    var mesIdx = MESES_CONFIG.indexOf(mesConfig);
-    var saldoAnterior = getSaldoMesAnterior(mesIdx);
-    var diferenca = totalEntradas - totalSaidas;
-    var caixaAtualFinal = saldoAnterior + diferenca;
-    var metaSalario = appData.empresa ? appData.empresa.metaSalario : 6000;
+  const modal = document.getElementById('cadastroModal');
+  const modalTitle = document.getElementById('cadastroModalTitle');
+  const modalBody = document.getElementById('cadastroModalBody');
+  const modalFooter = document.getElementById('cadastroModalFooter');
 
-    // Summary Cards
-    var sumId = 'sum' + mesConfig.nome.replace('ç', 'c');
-    var sumEl = document.getElementById(sumId);
-    if (!sumEl) {
-        // Tentar com nome capitalizado
-        var possibleIds = ['sumJaneiro', 'sumFevereiro', 'sumMarco', 'sumAbril', 'sumMaio', 'sumJunho', 'sumJulho', 'sumAgosto', 'sumSetembro', 'sumOutubro', 'sumNovembro', 'sumDezembro'];
-        sumEl = document.getElementById(possibleIds[mesIdx]);
-    }
+  modalTitle.textContent = isEdit ? 'Editar Lançamento' : 'Novo Lançamento — ' + mesLabel;
 
-    if (sumEl) {
-        var sumHTML = '';
-        sumHTML += '<div class="summary-card"><div class="s-value" style="color:var(--success)">' + formatCurrency(totalEntradas) + '</div><div class="s-label">Total Entradas</div></div>';
-        sumHTML += '<div class="summary-card"><div class="s-value" style="color:var(--danger)">' + formatCurrency(totalSaidas) + '</div><div class="s-label">Total Saídas</div></div>';
-        sumHTML += '<div class="summary-card"><div class="s-value" style="color:' + (diferenca >= 0 ? 'var(--success)' : 'var(--danger)') + '">' + formatCurrency(diferenca) + '</div><div class="s-label">Diferença</div></div>';
-        sumHTML += '<div class="summary-card"><div class="s-value" style="color:var(--orange-primary)">' + formatCurrency(caixaAtualFinal) + '</div><div class="s-label">Caixa Atual</div></div>';
-        sumHTML += '<div class="summary-card"><div class="s-value" style="color:#2196f3">' + formatCurrency(totalWander) + '</div><div class="s-label">Wander (falta ' + formatCurrency(Math.max(0, metaSalario - totalWander)) + ')</div></div>';
-        sumHTML += '<div class="summary-card"><div class="s-value" style="color:#00c853">' + formatCurrency(totalDaniel) + '</div><div class="s-label">Daniel (falta ' + formatCurrency(Math.max(0, metaSalario - totalDaniel)) + ')</div></div>';
-        sumEl.innerHTML = sumHTML;
-    }
+  let diasOptions = '';
+  for (let d = 1; d <= dias; d++) {
+    diasOptions += `<option value="${d}" ${d===diaAtual?'selected':''}>${d}</option>`;
+  }
 
-    // Table
-    var tableId = 'fluxo' + mesConfig.nome.replace('ç', 'c');
-    var tableEl = document.getElementById(tableId);
-    if (!tableEl) {
-        var possibleTableIds = ['fluxoJaneiro', 'fluxoFevereiro', 'fluxoMarco', 'fluxoAbril', 'fluxoMaio', 'fluxoJunho', 'fluxoJulho', 'fluxoAgosto', 'fluxoSetembro', 'fluxoOutubro', 'fluxoNovembro', 'fluxoDezembro'];
-        tableEl = document.getElementById(possibleTableIds[mesIdx]);
-    }
+  modalBody.innerHTML = `
+    <div class="form-group">
+      <label>Dia</label>
+      <select id="fluxoDia" class="form-control">${diasOptions}</select>
+    </div>
+    <div class="form-group">
+      <label>Categoria</label>
+      <select id="fluxoCategoria" class="form-control">
+        <option value="entradas" ${categoriaAtual==='entradas'?'selected':''}>Entrada</option>
+        <option value="saidas" ${categoriaAtual==='saidas'?'selected':''}>Saída Geral</option>
+        <option value="combustivel" ${categoriaAtual==='combustivel'?'selected':''}>Combustível</option>
+        <option value="dinheiro" ${categoriaAtual==='dinheiro'?'selected':''}>Dinheiro</option>
+        <option value="wander" ${categoriaAtual==='wander'?'selected':''}>Wander</option>
+        <option value="daniel" ${categoriaAtual==='daniel'?'selected':''}>Daniel</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Valor (R$)</label>
+      <input type="number" id="fluxoValor" class="form-control" step="0.01" min="0" value="${valorAtual}">
+    </div>
+  `;
 
-    if (!tableEl) return;
+  modalFooter.innerHTML = `
+    <button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button>
+    <button class="btn btn-primary" onclick="saveFluxoLancamento('${mesKey}', ${dias}, ${isEdit ? editIdx : -1}, '${isEdit ? editTipoKey : ''}')">Salvar</button>
+  `;
 
-    var html = '<thead><tr><th class="col-desc">DESCRIÇÃO</th>';
-    for (var dh = 0; dh < dias; dh++) {
-        var dateObj = new Date(ano, mes, dh + 1);
-        var diaSemana = DIAS_SEMANA_ABREV[dateObj.getDay()];
-        html += '<th>' + (dh + 1) + '<br><small>' + diaSemana + '</small></th>';
-    }
-    html += '<th style="background:var(--orange-primary);color:white;">TOTAL MÊS</th></tr></thead><tbody>';
-
-    // ENTRADAS header
-    html += '<tr class="row-header"><td class="col-desc">ENTRADAS</td>';
-    for (var eh = 0; eh < dias; eh++) html += '<td></td>';
-    html += '<td></td></tr>';
-
-    // Linhas de entrada
-    for (var re = 0; re < NUM_LINHAS_ENTRADA; re++) {
-        var totalRow = 0;
-        html += '<tr><td class="col-desc">Entrada ' + (re + 1) + '</td>';
-        for (var de = 0; de < dias; de++) {
-            var val = (fc.entradas[re] && fc.entradas[re][de]) ? fc.entradas[re][de] : 0;
-            totalRow += val;
-            html += '<td class="editable" ondblclick="editFluxoCell(this,\'' + mesKey + '\',\'entradas\',' + re + ',' + de + ',' + dias + ')">' + (val > 0 ? val.toFixed(2) : '') + '</td>';
-        }
-        html += '<td style="font-weight:700;color:var(--orange-primary);">' + (totalRow > 0 ? totalRow.toFixed(2) : '') + '</td></tr>';
-    }
-
-    // DINHEIRO
-    var totalDinRow = 0;
-    html += '<tr style="background:var(--bg-tertiary);"><td class="col-desc" style="font-weight:700;">DINHEIRO</td>';
-    for (var dd2 = 0; dd2 < dias; dd2++) {
-        var valD = (fc.dinheiro && fc.dinheiro[dd2]) ? fc.dinheiro[dd2] : 0;
-        totalDinRow += valD;
-        html += '<td class="editable" ondblclick="editFluxoCell(this,\'' + mesKey + '\',\'dinheiro\',0,' + dd2 + ',' + dias + ')">' + (valD > 0 ? valD.toFixed(2) : '') + '</td>';
-    }
-    html += '<td style="font-weight:700;">' + (totalDinRow > 0 ? totalDinRow.toFixed(2) : '') + '</td></tr>';
-
-    // TOTAL ENTRADAS
-    html += '<tr class="row-total"><td class="col-desc">TOTAL ENTRADAS</td>';
-    for (var te = 0; te < dias; te++) {
-        html += '<td>' + (totalEntradaDia[te] > 0 ? totalEntradaDia[te].toFixed(2) : '') + '</td>';
-    }
-    html += '<td>' + totalEntradas.toFixed(2) + '</td></tr>';
-
-    // SEPARADOR
-    html += '<tr class="row-separator"><td class="col-desc"></td>';
-    for (var sep = 0; sep < dias; sep++) html += '<td></td>';
-    html += '<td></td></tr>';
-
-    // WANDER
-    html += '<tr style="background:rgba(33,150,243,0.05);"><td class="col-desc" style="color:#2196f3;font-weight:700;">WANDER</td>';
-    var totalWRow = 0;
-    for (var dw = 0; dw < dias; dw++) {
-        var valW = (fc.wander && fc.wander[dw]) ? fc.wander[dw] : 0;
-        totalWRow += valW;
-        html += '<td class="editable" ondblclick="editFluxoCell(this,\'' + mesKey + '\',\'wander\',0,' + dw + ',' + dias + ')">' + (valW > 0 ? valW.toFixed(2) : '') + '</td>';
-    }
-    html += '<td style="font-weight:700;color:#2196f3;">' + totalWRow.toFixed(2) + '</td></tr>';
-
-    // DANIEL
-    html += '<tr style="background:rgba(0,200,83,0.05);"><td class="col-desc" style="color:#00c853;font-weight:700;">DANIEL</td>';
-    var totalDRow = 0;
-    for (var ddn = 0; ddn < dias; ddn++) {
-        var valDn = (fc.daniel && fc.daniel[ddn]) ? fc.daniel[ddn] : 0;
-        totalDRow += valDn;
-        html += '<td class="editable" ondblclick="editFluxoCell(this,\'' + mesKey + '\',\'daniel\',0,' + ddn + ',' + dias + ')">' + (valDn > 0 ? valDn.toFixed(2) : '') + '</td>';
-    }
-    html += '<td style="font-weight:700;color:#00c853;">' + totalDRow.toFixed(2) + '</td></tr>';
-
-    // SAÍDAS header
-    html += '<tr class="row-header"><td class="col-desc">SAÍDAS</td>';
-    for (var sh = 0; sh < dias; sh++) html += '<td></td>';
-    html += '<td></td></tr>';
-
-    // Linhas de saída
-    for (var rs2 = 0; rs2 < NUM_LINHAS_SAIDA; rs2++) {
-        var totalSRow = 0;
-        html += '<tr><td class="col-desc">Saída ' + (rs2 + 1) + '</td>';
-        for (var ds2 = 0; ds2 < dias; ds2++) {
-            var valS = (fc.saidas[rs2] && fc.saidas[rs2][ds2]) ? fc.saidas[rs2][ds2] : 0;
-            totalSRow += valS;
-            html += '<td class="editable" ondblclick="editFluxoCell(this,\'' + mesKey + '\',\'saidas\',' + rs2 + ',' + ds2 + ',' + dias + ')">' + (valS > 0 ? valS.toFixed(2) : '') + '</td>';
-        }
-        html += '<td style="font-weight:700;color:var(--danger);">' + (totalSRow > 0 ? totalSRow.toFixed(2) : '') + '</td></tr>';
-    }
-
-    // COMBUSTÍVEL
-    html += '<tr style="background:rgba(255,193,7,0.05);"><td class="col-desc" style="color:var(--warning);font-weight:700;">COMBUSTÍVEL</td>';
-    var totalCombRow = 0;
-    for (var dc = 0; dc < dias; dc++) {
-        var valC = (fc.combustivel && fc.combustivel[dc]) ? fc.combustivel[dc] : 0;
-        totalCombRow += valC;
-        html += '<td class="editable" ondblclick="editFluxoCell(this,\'' + mesKey + '\',\'combustivel\',0,' + dc + ',' + dias + ')">' + (valC > 0 ? valC.toFixed(2) : '') + '</td>';
-    }
-    html += '<td style="font-weight:700;color:var(--warning);">' + totalCombRow.toFixed(2) + '</td></tr>';
-
-    // SAÍDA DO DIA
-    html += '<tr class="row-total"><td class="col-desc">SAÍDA DO DIA</td>';
-    for (var tsd = 0; tsd < dias; tsd++) {
-        html += '<td style="color:var(--danger);">' + (totalSaidaDia[tsd] > 0 ? totalSaidaDia[tsd].toFixed(2) : '') + '</td>';
-    }
-    html += '<td style="color:var(--danger);">' + totalSaidas.toFixed(2) + '</td></tr>';
-
-    // SALDO MÊS ANTERIOR
-    html += '<tr class="row-saldo"><td class="col-desc">SALDO MÊS ANTERIOR</td>';
-    var saldoAcum = saldoAnterior;
-    for (var sa = 0; sa < dias; sa++) {
-        if (sa === 0) {
-            html += '<td>' + saldoAnterior.toFixed(2) + '</td>';
-        } else {
-            html += '<td></td>';
-        }
-    }
-    html += '<td>' + saldoAnterior.toFixed(2) + '</td></tr>';
-
-    // CAIXA ATUAL
-    html += '<tr class="row-saldo"><td class="col-desc" style="color:var(--orange-primary);font-weight:800;">CAIXA ATUAL</td>';
-    var caixaAcum = saldoAnterior;
-    for (var ca = 0; ca < dias; ca++) {
-        caixaAcum += totalEntradaDia[ca] - totalSaidaDia[ca];
-        var caixaColor = caixaAcum >= 0 ? 'var(--success)' : 'var(--danger)';
-        html += '<td style="color:' + caixaColor + ';font-weight:700;">' + caixaAcum.toFixed(2) + '</td>';
-    }
-    html += '<td style="color:var(--orange-primary);font-weight:800;">' + caixaAtualFinal.toFixed(2) + '</td></tr>';
-
-    html += '</tbody>';
-    tableEl.innerHTML = html;
+  modal.style.display = 'flex';
 }
 
-function editFluxoCell(td, mesKey, tipo, row, col, dias) {
-    if (td.querySelector('input')) return;
+function saveFluxoLancamento(mesKey, dias, editIdx, editTipoKey) {
+  const dia = parseInt(document.getElementById('fluxoDia').value);
+  const categoria = document.getElementById('fluxoCategoria').value;
+  const valor = parseFloat(document.getElementById('fluxoValor').value) || 0;
 
-    var fc = appData.fluxoCaixa[mesKey];
-    var currentVal = 0;
-    if (tipo === 'entradas') {
-        currentVal = (fc.entradas[row] && fc.entradas[row][col]) ? fc.entradas[row][col] : 0;
-    } else if (tipo === 'saidas') {
-        currentVal = (fc.saidas[row] && fc.saidas[row][col]) ? fc.saidas[row][col] : 0;
-    } else if (tipo === 'dinheiro') {
-        currentVal = (fc.dinheiro && fc.dinheiro[col]) ? fc.dinheiro[col] : 0;
-    } else if (tipo === 'wander') {
-        currentVal = (fc.wander && fc.wander[col]) ? fc.wander[col] : 0;
-    } else if (tipo === 'daniel') {
-        currentVal = (fc.daniel && fc.daniel[col]) ? fc.daniel[col] : 0;
-    } else if (tipo === 'combustivel') {
-        currentVal = (fc.combustivel && fc.combustivel[col]) ? fc.combustivel[col] : 0;
+  if (valor <= 0) {
+    showToast('Informe um valor maior que zero', 'error');
+    return;
+  }
+  if (dia < 1 || dia > dias) {
+    showToast('Dia inválido', 'error');
+    return;
+  }
+
+  initFluxoMes(mesKey, dias);
+  const fc = appData.fluxoCaixa[mesKey];
+  const idx = dia - 1;
+
+  // Se é edição e mudou de categoria ou dia, zerar o antigo
+  if (editIdx >= 0 && editTipoKey) {
+    if (editIdx !== idx || editTipoKey !== categoria) {
+      fc[editTipoKey][editIdx] = 0;
     }
+  }
 
-    var input = document.createElement('input');
-    input.type = 'number';
-    input.className = 'cell-edit';
-    input.value = currentVal > 0 ? currentVal : '';
-    input.step = '0.01';
-    td.textContent = '';
-    td.appendChild(input);
-    input.focus();
-    input.select();
+  // Se é novo lançamento, somar; se é edição no mesmo dia/categoria, substituir
+  if (editIdx >= 0 && editIdx === idx && editTipoKey === categoria) {
+    fc[categoria][idx] = valor;
+  } else if (editIdx >= 0) {
+    // mudou dia ou categoria
+    fc[categoria][idx] += valor;
+  } else {
+    // novo
+    fc[categoria][idx] += valor;
+  }
 
-    function saveCell() {
-        var newVal = parseFloat(input.value) || 0;
-        if (tipo === 'entradas') {
-            if (!fc.entradas[row]) fc.entradas[row] = [];
-            fc.entradas[row][col] = newVal;
-        } else if (tipo === 'saidas') {
-            if (!fc.saidas[row]) fc.saidas[row] = [];
-            fc.saidas[row][col] = newVal;
-        } else if (tipo === 'dinheiro') {
-            fc.dinheiro[col] = newVal;
-        } else if (tipo === 'wander') {
-            fc.wander[col] = newVal;
-        } else if (tipo === 'daniel') {
-            fc.daniel[col] = newVal;
-        } else if (tipo === 'combustivel') {
-            fc.combustivel[col] = newVal;
-        }
-        saveData();
+  saveData();
+  closeCadastroModal();
+  showToast(editIdx >= 0 ? 'Lançamento atualizado!' : 'Lançamento adicionado!', 'success');
 
-        // Re-render
-        for (var m = 0; m < MESES_CONFIG.length; m++) {
-            if (MESES_CONFIG[m].chave === mesKey) {
-                renderFluxoMes(MESES_CONFIG[m]);
-                break;
-            }
-        }
-    }
-
-    input.addEventListener('blur', saveCell);
-    input.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter' || e.key === 'Tab') {
-            e.preventDefault();
-            saveCell();
-        }
-        if (e.key === 'Escape') {
-            td.textContent = currentVal > 0 ? currentVal.toFixed(2) : '';
-        }
-    });
+  // Re-renderizar a página do mês
+  const page = mesKey;
+  renderFluxoMes(page);
 }
 
-// ============================================================
-// PARTE 5 — COMPRAS + VENDAS + ESTOQUE
-// ============================================================
+function editFluxoLancamento(mesKey, idx, tipoKey, dias) {
+  openFluxoModal(mesKey, dias, idx, tipoKey);
+}
 
-// ==================== COMPRAS ====================
+function deleteFluxoLancamento(mesKey, idx, tipoKey, page) {
+  if (!confirm('Deseja excluir este lançamento?')) return;
+  const fc = appData.fluxoCaixa[mesKey];
+  if (fc && fc[tipoKey]) {
+    fc[tipoKey][idx] = 0;
+    saveData();
+    showToast('Lançamento excluído!', 'success');
+    renderFluxoMes(page);
+  }
+}
+
+// ==========================================
+// PARTE 5 — COMPRAS, VENDAS, ESTOQUE
+// ==========================================
+
+// ============ COMPRAS ============
 function renderCompras() {
-    var busca = document.getElementById('comprasBusca') ? document.getElementById('comprasBusca').value.toLowerCase() : '';
-    var filterStatus = document.getElementById('comprasFilterStatus') ? document.getElementById('comprasFilterStatus').value : '';
+  const pageEl = document.getElementById('page-compras');
+  if (!pageEl) return;
 
-    // Preencher filtro status
-    var selectStatus = document.getElementById('comprasFilterStatus');
-    if (selectStatus && selectStatus.options.length <= 1) {
-        var sits = appData.config.situacaoCompra || [];
-        for (var si = 0; si < sits.length; si++) {
-            var opt = document.createElement('option');
-            opt.value = sits[si];
-            opt.textContent = sits[si];
-            selectStatus.appendChild(opt);
-        }
-    }
+  const compras = appData.compras || [];
+  const totalGeral = compras.reduce((s,c) => s + (c.quantidade * c.valorUnit), 0);
+  const totalPago = compras.filter(c => c.situacao==='Pago').reduce((s,c) => s + (c.quantidade * c.valorUnit), 0);
+  const totalDevendo = compras.filter(c => c.situacao==='Devendo').reduce((s,c) => s + (c.quantidade * c.valorUnit), 0);
+  const totalGuardado = compras.filter(c => c.situacao==='Guardado').reduce((s,c) => s + (c.quantidade * c.valorUnit), 0);
+  const qtdTotal = compras.length;
 
-    var lista = appData.compras || [];
-    var totalGeral = 0, totalPago = 0, totalDevendo = 0, registros = 0;
+  pageEl.innerHTML = `
+    <div class="page-header">
+      <h2>Compras</h2>
+      <button class="btn btn-primary" onclick="openCompraModal()"><span>+</span> Nova Compra</button>
+    </div>
 
-    var html = '';
-    for (var i = 0; i < lista.length; i++) {
-        var c = lista[i];
-        var total = (c.qtd || 0) * (c.valorUnit || 0);
-        totalGeral += total;
-        if (c.status === 'Pago') totalPago += total;
-        if (c.status === 'Devendo') totalDevendo += total;
+    <div class="dashboard-grid" style="margin-bottom:20px;">
+      <div class="card">
+        <div class="card-header"><span class="card-icon">🛒</span><span>Total Compras</span></div>
+        <div class="card-value">${formatCurrency(totalGeral)}</div>
+        <small>${qtdTotal} registros</small>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-icon">✅</span><span>Pago</span></div>
+        <div class="card-value text-success">${formatCurrency(totalPago)}</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-icon">⚠️</span><span>Devendo</span></div>
+        <div class="card-value text-danger">${formatCurrency(totalDevendo)}</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-icon">📦</span><span>Guardado</span></div>
+        <div class="card-value text-warning">${formatCurrency(totalGuardado)}</div>
+      </div>
+    </div>
 
-        // Filtros
-        var matchBusca = !busca || (c.produto || '').toLowerCase().indexOf(busca) >= 0 || (c.fornecedor || '').toLowerCase().indexOf(busca) >= 0;
-        var matchStatus = !filterStatus || c.status === filterStatus;
-        if (!matchBusca || !matchStatus) continue;
+    <div class="filter-bar">
+      <input type="text" id="filtroComprasBusca" class="form-control" placeholder="Buscar produto, fornecedor..." oninput="filtrarCompras()" style="max-width:280px">
+      <input type="date" id="filtroComprasDataIni" class="form-control" style="max-width:170px" onchange="filtrarCompras()">
+      <input type="date" id="filtroComprasDataFim" class="form-control" style="max-width:170px" onchange="filtrarCompras()">
+      <select id="filtroComprasSit" class="form-control" style="max-width:150px" onchange="filtrarCompras()">
+        <option value="">Todas Situações</option>
+        ${(appData.situacaoCompra||[]).map(s => `<option value="${s}">${s}</option>`).join('')}
+      </select>
+      <select id="filtroComprasForn" class="form-control" style="max-width:180px" onchange="filtrarCompras()">
+        <option value="">Todos Fornecedores</option>
+        ${[...new Set(compras.map(c=>c.fornecedor))].sort().map(f => `<option value="${f}">${f}</option>`).join('')}
+      </select>
+    </div>
 
-        registros++;
-        var dias = getDiasEntreHoje(c.vencimento);
-        var statusClass = c.status === 'Pago' ? 'badge-success' : (c.status === 'Devendo' ? 'badge-danger' : 'badge-warning');
-        var diasColor = dias < 0 ? 'color:var(--danger)' : (dias <= 7 ? 'color:var(--warning)' : '');
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Vencimento</th>
+            <th>Produto</th>
+            <th>Qtd</th>
+            <th>V. Unit</th>
+            <th>Total</th>
+            <th>Fornecedor</th>
+            <th>Pagamento</th>
+            <th>Situação</th>
+            <th>Entrega</th>
+            <th style="width:120px">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="comprasBody"></tbody>
+      </table>
+    </div>
+  `;
 
-        html += '<tr>';
-        html += '<td>' + formatDate(c.data) + '</td>';
-        html += '<td>' + formatDate(c.vencimento) + '</td>';
-        html += '<td>' + (c.produto || '') + '</td>';
-        html += '<td>' + (c.qtd || 0) + '</td>';
-        html += '<td>' + formatCurrency(c.valorUnit || 0) + '</td>';
-        html += '<td>' + (c.fornecedor || '') + '</td>';
-        html += '<td>' + (c.formaPagto || '') + '</td>';
-        html += '<td style="font-weight:700;">' + formatCurrency(total) + '</td>';
-        html += '<td><span class="badge ' + statusClass + '">' + c.status + '</span></td>';
-        html += '<td style="' + diasColor + '">' + dias + 'd</td>';
-        html += '<td><button class="btn btn-sm btn-secondary" onclick="editCompra(' + c.id + ')">✏️</button> <button class="btn btn-sm btn-danger" onclick="deleteCompra(' + c.id + ')">🗑️</button></td>';
-        html += '</tr>';
-    }
-
-    document.getElementById('comprasBody').innerHTML = html || '<tr><td colspan="11" style="text-align:center;color:var(--text-muted);">Nenhuma compra encontrada</td></tr>';
-
-    // Cards resumo
-    var pendencias = appData.compras.filter(function (c) { return c.status === 'Devendo'; }).length;
-    var cardsHTML = '';
-    cardsHTML += '<div class="summary-card"><div class="s-value" style="color:var(--orange-primary)">' + formatCurrency(totalGeral) + '</div><div class="s-label">Total Compras</div></div>';
-    cardsHTML += '<div class="summary-card"><div class="s-value" style="color:var(--success)">' + formatCurrency(totalPago) + '</div><div class="s-label">Total Pago</div></div>';
-    cardsHTML += '<div class="summary-card"><div class="s-value" style="color:var(--danger)">' + formatCurrency(totalDevendo) + '</div><div class="s-label">Total Devendo</div></div>';
-    cardsHTML += '<div class="summary-card"><div class="s-value" style="color:var(--warning)">' + pendencias + '</div><div class="s-label">Pendências</div></div>';
-    cardsHTML += '<div class="summary-card"><div class="s-value">' + appData.compras.length + '</div><div class="s-label">Registros</div></div>';
-    document.getElementById('comprasCards').innerHTML = cardsHTML;
+  filtrarCompras();
 }
 
-function openCompraModal(id) {
-    currentEditId = id || null;
-    var c = null;
-    if (id) {
-        for (var i = 0; i < appData.compras.length; i++) {
-            if (appData.compras[i].id === id) { c = appData.compras[i]; break; }
-        }
+function filtrarCompras() {
+  const busca = (document.getElementById('filtroComprasBusca')?.value || '').toLowerCase();
+  const dataIni = document.getElementById('filtroComprasDataIni')?.value || '';
+  const dataFim = document.getElementById('filtroComprasDataFim')?.value || '';
+  const sit = document.getElementById('filtroComprasSit')?.value || '';
+  const forn = document.getElementById('filtroComprasForn')?.value || '';
+
+  let lista = [...(appData.compras || [])];
+
+  if (busca) {
+    lista = lista.filter(c =>
+      (c.produto||'').toLowerCase().includes(busca) ||
+      (c.fornecedor||'').toLowerCase().includes(busca) ||
+      (c.formaPagamento||'').toLowerCase().includes(busca) ||
+      (c.obs||'').toLowerCase().includes(busca)
+    );
+  }
+  if (dataIni) lista = lista.filter(c => c.data >= dataIni);
+  if (dataFim) lista = lista.filter(c => c.data <= dataFim);
+  if (sit) lista = lista.filter(c => c.situacao === sit);
+  if (forn) lista = lista.filter(c => c.fornecedor === forn);
+
+  lista.sort((a,b) => (b.data||'').localeCompare(a.data||''));
+
+  const tbody = document.getElementById('comprasBody');
+  if (!tbody) return;
+
+  if (lista.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;padding:30px;color:var(--text-muted)">Nenhuma compra encontrada</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = lista.map(c => {
+    const total = c.quantidade * c.valorUnit;
+    const diasVenc = getDiasEntreHoje(c.vencimento);
+    let badgeSit = 'badge-warning';
+    if (c.situacao === 'Pago') badgeSit = 'badge-success';
+    else if (c.situacao === 'Devendo') badgeSit = 'badge-danger';
+
+    let badgeEntrega = 'badge-warning';
+    if (c.entrega === 'Entregue OK') badgeEntrega = 'badge-success';
+    else if (c.entrega === 'Entregue com Defeito') badgeEntrega = 'badge-danger';
+    else if (c.entrega === 'Não Entregue') badgeEntrega = 'badge-danger';
+
+    return `<tr>
+      <td>${formatDate(c.data)}</td>
+      <td>${formatDate(c.vencimento)} ${c.situacao!=='Pago' && diasVenc <= 3 && diasVenc >= 0 ? '<span class="badge badge-danger" style="font-size:10px;margin-left:4px">VENCE BREVE</span>' : ''}</td>
+      <td><strong>${c.produto}</strong></td>
+      <td>${c.quantidade}</td>
+      <td>${formatCurrency(c.valorUnit)}</td>
+      <td><strong>${formatCurrency(total)}</strong></td>
+      <td>${c.fornecedor}</td>
+      <td>${c.formaPagamento}</td>
+      <td><span class="badge ${badgeSit}">${c.situacao}</span></td>
+      <td><span class="badge ${badgeEntrega}">${c.entrega}</span></td>
+      <td>
+        <button class="btn btn-sm btn-outline" onclick="editCompra(${c.id})" title="Editar">✏️</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteCompra(${c.id})" title="Excluir">🗑️</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function openCompraModal(compra) {
+  const isEdit = !!compra;
+  const modal = document.getElementById('cadastroModal');
+  const modalTitle = document.getElementById('cadastroModalTitle');
+  const modalBody = document.getElementById('cadastroModalBody');
+  const modalFooter = document.getElementById('cadastroModalFooter');
+
+  modalTitle.textContent = isEdit ? 'Editar Compra' : 'Nova Compra';
+
+  const fornecedores = (appData.fornecedores||[]).map(f => f.nome).sort();
+  const formas = appData.formasPagamento || [];
+  const situacoes = appData.situacaoCompra || [];
+  const entregas = appData.situacaoEntrega || [];
+
+  modalBody.innerHTML = `
+    <div class="form-row">
+      <div class="form-group">
+        <label>Data *</label>
+        <input type="date" id="compraData" class="form-control" value="${isEdit ? compra.data : new Date().toISOString().split('T')[0]}">
+      </div>
+      <div class="form-group">
+        <label>Vencimento</label>
+        <input type="date" id="compraVencimento" class="form-control" value="${isEdit ? compra.vencimento : ''}">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Produto *</label>
+      <input type="text" id="compraProduto" class="form-control" value="${isEdit ? compra.produto : ''}" placeholder="Nome do produto">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Quantidade *</label>
+        <input type="number" id="compraQtd" class="form-control" min="1" step="1" value="${isEdit ? compra.quantidade : 1}">
+      </div>
+      <div class="form-group">
+        <label>Valor Unitário *</label>
+        <input type="number" id="compraValorUnit" class="form-control" min="0" step="0.01" value="${isEdit ? compra.valorUnit : ''}">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Fornecedor *</label>
+      <select id="compraFornecedor" class="form-control">
+        <option value="">Selecione...</option>
+        ${fornecedores.map(f => `<option value="${f}" ${isEdit && compra.fornecedor===f ? 'selected' : ''}>${f}</option>`).join('')}
+      </select>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Forma de Pagamento</label>
+        <select id="compraForma" class="form-control">
+          <option value="">Selecione...</option>
+          ${formas.map(f => `<option value="${f}" ${isEdit && compra.formaPagamento===f ? 'selected' : ''}>${f}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Situação</label>
+        <select id="compraSituacao" class="form-control">
+          ${situacoes.map(s => `<option value="${s}" ${isEdit && compra.situacao===s ? 'selected' : ''}>${s}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Entrega</label>
+      <select id="compraEntrega" class="form-control">
+        ${entregas.map(e => `<option value="${e}" ${isEdit && compra.entrega===e ? 'selected' : ''}>${e}</option>`).join('')}
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Observações</label>
+      <textarea id="compraObs" class="form-control" rows="2">${isEdit ? (compra.obs||'') : ''}</textarea>
+    </div>
+  `;
+
+  modalFooter.innerHTML = `
+    <button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button>
+    <button class="btn btn-primary" onclick="saveCompra(${isEdit ? compra.id : 0})">Salvar</button>
+  `;
+
+  modal.style.display = 'flex';
+}
+
+function saveCompra(editId) {
+  const data = document.getElementById('compraData').value;
+  const vencimento = document.getElementById('compraVencimento').value;
+  const produto = document.getElementById('compraProduto').value.trim();
+  const quantidade = parseInt(document.getElementById('compraQtd').value) || 0;
+  const valorUnit = parseFloat(document.getElementById('compraValorUnit').value) || 0;
+  const fornecedor = document.getElementById('compraFornecedor').value;
+  const formaPagamento = document.getElementById('compraForma').value;
+  const situacao = document.getElementById('compraSituacao').value;
+  const entrega = document.getElementById('compraEntrega').value;
+  const obs = document.getElementById('compraObs').value.trim();
+
+  if (!data || !produto || quantidade <= 0 || valorUnit <= 0 || !fornecedor) {
+    showToast('Preencha os campos obrigatórios (Data, Produto, Qtd, Valor, Fornecedor)', 'error');
+    return;
+  }
+
+  if (editId > 0) {
+    const idx = appData.compras.findIndex(c => c.id === editId);
+    if (idx >= 0) {
+      appData.compras[idx] = { ...appData.compras[idx], data, vencimento, produto, quantidade, valorUnit, fornecedor, formaPagamento, situacao, entrega, obs };
     }
+  } else {
+    appData.compras.push({
+      id: nextId(appData.compras),
+      data, vencimento, produto, quantidade, valorUnit, fornecedor, formaPagamento, situacao, entrega, obs
+    });
+  }
 
-    var fornecedoresOpts = '<option value="">Selecione</option>';
-    for (var f = 0; f < appData.fornecedores.length; f++) {
-        var sel = c && c.fornecedor === appData.fornecedores[f].nome ? ' selected' : '';
-        fornecedoresOpts += '<option value="' + appData.fornecedores[f].nome + '"' + sel + '>' + appData.fornecedores[f].nome + '</option>';
-    }
-
-    var pagtoOpts = '<option value="">Selecione</option>';
-    var formas = appData.config.formasPagamento || [];
-    for (var fp = 0; fp < formas.length; fp++) {
-        var selP = c && c.formaPagto === formas[fp] ? ' selected' : '';
-        pagtoOpts += '<option value="' + formas[fp] + '"' + selP + '>' + formas[fp] + '</option>';
-    }
-
-    var statusOpts = '<option value="">Selecione</option>';
-    var sits = appData.config.situacaoCompra || [];
-    for (var st = 0; st < sits.length; st++) {
-        var selS = c && c.status === sits[st] ? ' selected' : '';
-        statusOpts += '<option value="' + sits[st] + '"' + selS + '>' + sits[st] + '</option>';
-    }
-
-    var html = '';
-    html += '<div class="form-row"><div class="form-group"><label>Data</label><input type="date" id="compraData" value="' + (c ? c.data : new Date().toISOString().split('T')[0]) + '"></div>';
-    html += '<div class="form-group"><label>Vencimento</label><input type="date" id="compraVenc" value="' + (c ? c.vencimento : '') + '"></div></div>';
-    html += '<div class="form-group"><label>Produto</label><input type="text" id="compraProduto" value="' + (c ? c.produto : '') + '"></div>';
-    html += '<div class="form-row"><div class="form-group"><label>Quantidade</label><input type="number" id="compraQtd" value="' + (c ? c.qtd : 1) + '" min="1"></div>';
-    html += '<div class="form-group"><label>Valor Unitário</label><input type="number" id="compraValorUnit" value="' + (c ? c.valorUnit : '') + '" step="0.01"></div></div>';
-    html += '<div class="form-group"><label>Fornecedor</label><select id="compraFornecedor">' + fornecedoresOpts + '</select></div>';
-    html += '<div class="form-row"><div class="form-group"><label>Forma Pagamento</label><select id="compraFormaPagto">' + pagtoOpts + '</select></div>';
-    html += '<div class="form-group"><label>Status</label><select id="compraStatus">' + statusOpts + '</select></div></div>';
-
-    document.getElementById('cadastroModalTitle').textContent = id ? 'Editar Compra' : 'Nova Compra';
-    document.getElementById('cadastroModalBody').innerHTML = html;
-    document.getElementById('cadastroModalSaveBtn').setAttribute('onclick', 'saveCompra()');
-    document.getElementById('cadastroModal').classList.add('active');
+  saveData();
+  closeCadastroModal();
+  showToast(editId > 0 ? 'Compra atualizada!' : 'Compra adicionada!', 'success');
+  renderCompras();
 }
 
 function editCompra(id) {
-    openCompraModal(id);
-}
-
-function saveCompra() {
-    var data = {
-        data: document.getElementById('compraData').value,
-        vencimento: document.getElementById('compraVenc').value,
-        produto: document.getElementById('compraProduto').value,
-        qtd: parseInt(document.getElementById('compraQtd').value) || 1,
-        valorUnit: parseFloat(document.getElementById('compraValorUnit').value) || 0,
-        fornecedor: document.getElementById('compraFornecedor').value,
-        formaPagto: document.getElementById('compraFormaPagto').value,
-        status: document.getElementById('compraStatus').value
-    };
-
-    if (!data.produto) { showToast('Informe o produto!'); return; }
-
-    if (currentEditId) {
-        for (var i = 0; i < appData.compras.length; i++) {
-            if (appData.compras[i].id === currentEditId) {
-                appData.compras[i] = Object.assign(appData.compras[i], data);
-                break;
-            }
-        }
-        showToast('Compra atualizada!');
-    } else {
-        data.id = nextId(appData.compras);
-        appData.compras.push(data);
-        showToast('Compra adicionada!');
-    }
-
-    saveData();
-    closeCadastroModal();
-    renderCompras();
+  const compra = appData.compras.find(c => c.id === id);
+  if (compra) openCompraModal(compra);
 }
 
 function deleteCompra(id) {
-    if (!confirm('Excluir esta compra?')) return;
-    appData.compras = appData.compras.filter(function (c) { return c.id !== id; });
-    saveData();
-    renderCompras();
-    showToast('Compra excluída!');
+  if (!confirm('Deseja excluir esta compra?')) return;
+  appData.compras = appData.compras.filter(c => c.id !== id);
+  saveData();
+  showToast('Compra excluída!', 'success');
+  renderCompras();
 }
 
-// ==================== VENDAS ====================
+// ============ VENDAS ============
 function renderVendas() {
-    var busca = document.getElementById('vendasBusca') ? document.getElementById('vendasBusca').value.toLowerCase() : '';
-    var filterStatus = document.getElementById('vendasFilterStatus') ? document.getElementById('vendasFilterStatus').value : '';
-    var filterVendedor = document.getElementById('vendasFilterVendedor') ? document.getElementById('vendasFilterVendedor').value : '';
+  const pageEl = document.getElementById('page-vendas');
+  if (!pageEl) return;
 
-    // Preencher filtros
-    var selectStatusV = document.getElementById('vendasFilterStatus');
-    if (selectStatusV && selectStatusV.options.length <= 1) {
-        var sits = appData.config.situacaoCompra || [];
-        for (var si = 0; si < sits.length; si++) {
-            var opt = document.createElement('option');
-            opt.value = sits[si];
-            opt.textContent = sits[si];
-            selectStatusV.appendChild(opt);
-        }
-    }
-    var selectVendedor = document.getElementById('vendasFilterVendedor');
-    if (selectVendedor && selectVendedor.options.length <= 1) {
-        var vends = appData.config.vendedores || [];
-        for (var vi = 0; vi < vends.length; vi++) {
-            var optV = document.createElement('option');
-            optV.value = vends[vi];
-            optV.textContent = vends[vi];
-            selectVendedor.appendChild(optV);
-        }
-    }
+  const vendas = appData.vendas || [];
+  const totalGeral = vendas.reduce((s,v) => s + (v.quantidade * v.valorUnit), 0);
+  const totalPago = vendas.filter(v => v.situacao==='Pago').reduce((s,v) => s + (v.quantidade * v.valorUnit), 0);
+  const totalDevendo = vendas.filter(v => v.situacao==='Devendo').reduce((s,v) => s + (v.quantidade * v.valorUnit), 0);
+  const vendasWander = vendas.filter(v => v.vendedor==='Wander').reduce((s,v) => s + (v.quantidade * v.valorUnit), 0);
+  const vendasDaniel = vendas.filter(v => v.vendedor==='Daniel').reduce((s,v) => s + (v.quantidade * v.valorUnit), 0);
 
-    var lista = appData.vendas || [];
-    var totalGeral = 0, totalRecebido = 0, totalAReceber = 0, entregues = 0, pendentes = 0;
+  pageEl.innerHTML = `
+    <div class="page-header">
+      <h2>Vendas</h2>
+      <button class="btn btn-primary" onclick="openVendaModal()"><span>+</span> Nova Venda</button>
+    </div>
 
-    var html = '';
-    for (var i = 0; i < lista.length; i++) {
-        var v = lista[i];
-        var total = (v.qtd || 0) * (v.valor || 0);
-        totalGeral += total;
-        if (v.status === 'Pago') totalRecebido += total;
-        if (v.status === 'Devendo') totalAReceber += total;
-        if (v.entrega === 'Entregue') entregues++;
-        if (v.entrega === 'Não Entregue') pendentes++;
+    <div class="dashboard-grid" style="margin-bottom:20px;">
+      <div class="card">
+        <div class="card-header"><span class="card-icon">🏷️</span><span>Total Vendas</span></div>
+        <div class="card-value">${formatCurrency(totalGeral)}</div>
+        <small>${vendas.length} registros</small>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-icon">✅</span><span>Recebido</span></div>
+        <div class="card-value text-success">${formatCurrency(totalPago)}</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-icon">⚠️</span><span>A Receber</span></div>
+        <div class="card-value text-danger">${formatCurrency(totalDevendo)}</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-icon">👤</span><span>Wander</span></div>
+        <div class="card-value">${formatCurrency(vendasWander)}</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-icon">👤</span><span>Daniel</span></div>
+        <div class="card-value">${formatCurrency(vendasDaniel)}</div>
+      </div>
+    </div>
 
-        var matchBusca = !busca || (v.produto || '').toLowerCase().indexOf(busca) >= 0 || (v.cliente || '').toLowerCase().indexOf(busca) >= 0;
-        var matchStatus = !filterStatus || v.status === filterStatus;
-        var matchVendedor = !filterVendedor || v.vendedor === filterVendedor;
-        if (!matchBusca || !matchStatus || !matchVendedor) continue;
+    <div class="filter-bar">
+      <input type="text" id="filtroVendasBusca" class="form-control" placeholder="Buscar cliente, produto..." oninput="filtrarVendas()" style="max-width:280px">
+      <input type="date" id="filtroVendasDataIni" class="form-control" style="max-width:170px" onchange="filtrarVendas()">
+      <input type="date" id="filtroVendasDataFim" class="form-control" style="max-width:170px" onchange="filtrarVendas()">
+      <select id="filtroVendasSit" class="form-control" style="max-width:150px" onchange="filtrarVendas()">
+        <option value="">Todas Situações</option>
+        <option value="Pago">Pago</option>
+        <option value="Devendo">Devendo</option>
+      </select>
+      <select id="filtroVendasVendedor" class="form-control" style="max-width:150px" onchange="filtrarVendas()">
+        <option value="">Todos Vendedores</option>
+        ${(appData.vendedores||[]).map(v => `<option value="${v}">${v}</option>`).join('')}
+      </select>
+    </div>
 
-        var statusClass = v.status === 'Pago' ? 'badge-success' : (v.status === 'Devendo' ? 'badge-danger' : 'badge-warning');
-        var vendBadge = v.vendedor === 'Wander' ? 'badge-wander' : 'badge-daniel';
-        var entregaClass = v.entrega === 'Entregue' ? 'badge-success' : 'badge-warning';
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Cliente</th>
+            <th>Produto</th>
+            <th>Qtd</th>
+            <th>V. Unit</th>
+            <th>Total</th>
+            <th>Vendedor</th>
+            <th>Pagamento</th>
+            <th>Tipo</th>
+            <th>Situação</th>
+            <th style="width:120px">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="vendasBody"></tbody>
+      </table>
+    </div>
+  `;
 
-        html += '<tr>';
-        html += '<td>' + formatDate(v.data) + '</td>';
-        html += '<td>' + (v.produto || '') + '</td>';
-        html += '<td><span class="badge ' + vendBadge + '">' + (v.vendedor || '') + '</span></td>';
-        html += '<td>' + (v.qtd || 0) + '</td>';
-        html += '<td>' + formatCurrency(v.valor || 0) + '</td>';
-        html += '<td>' + (v.cliente || '') + '</td>';
-        html += '<td style="font-weight:700;">' + formatCurrency(total) + '</td>';
-        html += '<td><span class="badge ' + statusClass + '">' + (v.status || '') + '</span></td>';
-        html += '<td><span class="badge ' + entregaClass + '">' + (v.entrega || '') + '</span></td>';
-        html += '<td><button class="btn btn-sm btn-secondary" onclick="editVenda(' + v.id + ')">✏️</button> <button class="btn btn-sm btn-danger" onclick="deleteVenda(' + v.id + ')">🗑️</button></td>';
-        html += '</tr>';
-    }
-
-    document.getElementById('vendasBody').innerHTML = html || '<tr><td colspan="10" style="text-align:center;color:var(--text-muted);">Nenhuma venda encontrada</td></tr>';
-
-    var cardsHTML = '';
-    cardsHTML += '<div class="summary-card"><div class="s-value" style="color:var(--orange-primary)">' + formatCurrency(totalGeral) + '</div><div class="s-label">Total Vendas</div></div>';
-    cardsHTML += '<div class="summary-card"><div class="s-value" style="color:var(--success)">' + formatCurrency(totalRecebido) + '</div><div class="s-label">Recebido</div></div>';
-    cardsHTML += '<div class="summary-card"><div class="s-value" style="color:var(--danger)">' + formatCurrency(totalAReceber) + '</div><div class="s-label">A Receber</div></div>';
-    cardsHTML += '<div class="summary-card"><div class="s-value" style="color:var(--success)">' + entregues + '</div><div class="s-label">Entregues</div></div>';
-    cardsHTML += '<div class="summary-card"><div class="s-value" style="color:var(--warning)">' + pendentes + '</div><div class="s-label">Pendentes</div></div>';
-    document.getElementById('vendasCards').innerHTML = cardsHTML;
+  filtrarVendas();
 }
 
-function openVendaModal(id) {
-    currentEditId = id || null;
-    var v = null;
-    if (id) {
-        for (var i = 0; i < appData.vendas.length; i++) {
-            if (appData.vendas[i].id === id) { v = appData.vendas[i]; break; }
-        }
+function filtrarVendas() {
+  const busca = (document.getElementById('filtroVendasBusca')?.value || '').toLowerCase();
+  const dataIni = document.getElementById('filtroVendasDataIni')?.value || '';
+  const dataFim = document.getElementById('filtroVendasDataFim')?.value || '';
+  const sit = document.getElementById('filtroVendasSit')?.value || '';
+  const vendedor = document.getElementById('filtroVendasVendedor')?.value || '';
+
+  let lista = [...(appData.vendas || [])];
+
+  if (busca) {
+    lista = lista.filter(v =>
+      (v.cliente||'').toLowerCase().includes(busca) ||
+      (v.produto||'').toLowerCase().includes(busca) ||
+      (v.vendedor||'').toLowerCase().includes(busca) ||
+      (v.obs||'').toLowerCase().includes(busca)
+    );
+  }
+  if (dataIni) lista = lista.filter(v => v.data >= dataIni);
+  if (dataFim) lista = lista.filter(v => v.data <= dataFim);
+  if (sit) lista = lista.filter(v => v.situacao === sit);
+  if (vendedor) lista = lista.filter(v => v.vendedor === vendedor);
+
+  lista.sort((a,b) => (b.data||'').localeCompare(a.data||''));
+
+  const tbody = document.getElementById('vendasBody');
+  if (!tbody) return;
+
+  if (lista.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;padding:30px;color:var(--text-muted)">Nenhuma venda encontrada</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = lista.map(v => {
+    const total = v.quantidade * v.valorUnit;
+    return `<tr>
+      <td>${formatDate(v.data)}</td>
+      <td><strong>${v.cliente}</strong></td>
+      <td>${v.produto}</td>
+      <td>${v.quantidade}</td>
+      <td>${formatCurrency(v.valorUnit)}</td>
+      <td><strong>${formatCurrency(total)}</strong></td>
+      <td>${v.vendedor}</td>
+      <td>${v.formaPagamento}</td>
+      <td><span class="badge badge-info">${v.tipo}</span></td>
+      <td><span class="badge ${v.situacao==='Pago'?'badge-success':'badge-danger'}">${v.situacao}</span></td>
+      <td>
+        <button class="btn btn-sm btn-outline" onclick="editVenda(${v.id})" title="Editar">✏️</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteVenda(${v.id})" title="Excluir">🗑️</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function openVendaModal(venda) {
+  const isEdit = !!venda;
+  const modal = document.getElementById('cadastroModal');
+  const modalTitle = document.getElementById('cadastroModalTitle');
+  const modalBody = document.getElementById('cadastroModalBody');
+  const modalFooter = document.getElementById('cadastroModalFooter');
+
+  modalTitle.textContent = isEdit ? 'Editar Venda' : 'Nova Venda';
+
+  const clientes = (appData.clientes||[]).map(c => c.nome).sort();
+  const vendedores = appData.vendedores || [];
+  const formas = appData.formasPagamento || [];
+  const tipos = appData.tipoVenda || [];
+
+  modalBody.innerHTML = `
+    <div class="form-row">
+      <div class="form-group">
+        <label>Data *</label>
+        <input type="date" id="vendaData" class="form-control" value="${isEdit ? venda.data : new Date().toISOString().split('T')[0]}">
+      </div>
+      <div class="form-group">
+        <label>Cliente *</label>
+        <select id="vendaCliente" class="form-control">
+          <option value="">Selecione...</option>
+          ${clientes.map(c => `<option value="${c}" ${isEdit && venda.cliente===c ? 'selected' : ''}>${c}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Produto *</label>
+      <input type="text" id="vendaProduto" class="form-control" value="${isEdit ? venda.produto : ''}" placeholder="Descrição do produto/serviço">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Quantidade *</label>
+        <input type="number" id="vendaQtd" class="form-control" min="1" step="1" value="${isEdit ? venda.quantidade : 1}">
+      </div>
+      <div class="form-group">
+        <label>Valor Unitário *</label>
+        <input type="number" id="vendaValorUnit" class="form-control" min="0" step="0.01" value="${isEdit ? venda.valorUnit : ''}">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Vendedor</label>
+        <select id="vendaVendedor" class="form-control">
+          <option value="">Selecione...</option>
+          ${vendedores.map(v => `<option value="${v}" ${isEdit && venda.vendedor===v ? 'selected' : ''}>${v}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Forma de Pagamento</label>
+        <select id="vendaForma" class="form-control">
+          <option value="">Selecione...</option>
+          ${formas.map(f => `<option value="${f}" ${isEdit && venda.formaPagamento===f ? 'selected' : ''}>${f}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Tipo</label>
+        <select id="vendaTipo" class="form-control">
+          ${tipos.map(t => `<option value="${t}" ${isEdit && venda.tipo===t ? 'selected' : ''}>${t}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Situação</label>
+        <select id="vendaSituacao" class="form-control">
+          <option value="Pago" ${isEdit && venda.situacao==='Pago' ? 'selected' : ''}>Pago</option>
+          <option value="Devendo" ${isEdit && venda.situacao==='Devendo' ? 'selected' : ''}>Devendo</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Observações</label>
+      <textarea id="vendaObs" class="form-control" rows="2">${isEdit ? (venda.obs||'') : ''}</textarea>
+    </div>
+  `;
+
+  modalFooter.innerHTML = `
+    <button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button>
+    <button class="btn btn-primary" onclick="saveVenda(${isEdit ? venda.id : 0})">Salvar</button>
+  `;
+
+  modal.style.display = 'flex';
+}
+
+function saveVenda(editId) {
+  const data = document.getElementById('vendaData').value;
+  const cliente = document.getElementById('vendaCliente').value;
+  const produto = document.getElementById('vendaProduto').value.trim();
+  const quantidade = parseInt(document.getElementById('vendaQtd').value) || 0;
+  const valorUnit = parseFloat(document.getElementById('vendaValorUnit').value) || 0;
+  const vendedor = document.getElementById('vendaVendedor').value;
+  const formaPagamento = document.getElementById('vendaForma').value;
+  const tipo = document.getElementById('vendaTipo').value;
+  const situacao = document.getElementById('vendaSituacao').value;
+  const obs = document.getElementById('vendaObs').value.trim();
+
+  if (!data || !cliente || !produto || quantidade <= 0 || valorUnit <= 0) {
+    showToast('Preencha os campos obrigatórios (Data, Cliente, Produto, Qtd, Valor)', 'error');
+    return;
+  }
+
+  if (editId > 0) {
+    const idx = appData.vendas.findIndex(v => v.id === editId);
+    if (idx >= 0) {
+      appData.vendas[idx] = { ...appData.vendas[idx], data, cliente, produto, quantidade, valorUnit, vendedor, formaPagamento, tipo, situacao, obs };
     }
+  } else {
+    appData.vendas.push({
+      id: nextId(appData.vendas),
+      data, cliente, produto, quantidade, valorUnit, vendedor, formaPagamento, tipo, situacao, obs
+    });
+  }
 
-    var vendedoresOpts = '<option value="">Selecione</option>';
-    var vends = appData.config.vendedores || [];
-    for (var vi = 0; vi < vends.length; vi++) {
-        var sel = v && v.vendedor === vends[vi] ? ' selected' : '';
-        vendedoresOpts += '<option value="' + vends[vi] + '"' + sel + '>' + vends[vi] + '</option>';
-    }
-
-    var clientesOpts = '<option value="">Selecione</option>';
-    for (var ci = 0; ci < appData.clientes.length; ci++) {
-        var selC = v && v.cliente === appData.clientes[ci].nome ? ' selected' : '';
-        clientesOpts += '<option value="' + appData.clientes[ci].nome + '"' + selC + '>' + appData.clientes[ci].nome + '</option>';
-    }
-
-    var tipoOpts = '<option value="">Selecione</option>';
-    var tipos = appData.config.tipoVenda || [];
-    for (var ti = 0; ti < tipos.length; ti++) {
-        var selT = v && v.tipoVenda === tipos[ti] ? ' selected' : '';
-        tipoOpts += '<option value="' + tipos[ti] + '"' + selT + '>' + tipos[ti] + '</option>';
-    }
-
-    var statusOpts = '<option value="">Selecione</option>';
-    var sits = appData.config.situacaoCompra || [];
-    for (var st = 0; st < sits.length; st++) {
-        var selS = v && v.status === sits[st] ? ' selected' : '';
-        statusOpts += '<option value="' + sits[st] + '"' + selS + '>' + sits[st] + '</option>';
-    }
-
-    var entregaOpts = '<option value="">Selecione</option>';
-    var entregas = appData.config.situacaoEntrega || [];
-    for (var ei = 0; ei < entregas.length; ei++) {
-        var selE = v && v.entrega === entregas[ei] ? ' selected' : '';
-        entregaOpts += '<option value="' + entregas[ei] + '"' + selE + '>' + entregas[ei] + '</option>';
-    }
-
-    var html = '';
-    html += '<div class="form-row"><div class="form-group"><label>Data</label><input type="date" id="vendaData" value="' + (v ? v.data : new Date().toISOString().split('T')[0]) + '"></div>';
-    html += '<div class="form-group"><label>Vendedor</label><select id="vendaVendedor">' + vendedoresOpts + '</select></div></div>';
-    html += '<div class="form-group"><label>Produto</label><input type="text" id="vendaProduto" value="' + (v ? v.produto : '') + '"></div>';
-    html += '<div class="form-row"><div class="form-group"><label>Quantidade</label><input type="number" id="vendaQtd" value="' + (v ? v.qtd : 1) + '" min="1"></div>';
-    html += '<div class="form-group"><label>Valor Unitário</label><input type="number" id="vendaValor" value="' + (v ? v.valor : '') + '" step="0.01"></div></div>';
-    html += '<div class="form-group"><label>Cliente</label><select id="vendaCliente">' + clientesOpts + '</select></div>';
-    html += '<div class="form-row"><div class="form-group"><label>Tipo de Venda</label><select id="vendaTipo">' + tipoOpts + '</select></div>';
-    html += '<div class="form-group"><label>Status</label><select id="vendaStatus">' + statusOpts + '</select></div></div>';
-    html += '<div class="form-group"><label>Entrega</label><select id="vendaEntrega">' + entregaOpts + '</select></div>';
-
-    document.getElementById('cadastroModalTitle').textContent = id ? 'Editar Venda' : 'Nova Venda';
-    document.getElementById('cadastroModalBody').innerHTML = html;
-    document.getElementById('cadastroModalSaveBtn').setAttribute('onclick', 'saveVenda()');
-    document.getElementById('cadastroModal').classList.add('active');
+  saveData();
+  closeCadastroModal();
+  showToast(editId > 0 ? 'Venda atualizada!' : 'Venda adicionada!', 'success');
+  renderVendas();
 }
 
 function editVenda(id) {
-    openVendaModal(id);
-}
-
-function saveVenda() {
-    var data = {
-        data: document.getElementById('vendaData').value,
-        produto: document.getElementById('vendaProduto').value,
-        vendedor: document.getElementById('vendaVendedor').value,
-        qtd: parseInt(document.getElementById('vendaQtd').value) || 1,
-        valor: parseFloat(document.getElementById('vendaValor').value) || 0,
-        cliente: document.getElementById('vendaCliente').value,
-        tipoVenda: document.getElementById('vendaTipo').value,
-        status: document.getElementById('vendaStatus').value,
-        entrega: document.getElementById('vendaEntrega').value
-    };
-
-    if (!data.produto) { showToast('Informe o produto!'); return; }
-
-    if (currentEditId) {
-        for (var i = 0; i < appData.vendas.length; i++) {
-            if (appData.vendas[i].id === currentEditId) {
-                appData.vendas[i] = Object.assign(appData.vendas[i], data);
-                break;
-            }
-        }
-        showToast('Venda atualizada!');
-    } else {
-        data.id = nextId(appData.vendas);
-        appData.vendas.push(data);
-        showToast('Venda adicionada!');
-    }
-
-    saveData();
-    closeCadastroModal();
-    renderVendas();
+  const venda = appData.vendas.find(v => v.id === id);
+  if (venda) openVendaModal(venda);
 }
 
 function deleteVenda(id) {
-    if (!confirm('Excluir esta venda?')) return;
-    appData.vendas = appData.vendas.filter(function (v) { return v.id !== id; });
-    saveData();
-    renderVendas();
-    showToast('Venda excluída!');
+  if (!confirm('Deseja excluir esta venda?')) return;
+  appData.vendas = appData.vendas.filter(v => v.id !== id);
+  saveData();
+  showToast('Venda excluída!', 'success');
+  renderVendas();
 }
 
-// ==================== ESTOQUE ====================
+// ============ ESTOQUE ============
 function renderEstoque() {
-    var busca = document.getElementById('estoqueBusca') ? document.getElementById('estoqueBusca').value.toLowerCase() : '';
-    var lista = appData.estoque || [];
+  const pageEl = document.getElementById('page-estoque');
+  if (!pageEl) return;
 
-    var totalCompra = 0, totalVenda = 0, totalLucro = 0, totalEstocado = 0;
+  // Calcular estoque a partir de compras e vendas
+  const produtosMap = {};
 
-    var html = '';
-    for (var i = 0; i < lista.length; i++) {
-        var e = lista[i];
-        if (busca && (e.produto || '').toLowerCase().indexOf(busca) < 0) continue;
+  (appData.compras || []).forEach(c => {
+    const key = c.produto;
+    if (!produtosMap[key]) produtosMap[key] = { produto: key, qtdComprada: 0, valorCompra: 0, qtdVendida: 0, valorVenda: 0 };
+    produtosMap[key].qtdComprada += c.quantidade;
+    produtosMap[key].valorCompra += c.quantidade * c.valorUnit;
+  });
 
-        var tCompra = (e.compras || 0) * (e.valorCompra || 0);
-        var tVenda = (e.vendas || 0) * (e.valorVenda || 0);
-        var lucro = tVenda - tCompra;
-        var vEstoque = (e.emEstoque || 0) * (e.valorCompra || 0);
-        totalCompra += tCompra;
-        totalVenda += tVenda;
-        totalLucro += lucro;
-        totalEstocado += vEstoque;
+  (appData.vendas || []).forEach(v => {
+    const key = v.produto;
+    if (!produtosMap[key]) produtosMap[key] = { produto: key, qtdComprada: 0, valorCompra: 0, qtdVendida: 0, valorVenda: 0 };
+    produtosMap[key].qtdVendida += v.quantidade;
+    produtosMap[key].valorVenda += v.quantidade * v.valorUnit;
+  });
 
-        var maxEst = 100;
-        var pct = Math.min(100, ((e.emEstoque || 0) / maxEst) * 100);
-        var estoqueClass = (e.emEstoque || 0) < 5 ? 'estoque-baixo' : ((e.emEstoque || 0) < 20 ? 'estoque-medio' : 'estoque-alto');
+  let estoqueItems = Object.values(produtosMap).map(p => ({
+    ...p,
+    saldo: p.qtdComprada - p.qtdVendida,
+    lucro: p.valorVenda - p.valorCompra
+  }));
 
-        html += '<tr>';
-        html += '<td style="font-weight:600;">' + (e.produto || '') + '</td>';
-        html += '<td><div>' + (e.emEstoque || 0) + '</div><div class="estoque-bar ' + estoqueClass + '"><div class="estoque-bar-fill" style="width:' + pct + '%"></div></div></td>';
-        html += '<td>' + (e.compras || 0) + '</td>';
-        html += '<td>' + (e.vendas || 0) + '</td>';
-        html += '<td>' + formatCurrency(tCompra) + '</td>';
-        html += '<td>' + formatCurrency(tVenda) + '</td>';
-        html += '<td style="color:' + (lucro >= 0 ? 'var(--success)' : 'var(--danger)') + ';font-weight:700;">' + formatCurrency(lucro) + '</td>';
-        html += '<td>' + formatCurrency(vEstoque) + '</td>';
-        html += '</tr>';
-    }
+  const totalCompra = estoqueItems.reduce((s,e) => s + e.valorCompra, 0);
+  const totalVenda = estoqueItems.reduce((s,e) => s + e.valorVenda, 0);
+  const lucroTotal = totalVenda - totalCompra;
+  const valorEstoque = estoqueItems.filter(e => e.saldo > 0).reduce((s,e) => {
+    const custoMedio = e.qtdComprada > 0 ? e.valorCompra / e.qtdComprada : 0;
+    return s + (e.saldo * custoMedio);
+  }, 0);
 
-    document.getElementById('estoqueBody').innerHTML = html || '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);">Nenhum item no estoque</td></tr>';
+  pageEl.innerHTML = `
+    <div class="page-header">
+      <h2>Estoque</h2>
+    </div>
 
-    var pctLucro = totalCompra > 0 ? ((totalLucro / totalCompra) * 100).toFixed(1) : '0.0';
-    var cardsHTML = '';
-    cardsHTML += '<div class="summary-card"><div class="s-value" style="color:var(--info)">' + formatCurrency(totalCompra) + '</div><div class="s-label">V. Compra</div></div>';
-    cardsHTML += '<div class="summary-card"><div class="s-value" style="color:var(--success)">' + formatCurrency(totalVenda) + '</div><div class="s-label">T. Venda</div></div>';
-    cardsHTML += '<div class="summary-card"><div class="s-value" style="color:' + (totalLucro >= 0 ? 'var(--success)' : 'var(--danger)') + '">' + formatCurrency(totalLucro) + '</div><div class="s-label">T. Lucros</div></div>';
-    cardsHTML += '<div class="summary-card"><div class="s-value" style="color:var(--orange-primary)">' + formatCurrency(totalEstocado) + '</div><div class="s-label">V. Estocado</div></div>';
-    cardsHTML += '<div class="summary-card"><div class="s-value" style="color:var(--warning)">' + pctLucro + '%</div><div class="s-label">% Lucros</div></div>';
-    document.getElementById('estoqueCards').innerHTML = cardsHTML;
+    <div class="dashboard-grid" style="margin-bottom:20px;">
+      <div class="card">
+        <div class="card-header"><span class="card-icon">🛒</span><span>Total Compras</span></div>
+        <div class="card-value">${formatCurrency(totalCompra)}</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-icon">🏷️</span><span>Total Vendas</span></div>
+        <div class="card-value">${formatCurrency(totalVenda)}</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-icon">📊</span><span>Lucro</span></div>
+        <div class="card-value ${lucroTotal >= 0 ? 'text-success' : 'text-danger'}">${formatCurrency(lucroTotal)}</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-icon">📦</span><span>Valor em Estoque</span></div>
+        <div class="card-value text-warning">${formatCurrency(valorEstoque)}</div>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <input type="text" id="filtroEstoqueBusca" class="form-control" placeholder="Buscar produto..." oninput="filtrarEstoque()" style="max-width:300px">
+      <select id="filtroEstoqueSaldo" class="form-control" style="max-width:180px" onchange="filtrarEstoque()">
+        <option value="">Todos</option>
+        <option value="positivo">Com Saldo > 0</option>
+        <option value="zerado">Saldo Zerado</option>
+        <option value="negativo">Saldo Negativo</option>
+      </select>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Produto</th>
+            <th>Qtd Comprada</th>
+            <th>Qtd Vendida</th>
+            <th>Saldo</th>
+            <th>Valor Compra</th>
+            <th>Valor Venda</th>
+            <th>Lucro</th>
+          </tr>
+        </thead>
+        <tbody id="estoqueBody"></tbody>
+      </table>
+    </div>
+  `;
+
+  // Guardar referência para filtro
+  window._estoqueItems = estoqueItems;
+  filtrarEstoque();
 }
 
-// ============================================================
+function filtrarEstoque() {
+  const busca = (document.getElementById('filtroEstoqueBusca')?.value || '').toLowerCase();
+  const saldoFiltro = document.getElementById('filtroEstoqueSaldo')?.value || '';
+
+  let lista = [...(window._estoqueItems || [])];
+
+  if (busca) {
+    lista = lista.filter(e => e.produto.toLowerCase().includes(busca));
+  }
+  if (saldoFiltro === 'positivo') lista = lista.filter(e => e.saldo > 0);
+  else if (saldoFiltro === 'zerado') lista = lista.filter(e => e.saldo === 0);
+  else if (saldoFiltro === 'negativo') lista = lista.filter(e => e.saldo < 0);
+
+  lista.sort((a,b) => b.saldo - a.saldo);
+
+  const tbody = document.getElementById('estoqueBody');
+  if (!tbody) return;
+
+  if (lista.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--text-muted)">Nenhum item encontrado</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = lista.map(e => {
+    let saldoClass = '';
+    if (e.saldo > 0) saldoClass = 'text-success';
+    else if (e.saldo < 0) saldoClass = 'text-danger';
+    else saldoClass = 'text-muted';
+
+    return `<tr>
+      <td><strong>${e.produto}</strong></td>
+      <td>${e.qtdComprada}</td>
+      <td>${e.qtdVendida}</td>
+      <td class="${saldoClass}"><strong>${e.saldo}</strong></td>
+      <td>${formatCurrency(e.valorCompra)}</td>
+      <td>${formatCurrency(e.valorVenda)}</td>
+      <td class="${e.lucro >= 0 ? 'text-success' : 'text-danger'}"><strong>${formatCurrency(e.lucro)}</strong></td>
+    </tr>`;
+  }).join('');
+}
+
+// ==========================================
 // PARTE 6 — CADASTROS (Clientes, Fornecedores, Produtos, P.Fornecedores)
-// ============================================================
+// ==========================================
 
-// ==================== CLIENTES ====================
+// ============ CLIENTES ============
 function renderClientes() {
-    var busca = document.getElementById('clientesBusca') ? document.getElementById('clientesBusca').value.toLowerCase() : '';
-    var lista = appData.clientes || [];
-    var count = 0;
+  const pageEl = document.getElementById('page-clientes');
+  if (!pageEl) return;
 
-    var html = '';
-    for (var i = 0; i < lista.length; i++) {
-        var c = lista[i];
-        var matchBusca = !busca || (c.nome || '').toLowerCase().indexOf(busca) >= 0 || (c.cpfcnpj || '').toLowerCase().indexOf(busca) >= 0 || (c.cidade || '').toLowerCase().indexOf(busca) >= 0;
-        if (!matchBusca) continue;
-        count++;
+  const clientes = appData.clientes || [];
 
-        var avatar = c.imagem ? '<img src="' + c.imagem + '" class="cadastro-avatar">' : '<div class="cadastro-avatar-placeholder">👤</div>';
+  pageEl.innerHTML = `
+    <div class="page-header">
+      <h2>Clientes</h2>
+      <button class="btn btn-primary" onclick="openClienteModal()"><span>+</span> Novo Cliente</button>
+    </div>
 
-        html += '<tr>';
-        html += '<td>' + avatar + '</td>';
-        html += '<td style="font-weight:600;">' + (c.nome || '') + '</td>';
-        html += '<td>' + (c.cpfcnpj || '') + '</td>';
-        html += '<td>' + (c.telefone || '') + '</td>';
-        html += '<td>' + (c.cidade || '') + '/' + (c.estado || '') + '</td>';
-        html += '<td>';
-        html += '<button class="btn btn-sm btn-secondary" onclick="viewCadastro(\'clientes\',' + c.id + ')">👁️</button> ';
-        html += '<button class="btn btn-sm btn-secondary" onclick="editCadastro(\'clientes\',' + c.id + ')">✏️</button> ';
-        html += '<button class="btn btn-sm btn-danger" onclick="deleteCadastro(\'clientes\',' + c.id + ')">🗑️</button>';
-        html += '</td></tr>';
-    }
+    <div class="dashboard-grid" style="margin-bottom:20px;">
+      <div class="card">
+        <div class="card-header"><span class="card-icon">👥</span><span>Total Clientes</span></div>
+        <div class="card-value">${clientes.length}</div>
+      </div>
+    </div>
 
-    document.getElementById('clientesBody').innerHTML = html || '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);">Nenhum cliente encontrado</td></tr>';
-    document.getElementById('clientesCount').textContent = count;
+    <div class="filter-bar">
+      <input type="text" id="filtroClientesBusca" class="form-control" placeholder="Buscar nome, cidade, CPF/CNPJ..." oninput="filtrarClientes()" style="max-width:350px">
+    </div>
+
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th></th>
+            <th>Nome</th>
+            <th>CPF/CNPJ</th>
+            <th>Telefone</th>
+            <th>Cidade</th>
+            <th>Estado</th>
+            <th style="width:150px">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="clientesBody"></tbody>
+      </table>
+    </div>
+  `;
+
+  filtrarClientes();
 }
 
-// ==================== FORNECEDORES ====================
+function filtrarClientes() {
+  const busca = (document.getElementById('filtroClientesBusca')?.value || '').toLowerCase();
+  let lista = [...(appData.clientes || [])];
+
+  if (busca) {
+    lista = lista.filter(c =>
+      (c.nome||'').toLowerCase().includes(busca) ||
+      (c.cpfCnpj||'').toLowerCase().includes(busca) ||
+      (c.cidade||'').toLowerCase().includes(busca) ||
+      (c.telefone||'').toLowerCase().includes(busca) ||
+      (c.email||'').toLowerCase().includes(busca)
+    );
+  }
+
+  lista.sort((a,b) => (a.nome||'').localeCompare(b.nome||''));
+
+  const tbody = document.getElementById('clientesBody');
+  if (!tbody) return;
+
+  if (lista.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--text-muted)">Nenhum cliente encontrado</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = lista.map(c => {
+    const avatar = c.img
+      ? `<img src="${c.img}" style="width:36px;height:36px;border-radius:50%;object-fit:cover">`
+      : `<div style="width:36px;height:36px;border-radius:50%;background:var(--accent-primary);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:bold;font-size:14px">${(c.nome||'?')[0].toUpperCase()}</div>`;
+
+    return `<tr>
+      <td>${avatar}</td>
+      <td><strong>${c.nome}</strong></td>
+      <td>${c.cpfCnpj || '-'}</td>
+      <td>${c.telefone || '-'}</td>
+      <td>${c.cidade || '-'}</td>
+      <td>${c.estado || '-'}</td>
+      <td>
+        <button class="btn btn-sm btn-outline" onclick="viewCliente(${c.id})" title="Ver">👁️</button>
+        <button class="btn btn-sm btn-outline" onclick="editCliente(${c.id})" title="Editar">✏️</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteCliente(${c.id})" title="Excluir">🗑️</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function openClienteModal(cliente) {
+  const isEdit = !!cliente;
+  const modal = document.getElementById('cadastroModal');
+  const modalTitle = document.getElementById('cadastroModalTitle');
+  const modalBody = document.getElementById('cadastroModalBody');
+  const modalFooter = document.getElementById('cadastroModalFooter');
+
+  modalTitle.textContent = isEdit ? 'Editar Cliente' : 'Novo Cliente';
+
+  modalBody.innerHTML = `
+    <div class="form-group" style="text-align:center">
+      <div id="clienteImgPreview" style="width:80px;height:80px;border-radius:50%;background:var(--bg-tertiary);margin:0 auto 10px;display:flex;align-items:center;justify-content:center;overflow:hidden">
+        ${isEdit && cliente.img ? `<img src="${cliente.img}" style="width:100%;height:100%;object-fit:cover">` : '<span style="color:var(--text-muted);font-size:24px">👤</span>'}
+      </div>
+      <label class="btn btn-sm btn-outline" style="cursor:pointer">
+        📷 Foto
+        <input type="file" id="clienteImgInput" accept="image/*" onchange="handleCadastroImage('clienteImgInput','clienteImgPreview')" style="display:none">
+      </label>
+    </div>
+    <div class="form-group">
+      <label>Nome *</label>
+      <input type="text" id="clienteNome" class="form-control" value="${isEdit ? cliente.nome : ''}" placeholder="Nome completo">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>CPF/CNPJ</label>
+        <input type="text" id="clienteCpfCnpj" class="form-control" value="${isEdit ? (cliente.cpfCnpj||'') : ''}" placeholder="000.000.000-00">
+      </div>
+      <div class="form-group">
+        <label>Telefone</label>
+        <input type="text" id="clienteTelefone" class="form-control" value="${isEdit ? (cliente.telefone||'') : ''}" placeholder="(00) 00000-0000">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>E-mail</label>
+      <input type="email" id="clienteEmail" class="form-control" value="${isEdit ? (cliente.email||'') : ''}" placeholder="email@exemplo.com">
+    </div>
+    <div class="form-group">
+      <label>Endereço</label>
+      <input type="text" id="clienteEndereco" class="form-control" value="${isEdit ? (cliente.endereco||'') : ''}" placeholder="Rua, número, bairro">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Cidade</label>
+        <input type="text" id="clienteCidade" class="form-control" value="${isEdit ? (cliente.cidade||'') : ''}">
+      </div>
+      <div class="form-group">
+        <label>Estado</label>
+        <input type="text" id="clienteEstado" class="form-control" value="${isEdit ? (cliente.estado||'') : ''}" maxlength="2" placeholder="MG">
+      </div>
+      <div class="form-group">
+        <label>CEP</label>
+        <input type="text" id="clienteCep" class="form-control" value="${isEdit ? (cliente.cep||'') : ''}" placeholder="00000-000">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Observações</label>
+      <textarea id="clienteObs" class="form-control" rows="2">${isEdit ? (cliente.obs||'') : ''}</textarea>
+    </div>
+  `;
+
+  // Guardar imagem temporária
+  window._tempCadastroImg = isEdit ? (cliente.img || '') : '';
+
+  modalFooter.innerHTML = `
+    <button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button>
+    <button class="btn btn-primary" onclick="saveCliente(${isEdit ? cliente.id : 0})">Salvar</button>
+  `;
+
+  modal.style.display = 'flex';
+}
+
+function handleCadastroImage(inputId, previewId) {
+  const input = document.getElementById(inputId);
+  const preview = document.getElementById(previewId);
+  if (!input || !input.files || !input.files[0]) return;
+
+  const file = input.files[0];
+  if (file.size > 500 * 1024) {
+    showToast('Imagem deve ter no máximo 500 KB', 'error');
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    window._tempCadastroImg = e.target.result;
+    preview.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover">`;
+  };
+  reader.readAsDataURL(file);
+}
+
+function saveCliente(editId) {
+  const nome = document.getElementById('clienteNome').value.trim();
+  const cpfCnpj = document.getElementById('clienteCpfCnpj').value.trim();
+  const telefone = document.getElementById('clienteTelefone').value.trim();
+  const email = document.getElementById('clienteEmail').value.trim();
+  const endereco = document.getElementById('clienteEndereco').value.trim();
+  const cidade = document.getElementById('clienteCidade').value.trim();
+  const estado = document.getElementById('clienteEstado').value.trim();
+  const cep = document.getElementById('clienteCep').value.trim();
+  const obs = document.getElementById('clienteObs').value.trim();
+  const img = window._tempCadastroImg || '';
+
+  if (!nome) {
+    showToast('Informe o nome do cliente', 'error');
+    return;
+  }
+
+  if (editId > 0) {
+    const idx = appData.clientes.findIndex(c => c.id === editId);
+    if (idx >= 0) {
+      appData.clientes[idx] = { ...appData.clientes[idx], nome, cpfCnpj, telefone, email, endereco, cidade, estado, cep, obs, img };
+    }
+  } else {
+    appData.clientes.push({
+      id: nextId(appData.clientes),
+      nome, cpfCnpj, telefone, email, endereco, cidade, estado, cep, obs, img
+    });
+  }
+
+  saveData();
+  closeCadastroModal();
+  showToast(editId > 0 ? 'Cliente atualizado!' : 'Cliente adicionado!', 'success');
+  renderClientes();
+}
+
+function editCliente(id) {
+  const cliente = appData.clientes.find(c => c.id === id);
+  if (cliente) openClienteModal(cliente);
+}
+
+function deleteCliente(id) {
+  if (!confirm('Deseja excluir este cliente?')) return;
+  appData.clientes = appData.clientes.filter(c => c.id !== id);
+  saveData();
+  showToast('Cliente excluído!', 'success');
+  renderClientes();
+}
+
+function viewCliente(id) {
+  const c = appData.clientes.find(cl => cl.id === id);
+  if (!c) return;
+
+  // Calcular vendas do cliente
+  const vendasCliente = (appData.vendas||[]).filter(v => v.cliente === c.nome);
+  const totalVendas = vendasCliente.reduce((s,v) => s + (v.quantidade * v.valorUnit), 0);
+
+  const modal = document.getElementById('viewModal');
+  const modalTitle = document.getElementById('viewModalTitle');
+  const modalBody = document.getElementById('viewModalBody');
+
+  modalTitle.textContent = c.nome;
+  modalBody.innerHTML = `
+    <div style="text-align:center;margin-bottom:16px">
+      ${c.img ? `<img src="${c.img}" style="width:80px;height:80px;border-radius:50%;object-fit:cover">` : `<div style="width:80px;height:80px;border-radius:50%;background:var(--accent-primary);display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:bold;font-size:28px">${(c.nome||'?')[0].toUpperCase()}</div>`}
+    </div>
+    <div class="detail-grid">
+      <div class="detail-item"><span class="detail-label">CPF/CNPJ</span><span>${c.cpfCnpj || '-'}</span></div>
+      <div class="detail-item"><span class="detail-label">Telefone</span><span>${c.telefone || '-'}</span></div>
+      <div class="detail-item"><span class="detail-label">E-mail</span><span>${c.email || '-'}</span></div>
+      <div class="detail-item"><span class="detail-label">Endereço</span><span>${c.endereco || '-'}</span></div>
+      <div class="detail-item"><span class="detail-label">Cidade</span><span>${c.cidade || '-'}</span></div>
+      <div class="detail-item"><span class="detail-label">Estado</span><span>${c.estado || '-'}</span></div>
+      <div class="detail-item"><span class="detail-label">CEP</span><span>${c.cep || '-'}</span></div>
+      <div class="detail-item"><span class="detail-label">Total em Vendas</span><span class="text-success"><strong>${formatCurrency(totalVendas)}</strong></span></div>
+      <div class="detail-item"><span class="detail-label">Nº Vendas</span><span>${vendasCliente.length}</span></div>
+      <div class="detail-item"><span class="detail-label">Obs</span><span>${c.obs || '-'}</span></div>
+    </div>
+  `;
+
+  modal.style.display = 'flex';
+}
+
+// ============ FORNECEDORES ============
 function renderFornecedores() {
-    var busca = document.getElementById('fornecedoresBusca') ? document.getElementById('fornecedoresBusca').value.toLowerCase() : '';
-    var lista = appData.fornecedores || [];
-    var count = 0;
+  const pageEl = document.getElementById('page-fornecedores');
+  if (!pageEl) return;
 
-    var html = '';
-    for (var i = 0; i < lista.length; i++) {
-        var f = lista[i];
-        var matchBusca = !busca || (f.nome || '').toLowerCase().indexOf(busca) >= 0 || (f.cpfcnpj || '').toLowerCase().indexOf(busca) >= 0 || (f.cidade || '').toLowerCase().indexOf(busca) >= 0;
-        if (!matchBusca) continue;
-        count++;
+  const fornecedores = appData.fornecedores || [];
 
-        var avatar = f.imagem ? '<img src="' + f.imagem + '" class="cadastro-avatar">' : '<div class="cadastro-avatar-placeholder">🏭</div>';
+  pageEl.innerHTML = `
+    <div class="page-header">
+      <h2>Fornecedores</h2>
+      <button class="btn btn-primary" onclick="openFornecedorModal()"><span>+</span> Novo Fornecedor</button>
+    </div>
 
-        html += '<tr>';
-        html += '<td>' + avatar + '</td>';
-        html += '<td style="font-weight:600;">' + (f.nome || '') + '</td>';
-        html += '<td>' + (f.cpfcnpj || '') + '</td>';
-        html += '<td>' + (f.telefone || '') + '</td>';
-        html += '<td>' + (f.cidade || '') + '/' + (f.estado || '') + '</td>';
-        html += '<td>';
-        html += '<button class="btn btn-sm btn-secondary" onclick="viewCadastro(\'fornecedores\',' + f.id + ')">👁️</button> ';
-        html += '<button class="btn btn-sm btn-secondary" onclick="editCadastro(\'fornecedores\',' + f.id + ')">✏️</button> ';
-        html += '<button class="btn btn-sm btn-danger" onclick="deleteCadastro(\'fornecedores\',' + f.id + ')">🗑️</button>';
-        html += '</td></tr>';
-    }
+    <div class="dashboard-grid" style="margin-bottom:20px;">
+      <div class="card">
+        <div class="card-header"><span class="card-icon">🏭</span><span>Total Fornecedores</span></div>
+        <div class="card-value">${fornecedores.length}</div>
+      </div>
+    </div>
 
-    document.getElementById('fornecedoresBody').innerHTML = html || '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);">Nenhum fornecedor encontrado</td></tr>';
-    document.getElementById('fornecedoresCount').textContent = count;
+    <div class="filter-bar">
+      <input type="text" id="filtroFornBusca" class="form-control" placeholder="Buscar nome, cidade, CNPJ..." oninput="filtrarFornecedores()" style="max-width:350px">
+    </div>
+
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th></th>
+            <th>Nome</th>
+            <th>CNPJ</th>
+            <th>Telefone</th>
+            <th>Cidade</th>
+            <th>Estado</th>
+            <th style="width:150px">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="fornecedoresBody"></tbody>
+      </table>
+    </div>
+  `;
+
+  filtrarFornecedores();
 }
 
-// ==================== PRODUTOS ====================
+function filtrarFornecedores() {
+  const busca = (document.getElementById('filtroFornBusca')?.value || '').toLowerCase();
+  let lista = [...(appData.fornecedores || [])];
+
+  if (busca) {
+    lista = lista.filter(f =>
+      (f.nome||'').toLowerCase().includes(busca) ||
+      (f.cpfCnpj||'').toLowerCase().includes(busca) ||
+      (f.cidade||'').toLowerCase().includes(busca) ||
+      (f.telefone||'').toLowerCase().includes(busca)
+    );
+  }
+
+  lista.sort((a,b) => (a.nome||'').localeCompare(b.nome||''));
+
+  const tbody = document.getElementById('fornecedoresBody');
+  if (!tbody) return;
+
+  if (lista.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--text-muted)">Nenhum fornecedor encontrado</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = lista.map(f => {
+    const avatar = f.img
+      ? `<img src="${f.img}" style="width:36px;height:36px;border-radius:50%;object-fit:cover">`
+      : `<div style="width:36px;height:36px;border-radius:50%;background:var(--accent-secondary);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:bold;font-size:14px">${(f.nome||'?')[0].toUpperCase()}</div>`;
+
+    return `<tr>
+      <td>${avatar}</td>
+      <td><strong>${f.nome}</strong></td>
+      <td>${f.cpfCnpj || '-'}</td>
+      <td>${f.telefone || '-'}</td>
+      <td>${f.cidade || '-'}</td>
+      <td>${f.estado || '-'}</td>
+      <td>
+        <button class="btn btn-sm btn-outline" onclick="viewFornecedor(${f.id})" title="Ver">👁️</button>
+        <button class="btn btn-sm btn-outline" onclick="editFornecedor(${f.id})" title="Editar">✏️</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteFornecedor(${f.id})" title="Excluir">🗑️</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function openFornecedorModal(fornecedor) {
+  const isEdit = !!fornecedor;
+  const modal = document.getElementById('cadastroModal');
+  const modalTitle = document.getElementById('cadastroModalTitle');
+  const modalBody = document.getElementById('cadastroModalBody');
+  const modalFooter = document.getElementById('cadastroModalFooter');
+
+  modalTitle.textContent = isEdit ? 'Editar Fornecedor' : 'Novo Fornecedor';
+
+  modalBody.innerHTML = `
+    <div class="form-group" style="text-align:center">
+      <div id="fornImgPreview" style="width:80px;height:80px;border-radius:50%;background:var(--bg-tertiary);margin:0 auto 10px;display:flex;align-items:center;justify-content:center;overflow:hidden">
+        ${isEdit && fornecedor.img ? `<img src="${fornecedor.img}" style="width:100%;height:100%;object-fit:cover">` : '<span style="color:var(--text-muted);font-size:24px">🏭</span>'}
+      </div>
+      <label class="btn btn-sm btn-outline" style="cursor:pointer">
+        📷 Foto
+        <input type="file" id="fornImgInput" accept="image/*" onchange="handleCadastroImage('fornImgInput','fornImgPreview')" style="display:none">
+      </label>
+    </div>
+    <div class="form-group">
+      <label>Nome *</label>
+      <input type="text" id="fornNome" class="form-control" value="${isEdit ? fornecedor.nome : ''}" placeholder="Nome/Razão Social">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>CNPJ</label>
+        <input type="text" id="fornCpfCnpj" class="form-control" value="${isEdit ? (fornecedor.cpfCnpj||'') : ''}" placeholder="00.000.000/0001-00">
+      </div>
+      <div class="form-group">
+        <label>Telefone</label>
+        <input type="text" id="fornTelefone" class="form-control" value="${isEdit ? (fornecedor.telefone||'') : ''}" placeholder="(00) 00000-0000">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>E-mail</label>
+      <input type="email" id="fornEmail" class="form-control" value="${isEdit ? (fornecedor.email||'') : ''}" placeholder="contato@empresa.com">
+    </div>
+    <div class="form-group">
+      <label>Endereço</label>
+      <input type="text" id="fornEndereco" class="form-control" value="${isEdit ? (fornecedor.endereco||'') : ''}">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Cidade</label>
+        <input type="text" id="fornCidade" class="form-control" value="${isEdit ? (fornecedor.cidade||'') : ''}">
+      </div>
+      <div class="form-group">
+        <label>Estado</label>
+        <input type="text" id="fornEstado" class="form-control" value="${isEdit ? (fornecedor.estado||'') : ''}" maxlength="2" placeholder="MG">
+      </div>
+      <div class="form-group">
+        <label>CEP</label>
+        <input type="text" id="fornCep" class="form-control" value="${isEdit ? (fornecedor.cep||'') : ''}" placeholder="00000-000">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Observações</label>
+      <textarea id="fornObs" class="form-control" rows="2">${isEdit ? (fornecedor.obs||'') : ''}</textarea>
+    </div>
+  `;
+
+  window._tempCadastroImg = isEdit ? (fornecedor.img || '') : '';
+
+  modalFooter.innerHTML = `
+    <button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button>
+    <button class="btn btn-primary" onclick="saveFornecedor(${isEdit ? fornecedor.id : 0})">Salvar</button>
+  `;
+
+  modal.style.display = 'flex';
+}
+
+function saveFornecedor(editId) {
+  const nome = document.getElementById('fornNome').value.trim();
+  const cpfCnpj = document.getElementById('fornCpfCnpj').value.trim();
+  const telefone = document.getElementById('fornTelefone').value.trim();
+  const email = document.getElementById('fornEmail').value.trim();
+  const endereco = document.getElementById('fornEndereco').value.trim();
+  const cidade = document.getElementById('fornCidade').value.trim();
+  const estado = document.getElementById('fornEstado').value.trim();
+  const cep = document.getElementById('fornCep').value.trim();
+  const obs = document.getElementById('fornObs').value.trim();
+  const img = window._tempCadastroImg || '';
+
+  if (!nome) {
+    showToast('Informe o nome do fornecedor', 'error');
+    return;
+  }
+
+  if (editId > 0) {
+    const idx = appData.fornecedores.findIndex(f => f.id === editId);
+    if (idx >= 0) {
+      appData.fornecedores[idx] = { ...appData.fornecedores[idx], nome, cpfCnpj, telefone, email, endereco, cidade, estado, cep, obs, img };
+    }
+  } else {
+    appData.fornecedores.push({
+      id: nextId(appData.fornecedores),
+      nome, cpfCnpj, telefone, email, endereco, cidade, estado, cep, obs, img
+    });
+  }
+
+  saveData();
+  closeCadastroModal();
+  showToast(editId > 0 ? 'Fornecedor atualizado!' : 'Fornecedor adicionado!', 'success');
+  renderFornecedores();
+}
+
+function editFornecedor(id) {
+  const f = appData.fornecedores.find(f => f.id === id);
+  if (f) openFornecedorModal(f);
+}
+
+function deleteFornecedor(id) {
+  if (!confirm('Deseja excluir este fornecedor?')) return;
+  appData.fornecedores = appData.fornecedores.filter(f => f.id !== id);
+  saveData();
+  showToast('Fornecedor excluído!', 'success');
+  renderFornecedores();
+}
+
+function viewFornecedor(id) {
+  const f = appData.fornecedores.find(fn => fn.id === id);
+  if (!f) return;
+
+  const comprasForn = (appData.compras||[]).filter(c => c.fornecedor === f.nome);
+  const totalCompras = comprasForn.reduce((s,c) => s + (c.quantidade * c.valorUnit), 0);
+
+  const modal = document.getElementById('viewModal');
+  const modalTitle = document.getElementById('viewModalTitle');
+  const modalBody = document.getElementById('viewModalBody');
+
+  modalTitle.textContent = f.nome;
+  modalBody.innerHTML = `
+    <div style="text-align:center;margin-bottom:16px">
+      ${f.img ? `<img src="${f.img}" style="width:80px;height:80px;border-radius:50%;object-fit:cover">` : `<div style="width:80px;height:80px;border-radius:50%;background:var(--accent-secondary);display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:bold;font-size:28px">${(f.nome||'?')[0].toUpperCase()}</div>`}
+    </div>
+    <div class="detail-grid">
+      <div class="detail-item"><span class="detail-label">CNPJ</span><span>${f.cpfCnpj || '-'}</span></div>
+      <div class="detail-item"><span class="detail-label">Telefone</span><span>${f.telefone || '-'}</span></div>
+      <div class="detail-item"><span class="detail-label">E-mail</span><span>${f.email || '-'}</span></div>
+      <div class="detail-item"><span class="detail-label">Endereço</span><span>${f.endereco || '-'}</span></div>
+      <div class="detail-item"><span class="detail-label">Cidade</span><span>${f.cidade || '-'}</span></div>
+      <div class="detail-item"><span class="detail-label">Estado</span><span>${f.estado || '-'}</span></div>
+      <div class="detail-item"><span class="detail-label">CEP</span><span>${f.cep || '-'}</span></div>
+      <div class="detail-item"><span class="detail-label">Total em Compras</span><span class="text-warning"><strong>${formatCurrency(totalCompras)}</strong></span></div>
+      <div class="detail-item"><span class="detail-label">Nº Compras</span><span>${comprasForn.length}</span></div>
+      <div class="detail-item"><span class="detail-label">Obs</span><span>${f.obs || '-'}</span></div>
+    </div>
+  `;
+
+  modal.style.display = 'flex';
+}
+
+// ============ PRODUTOS ============
 function renderProdutos() {
-    var busca = document.getElementById('produtosBusca') ? document.getElementById('produtosBusca').value.toLowerCase() : '';
-    var lista = appData.produtos || [];
-    var count = 0;
+  const pageEl = document.getElementById('page-produtos');
+  if (!pageEl) return;
 
-    var html = '';
-    for (var i = 0; i < lista.length; i++) {
-        var p = lista[i];
-        var matchBusca = !busca || (p.nome || '').toLowerCase().indexOf(busca) >= 0;
-        if (!matchBusca) continue;
-        count++;
+  const produtos = appData.produtos || [];
 
-        var imgHTML = p.imagem ? '<img src="' + p.imagem + '" class="produto-card-img">' : '<div class="produto-card-img" style="display:flex;align-items:center;justify-content:center;font-size:2.5rem;color:var(--text-muted);">🏷️</div>';
+  pageEl.innerHTML = `
+    <div class="page-header">
+      <h2>Produtos</h2>
+      <button class="btn btn-primary" onclick="openProdutoModal()"><span>+</span> Novo Produto</button>
+    </div>
 
-        html += '<div class="produto-card">';
-        html += imgHTML;
-        html += '<div class="produto-card-body">';
-        html += '<h4>' + (p.nome || '') + '</h4>';
-        html += '<div class="preco-label">Custo</div><div class="preco">' + formatCurrency(p.valorCusto || 0) + '</div>';
-        html += '<div style="display:flex;gap:12px;margin-top:6px;">';
-        html += '<div><div class="preco-label">Revenda</div><div style="font-weight:700;color:var(--success);font-size:0.85rem;">' + formatCurrency(p.valorRevenda || 0) + '</div></div>';
-        html += '<div><div class="preco-label">Direto</div><div style="font-weight:700;color:#2196f3;font-size:0.85rem;">' + formatCurrency(p.valorDireto || 0) + '</div></div>';
-        html += '</div>';
-        html += '<div style="margin-top:6px;font-size:0.7rem;color:var(--text-muted);">Unidade: ' + (p.unidade || '-') + '</div>';
-        html += '</div>';
-        html += '<div class="produto-card-actions">';
-        html += '<button class="btn btn-sm btn-secondary" onclick="viewCadastro(\'produtos\',' + p.id + ')">👁️</button>';
-        html += '<button class="btn btn-sm btn-secondary" onclick="editCadastro(\'produtos\',' + p.id + ')">✏️</button>';
-        html += '<button class="btn btn-sm btn-danger" onclick="deleteCadastro(\'produtos\',' + p.id + ')">🗑️</button>';
-        html += '</div></div>';
-    }
+    <div class="dashboard-grid" style="margin-bottom:20px;">
+      <div class="card">
+        <div class="card-header"><span class="card-icon">📦</span><span>Total Produtos</span></div>
+        <div class="card-value">${produtos.length}</div>
+      </div>
+    </div>
 
-    document.getElementById('produtosGrid').innerHTML = html || '<div style="text-align:center;color:var(--text-muted);grid-column:1/-1;padding:40px;">Nenhum produto encontrado</div>';
-    document.getElementById('produtosCount').textContent = count;
+    <div class="filter-bar">
+      <input type="text" id="filtroProdBusca" class="form-control" placeholder="Buscar produto..." oninput="filtrarProdutos()" style="max-width:350px">
+    </div>
+
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th></th>
+            <th>Nome</th>
+            <th>Custo</th>
+            <th>Preço Revenda</th>
+            <th>Preço Direto</th>
+            <th>Unidade</th>
+            <th>Margem</th>
+            <th style="width:120px">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="produtosBody"></tbody>
+      </table>
+    </div>
+  `;
+
+  filtrarProdutos();
 }
 
-// ==================== P. FORNECEDORES ====================
+function filtrarProdutos() {
+  const busca = (document.getElementById('filtroProdBusca')?.value || '').toLowerCase();
+  let lista = [...(appData.produtos || [])];
+
+  if (busca) {
+    lista = lista.filter(p => (p.nome||'').toLowerCase().includes(busca));
+  }
+
+  lista.sort((a,b) => (a.nome||'').localeCompare(b.nome||''));
+
+  const tbody = document.getElementById('produtosBody');
+  if (!tbody) return;
+
+  if (lista.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--text-muted)">Nenhum produto cadastrado</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = lista.map(p => {
+    const margem = p.custo > 0 ? (((p.precoRevenda || p.precoDireto || 0) - p.custo) / p.custo * 100).toFixed(1) : '-';
+    const avatar = p.img
+      ? `<img src="${p.img}" style="width:36px;height:36px;border-radius:8px;object-fit:cover">`
+      : `<div style="width:36px;height:36px;border-radius:8px;background:var(--bg-tertiary);display:flex;align-items:center;justify-content:center;font-size:16px">📦</div>`;
+
+    return `<tr>
+      <td>${avatar}</td>
+      <td><strong>${p.nome}</strong></td>
+      <td>${formatCurrency(p.custo || 0)}</td>
+      <td>${formatCurrency(p.precoRevenda || 0)}</td>
+      <td>${formatCurrency(p.precoDireto || 0)}</td>
+      <td>${p.unidade || '-'}</td>
+      <td class="${Number(margem) > 0 ? 'text-success' : ''}">${margem}%</td>
+      <td>
+        <button class="btn btn-sm btn-outline" onclick="editProduto(${p.id})" title="Editar">✏️</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteProduto(${p.id})" title="Excluir">🗑️</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function openProdutoModal(produto) {
+  const isEdit = !!produto;
+  const modal = document.getElementById('cadastroModal');
+  const modalTitle = document.getElementById('cadastroModalTitle');
+  const modalBody = document.getElementById('cadastroModalBody');
+  const modalFooter = document.getElementById('cadastroModalFooter');
+
+  modalTitle.textContent = isEdit ? 'Editar Produto' : 'Novo Produto';
+
+  const unidades = appData.tipoUnidade || [];
+
+  modalBody.innerHTML = `
+    <div class="form-group" style="text-align:center">
+      <div id="prodImgPreview" style="width:80px;height:80px;border-radius:12px;background:var(--bg-tertiary);margin:0 auto 10px;display:flex;align-items:center;justify-content:center;overflow:hidden">
+        ${isEdit && produto.img ? `<img src="${produto.img}" style="width:100%;height:100%;object-fit:cover">` : '<span style="color:var(--text-muted);font-size:24px">📦</span>'}
+      </div>
+      <label class="btn btn-sm btn-outline" style="cursor:pointer">
+        📷 Foto
+        <input type="file" id="prodImgInput" accept="image/*" onchange="handleCadastroImage('prodImgInput','prodImgPreview')" style="display:none">
+      </label>
+    </div>
+    <div class="form-group">
+      <label>Nome *</label>
+      <input type="text" id="prodNome" class="form-control" value="${isEdit ? produto.nome : ''}">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Custo</label>
+        <input type="number" id="prodCusto" class="form-control" step="0.01" min="0" value="${isEdit ? (produto.custo||'') : ''}">
+      </div>
+      <div class="form-group">
+        <label>Preço Revenda</label>
+        <input type="number" id="prodPrecoRevenda" class="form-control" step="0.01" min="0" value="${isEdit ? (produto.precoRevenda||'') : ''}">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Preço Direto</label>
+        <input type="number" id="prodPrecoDireto" class="form-control" step="0.01" min="0" value="${isEdit ? (produto.precoDireto||'') : ''}">
+      </div>
+      <div class="form-group">
+        <label>Unidade</label>
+        <select id="prodUnidade" class="form-control">
+          <option value="">Selecione...</option>
+          ${unidades.map(u => `<option value="${u}" ${isEdit && produto.unidade===u ? 'selected' : ''}>${u}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Observações</label>
+      <textarea id="prodObs" class="form-control" rows="2">${isEdit ? (produto.obs||'') : ''}</textarea>
+    </div>
+  `;
+
+  window._tempCadastroImg = isEdit ? (produto.img || '') : '';
+
+  modalFooter.innerHTML = `
+    <button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button>
+    <button class="btn btn-primary" onclick="saveProduto(${isEdit ? produto.id : 0})">Salvar</button>
+  `;
+
+  modal.style.display = 'flex';
+}
+
+function saveProduto(editId) {
+  const nome = document.getElementById('prodNome').value.trim();
+  const custo = parseFloat(document.getElementById('prodCusto').value) || 0;
+  const precoRevenda = parseFloat(document.getElementById('prodPrecoRevenda').value) || 0;
+  const precoDireto = parseFloat(document.getElementById('prodPrecoDireto').value) || 0;
+  const unidade = document.getElementById('prodUnidade').value;
+  const obs = document.getElementById('prodObs').value.trim();
+  const img = window._tempCadastroImg || '';
+
+  if (!nome) {
+    showToast('Informe o nome do produto', 'error');
+    return;
+  }
+
+  if (editId > 0) {
+    const idx = appData.produtos.findIndex(p => p.id === editId);
+    if (idx >= 0) {
+      appData.produtos[idx] = { ...appData.produtos[idx], nome, custo, precoRevenda, precoDireto, unidade, obs, img };
+    }
+  } else {
+    appData.produtos.push({
+      id: nextId(appData.produtos),
+      nome, custo, precoRevenda, precoDireto, unidade, obs, img
+    });
+  }
+
+  saveData();
+  closeCadastroModal();
+  showToast(editId > 0 ? 'Produto atualizado!' : 'Produto adicionado!', 'success');
+  renderProdutos();
+}
+
+function editProduto(id) {
+  const p = appData.produtos.find(p => p.id === id);
+  if (p) openProdutoModal(p);
+}
+
+function deleteProduto(id) {
+  if (!confirm('Deseja excluir este produto?')) return;
+  appData.produtos = appData.produtos.filter(p => p.id !== id);
+  saveData();
+  showToast('Produto excluído!', 'success');
+  renderProdutos();
+}
+
+// ============ PRODUTOS DE FORNECEDORES ============
 function renderPFornecedores() {
-    var busca = document.getElementById('pfornecedoresBusca') ? document.getElementById('pfornecedoresBusca').value.toLowerCase() : '';
-    var lista = appData.pfornecedores || [];
-    var count = 0;
+  const pageEl = document.getElementById('page-pfornecedores');
+  if (!pageEl) return;
 
-    var html = '';
-    for (var i = 0; i < lista.length; i++) {
-        var p = lista[i];
-        var matchBusca = !busca || (p.nome || '').toLowerCase().indexOf(busca) >= 0 || (p.fornecedor || '').toLowerCase().indexOf(busca) >= 0;
-        if (!matchBusca) continue;
-        count++;
+  const pf = appData.pFornecedores || [];
 
-        var imgHTML = p.imagem ? '<img src="' + p.imagem + '" class="produto-card-img">' : '<div class="produto-card-img" style="display:flex;align-items:center;justify-content:center;font-size:2.5rem;color:var(--text-muted);">📋</div>';
+  pageEl.innerHTML = `
+    <div class="page-header">
+      <h2>Produtos dos Fornecedores</h2>
+      <button class="btn btn-primary" onclick="openPFornModal()"><span>+</span> Novo Produto</button>
+    </div>
 
-        html += '<div class="produto-card">';
-        html += imgHTML;
-        html += '<div class="produto-card-body">';
-        html += '<h4>' + (p.nome || '') + '</h4>';
-        html += '<div class="preco">' + formatCurrency(p.valor || 0) + '</div>';
-        html += '<div style="margin-top:6px;font-size:0.75rem;color:var(--text-secondary);">Fornecedor: ' + (p.fornecedor || '-') + '</div>';
-        html += '<div style="font-size:0.7rem;color:var(--text-muted);">Unidade: ' + (p.unidade || '-') + '</div>';
-        html += '</div>';
-        html += '<div class="produto-card-actions">';
-        html += '<button class="btn btn-sm btn-secondary" onclick="viewCadastro(\'pfornecedores\',' + p.id + ')">👁️</button>';
-        html += '<button class="btn btn-sm btn-secondary" onclick="editCadastro(\'pfornecedores\',' + p.id + ')">✏️</button>';
-        html += '<button class="btn btn-sm btn-danger" onclick="deleteCadastro(\'pfornecedores\',' + p.id + ')">🗑️</button>';
-        html += '</div></div>';
+    <div class="dashboard-grid" style="margin-bottom:20px;">
+      <div class="card">
+        <div class="card-header"><span class="card-icon">📋</span><span>Total Produtos</span></div>
+        <div class="card-value">${pf.length}</div>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <input type="text" id="filtroPFBusca" class="form-control" placeholder="Buscar produto, fornecedor..." oninput="filtrarPFornecedores()" style="max-width:300px">
+      <select id="filtroPFForn" class="form-control" style="max-width:200px" onchange="filtrarPFornecedores()">
+        <option value="">Todos Fornecedores</option>
+        ${(appData.fornecedores||[]).map(f => f.nome).sort().map(n => `<option value="${n}">${n}</option>`).join('')}
+      </select>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Produto</th>
+            <th>Fornecedor</th>
+            <th>Preço</th>
+            <th>Unidade</th>
+            <th>Obs</th>
+            <th style="width:120px">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="pfBody"></tbody>
+      </table>
+    </div>
+  `;
+
+  filtrarPFornecedores();
+}
+
+function filtrarPFornecedores() {
+  const busca = (document.getElementById('filtroPFBusca')?.value || '').toLowerCase();
+  const forn = document.getElementById('filtroPFForn')?.value || '';
+
+  let lista = [...(appData.pFornecedores || [])];
+
+  if (busca) {
+    lista = lista.filter(p =>
+      (p.nome||'').toLowerCase().includes(busca) ||
+      (p.fornecedor||'').toLowerCase().includes(busca)
+    );
+  }
+  if (forn) lista = lista.filter(p => p.fornecedor === forn);
+
+  lista.sort((a,b) => (a.nome||'').localeCompare(b.nome||''));
+
+  const tbody = document.getElementById('pfBody');
+  if (!tbody) return;
+
+  if (lista.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--text-muted)">Nenhum produto de fornecedor cadastrado</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = lista.map(p => `<tr>
+    <td><strong>${p.nome}</strong></td>
+    <td>${p.fornecedor}</td>
+    <td>${formatCurrency(p.preco || 0)}</td>
+    <td>${p.unidade || '-'}</td>
+    <td>${p.obs || '-'}</td>
+    <td>
+      <button class="btn btn-sm btn-outline" onclick="editPForn(${p.id})" title="Editar">✏️</button>
+      <button class="btn btn-sm btn-danger" onclick="deletePForn(${p.id})" title="Excluir">🗑️</button>
+    </td>
+  </tr>`).join('');
+}
+
+function openPFornModal(pf) {
+  const isEdit = !!pf;
+  const modal = document.getElementById('cadastroModal');
+  const modalTitle = document.getElementById('cadastroModalTitle');
+  const modalBody = document.getElementById('cadastroModalBody');
+  const modalFooter = document.getElementById('cadastroModalFooter');
+
+  modalTitle.textContent = isEdit ? 'Editar Produto do Fornecedor' : 'Novo Produto do Fornecedor';
+
+  const fornecedores = (appData.fornecedores||[]).map(f => f.nome).sort();
+  const unidades = appData.tipoUnidade || [];
+
+  modalBody.innerHTML = `
+    <div class="form-group">
+      <label>Nome do Produto *</label>
+      <input type="text" id="pfNome" class="form-control" value="${isEdit ? pf.nome : ''}">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Fornecedor *</label>
+        <select id="pfFornecedor" class="form-control">
+          <option value="">Selecione...</option>
+          ${fornecedores.map(f => `<option value="${f}" ${isEdit && pf.fornecedor===f ? 'selected' : ''}>${f}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Preço</label>
+        <input type="number" id="pfPreco" class="form-control" step="0.01" min="0" value="${isEdit ? (pf.preco||'') : ''}">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Unidade</label>
+      <select id="pfUnidade" class="form-control">
+        <option value="">Selecione...</option>
+        ${unidades.map(u => `<option value="${u}" ${isEdit && pf.unidade===u ? 'selected' : ''}>${u}</option>`).join('')}
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Observações</label>
+      <textarea id="pfObs" class="form-control" rows="2">${isEdit ? (pf.obs||'') : ''}</textarea>
+    </div>
+  `;
+
+  modalFooter.innerHTML = `
+    <button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button>
+    <button class="btn btn-primary" onclick="savePForn(${isEdit ? pf.id : 0})">Salvar</button>
+  `;
+
+  modal.style.display = 'flex';
+}
+
+function savePForn(editId) {
+  const nome = document.getElementById('pfNome').value.trim();
+  const fornecedor = document.getElementById('pfFornecedor').value;
+  const preco = parseFloat(document.getElementById('pfPreco').value) || 0;
+  const unidade = document.getElementById('pfUnidade').value;
+  const obs = document.getElementById('pfObs').value.trim();
+
+  if (!nome || !fornecedor) {
+    showToast('Informe o nome e o fornecedor', 'error');
+    return;
+  }
+
+  if (editId > 0) {
+    const idx = appData.pFornecedores.findIndex(p => p.id === editId);
+    if (idx >= 0) {
+      appData.pFornecedores[idx] = { ...appData.pFornecedores[idx], nome, fornecedor, preco, unidade, obs };
     }
+  } else {
+    appData.pFornecedores.push({
+      id: nextId(appData.pFornecedores),
+      nome, fornecedor, preco, unidade, obs
+    });
+  }
 
-    document.getElementById('pfornecedoresGrid').innerHTML = html || '<div style="text-align:center;color:var(--text-muted);grid-column:1/-1;padding:40px;">Nenhum produto de fornecedor encontrado</div>';
-    document.getElementById('pfornecedoresCount').textContent = count;
+  saveData();
+  closeCadastroModal();
+  showToast(editId > 0 ? 'Produto atualizado!' : 'Produto adicionado!', 'success');
+  renderPFornecedores();
 }
 
-// ==================== MODAL CADASTRO GENÉRICO ====================
-function openCadastroModal(tipo, id) {
-    currentCadastroType = tipo;
-    currentEditId = id || null;
-
-    var item = null;
-    var lista = appData[tipo] || [];
-    if (id) {
-        for (var i = 0; i < lista.length; i++) {
-            if (lista[i].id === id) { item = lista[i]; break; }
-        }
-    }
-
-    var html = '';
-    var titulo = '';
-
-    if (tipo === 'clientes' || tipo === 'fornecedores') {
-        titulo = id ? 'Editar ' + (tipo === 'clientes' ? 'Cliente' : 'Fornecedor') : 'Novo ' + (tipo === 'clientes' ? 'Cliente' : 'Fornecedor');
-
-        html += '<div class="img-upload-area" onclick="document.getElementById(\'cadastroImgInput\').click()">';
-        if (item && item.imagem) {
-            html += '<img src="' + item.imagem + '" id="cadastroImgPreview">';
-        } else {
-            html += '<p id="cadastroImgPreview">📷 Clique para adicionar imagem</p>';
-        }
-        html += '</div>';
-        html += '<input type="file" id="cadastroImgInput" accept="image/*" style="display:none" onchange="handleImageUpload(event)">';
-        html += '<input type="hidden" id="cadastroImgData" value="' + (item && item.imagem ? item.imagem : '') + '">';
-
-        html += '<div class="form-group"><label>Nome</label><input type="text" id="cadNome" value="' + (item ? item.nome : '') + '"></div>';
-        html += '<div class="form-row">';
-        html += '<div class="form-group"><label>CPF/CNPJ</label><input type="text" id="cadCpfCnpj" value="' + (item ? item.cpfcnpj : '') + '" oninput="this.value=formatCPFCNPJ(this.value)" maxlength="18"></div>';
-        html += '<div class="form-group"><label>Telefone</label><input type="text" id="cadTelefone" value="' + (item ? item.telefone : '') + '" oninput="this.value=formatTelefone(this.value)" maxlength="15"></div>';
-        html += '</div>';
-        html += '<div class="form-row">';
-        html += '<div class="form-group"><label>Endereço</label><input type="text" id="cadEndereco" value="' + (item ? item.endereco : '') + '"></div>';
-        html += '<div class="form-group"><label>Número</label><input type="text" id="cadNumero" value="' + (item ? item.numero : '') + '"></div>';
-        html += '</div>';
-        html += '<div class="form-row">';
-        html += '<div class="form-group"><label>CEP</label><input type="text" id="cadCep" value="' + (item ? item.cep : '') + '" oninput="this.value=formatCEP(this.value)" maxlength="9"></div>';
-        html += '<div class="form-group"><label>Cidade</label><input type="text" id="cadCidade" value="' + (item ? item.cidade : '') + '"></div>';
-        html += '</div>';
-        html += '<div class="form-group"><label>Estado</label><input type="text" id="cadEstado" value="' + (item ? item.estado : '') + '" maxlength="2" style="text-transform:uppercase;"></div>';
-
-    } else if (tipo === 'produtos') {
-        titulo = id ? 'Editar Produto' : 'Novo Produto';
-
-        html += '<div class="img-upload-area" onclick="document.getElementById(\'cadastroImgInput\').click()">';
-        if (item && item.imagem) {
-            html += '<img src="' + item.imagem + '" id="cadastroImgPreview">';
-        } else {
-            html += '<p id="cadastroImgPreview">📷 Clique para adicionar imagem</p>';
-        }
-        html += '</div>';
-        html += '<input type="file" id="cadastroImgInput" accept="image/*" style="display:none" onchange="handleImageUpload(event)">';
-        html += '<input type="hidden" id="cadastroImgData" value="' + (item && item.imagem ? item.imagem : '') + '">';
-
-        html += '<div class="form-group"><label>Nome do Produto</label><input type="text" id="cadNome" value="' + (item ? item.nome : '') + '"></div>';
-        html += '<div class="form-row">';
-        html += '<div class="form-group"><label>Valor de Custo</label><input type="number" id="cadValorCusto" value="' + (item ? item.valorCusto : '') + '" step="0.01"></div>';
-        html += '<div class="form-group"><label>Valor Revenda</label><input type="number" id="cadValorRevenda" value="' + (item ? item.valorRevenda : '') + '" step="0.01"></div>';
-        html += '</div>';
-        html += '<div class="form-row">';
-        html += '<div class="form-group"><label>Valor Venda Direto</label><input type="number" id="cadValorDireto" value="' + (item ? item.valorDireto : '') + '" step="0.01"></div>';
-
-        var unidadeOpts = '<option value="">Selecione</option>';
-        var unidades = appData.config.tiposUnidade || [];
-        for (var u = 0; u < unidades.length; u++) {
-            var selU = item && item.unidade === unidades[u] ? ' selected' : '';
-            unidadeOpts += '<option value="' + unidades[u] + '"' + selU + '>' + unidades[u] + '</option>';
-        }
-        html += '<div class="form-group"><label>Tipo de Unidade</label><select id="cadUnidade">' + unidadeOpts + '</select></div>';
-        html += '</div>';
-
-    } else if (tipo === 'pfornecedores') {
-        titulo = id ? 'Editar Produto do Fornecedor' : 'Novo Produto do Fornecedor';
-
-        html += '<div class="img-upload-area" onclick="document.getElementById(\'cadastroImgInput\').click()">';
-        if (item && item.imagem) {
-            html += '<img src="' + item.imagem + '" id="cadastroImgPreview">';
-        } else {
-            html += '<p id="cadastroImgPreview">📷 Clique para adicionar imagem</p>';
-        }
-        html += '</div>';
-        html += '<input type="file" id="cadastroImgInput" accept="image/*" style="display:none" onchange="handleImageUpload(event)">';
-        html += '<input type="hidden" id="cadastroImgData" value="' + (item && item.imagem ? item.imagem : '') + '">';
-
-        html += '<div class="form-group"><label>Nome do Produto</label><input type="text" id="cadNome" value="' + (item ? item.nome : '') + '"></div>';
-        html += '<div class="form-row">';
-        html += '<div class="form-group"><label>Valor</label><input type="number" id="cadValor" value="' + (item ? item.valor : '') + '" step="0.01"></div>';
-
-        var unidadeOptsP = '<option value="">Selecione</option>';
-        var unidadesP = appData.config.tiposUnidade || [];
-        for (var up = 0; up < unidadesP.length; up++) {
-            var selUp = item && item.unidade === unidadesP[up] ? ' selected' : '';
-            unidadeOptsP += '<option value="' + unidadesP[up] + '"' + selUp + '>' + unidadesP[up] + '</option>';
-        }
-        html += '<div class="form-group"><label>Tipo de Unidade</label><select id="cadUnidade">' + unidadeOptsP + '</select></div>';
-        html += '</div>';
-
-        var fornecedorOpts = '<option value="">Selecione</option>';
-        for (var fi = 0; fi < appData.fornecedores.length; fi++) {
-            var selF = item && item.fornecedor === appData.fornecedores[fi].nome ? ' selected' : '';
-            fornecedorOpts += '<option value="' + appData.fornecedores[fi].nome + '"' + selF + '>' + appData.fornecedores[fi].nome + '</option>';
-        }
-        html += '<div class="form-group"><label>Fornecedor</label><select id="cadFornecedor">' + fornecedorOpts + '</select></div>';
-    }
-
-    document.getElementById('cadastroModalTitle').textContent = titulo;
-    document.getElementById('cadastroModalBody').innerHTML = html;
-    document.getElementById('cadastroModalSaveBtn').setAttribute('onclick', 'saveCadastro()');
-    document.getElementById('cadastroModal').classList.add('active');
+function editPForn(id) {
+  const p = appData.pFornecedores.find(p => p.id === id);
+  if (p) openPFornModal(p);
 }
 
-function handleImageUpload(event) {
-    var file = event.target.files[0];
-    if (!file) return;
-
-    if (file.size > 500000) {
-        showToast('Imagem muito grande! Máximo 500KB.');
-        return;
-    }
-
-    var reader = new FileReader();
-    reader.onload = function (e) {
-        var imgData = e.target.result;
-        document.getElementById('cadastroImgData').value = imgData;
-        var preview = document.getElementById('cadastroImgPreview');
-        if (preview.tagName === 'IMG') {
-            preview.src = imgData;
-        } else {
-            var parent = preview.parentElement;
-            parent.innerHTML = '<img src="' + imgData + '" id="cadastroImgPreview">';
-        }
-    };
-    reader.readAsDataURL(file);
+function deletePForn(id) {
+  if (!confirm('Deseja excluir este produto do fornecedor?')) return;
+  appData.pFornecedores = appData.pFornecedores.filter(p => p.id !== id);
+  saveData();
+  showToast('Produto excluído!', 'success');
+  renderPFornecedores();
 }
 
-function saveCadastro() {
-    var tipo = currentCadastroType;
-    if (!tipo) return;
-
-    var lista = appData[tipo] || [];
-    var item = {};
-
-    if (tipo === 'clientes' || tipo === 'fornecedores') {
-        item.nome = document.getElementById('cadNome').value;
-        item.cpfcnpj = document.getElementById('cadCpfCnpj').value;
-        item.telefone = document.getElementById('cadTelefone').value;
-        item.endereco = document.getElementById('cadEndereco').value;
-        item.numero = document.getElementById('cadNumero').value;
-        item.cep = document.getElementById('cadCep').value;
-        item.cidade = document.getElementById('cadCidade').value;
-        item.estado = document.getElementById('cadEstado').value.toUpperCase();
-        item.imagem = document.getElementById('cadastroImgData').value;
-
-        if (!item.nome) { showToast('Informe o nome!'); return; }
-
-    } else if (tipo === 'produtos') {
-        item.nome = document.getElementById('cadNome').value;
-        item.valorCusto = parseFloat(document.getElementById('cadValorCusto').value) || 0;
-        item.valorRevenda = parseFloat(document.getElementById('cadValorRevenda').value) || 0;
-        item.valorDireto = parseFloat(document.getElementById('cadValorDireto').value) || 0;
-        item.unidade = document.getElementById('cadUnidade').value;
-        item.imagem = document.getElementById('cadastroImgData').value;
-
-        if (!item.nome) { showToast('Informe o nome!'); return; }
-
-    } else if (tipo === 'pfornecedores') {
-        item.nome = document.getElementById('cadNome').value;
-        item.valor = parseFloat(document.getElementById('cadValor').value) || 0;
-        item.unidade = document.getElementById('cadUnidade').value;
-        item.fornecedor = document.getElementById('cadFornecedor').value;
-        item.imagem = document.getElementById('cadastroImgData').value;
-
-        if (!item.nome) { showToast('Informe o nome!'); return; }
-    }
-
-    if (currentEditId) {
-        for (var i = 0; i < lista.length; i++) {
-            if (lista[i].id === currentEditId) {
-                item.id = currentEditId;
-                appData[tipo][i] = item;
-                break;
-            }
-        }
-        showToast('Registro atualizado!');
-    } else {
-        item.id = nextId(lista);
-        lista.push(item);
-        appData[tipo] = lista;
-        showToast('Registro adicionado!');
-    }
-
-    saveData();
-    closeCadastroModal();
-
-    if (tipo === 'clientes') renderClientes();
-    else if (tipo === 'fornecedores') renderFornecedores();
-    else if (tipo === 'produtos') renderProdutos();
-    else if (tipo === 'pfornecedores') renderPFornecedores();
-}
-
-function editCadastro(tipo, id) {
-    openCadastroModal(tipo, id);
-}
-
-function deleteCadastro(tipo, id) {
-    if (!confirm('Excluir este registro?')) return;
-    appData[tipo] = (appData[tipo] || []).filter(function (item) { return item.id !== id; });
-    saveData();
-
-    if (tipo === 'clientes') renderClientes();
-    else if (tipo === 'fornecedores') renderFornecedores();
-    else if (tipo === 'produtos') renderProdutos();
-    else if (tipo === 'pfornecedores') renderPFornecedores();
-
-    showToast('Registro excluído!');
-}
-
-function viewCadastro(tipo, id) {
-    var lista = appData[tipo] || [];
-    var item = null;
-    for (var i = 0; i < lista.length; i++) {
-        if (lista[i].id === id) { item = lista[i]; break; }
-    }
-    if (!item) return;
-
-    var html = '';
-
-    if (tipo === 'clientes' || tipo === 'fornecedores') {
-        if (item.imagem) {
-            html += '<img src="' + item.imagem + '" class="view-avatar-lg">';
-        }
-        html += '<div class="view-detail"><span class="view-label">Nome:</span><span>' + (item.nome || '-') + '</span></div>';
-        html += '<div class="view-detail"><span class="view-label">CPF/CNPJ:</span><span>' + (item.cpfcnpj || '-') + '</span></div>';
-        html += '<div class="view-detail"><span class="view-label">Telefone:</span><span>' + (item.telefone || '-') + '</span></div>';
-        html += '<div class="view-detail"><span class="view-label">Endereço:</span><span>' + (item.endereco || '-') + ', ' + (item.numero || '') + '</span></div>';
-        html += '<div class="view-detail"><span class="view-label">CEP:</span><span>' + (item.cep || '-') + '</span></div>';
-        html += '<div class="view-detail"><span class="view-label">Cidade/UF:</span><span>' + (item.cidade || '-') + '/' + (item.estado || '-') + '</span></div>';
-
-    } else if (tipo === 'produtos') {
-        if (item.imagem) {
-            html += '<img src="' + item.imagem + '" style="max-width:100%;max-height:200px;border-radius:8px;margin-bottom:16px;display:block;margin-left:auto;margin-right:auto;">';
-        }
-        html += '<div class="view-detail"><span class="view-label">Nome:</span><span>' + (item.nome || '-') + '</span></div>';
-        html += '<div class="view-detail"><span class="view-label">Valor Custo:</span><span>' + formatCurrency(item.valorCusto || 0) + '</span></div>';
-        html += '<div class="view-detail"><span class="view-label">Valor Revenda:</span><span style="color:var(--success);">' + formatCurrency(item.valorRevenda || 0) + '</span></div>';
-        html += '<div class="view-detail"><span class="view-label">Valor Direto:</span><span style="color:#2196f3;">' + formatCurrency(item.valorDireto || 0) + '</span></div>';
-        html += '<div class="view-detail"><span class="view-label">Unidade:</span><span>' + (item.unidade || '-') + '</span></div>';
-
-    } else if (tipo === 'pfornecedores') {
-        if (item.imagem) {
-            html += '<img src="' + item.imagem + '" style="max-width:100%;max-height:200px;border-radius:8px;margin-bottom:16px;display:block;margin-left:auto;margin-right:auto;">';
-        }
-        html += '<div class="view-detail"><span class="view-label">Produto:</span><span>' + (item.nome || '-') + '</span></div>';
-        html += '<div class="view-detail"><span class="view-label">Valor:</span><span style="color:var(--orange-primary);font-weight:700;">' + formatCurrency(item.valor || 0) + '</span></div>';
-        html += '<div class="view-detail"><span class="view-label">Unidade:</span><span>' + (item.unidade || '-') + '</span></div>';
-        html += '<div class="view-detail"><span class="view-label">Fornecedor:</span><span>' + (item.fornecedor || '-') + '</span></div>';
-    }
-
-    var tipoLabel = tipo === 'clientes' ? 'Cliente' : (tipo === 'fornecedores' ? 'Fornecedor' : (tipo === 'produtos' ? 'Produto' : 'Produto do Fornecedor'));
-    document.getElementById('viewModalTitle').textContent = 'Detalhes - ' + tipoLabel;
-    document.getElementById('viewModalBody').innerHTML = html;
-    document.getElementById('viewModal').classList.add('active');
-}
-
-function closeCadastroModal() {
-    document.getElementById('cadastroModal').classList.remove('active');
-    currentCadastroType = '';
-    currentEditId = null;
-}
-
-function closeViewModal() {
-    document.getElementById('viewModal').classList.remove('active');
-}
-
-// ============================================================
+// ==========================================
 // PARTE 7 — BOLETOS, CHEQUES, PRESTAÇÕES, PROJETOS, PAG.CLIENTES, GARANTIAS
-// ============================================================
+// ==========================================
 
-// ==================== BOLETOS ====================
+// ============ BOLETOS ============
 function renderBoletos() {
-    var lista = appData.boletos || [];
-    var totalPago = 0, totalVencido = 0, totalAVencer = 0, totalAnual = 0, totalAReceber = 0;
+  const pageEl = document.getElementById('page-boletos');
+  if (!pageEl) return;
 
-    var html = '';
-    for (var i = 0; i < lista.length; i++) {
-        var b = lista[i];
-        totalAnual += (b.valor || 0);
+  const boletos = appData.boletos || [];
+  const totalGeral = boletos.reduce((s,b) => s + b.valor, 0);
+  const totalPago = boletos.filter(b => b.situacao==='Pago').reduce((s,b) => s + b.valor, 0);
+  const totalPendente = boletos.filter(b => b.situacao==='Pendente').reduce((s,b) => s + b.valor, 0);
+  const totalVencido = boletos.filter(b => b.situacao==='Vencido').reduce((s,b) => s + b.valor, 0);
 
-        var dias = getDiasEntreHoje(b.vencimento);
-        var situacao = b.situacao;
-        if (situacao !== 'Pago' && dias < 0) situacao = 'Vencido';
+  pageEl.innerHTML = `
+    <div class="page-header">
+      <h2>Boletos</h2>
+      <button class="btn btn-primary" onclick="openBoletoModal()"><span>+</span> Novo Boleto</button>
+    </div>
 
-        if (situacao === 'Pago') totalPago += (b.valor || 0);
-        else if (situacao === 'Vencido') totalVencido += (b.valor || 0);
-        else { totalAVencer += (b.valor || 0); totalAReceber += (b.valor || 0); }
+    <div class="dashboard-grid" style="margin-bottom:20px;">
+      <div class="card">
+        <div class="card-header"><span class="card-icon">📄</span><span>Total Boletos</span></div>
+        <div class="card-value">${formatCurrency(totalGeral)}</div>
+        <small>${boletos.length} registros</small>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-icon">✅</span><span>Pagos</span></div>
+        <div class="card-value text-success">${formatCurrency(totalPago)}</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-icon">⏳</span><span>Pendentes</span></div>
+        <div class="card-value text-warning">${formatCurrency(totalPendente)}</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-icon">🚨</span><span>Vencidos</span></div>
+        <div class="card-value text-danger">${formatCurrency(totalVencido)}</div>
+      </div>
+    </div>
 
-        var statusClass = situacao === 'Pago' ? 'badge-success' : (situacao === 'Vencido' ? 'badge-danger' : 'badge-warning');
+    <div class="filter-bar">
+      <input type="text" id="filtroBoletosBusca" class="form-control" placeholder="Buscar descrição, fornecedor..." oninput="filtrarBoletos()" style="max-width:300px">
+      <select id="filtroBoletosStatus" class="form-control" style="max-width:160px" onchange="filtrarBoletos()">
+        <option value="">Todas Situações</option>
+        ${(appData.situacaoBoleto||['Pago','Pendente','Vencido']).map(s => `<option value="${s}">${s}</option>`).join('')}
+      </select>
+      <input type="date" id="filtroBoletosDataIni" class="form-control" style="max-width:170px" onchange="filtrarBoletos()">
+      <input type="date" id="filtroBoletosDataFim" class="form-control" style="max-width:170px" onchange="filtrarBoletos()">
+    </div>
 
-        html += '<tr>';
-        html += '<td>' + formatDate(b.dataSaida) + '</td>';
-        html += '<td>' + (b.cliente || '') + '</td>';
-        html += '<td style="font-weight:700;">' + formatCurrency(b.valor || 0) + '</td>';
-        html += '<td>' + formatDate(b.vencimento) + '</td>';
-        html += '<td>' + formatDate(b.dataReceber) + '</td>';
-        html += '<td><span class="badge ' + statusClass + '">' + situacao + '</span></td>';
-        html += '<td><button class="btn btn-sm btn-secondary" onclick="editBoleto(' + b.id + ')">✏️</button> <button class="btn btn-sm btn-danger" onclick="deleteBoleto(' + b.id + ')">🗑️</button></td>';
-        html += '</tr>';
-    }
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Descrição</th>
+            <th>Fornecedor</th>
+            <th>Valor</th>
+            <th>Vencimento</th>
+            <th>Dias</th>
+            <th>Situação</th>
+            <th style="width:120px">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="boletosBody"></tbody>
+      </table>
+    </div>
+  `;
 
-    document.getElementById('boletosBody').innerHTML = html || '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);">Nenhum boleto</td></tr>';
-
-    var cardsHTML = '';
-    cardsHTML += '<div class="summary-card"><div class="s-value" style="color:var(--success)">' + formatCurrency(totalPago) + '</div><div class="s-label">Pagos</div></div>';
-    cardsHTML += '<div class="summary-card"><div class="s-value" style="color:var(--danger)">' + formatCurrency(totalVencido) + '</div><div class="s-label">Vencidos</div></div>';
-    cardsHTML += '<div class="summary-card"><div class="s-value" style="color:var(--warning)">' + formatCurrency(totalAVencer) + '</div><div class="s-label">A Vencer</div></div>';
-    cardsHTML += '<div class="summary-card"><div class="s-value" style="color:var(--orange-primary)">' + formatCurrency(totalAnual) + '</div><div class="s-label">Total Anual</div></div>';
-    cardsHTML += '<div class="summary-card"><div class="s-value" style="color:var(--info)">' + formatCurrency(totalAReceber) + '</div><div class="s-label">A Receber</div></div>';
-    document.getElementById('boletosCards').innerHTML = cardsHTML;
+  filtrarBoletos();
 }
 
-function openBoletoModal(id) {
-    currentEditId = id || null;
-    var b = null;
-    if (id) {
-        for (var i = 0; i < appData.boletos.length; i++) {
-            if (appData.boletos[i].id === id) { b = appData.boletos[i]; break; }
-        }
-    }
+function filtrarBoletos() {
+  const busca = (document.getElementById('filtroBoletosBusca')?.value || '').toLowerCase();
+  const status = document.getElementById('filtroBoletosStatus')?.value || '';
+  const dataIni = document.getElementById('filtroBoletosDataIni')?.value || '';
+  const dataFim = document.getElementById('filtroBoletosDataFim')?.value || '';
 
-    var clienteOpts = '<option value="">Selecione</option>';
-    for (var c = 0; c < appData.clientes.length; c++) {
-        var sel = b && b.cliente === appData.clientes[c].nome ? ' selected' : '';
-        clienteOpts += '<option value="' + appData.clientes[c].nome + '"' + sel + '>' + appData.clientes[c].nome + '</option>';
-    }
+  let lista = [...(appData.boletos || [])];
 
-    var html = '';
-    html += '<div class="form-row"><div class="form-group"><label>Data Saída</label><input type="date" id="boletoDataSaida" value="' + (b ? b.dataSaida : new Date().toISOString().split('T')[0]) + '"></div>';
-    html += '<div class="form-group"><label>Vencimento</label><input type="date" id="boletoVencimento" value="' + (b ? b.vencimento : '') + '"></div></div>';
-    html += '<div class="form-group"><label>Cliente</label><select id="boletoCliente">' + clienteOpts + '</select></div>';
-    html += '<div class="form-row"><div class="form-group"><label>Valor</label><input type="number" id="boletoValor" value="' + (b ? b.valor : '') + '" step="0.01"></div>';
-    html += '<div class="form-group"><label>Data Receber</label><input type="date" id="boletoDataReceber" value="' + (b ? b.dataReceber : '') + '"></div></div>';
-    html += '<div class="form-group"><label>Situação</label><select id="boletoSituacao"><option value="A Vencer"' + (b && b.situacao === 'A Vencer' ? ' selected' : '') + '>A Vencer</option><option value="Pago"' + (b && b.situacao === 'Pago' ? ' selected' : '') + '>Pago</option><option value="Vencido"' + (b && b.situacao === 'Vencido' ? ' selected' : '') + '>Vencido</option></select></div>';
+  if (busca) {
+    lista = lista.filter(b =>
+      (b.descricao||'').toLowerCase().includes(busca) ||
+      (b.fornecedor||'').toLowerCase().includes(busca)
+    );
+  }
+  if (status) lista = lista.filter(b => b.situacao === status);
+  if (dataIni) lista = lista.filter(b => b.vencimento >= dataIni);
+  if (dataFim) lista = lista.filter(b => b.vencimento <= dataFim);
 
-    document.getElementById('cadastroModalTitle').textContent = id ? 'Editar Boleto' : 'Novo Boleto';
-    document.getElementById('cadastroModalBody').innerHTML = html;
-    document.getElementById('cadastroModalSaveBtn').setAttribute('onclick', 'saveBoleto()');
-    document.getElementById('cadastroModal').classList.add('active');
-}
+  lista.sort((a,b) => (a.vencimento||'').localeCompare(b.vencimento||''));
 
-function editBoleto(id) { openBoletoModal(id); }
+  const tbody = document.getElementById('boletosBody');
+  if (!tbody) return;
 
-function saveBoleto() {
-    var data = {
-        dataSaida: document.getElementById('boletoDataSaida').value,
-        cliente: document.getElementById('boletoCliente').value,
-        valor: parseFloat(document.getElementById('boletoValor').value) || 0,
-        vencimento: document.getElementById('boletoVencimento').value,
-        dataReceber: document.getElementById('boletoDataReceber').value,
-        situacao: document.getElementById('boletoSituacao').value
-    };
+  if (lista.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--text-muted)">Nenhum boleto encontrado</td></tr>';
+    return;
+  }
 
-    if (!data.cliente) { showToast('Selecione o cliente!'); return; }
+  tbody.innerHTML = lista.map(b => {
+    const dias = getDiasEntreHoje(b.vencimento);
+    let diasLabel = '';
+    let badgeSit = 'badge-warning';
 
-    if (currentEditId) {
-        for (var i = 0; i < appData.boletos.length; i++) {
-            if (appData.boletos[i].id === currentEditId) {
-                appData.boletos[i] = Object.assign(appData.boletos[i], data);
-                break;
-            }
-        }
-        showToast('Boleto atualizado!');
+    if (b.situacao === 'Pago') {
+      badgeSit = 'badge-success';
+      diasLabel = '-';
+    } else if (b.situacao === 'Vencido' || dias < 0) {
+      badgeSit = 'badge-danger';
+      diasLabel = `<span class="text-danger">${Math.abs(dias)}d atrás</span>`;
+    } else if (dias <= 5) {
+      badgeSit = 'badge-warning';
+      diasLabel = `<span class="text-warning">${dias}d</span>`;
     } else {
-        data.id = nextId(appData.boletos);
-        appData.boletos.push(data);
-        showToast('Boleto adicionado!');
+      diasLabel = `${dias}d`;
     }
-    saveData();
-    closeCadastroModal();
-    renderBoletos();
+
+    return `<tr>
+      <td><strong>${b.descricao}</strong></td>
+      <td>${b.fornecedor || '-'}</td>
+      <td><strong>${formatCurrency(b.valor)}</strong></td>
+      <td>${formatDate(b.vencimento)}</td>
+      <td>${diasLabel}</td>
+      <td><span class="badge ${badgeSit}">${b.situacao}</span></td>
+      <td>
+        <button class="btn btn-sm btn-outline" onclick="editBoleto(${b.id})" title="Editar">✏️</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteBoleto(${b.id})" title="Excluir">🗑️</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function openBoletoModal(boleto) {
+  const isEdit = !!boleto;
+  const modal = document.getElementById('cadastroModal');
+  const modalTitle = document.getElementById('cadastroModalTitle');
+  const modalBody = document.getElementById('cadastroModalBody');
+  const modalFooter = document.getElementById('cadastroModalFooter');
+
+  modalTitle.textContent = isEdit ? 'Editar Boleto' : 'Novo Boleto';
+
+  const fornecedores = (appData.fornecedores||[]).map(f => f.nome).sort();
+  const situacoes = appData.situacaoBoleto || ['Pago','Pendente','Vencido'];
+
+  modalBody.innerHTML = `
+    <div class="form-group">
+      <label>Descrição *</label>
+      <input type="text" id="boletoDesc" class="form-control" value="${isEdit ? boleto.descricao : ''}">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Fornecedor</label>
+        <select id="boletoForn" class="form-control">
+          <option value="">Selecione...</option>
+          ${fornecedores.map(f => `<option value="${f}" ${isEdit && boleto.fornecedor===f ? 'selected' : ''}>${f}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Valor *</label>
+        <input type="number" id="boletoValor" class="form-control" step="0.01" min="0" value="${isEdit ? boleto.valor : ''}">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Vencimento *</label>
+        <input type="date" id="boletoVenc" class="form-control" value="${isEdit ? boleto.vencimento : ''}">
+      </div>
+      <div class="form-group">
+        <label>Situação</label>
+        <select id="boletoSit" class="form-control">
+          ${situacoes.map(s => `<option value="${s}" ${isEdit && boleto.situacao===s ? 'selected' : ''}>${s}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Observações</label>
+      <textarea id="boletoObs" class="form-control" rows="2">${isEdit ? (boleto.obs||'') : ''}</textarea>
+    </div>
+  `;
+
+  modalFooter.innerHTML = `
+    <button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button>
+    <button class="btn btn-primary" onclick="saveBoleto(${isEdit ? boleto.id : 0})">Salvar</button>
+  `;
+
+  modal.style.display = 'flex';
+}
+
+function saveBoleto(editId) {
+  const descricao = document.getElementById('boletoDesc').value.trim();
+  const fornecedor = document.getElementById('boletoForn').value;
+  const valor = parseFloat(document.getElementById('boletoValor').value) || 0;
+  const vencimento = document.getElementById('boletoVenc').value;
+  const situacao = document.getElementById('boletoSit').value;
+  const obs = document.getElementById('boletoObs').value.trim();
+
+  if (!descricao || valor <= 0 || !vencimento) {
+    showToast('Preencha Descrição, Valor e Vencimento', 'error');
+    return;
+  }
+
+  if (editId > 0) {
+    const idx = appData.boletos.findIndex(b => b.id === editId);
+    if (idx >= 0) {
+      appData.boletos[idx] = { ...appData.boletos[idx], descricao, fornecedor, valor, vencimento, situacao, obs };
+    }
+  } else {
+    appData.boletos.push({ id: nextId(appData.boletos), descricao, fornecedor, valor, vencimento, situacao, obs });
+  }
+
+  saveData();
+  closeCadastroModal();
+  showToast(editId > 0 ? 'Boleto atualizado!' : 'Boleto adicionado!', 'success');
+  renderBoletos();
+}
+
+function editBoleto(id) {
+  const b = appData.boletos.find(b => b.id === id);
+  if (b) openBoletoModal(b);
 }
 
 function deleteBoleto(id) {
-    if (!confirm('Excluir este boleto?')) return;
-    appData.boletos = appData.boletos.filter(function (b) { return b.id !== id; });
-    saveData();
-    renderBoletos();
-    showToast('Boleto excluído!');
+  if (!confirm('Deseja excluir este boleto?')) return;
+  appData.boletos = appData.boletos.filter(b => b.id !== id);
+  saveData();
+  showToast('Boleto excluído!', 'success');
+  renderBoletos();
 }
 
-// ==================== CHEQUES ====================
+// ============ CHEQUES ============
 function renderCheques() {
-    var lista = appData.cheques || [];
-    var totalDescontado = 0, totalAVencer = 0, totalGeral = 0;
+  const pageEl = document.getElementById('page-cheques');
+  if (!pageEl) return;
 
-    var html = '';
-    for (var i = 0; i < lista.length; i++) {
-        var ch = lista[i];
-        totalGeral += (ch.valor || 0);
-        if (ch.situacao === 'Depositado') totalDescontado += (ch.valor || 0);
-        else totalAVencer += (ch.valor || 0);
+  const cheques = appData.cheques || [];
+  const totalGeral = cheques.reduce((s,c) => s + (c.valor||0), 0);
 
-        var statusClass = ch.situacao === 'Depositado' ? 'badge-success' : (ch.situacao === 'Devolvido para o cliente' ? 'badge-danger' : 'badge-warning');
+  pageEl.innerHTML = `
+    <div class="page-header">
+      <h2>Cheques</h2>
+      <button class="btn btn-primary" onclick="openChequeModal()"><span>+</span> Novo Cheque</button>
+    </div>
 
-        html += '<tr>';
-        html += '<td>' + formatDate(ch.data) + '</td>';
-        html += '<td>' + (ch.cliente || '') + '</td>';
-        html += '<td>' + (ch.banco || '') + '</td>';
-        html += '<td>' + (ch.numCheque || '') + '</td>';
-        html += '<td style="font-weight:700;">' + formatCurrency(ch.valor || 0) + '</td>';
-        html += '<td>' + formatDate(ch.vencimento) + '</td>';
-        html += '<td>' + formatDate(ch.compensou) + '</td>';
-        html += '<td><span class="badge ' + statusClass + '">' + (ch.situacao || '') + '</span></td>';
-        html += '<td style="font-size:0.75rem;">' + (ch.obs || '') + '</td>';
-        html += '<td><button class="btn btn-sm btn-secondary" onclick="editCheque(' + ch.id + ')">✏️</button> <button class="btn btn-sm btn-danger" onclick="deleteCheque(' + ch.id + ')">🗑️</button></td>';
-        html += '</tr>';
-    }
+    <div class="dashboard-grid" style="margin-bottom:20px;">
+      <div class="card">
+        <div class="card-header"><span class="card-icon">📝</span><span>Total Cheques</span></div>
+        <div class="card-value">${formatCurrency(totalGeral)}</div>
+        <small>${cheques.length} registros</small>
+      </div>
+    </div>
 
-    document.getElementById('chequesBody').innerHTML = html || '<tr><td colspan="10" style="text-align:center;color:var(--text-muted);">Nenhum cheque</td></tr>';
+    <div class="filter-bar">
+      <input type="text" id="filtroChequesBusca" class="form-control" placeholder="Buscar..." oninput="filtrarCheques()" style="max-width:300px">
+      <select id="filtroChequesStatus" class="form-control" style="max-width:170px" onchange="filtrarCheques()">
+        <option value="">Todas Situações</option>
+        ${(appData.situacaoCheque||[]).map(s => `<option value="${s}">${s}</option>`).join('')}
+      </select>
+    </div>
 
-    var cardsHTML = '';
-    cardsHTML += '<div class="summary-card"><div class="s-value" style="color:var(--success)">' + formatCurrency(totalDescontado) + '</div><div class="s-label">Descontados</div></div>';
-    cardsHTML += '<div class="summary-card"><div class="s-value" style="color:var(--warning)">' + formatCurrency(totalAVencer) + '</div><div class="s-label">A Vencer</div></div>';
-    cardsHTML += '<div class="summary-card"><div class="s-value" style="color:var(--orange-primary)">' + formatCurrency(totalGeral) + '</div><div class="s-label">Total</div></div>';
-    cardsHTML += '<div class="summary-card"><div class="s-value">' + lista.length + '</div><div class="s-label">Registros</div></div>';
-    document.getElementById('chequesCards').innerHTML = cardsHTML;
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Nº Cheque</th>
+            <th>Emitente</th>
+            <th>Valor</th>
+            <th>Data</th>
+            <th>Bom Para</th>
+            <th>Situação</th>
+            <th style="width:120px">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="chequesBody"></tbody>
+      </table>
+    </div>
+  `;
+
+  filtrarCheques();
 }
 
-function openChequeModal(id) {
-    currentEditId = id || null;
-    var ch = null;
-    if (id) {
-        for (var i = 0; i < appData.cheques.length; i++) {
-            if (appData.cheques[i].id === id) { ch = appData.cheques[i]; break; }
-        }
-    }
+function filtrarCheques() {
+  const busca = (document.getElementById('filtroChequesBusca')?.value || '').toLowerCase();
+  const status = document.getElementById('filtroChequesStatus')?.value || '';
 
-    var clienteOpts = '<option value="">Selecione</option>';
-    for (var c = 0; c < appData.clientes.length; c++) {
-        var sel = ch && ch.cliente === appData.clientes[c].nome ? ' selected' : '';
-        clienteOpts += '<option value="' + appData.clientes[c].nome + '"' + sel + '>' + appData.clientes[c].nome + '</option>';
-    }
+  let lista = [...(appData.cheques || [])];
 
-    var situacaoOpts = '<option value="">Selecione</option>';
-    var sits = appData.config.situacaoCheque || [];
-    for (var si = 0; si < sits.length; si++) {
-        var selS = ch && ch.situacao === sits[si] ? ' selected' : '';
-        situacaoOpts += '<option value="' + sits[si] + '"' + selS + '>' + sits[si] + '</option>';
-    }
+  if (busca) {
+    lista = lista.filter(c =>
+      (c.numero||'').toLowerCase().includes(busca) ||
+      (c.emitente||'').toLowerCase().includes(busca)
+    );
+  }
+  if (status) lista = lista.filter(c => c.situacao === status);
 
-    var html = '';
-    html += '<div class="form-row"><div class="form-group"><label>Data Entrada</label><input type="date" id="chequeData" value="' + (ch ? ch.data : new Date().toISOString().split('T')[0]) + '"></div>';
-    html += '<div class="form-group"><label>Vencimento</label><input type="date" id="chequeVencimento" value="' + (ch ? ch.vencimento : '') + '"></div></div>';
-    html += '<div class="form-group"><label>Cliente</label><select id="chequeCliente">' + clienteOpts + '</select></div>';
-    html += '<div class="form-row"><div class="form-group"><label>Banco</label><input type="text" id="chequeBanco" value="' + (ch ? ch.banco : '') + '"></div>';
-    html += '<div class="form-group"><label>Nº Cheque</label><input type="text" id="chequeNum" value="' + (ch ? ch.numCheque : '') + '"></div></div>';
-    html += '<div class="form-row"><div class="form-group"><label>Valor</label><input type="number" id="chequeValor" value="' + (ch ? ch.valor : '') + '" step="0.01"></div>';
-    html += '<div class="form-group"><label>Compensou em</label><input type="date" id="chequeCompensou" value="' + (ch ? ch.compensou : '') + '"></div></div>';
-    html += '<div class="form-group"><label>Situação</label><select id="chequeSituacao">' + situacaoOpts + '</select></div>';
-    html += '<div class="form-group"><label>Observação</label><textarea id="chequeObs" rows="2">' + (ch ? ch.obs || '' : '') + '</textarea></div>';
+  const tbody = document.getElementById('chequesBody');
+  if (!tbody) return;
 
-    document.getElementById('cadastroModalTitle').textContent = id ? 'Editar Cheque' : 'Novo Cheque';
-    document.getElementById('cadastroModalBody').innerHTML = html;
-    document.getElementById('cadastroModalSaveBtn').setAttribute('onclick', 'saveCheque()');
-    document.getElementById('cadastroModal').classList.add('active');
+  if (lista.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--text-muted)">Nenhum cheque cadastrado</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = lista.map(c => {
+    let badgeSit = 'badge-warning';
+    if (c.situacao === 'Compensado') badgeSit = 'badge-success';
+    else if (c.situacao === 'Devolvido') badgeSit = 'badge-danger';
+    else if (c.situacao === 'Depositado') badgeSit = 'badge-info';
+    else if (c.situacao === 'Repassado') badgeSit = 'badge-warning';
+
+    return `<tr>
+      <td><strong>${c.numero || '-'}</strong></td>
+      <td>${c.emitente || '-'}</td>
+      <td><strong>${formatCurrency(c.valor)}</strong></td>
+      <td>${formatDate(c.data)}</td>
+      <td>${formatDate(c.bomPara)}</td>
+      <td><span class="badge ${badgeSit}">${c.situacao}</span></td>
+      <td>
+        <button class="btn btn-sm btn-outline" onclick="editCheque(${c.id})" title="Editar">✏️</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteCheque(${c.id})" title="Excluir">🗑️</button>
+      </td>
+    </tr>`;
+  }).join('');
 }
 
-function editCheque(id) { openChequeModal(id); }
+function openChequeModal(cheque) {
+  const isEdit = !!cheque;
+  const modal = document.getElementById('cadastroModal');
+  const modalTitle = document.getElementById('cadastroModalTitle');
+  const modalBody = document.getElementById('cadastroModalBody');
+  const modalFooter = document.getElementById('cadastroModalFooter');
 
-function saveCheque() {
-    var data = {
-        data: document.getElementById('chequeData').value,
-        cliente: document.getElementById('chequeCliente').value,
-        banco: document.getElementById('chequeBanco').value,
-        numCheque: document.getElementById('chequeNum').value,
-        valor: parseFloat(document.getElementById('chequeValor').value) || 0,
-        vencimento: document.getElementById('chequeVencimento').value,
-        compensou: document.getElementById('chequeCompensou').value,
-        situacao: document.getElementById('chequeSituacao').value,
-        obs: document.getElementById('chequeObs').value
-    };
+  modalTitle.textContent = isEdit ? 'Editar Cheque' : 'Novo Cheque';
 
-    if (currentEditId) {
-        for (var i = 0; i < appData.cheques.length; i++) {
-            if (appData.cheques[i].id === currentEditId) {
-                appData.cheques[i] = Object.assign(appData.cheques[i], data);
-                break;
-            }
-        }
-        showToast('Cheque atualizado!');
-    } else {
-        data.id = nextId(appData.cheques);
-        appData.cheques.push(data);
-        showToast('Cheque adicionado!');
+  const situacoes = appData.situacaoCheque || [];
+
+  modalBody.innerHTML = `
+    <div class="form-row">
+      <div class="form-group">
+        <label>Nº Cheque</label>
+        <input type="text" id="chequeNumero" class="form-control" value="${isEdit ? (cheque.numero||'') : ''}">
+      </div>
+      <div class="form-group">
+        <label>Emitente *</label>
+        <input type="text" id="chequeEmitente" class="form-control" value="${isEdit ? (cheque.emitente||'') : ''}">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Valor *</label>
+        <input type="number" id="chequeValor" class="form-control" step="0.01" min="0" value="${isEdit ? cheque.valor : ''}">
+      </div>
+      <div class="form-group">
+        <label>Situação</label>
+        <select id="chequeSit" class="form-control">
+          ${situacoes.map(s => `<option value="${s}" ${isEdit && cheque.situacao===s ? 'selected' : ''}>${s}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Data</label>
+        <input type="date" id="chequeData" class="form-control" value="${isEdit ? (cheque.data||'') : new Date().toISOString().split('T')[0]}">
+      </div>
+      <div class="form-group">
+        <label>Bom Para</label>
+        <input type="date" id="chequeBomPara" class="form-control" value="${isEdit ? (cheque.bomPara||'') : ''}">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Observações</label>
+      <textarea id="chequeObs" class="form-control" rows="2">${isEdit ? (cheque.obs||'') : ''}</textarea>
+    </div>
+  `;
+
+  modalFooter.innerHTML = `
+    <button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button>
+    <button class="btn btn-primary" onclick="saveCheque(${isEdit ? cheque.id : 0})">Salvar</button>
+  `;
+
+  modal.style.display = 'flex';
+}
+
+function saveCheque(editId) {
+  const numero = document.getElementById('chequeNumero').value.trim();
+  const emitente = document.getElementById('chequeEmitente').value.trim();
+  const valor = parseFloat(document.getElementById('chequeValor').value) || 0;
+  const situacao = document.getElementById('chequeSit').value;
+  const data = document.getElementById('chequeData').value;
+  const bomPara = document.getElementById('chequeBomPara').value;
+  const obs = document.getElementById('chequeObs').value.trim();
+
+  if (!emitente || valor <= 0) {
+    showToast('Preencha Emitente e Valor', 'error');
+    return;
+  }
+
+  if (editId > 0) {
+    const idx = appData.cheques.findIndex(c => c.id === editId);
+    if (idx >= 0) {
+      appData.cheques[idx] = { ...appData.cheques[idx], numero, emitente, valor, situacao, data, bomPara, obs };
     }
-    saveData();
-    closeCadastroModal();
-    renderCheques();
+  } else {
+    appData.cheques.push({ id: nextId(appData.cheques), numero, emitente, valor, situacao, data, bomPara, obs });
+  }
+
+  saveData();
+  closeCadastroModal();
+  showToast(editId > 0 ? 'Cheque atualizado!' : 'Cheque adicionado!', 'success');
+  renderCheques();
+}
+
+function editCheque(id) {
+  const c = appData.cheques.find(c => c.id === id);
+  if (c) openChequeModal(c);
 }
 
 function deleteCheque(id) {
-    if (!confirm('Excluir este cheque?')) return;
-    appData.cheques = appData.cheques.filter(function (c) { return c.id !== id; });
-    saveData();
-    renderCheques();
-    showToast('Cheque excluído!');
+  if (!confirm('Deseja excluir este cheque?')) return;
+  appData.cheques = appData.cheques.filter(c => c.id !== id);
+  saveData();
+  showToast('Cheque excluído!', 'success');
+  renderCheques();
 }
 
-// ==================== PRESTAÇÕES ====================
+// ============ PRESTAÇÕES ============
 function renderPrestacoes() {
-    var lista = appData.prestacoes || [];
-    var totalDividas = 0, totalMes = 0, ativas = 0;
-    var mesAtual = new Date().getMonth();
+  const pageEl = document.getElementById('page-prestacoes');
+  if (!pageEl) return;
 
-    var html = '';
-    for (var i = 0; i < lista.length; i++) {
-        var p = lista[i];
-        var totalP = 0;
-        var temValor = false;
-        for (var m = 0; m < 12; m++) {
-            if (p.meses && p.meses[m]) {
-                totalP += p.meses[m];
-                temValor = true;
-            }
-        }
-        totalDividas += totalP;
-        if (p.meses && p.meses[mesAtual]) totalMes += p.meses[mesAtual];
-        if (temValor) ativas++;
+  const prestacoes = appData.prestacoes || [];
+  const totalGeral = prestacoes.reduce((s,p) => s + p.valor, 0);
+  const totalPago = prestacoes.filter(p => p.situacao==='Pago').reduce((s,p) => s + p.valor, 0);
+  const totalPendente = prestacoes.filter(p => p.situacao!=='Pago').reduce((s,p) => s + p.valor, 0);
 
-        html += '<div class="prestacao-card">';
-        html += '<div class="prestacao-card-header"><div><h4>' + (p.nome || '') + '</h4><span style="font-size:0.75rem;color:var(--text-secondary);">' + (p.numParcelas || 0) + 'x de ' + formatCurrency(p.valorParcela || 0) + ' | Total: ' + formatCurrency(totalP) + '</span></div>';
-        html += '<div><button class="btn btn-sm btn-secondary" onclick="editPrestacao(' + p.id + ')">✏️</button> <button class="btn btn-sm btn-danger" onclick="deletePrestacao(' + p.id + ')">🗑️</button></div></div>';
-        html += '<div class="prestacao-grid">';
-        for (var m2 = 0; m2 < 12; m2++) {
-            var val = (p.meses && p.meses[m2]) ? p.meses[m2] : 0;
-            var bgColor = val > 0 ? (m2 === mesAtual ? 'border:1px solid var(--orange-primary);' : '') : 'opacity:0.4;';
-            html += '<div class="prestacao-mes" style="' + bgColor + '"><div class="mes-nome">' + MESES_NOMES[m2].substr(0, 3) + '</div><div class="mes-valor">' + (val > 0 ? formatCurrency(val) : '-') + '</div></div>';
-        }
-        html += '</div></div>';
-    }
+  pageEl.innerHTML = `
+    <div class="page-header">
+      <h2>Prestações</h2>
+      <button class="btn btn-primary" onclick="openPrestacaoModal()"><span>+</span> Nova Prestação</button>
+    </div>
 
-    document.getElementById('prestacoesLista').innerHTML = html || '<div style="text-align:center;color:var(--text-muted);padding:40px;">Nenhuma prestação cadastrada</div>';
+    <div class="dashboard-grid" style="margin-bottom:20px;">
+      <div class="card">
+        <div class="card-header"><span class="card-icon">💳</span><span>Total Prestações</span></div>
+        <div class="card-value">${formatCurrency(totalGeral)}</div>
+        <small>${prestacoes.length} parcelas</small>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-icon">✅</span><span>Pagas</span></div>
+        <div class="card-value text-success">${formatCurrency(totalPago)}</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-icon">⏳</span><span>Pendentes</span></div>
+        <div class="card-value text-danger">${formatCurrency(totalPendente)}</div>
+      </div>
+    </div>
 
-    var cardsHTML = '';
-    cardsHTML += '<div class="summary-card"><div class="s-value" style="color:var(--danger)">' + formatCurrency(totalDividas) + '</div><div class="s-label">Total Dívidas</div></div>';
-    cardsHTML += '<div class="summary-card"><div class="s-value" style="color:var(--orange-primary)">' + formatCurrency(totalMes) + '</div><div class="s-label">Total por Mês</div></div>';
-    cardsHTML += '<div class="summary-card"><div class="s-value">' + ativas + '</div><div class="s-label">Prestações Ativas</div></div>';
-    document.getElementById('prestacoesCards').innerHTML = cardsHTML;
+    <div class="filter-bar">
+      <input type="text" id="filtroPrestBusca" class="form-control" placeholder="Buscar descrição..." oninput="filtrarPrestacoes()" style="max-width:300px">
+      <select id="filtroPrestStatus" class="form-control" style="max-width:160px" onchange="filtrarPrestacoes()">
+        <option value="">Todas</option>
+        <option value="Pago">Pagas</option>
+        <option value="Pendente">Pendentes</option>
+      </select>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Descrição</th>
+            <th>Parcela</th>
+            <th>Valor</th>
+            <th>Vencimento</th>
+            <th>Dias</th>
+            <th>Situação</th>
+            <th style="width:120px">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="prestacoesBody"></tbody>
+      </table>
+    </div>
+  `;
+
+  filtrarPrestacoes();
 }
 
-function openPrestacaoModal(id) {
-    currentEditId = id || null;
-    var p = null;
-    if (id) {
-        for (var i = 0; i < appData.prestacoes.length; i++) {
-            if (appData.prestacoes[i].id === id) { p = appData.prestacoes[i]; break; }
-        }
-    }
+function filtrarPrestacoes() {
+  const busca = (document.getElementById('filtroPrestBusca')?.value || '').toLowerCase();
+  const status = document.getElementById('filtroPrestStatus')?.value || '';
 
-    var html = '';
-    html += '<div class="form-group"><label>Nome</label><input type="text" id="prestNome" value="' + (p ? p.nome : '') + '"></div>';
-    html += '<div class="form-row"><div class="form-group"><label>Valor Parcela</label><input type="number" id="prestValor" value="' + (p ? p.valorParcela : '') + '" step="0.01"></div>';
-    html += '<div class="form-group"><label>Nº Parcelas</label><input type="number" id="prestNum" value="' + (p ? p.numParcelas : '') + '" min="1" max="12"></div></div>';
-    html += '<div style="margin-top:12px;"><label style="font-size:0.75rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;">Valores por Mês</label>';
-    html += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px;">';
-    for (var m = 0; m < 12; m++) {
-        var val = (p && p.meses && p.meses[m]) ? p.meses[m] : '';
-        html += '<div class="form-group" style="margin-bottom:0;"><label style="font-size:0.65rem;">' + MESES_NOMES[m].substr(0, 3) + '</label><input type="number" id="prestMes' + m + '" value="' + val + '" step="0.01" style="padding:6px 8px;font-size:0.8rem;"></div>';
-    }
-    html += '</div></div>';
+  let lista = [...(appData.prestacoes || [])];
 
-    document.getElementById('cadastroModalTitle').textContent = id ? 'Editar Prestação' : 'Nova Prestação';
-    document.getElementById('cadastroModalBody').innerHTML = html;
-    document.getElementById('cadastroModalSaveBtn').setAttribute('onclick', 'savePrestacao()');
-    document.getElementById('cadastroModal').classList.add('active');
-}
+  if (busca) lista = lista.filter(p => (p.descricao||'').toLowerCase().includes(busca));
+  if (status) lista = lista.filter(p => p.situacao === status);
 
-function editPrestacao(id) { openPrestacaoModal(id); }
+  lista.sort((a,b) => (a.vencimento||'').localeCompare(b.vencimento||''));
 
-function savePrestacao() {
-    var meses = [];
-    for (var m = 0; m < 12; m++) {
-        meses.push(parseFloat(document.getElementById('prestMes' + m).value) || 0);
-    }
+  const tbody = document.getElementById('prestacoesBody');
+  if (!tbody) return;
 
-    var data = {
-        nome: document.getElementById('prestNome').value,
-        valorParcela: parseFloat(document.getElementById('prestValor').value) || 0,
-        numParcelas: parseInt(document.getElementById('prestNum').value) || 0,
-        meses: meses
-    };
+  if (lista.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--text-muted)">Nenhuma prestação encontrada</td></tr>';
+    return;
+  }
 
-    if (!data.nome) { showToast('Informe o nome!'); return; }
+  tbody.innerHTML = lista.map(p => {
+    const dias = getDiasEntreHoje(p.vencimento);
+    let diasLabel = '-';
+    let badgeSit = 'badge-warning';
 
-    if (currentEditId) {
-        for (var i = 0; i < appData.prestacoes.length; i++) {
-            if (appData.prestacoes[i].id === currentEditId) {
-                appData.prestacoes[i] = Object.assign(appData.prestacoes[i], data);
-                break;
-            }
-        }
-        showToast('Prestação atualizada!');
+    if (p.situacao === 'Pago') {
+      badgeSit = 'badge-success';
+    } else if (dias < 0) {
+      badgeSit = 'badge-danger';
+      diasLabel = `<span class="text-danger">${Math.abs(dias)}d atrás</span>`;
+    } else if (dias <= 5) {
+      diasLabel = `<span class="text-warning">${dias}d</span>`;
     } else {
-        data.id = nextId(appData.prestacoes);
-        appData.prestacoes.push(data);
-        showToast('Prestação adicionada!');
+      diasLabel = `${dias}d`;
     }
-    saveData();
-    closeCadastroModal();
-    renderPrestacoes();
+
+    return `<tr>
+      <td><strong>${p.descricao}</strong></td>
+      <td>${p.parcelaAtual}/${p.parcelas}</td>
+      <td><strong>${formatCurrency(p.valor)}</strong></td>
+      <td>${formatDate(p.vencimento)}</td>
+      <td>${p.situacao === 'Pago' ? '-' : diasLabel}</td>
+      <td><span class="badge ${badgeSit}">${p.situacao}</span></td>
+      <td>
+        <button class="btn btn-sm btn-outline" onclick="editPrestacao(${p.id})" title="Editar">✏️</button>
+        <button class="btn btn-sm btn-danger" onclick="deletePrestacao(${p.id})" title="Excluir">🗑️</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function openPrestacaoModal(prest) {
+  const isEdit = !!prest;
+  const modal = document.getElementById('cadastroModal');
+  const modalTitle = document.getElementById('cadastroModalTitle');
+  const modalBody = document.getElementById('cadastroModalBody');
+  const modalFooter = document.getElementById('cadastroModalFooter');
+
+  modalTitle.textContent = isEdit ? 'Editar Prestação' : 'Nova Prestação';
+
+  modalBody.innerHTML = `
+    <div class="form-group">
+      <label>Descrição *</label>
+      <input type="text" id="prestDesc" class="form-control" value="${isEdit ? prest.descricao : ''}">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Valor *</label>
+        <input type="number" id="prestValor" class="form-control" step="0.01" min="0" value="${isEdit ? prest.valor : ''}">
+      </div>
+      <div class="form-group">
+        <label>Total Parcelas</label>
+        <input type="number" id="prestParcelas" class="form-control" min="1" step="1" value="${isEdit ? prest.parcelas : 1}">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Parcela Atual</label>
+        <input type="number" id="prestParcelaAtual" class="form-control" min="1" step="1" value="${isEdit ? prest.parcelaAtual : 1}">
+      </div>
+      <div class="form-group">
+        <label>Vencimento *</label>
+        <input type="date" id="prestVenc" class="form-control" value="${isEdit ? prest.vencimento : ''}">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Situação</label>
+      <select id="prestSit" class="form-control">
+        <option value="Pendente" ${isEdit && prest.situacao==='Pendente' ? 'selected' : ''}>Pendente</option>
+        <option value="Pago" ${isEdit && prest.situacao==='Pago' ? 'selected' : ''}>Pago</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Observações</label>
+      <textarea id="prestObs" class="form-control" rows="2">${isEdit ? (prest.obs||'') : ''}</textarea>
+    </div>
+  `;
+
+  modalFooter.innerHTML = `
+    <button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button>
+    <button class="btn btn-primary" onclick="savePrestacao(${isEdit ? prest.id : 0})">Salvar</button>
+  `;
+
+  modal.style.display = 'flex';
+}
+
+function savePrestacao(editId) {
+  const descricao = document.getElementById('prestDesc').value.trim();
+  const valor = parseFloat(document.getElementById('prestValor').value) || 0;
+  const parcelas = parseInt(document.getElementById('prestParcelas').value) || 1;
+  const parcelaAtual = parseInt(document.getElementById('prestParcelaAtual').value) || 1;
+  const vencimento = document.getElementById('prestVenc').value;
+  const situacao = document.getElementById('prestSit').value;
+  const obs = document.getElementById('prestObs').value.trim();
+
+  if (!descricao || valor <= 0 || !vencimento) {
+    showToast('Preencha Descrição, Valor e Vencimento', 'error');
+    return;
+  }
+
+  if (editId > 0) {
+    const idx = appData.prestacoes.findIndex(p => p.id === editId);
+    if (idx >= 0) {
+      appData.prestacoes[idx] = { ...appData.prestacoes[idx], descricao, valor, parcelas, parcelaAtual, vencimento, situacao, obs };
+    }
+  } else {
+    appData.prestacoes.push({ id: nextId(appData.prestacoes), descricao, valor, parcelas, parcelaAtual, vencimento, situacao, obs });
+  }
+
+  saveData();
+  closeCadastroModal();
+  showToast(editId > 0 ? 'Prestação atualizada!' : 'Prestação adicionada!', 'success');
+  renderPrestacoes();
+}
+
+function editPrestacao(id) {
+  const p = appData.prestacoes.find(p => p.id === id);
+  if (p) openPrestacaoModal(p);
 }
 
 function deletePrestacao(id) {
-    if (!confirm('Excluir esta prestação?')) return;
-    appData.prestacoes = appData.prestacoes.filter(function (p) { return p.id !== id; });
-    saveData();
-    renderPrestacoes();
-    showToast('Prestação excluída!');
+  if (!confirm('Deseja excluir esta prestação?')) return;
+  appData.prestacoes = appData.prestacoes.filter(p => p.id !== id);
+  saveData();
+  showToast('Prestação excluída!', 'success');
+  renderPrestacoes();
 }
 
-// ==================== PROJETOS ====================
+// ============ PROJETOS ============
 function renderProjetos() {
-    var lista = appData.projetos || [];
-    var totalProjetos = 0, totalMes = 0, ativos = 0;
-    var mesAtual = new Date().getMonth();
+  const pageEl = document.getElementById('page-projetos');
+  if (!pageEl) return;
 
-    var html = '';
-    for (var i = 0; i < lista.length; i++) {
-        var p = lista[i];
-        var totalP = 0;
-        var temValor = false;
-        for (var m = 0; m < 12; m++) {
-            if (p.meses && p.meses[m]) { totalP += p.meses[m]; temValor = true; }
-        }
-        totalProjetos += totalP;
-        if (p.meses && p.meses[mesAtual]) totalMes += p.meses[mesAtual];
-        if (temValor) ativos++;
+  const projetos = appData.projetos || [];
+  const totalOrcamento = projetos.reduce((s,p) => s + (p.orcamento||0), 0);
+  const totalGasto = projetos.reduce((s,p) => s + (p.gasto||0), 0);
 
-        html += '<div class="prestacao-card">';
-        html += '<div class="prestacao-card-header"><div><h4>' + (p.nome || '') + '</h4><span style="font-size:0.75rem;color:var(--text-secondary);">' + (p.numParcelas || 0) + 'x de ' + formatCurrency(p.valorParcela || 0) + ' | Total: ' + formatCurrency(totalP) + '</span></div>';
-        html += '<div><button class="btn btn-sm btn-secondary" onclick="editProjeto(' + p.id + ')">✏️</button> <button class="btn btn-sm btn-danger" onclick="deleteProjeto(' + p.id + ')">🗑️</button></div></div>';
-        html += '<div class="prestacao-grid">';
-        for (var m2 = 0; m2 < 12; m2++) {
-            var val = (p.meses && p.meses[m2]) ? p.meses[m2] : 0;
-            var bgColor = val > 0 ? (m2 === mesAtual ? 'border:1px solid var(--orange-primary);' : '') : 'opacity:0.4;';
-            html += '<div class="prestacao-mes" style="' + bgColor + '"><div class="mes-nome">' + MESES_NOMES[m2].substr(0, 3) + '</div><div class="mes-valor">' + (val > 0 ? formatCurrency(val) : '-') + '</div></div>';
-        }
-        html += '</div></div>';
-    }
+  pageEl.innerHTML = `
+    <div class="page-header">
+      <h2>Projetos</h2>
+      <button class="btn btn-primary" onclick="openProjetoModal()"><span>+</span> Novo Projeto</button>
+    </div>
 
-    document.getElementById('projetosLista').innerHTML = html || '<div style="text-align:center;color:var(--text-muted);padding:40px;">Nenhum projeto cadastrado</div>';
+    <div class="dashboard-grid" style="margin-bottom:20px;">
+      <div class="card">
+        <div class="card-header"><span class="card-icon">📐</span><span>Total Projetos</span></div>
+        <div class="card-value">${projetos.length}</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-icon">💰</span><span>Orçamento Total</span></div>
+        <div class="card-value">${formatCurrency(totalOrcamento)}</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-icon">📉</span><span>Gasto Total</span></div>
+        <div class="card-value text-danger">${formatCurrency(totalGasto)}</div>
+      </div>
+    </div>
 
-    var cardsHTML = '';
-    cardsHTML += '<div class="summary-card"><div class="s-value" style="color:var(--orange-primary)">' + formatCurrency(totalProjetos) + '</div><div class="s-label">Total Projetos</div></div>';
-    cardsHTML += '<div class="summary-card"><div class="s-value" style="color:var(--info)">' + formatCurrency(totalMes) + '</div><div class="s-label">Total por Mês</div></div>';
-    cardsHTML += '<div class="summary-card"><div class="s-value">' + ativos + '</div><div class="s-label">Projetos Ativos</div></div>';
-    document.getElementById('projetosCards').innerHTML = cardsHTML;
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Descrição</th>
+            <th>Orçamento</th>
+            <th>Gasto</th>
+            <th>Restante</th>
+            <th>Progresso</th>
+            <th>Situação</th>
+            <th>Início</th>
+            <th>Previsão</th>
+            <th style="width:120px">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="projetosBody"></tbody>
+      </table>
+    </div>
+  `;
+
+  const tbody = document.getElementById('projetosBody');
+  if (projetos.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:30px;color:var(--text-muted)">Nenhum projeto cadastrado</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = projetos.map(p => {
+    const restante = (p.orcamento||0) - (p.gasto||0);
+    const pct = p.orcamento > 0 ? Math.min(100, (p.gasto / p.orcamento * 100)).toFixed(1) : 0;
+
+    let badgeSit = 'badge-info';
+    if (p.situacao === 'Concluído') badgeSit = 'badge-success';
+    else if (p.situacao === 'Cancelado') badgeSit = 'badge-danger';
+
+    return `<tr>
+      <td><strong>${p.nome}</strong></td>
+      <td>${p.descricao || '-'}</td>
+      <td>${formatCurrency(p.orcamento)}</td>
+      <td class="text-danger">${formatCurrency(p.gasto)}</td>
+      <td class="${restante >= 0 ? 'text-success' : 'text-danger'}">${formatCurrency(restante)}</td>
+      <td>
+        <div class="progress-bar" style="width:100px"><div class="progress-fill" style="width:${pct}%"></div></div>
+        <small>${pct}%</small>
+      </td>
+      <td><span class="badge ${badgeSit}">${p.situacao}</span></td>
+      <td>${formatDate(p.inicio)}</td>
+      <td>${formatDate(p.previsao)}</td>
+      <td>
+        <button class="btn btn-sm btn-outline" onclick="editProjeto(${p.id})" title="Editar">✏️</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteProjeto(${p.id})" title="Excluir">🗑️</button>
+      </td>
+    </tr>`;
+  }).join('');
 }
 
-function openProjetoModal(id) {
-    currentEditId = id || null;
-    var p = null;
-    if (id) {
-        for (var i = 0; i < appData.projetos.length; i++) {
-            if (appData.projetos[i].id === id) { p = appData.projetos[i]; break; }
-        }
-    }
+function openProjetoModal(projeto) {
+  const isEdit = !!projeto;
+  const modal = document.getElementById('cadastroModal');
+  const modalTitle = document.getElementById('cadastroModalTitle');
+  const modalBody = document.getElementById('cadastroModalBody');
+  const modalFooter = document.getElementById('cadastroModalFooter');
 
-    var html = '';
-    html += '<div class="form-group"><label>Nome</label><input type="text" id="projNome" value="' + (p ? p.nome : '') + '"></div>';
-    html += '<div class="form-row"><div class="form-group"><label>Valor Parcela</label><input type="number" id="projValor" value="' + (p ? p.valorParcela : '') + '" step="0.01"></div>';
-    html += '<div class="form-group"><label>Nº Parcelas</label><input type="number" id="projNum" value="' + (p ? p.numParcelas : '') + '" min="1" max="12"></div></div>';
-    html += '<div style="margin-top:12px;"><label style="font-size:0.75rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;">Valores por Mês</label>';
-    html += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px;">';
-    for (var m = 0; m < 12; m++) {
-        var val = (p && p.meses && p.meses[m]) ? p.meses[m] : '';
-        html += '<div class="form-group" style="margin-bottom:0;"><label style="font-size:0.65rem;">' + MESES_NOMES[m].substr(0, 3) + '</label><input type="number" id="projMes' + m + '" value="' + val + '" step="0.01" style="padding:6px 8px;font-size:0.8rem;"></div>';
-    }
-    html += '</div></div>';
+  modalTitle.textContent = isEdit ? 'Editar Projeto' : 'Novo Projeto';
 
-    document.getElementById('cadastroModalTitle').textContent = id ? 'Editar Projeto' : 'Novo Projeto';
-    document.getElementById('cadastroModalBody').innerHTML = html;
-    document.getElementById('cadastroModalSaveBtn').setAttribute('onclick', 'saveProjeto()');
-    document.getElementById('cadastroModal').classList.add('active');
+  modalBody.innerHTML = `
+    <div class="form-group">
+      <label>Nome *</label>
+      <input type="text" id="projNome" class="form-control" value="${isEdit ? projeto.nome : ''}">
+    </div>
+    <div class="form-group">
+      <label>Descrição</label>
+      <textarea id="projDesc" class="form-control" rows="2">${isEdit ? (projeto.descricao||'') : ''}</textarea>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Orçamento *</label>
+        <input type="number" id="projOrcamento" class="form-control" step="0.01" min="0" value="${isEdit ? projeto.orcamento : ''}">
+      </div>
+      <div class="form-group">
+        <label>Gasto</label>
+        <input type="number" id="projGasto" class="form-control" step="0.01" min="0" value="${isEdit ? (projeto.gasto||0) : 0}">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Data Início</label>
+        <input type="date" id="projInicio" class="form-control" value="${isEdit ? (projeto.inicio||'') : new Date().toISOString().split('T')[0]}">
+      </div>
+      <div class="form-group">
+        <label>Previsão Término</label>
+        <input type="date" id="projPrevisao" class="form-control" value="${isEdit ? (projeto.previsao||'') : ''}">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Situação</label>
+      <select id="projSit" class="form-control">
+        <option value="Em Andamento" ${isEdit && projeto.situacao==='Em Andamento' ? 'selected' : ''}>Em Andamento</option>
+        <option value="Concluído" ${isEdit && projeto.situacao==='Concluído' ? 'selected' : ''}>Concluído</option>
+        <option value="Cancelado" ${isEdit && projeto.situacao==='Cancelado' ? 'selected' : ''}>Cancelado</option>
+        <option value="Pausado" ${isEdit && projeto.situacao==='Pausado' ? 'selected' : ''}>Pausado</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Observações</label>
+      <textarea id="projObs" class="form-control" rows="2">${isEdit ? (projeto.obs||'') : ''}</textarea>
+    </div>
+  `;
+
+  modalFooter.innerHTML = `
+    <button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button>
+    <button class="btn btn-primary" onclick="saveProjeto(${isEdit ? projeto.id : 0})">Salvar</button>
+  `;
+
+  modal.style.display = 'flex';
 }
 
-function editProjeto(id) { openProjetoModal(id); }
+function saveProjeto(editId) {
+  const nome = document.getElementById('projNome').value.trim();
+  const descricao = document.getElementById('projDesc').value.trim();
+  const orcamento = parseFloat(document.getElementById('projOrcamento').value) || 0;
+  const gasto = parseFloat(document.getElementById('projGasto').value) || 0;
+  const inicio = document.getElementById('projInicio').value;
+  const previsao = document.getElementById('projPrevisao').value;
+  const situacao = document.getElementById('projSit').value;
+  const obs = document.getElementById('projObs').value.trim();
 
-function saveProjeto() {
-    var meses = [];
-    for (var m = 0; m < 12; m++) {
-        meses.push(parseFloat(document.getElementById('projMes' + m).value) || 0);
+  if (!nome || orcamento <= 0) {
+    showToast('Preencha Nome e Orçamento', 'error');
+    return;
+  }
+
+  if (editId > 0) {
+    const idx = appData.projetos.findIndex(p => p.id === editId);
+    if (idx >= 0) {
+      appData.projetos[idx] = { ...appData.projetos[idx], nome, descricao, orcamento, gasto, inicio, previsao, situacao, obs };
     }
+  } else {
+    appData.projetos.push({ id: nextId(appData.projetos), nome, descricao, orcamento, gasto, inicio, previsao, situacao, obs });
+  }
 
-    var data = {
-        nome: document.getElementById('projNome').value,
-        valorParcela: parseFloat(document.getElementById('projValor').value) || 0,
-        numParcelas: parseInt(document.getElementById('projNum').value) || 0,
-        meses: meses
-    };
+  saveData();
+  closeCadastroModal();
+  showToast(editId > 0 ? 'Projeto atualizado!' : 'Projeto adicionado!', 'success');
+  renderProjetos();
+}
 
-    if (!data.nome) { showToast('Informe o nome!'); return; }
-
-    if (currentEditId) {
-        for (var i = 0; i < appData.projetos.length; i++) {
-            if (appData.projetos[i].id === currentEditId) {
-                appData.projetos[i] = Object.assign(appData.projetos[i], data);
-                break;
-            }
-        }
-        showToast('Projeto atualizado!');
-    } else {
-        data.id = nextId(appData.projetos);
-        appData.projetos.push(data);
-        showToast('Projeto adicionado!');
-    }
-    saveData();
-    closeCadastroModal();
-    renderProjetos();
+function editProjeto(id) {
+  const p = appData.projetos.find(p => p.id === id);
+  if (p) openProjetoModal(p);
 }
 
 function deleteProjeto(id) {
-    if (!confirm('Excluir este projeto?')) return;
-    appData.projetos = appData.projetos.filter(function (p) { return p.id !== id; });
-    saveData();
-    renderProjetos();
-    showToast('Projeto excluído!');
+  if (!confirm('Deseja excluir este projeto?')) return;
+  appData.projetos = appData.projetos.filter(p => p.id !== id);
+  saveData();
+  showToast('Projeto excluído!', 'success');
+  renderProjetos();
 }
 
-// ==================== PAGAMENTOS CLIENTES ====================
+// ============ PAGAMENTOS CLIENTES ============
 function renderPagClientes() {
-    var lista = appData.pagClientes || [];
-    var totalPago = 0;
+  const pageEl = document.getElementById('page-pagclientes');
+  if (!pageEl) return;
 
-    var html = '';
-    for (var i = 0; i < lista.length; i++) {
-        var p = lista[i];
-        totalPago += (p.valor || 0);
+  const pags = appData.pagClientes || [];
+  const totalDevido = pags.reduce((s,p) => s + (p.totalDevido||0), 0);
+  const totalPago = pags.reduce((s,p) => s + (p.totalPago||0), 0);
+  const totalRestante = pags.reduce((s,p) => s + (p.restante||0), 0);
 
-        html += '<tr>';
-        html += '<td>' + formatDate(p.data) + '</td>';
-        html += '<td>' + (p.cliente || '') + '</td>';
-        html += '<td style="font-weight:700;">' + formatCurrency(p.valor || 0) + '</td>';
-        html += '<td>' + (p.formaPagto || '') + '</td>';
-        html += '<td style="font-size:0.75rem;">' + (p.obs || '') + '</td>';
-        html += '<td><button class="btn btn-sm btn-secondary" onclick="editPagCliente(' + p.id + ')">✏️</button> <button class="btn btn-sm btn-danger" onclick="deletePagCliente(' + p.id + ')">🗑️</button></td>';
-        html += '</tr>';
-    }
+  pageEl.innerHTML = `
+    <div class="page-header">
+      <h2>Pagamentos de Clientes</h2>
+      <button class="btn btn-primary" onclick="openPagClienteModal()"><span>+</span> Novo Registro</button>
+    </div>
 
-    document.getElementById('pagclientesBody').innerHTML = html || '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);">Nenhum pagamento</td></tr>';
+    <div class="dashboard-grid" style="margin-bottom:20px;">
+      <div class="card">
+        <div class="card-header"><span class="card-icon">📋</span><span>Total Devido</span></div>
+        <div class="card-value">${formatCurrency(totalDevido)}</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-icon">✅</span><span>Total Recebido</span></div>
+        <div class="card-value text-success">${formatCurrency(totalPago)}</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-icon">⚠️</span><span>Total Restante</span></div>
+        <div class="card-value text-danger">${formatCurrency(totalRestante)}</div>
+      </div>
+    </div>
 
-    // Resumo por cliente
-    var clienteMap = {};
-    for (var j = 0; j < lista.length; j++) {
-        var pc = lista[j];
-        if (!clienteMap[pc.cliente]) clienteMap[pc.cliente] = 0;
-        clienteMap[pc.cliente] += (pc.valor || 0);
-    }
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Cliente</th>
+            <th>Cidade</th>
+            <th>Total Devido</th>
+            <th>Total Pago</th>
+            <th>Restante</th>
+            <th>Progresso</th>
+            <th style="width:120px">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="pagClientesBody"></tbody>
+      </table>
+    </div>
+  `;
 
-    // Total que devem (vendas com status Devendo)
-    var deveMap = {};
-    for (var v = 0; v < appData.vendas.length; v++) {
-        var venda = appData.vendas[v];
-        if (venda.status === 'Devendo') {
-            if (!deveMap[venda.cliente]) deveMap[venda.cliente] = 0;
-            deveMap[venda.cliente] += (venda.qtd || 0) * (venda.valor || 0);
-        }
-    }
+  const tbody = document.getElementById('pagClientesBody');
+  if (pags.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--text-muted)">Nenhum registro</td></tr>';
+    return;
+  }
 
-    var resumoHTML = '<div class="cards-grid">';
-    var todosClientes = Object.keys(Object.assign({}, clienteMap, deveMap));
-    for (var k = 0; k < todosClientes.length; k++) {
-        var cl = todosClientes[k];
-        var deve = deveMap[cl] || 0;
-        var pagou = clienteMap[cl] || 0;
-        var falta = Math.max(0, deve - pagou);
-        resumoHTML += '<div class="card"><div class="card-label">' + cl + '</div>';
-        resumoHTML += '<div style="margin-top:8px;font-size:0.8rem;"><span style="color:var(--danger);">Deve: ' + formatCurrency(deve) + '</span></div>';
-        resumoHTML += '<div style="font-size:0.8rem;"><span style="color:var(--success);">Pagou: ' + formatCurrency(pagou) + '</span></div>';
-        resumoHTML += '<div style="font-size:0.8rem;font-weight:700;"><span style="color:var(--orange-primary);">Falta: ' + formatCurrency(falta) + '</span></div>';
-        resumoHTML += '</div>';
-    }
-    resumoHTML += '</div>';
-    document.getElementById('pagclientesResumo').innerHTML = resumoHTML;
-
-    var cardsHTML = '';
-    cardsHTML += '<div class="summary-card"><div class="s-value" style="color:var(--success)">' + formatCurrency(totalPago) + '</div><div class="s-label">Total Recebido</div></div>';
-    cardsHTML += '<div class="summary-card"><div class="s-value">' + lista.length + '</div><div class="s-label">Pagamentos</div></div>';
-    document.getElementById('pagclientesCards').innerHTML = cardsHTML;
+  tbody.innerHTML = pags.map(p => {
+    const pct = p.totalDevido > 0 ? (p.totalPago / p.totalDevido * 100).toFixed(1) : 0;
+    return `<tr>
+      <td><strong>${p.cliente}</strong></td>
+      <td>${p.cidade || '-'}</td>
+      <td>${formatCurrency(p.totalDevido)}</td>
+      <td class="text-success">${formatCurrency(p.totalPago)}</td>
+      <td class="text-danger"><strong>${formatCurrency(p.restante)}</strong></td>
+      <td>
+        <div class="progress-bar" style="width:100px"><div class="progress-fill" style="width:${pct}%"></div></div>
+        <small>${pct}%</small>
+      </td>
+      <td>
+        <button class="btn btn-sm btn-outline" onclick="editPagCliente(${p.id})" title="Editar">✏️</button>
+        <button class="btn btn-sm btn-danger" onclick="deletePagCliente(${p.id})" title="Excluir">🗑️</button>
+      </td>
+    </tr>`;
+  }).join('');
 }
 
-function openPagClienteModal(id) {
-    currentEditId = id || null;
-    var p = null;
-    if (id) {
-        for (var i = 0; i < appData.pagClientes.length; i++) {
-            if (appData.pagClientes[i].id === id) { p = appData.pagClientes[i]; break; }
-        }
-    }
+function openPagClienteModal(pag) {
+  const isEdit = !!pag;
+  const modal = document.getElementById('cadastroModal');
+  const modalTitle = document.getElementById('cadastroModalTitle');
+  const modalBody = document.getElementById('cadastroModalBody');
+  const modalFooter = document.getElementById('cadastroModalFooter');
 
-    var clienteOpts = '<option value="">Selecione</option>';
-    for (var c = 0; c < appData.clientes.length; c++) {
-        var sel = p && p.cliente === appData.clientes[c].nome ? ' selected' : '';
-        clienteOpts += '<option value="' + appData.clientes[c].nome + '"' + sel + '>' + appData.clientes[c].nome + '</option>';
-    }
+  modalTitle.textContent = isEdit ? 'Editar Pagamento' : 'Novo Pagamento de Cliente';
 
-    var pagtoOpts = '<option value="">Selecione</option>';
-    var formas = appData.config.formasPagamento || [];
-    for (var fp = 0; fp < formas.length; fp++) {
-        var selP = p && p.formaPagto === formas[fp] ? ' selected' : '';
-        pagtoOpts += '<option value="' + formas[fp] + '"' + selP + '>' + formas[fp] + '</option>';
-    }
+  const clientes = (appData.clientes||[]).map(c => c.nome).sort();
 
-    var html = '';
-    html += '<div class="form-row"><div class="form-group"><label>Data</label><input type="date" id="pagData" value="' + (p ? p.data : new Date().toISOString().split('T')[0]) + '"></div>';
-    html += '<div class="form-group"><label>Valor</label><input type="number" id="pagValor" value="' + (p ? p.valor : '') + '" step="0.01"></div></div>';
-    html += '<div class="form-group"><label>Cliente</label><select id="pagCliente">' + clienteOpts + '</select></div>';
-    html += '<div class="form-group"><label>Forma de Pagamento</label><select id="pagFormaPagto">' + pagtoOpts + '</select></div>';
-    html += '<div class="form-group"><label>Observação</label><textarea id="pagObs" rows="2">' + (p ? p.obs || '' : '') + '</textarea></div>';
+  modalBody.innerHTML = `
+    <div class="form-row">
+      <div class="form-group">
+        <label>Cliente *</label>
+        <select id="pagCliente" class="form-control">
+          <option value="">Selecione...</option>
+          ${clientes.map(c => `<option value="${c}" ${isEdit && pag.cliente===c ? 'selected' : ''}>${c}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Cidade</label>
+        <input type="text" id="pagCidade" class="form-control" value="${isEdit ? (pag.cidade||'') : ''}">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Total Devido *</label>
+        <input type="number" id="pagDevido" class="form-control" step="0.01" min="0" value="${isEdit ? pag.totalDevido : ''}">
+      </div>
+      <div class="form-group">
+        <label>Total Pago</label>
+        <input type="number" id="pagPago" class="form-control" step="0.01" min="0" value="${isEdit ? pag.totalPago : 0}">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Observações</label>
+      <textarea id="pagObs" class="form-control" rows="2">${isEdit ? (pag.obs||'') : ''}</textarea>
+    </div>
+  `;
 
-    document.getElementById('cadastroModalTitle').textContent = id ? 'Editar Pagamento' : 'Novo Pagamento';
-    document.getElementById('cadastroModalBody').innerHTML = html;
-    document.getElementById('cadastroModalSaveBtn').setAttribute('onclick', 'savePagCliente()');
-    document.getElementById('cadastroModal').classList.add('active');
+  modalFooter.innerHTML = `
+    <button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button>
+    <button class="btn btn-primary" onclick="savePagCliente(${isEdit ? pag.id : 0})">Salvar</button>
+  `;
+
+  modal.style.display = 'flex';
 }
 
-function editPagCliente(id) { openPagClienteModal(id); }
+function savePagCliente(editId) {
+  const cliente = document.getElementById('pagCliente').value;
+  const cidade = document.getElementById('pagCidade').value.trim();
+  const totalDevido = parseFloat(document.getElementById('pagDevido').value) || 0;
+  const totalPago = parseFloat(document.getElementById('pagPago').value) || 0;
+  const obs = document.getElementById('pagObs').value.trim();
+  const restante = totalDevido - totalPago;
 
-function savePagCliente() {
-    var data = {
-        data: document.getElementById('pagData').value,
-        cliente: document.getElementById('pagCliente').value,
-        valor: parseFloat(document.getElementById('pagValor').value) || 0,
-        formaPagto: document.getElementById('pagFormaPagto').value,
-        obs: document.getElementById('pagObs').value
-    };
+  if (!cliente || totalDevido <= 0) {
+    showToast('Preencha Cliente e Total Devido', 'error');
+    return;
+  }
 
-    if (!data.cliente) { showToast('Selecione o cliente!'); return; }
-
-    if (currentEditId) {
-        for (var i = 0; i < appData.pagClientes.length; i++) {
-            if (appData.pagClientes[i].id === currentEditId) {
-                appData.pagClientes[i] = Object.assign(appData.pagClientes[i], data);
-                break;
-            }
-        }
-        showToast('Pagamento atualizado!');
-    } else {
-        data.id = nextId(appData.pagClientes);
-        appData.pagClientes.push(data);
-        showToast('Pagamento adicionado!');
+  if (editId > 0) {
+    const idx = appData.pagClientes.findIndex(p => p.id === editId);
+    if (idx >= 0) {
+      appData.pagClientes[idx] = { ...appData.pagClientes[idx], cliente, cidade, totalDevido, totalPago, restante, obs };
     }
-    saveData();
-    closeCadastroModal();
-    renderPagClientes();
+  } else {
+    appData.pagClientes.push({ id: nextId(appData.pagClientes), cliente, cidade, totalDevido, totalPago, restante, obs });
+  }
+
+  saveData();
+  closeCadastroModal();
+  showToast(editId > 0 ? 'Registro atualizado!' : 'Registro adicionado!', 'success');
+  renderPagClientes();
+}
+
+function editPagCliente(id) {
+  const p = appData.pagClientes.find(p => p.id === id);
+  if (p) openPagClienteModal(p);
 }
 
 function deletePagCliente(id) {
-    if (!confirm('Excluir este pagamento?')) return;
-    appData.pagClientes = appData.pagClientes.filter(function (p) { return p.id !== id; });
-    saveData();
-    renderPagClientes();
-    showToast('Pagamento excluído!');
+  if (!confirm('Deseja excluir este registro?')) return;
+  appData.pagClientes = appData.pagClientes.filter(p => p.id !== id);
+  saveData();
+  showToast('Registro excluído!', 'success');
+  renderPagClientes();
 }
 
-// ==================== GARANTIAS ====================
+// ============ GARANTIAS ============
 function renderGarantias() {
-    var lista = appData.garantias || [];
-    var ativas = 0, vencidas = 0;
+  const pageEl = document.getElementById('page-garantias');
+  if (!pageEl) return;
 
-    var html = '';
-    for (var i = 0; i < lista.length; i++) {
-        var g = lista[i];
-        var dias = getDiasEntreHoje(g.vencimento);
-        var situacao = dias >= 0 ? 'Ativa' : 'Vencida';
+  const garantias = appData.garantias || [];
 
-        if (situacao === 'Ativa') ativas++;
-        else vencidas++;
+  pageEl.innerHTML = `
+    <div class="page-header">
+      <h2>Garantias</h2>
+      <button class="btn btn-primary" onclick="openGarantiaModal()"><span>+</span> Nova Garantia</button>
+    </div>
 
-        var statusClass = situacao === 'Ativa' ? 'badge-success' : 'badge-danger';
-        var diasClass = dias > 90 ? 'dias-ok' : (dias > 0 ? 'dias-alerta' : 'dias-vencido');
-        var diasTexto = dias >= 0 ? dias + ' dias restantes' : Math.abs(dias) + ' dias vencida';
+    <div class="dashboard-grid" style="margin-bottom:20px;">
+      <div class="card">
+        <div class="card-header"><span class="card-icon">🛡️</span><span>Total Garantias</span></div>
+        <div class="card-value">${garantias.length}</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-icon">✅</span><span>Ativas</span></div>
+        <div class="card-value text-success">${garantias.filter(g => g.situacao==='Ativa').length}</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-icon">⏰</span><span>Expiradas</span></div>
+        <div class="card-value text-warning">${garantias.filter(g => g.situacao==='Expirada').length}</div>
+      </div>
+    </div>
 
-        html += '<tr>';
-        html += '<td>' + formatDate(g.inicio) + '</td>';
-        html += '<td>' + (g.cliente || '') + '</td>';
-        html += '<td>' + (g.produto || '') + '</td>';
-        html += '<td>' + formatDate(g.vencimento) + '</td>';
-        html += '<td><span class="badge ' + statusClass + '">' + situacao + '</span></td>';
-        html += '<td><span class="dias-restantes ' + diasClass + '">' + diasTexto + '</span></td>';
-        html += '<td><button class="btn btn-sm btn-secondary" onclick="editGarantia(' + g.id + ')">✏️</button> <button class="btn btn-sm btn-danger" onclick="deleteGarantia(' + g.id + ')">🗑️</button></td>';
-        html += '</tr>';
-    }
+    <div class="filter-bar">
+      <input type="text" id="filtroGarantiasBusca" class="form-control" placeholder="Buscar produto, cliente..." oninput="filtrarGarantias()" style="max-width:300px">
+      <select id="filtroGarantiasStatus" class="form-control" style="max-width:160px" onchange="filtrarGarantias()">
+        <option value="">Todas</option>
+        ${(appData.situacaoGarantia||[]).map(s => `<option value="${s}">${s}</option>`).join('')}
+      </select>
+    </div>
 
-    document.getElementById('garantiasBody').innerHTML = html || '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);">Nenhuma garantia</td></tr>';
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Produto</th>
+            <th>Cliente</th>
+            <th>Início</th>
+            <th>Término</th>
+            <th>Dias Rest.</th>
+            <th>Situação</th>
+            <th style="width:120px">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="garantiasBody"></tbody>
+      </table>
+    </div>
+  `;
 
-    var cardsHTML = '';
-    cardsHTML += '<div class="summary-card"><div class="s-value" style="color:var(--success)">' + ativas + '</div><div class="s-label">Ativas</div></div>';
-    cardsHTML += '<div class="summary-card"><div class="s-value" style="color:var(--danger)">' + vencidas + '</div><div class="s-label">Vencidas</div></div>';
-    cardsHTML += '<div class="summary-card"><div class="s-value">' + lista.length + '</div><div class="s-label">Total</div></div>';
-    document.getElementById('garantiasCards').innerHTML = cardsHTML;
+  filtrarGarantias();
 }
 
-function openGarantiaModal(id) {
-    currentEditId = id || null;
-    var g = null;
-    if (id) {
-        for (var i = 0; i < appData.garantias.length; i++) {
-            if (appData.garantias[i].id === id) { g = appData.garantias[i]; break; }
-        }
-    }
+function filtrarGarantias() {
+  const busca = (document.getElementById('filtroGarantiasBusca')?.value || '').toLowerCase();
+  const status = document.getElementById('filtroGarantiasStatus')?.value || '';
 
-    var clienteOpts = '<option value="">Selecione</option>';
-    for (var c = 0; c < appData.clientes.length; c++) {
-        var sel = g && g.cliente === appData.clientes[c].nome ? ' selected' : '';
-        clienteOpts += '<option value="' + appData.clientes[c].nome + '"' + sel + '>' + appData.clientes[c].nome + '</option>';
-    }
+  let lista = [...(appData.garantias || [])];
 
-    var situacaoOpts = '<option value="">Selecione</option>';
-    var sits = appData.config.situacaoGarantia || [];
-    for (var si = 0; si < sits.length; si++) {
-        var selS = g && g.situacao === sits[si] ? ' selected' : '';
-        situacaoOpts += '<option value="' + sits[si] + '"' + selS + '>' + sits[si] + '</option>';
-    }
+  if (busca) {
+    lista = lista.filter(g =>
+      (g.produto||'').toLowerCase().includes(busca) ||
+      (g.cliente||'').toLowerCase().includes(busca)
+    );
+  }
+  if (status) lista = lista.filter(g => g.situacao === status);
 
-    var html = '';
-    html += '<div class="form-row"><div class="form-group"><label>Início</label><input type="date" id="garantiaInicio" value="' + (g ? g.inicio : new Date().toISOString().split('T')[0]) + '"></div>';
-    html += '<div class="form-group"><label>Vencimento</label><input type="date" id="garantiaVencimento" value="' + (g ? g.vencimento : '') + '"></div></div>';
-    html += '<div class="form-group"><label>Cliente</label><select id="garantiaCliente">' + clienteOpts + '</select></div>';
-    html += '<div class="form-group"><label>Produto</label><input type="text" id="garantiaProduto" value="' + (g ? g.produto : '') + '"></div>';
-    html += '<div class="form-group"><label>Situação</label><select id="garantiaSituacao">' + situacaoOpts + '</select></div>';
+  const tbody = document.getElementById('garantiasBody');
+  if (!tbody) return;
 
-    document.getElementById('cadastroModalTitle').textContent = id ? 'Editar Garantia' : 'Nova Garantia';
-    document.getElementById('cadastroModalBody').innerHTML = html;
-    document.getElementById('cadastroModalSaveBtn').setAttribute('onclick', 'saveGarantia()');
-    document.getElementById('cadastroModal').classList.add('active');
+  if (lista.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--text-muted)">Nenhuma garantia cadastrada</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = lista.map(g => {
+    const diasRest = getDiasEntreHoje(g.termino);
+    let badgeSit = 'badge-success';
+    if (g.situacao === 'Expirada') badgeSit = 'badge-warning';
+    else if (g.situacao === 'Utilizada') badgeSit = 'badge-info';
+
+    return `<tr>
+      <td><strong>${g.produto}</strong></td>
+      <td>${g.cliente || '-'}</td>
+      <td>${formatDate(g.inicio)}</td>
+      <td>${formatDate(g.termino)}</td>
+      <td>${g.situacao === 'Ativa' ? (diasRest > 0 ? diasRest + 'd' : '<span class="text-danger">Expirado</span>') : '-'}</td>
+      <td><span class="badge ${badgeSit}">${g.situacao}</span></td>
+      <td>
+        <button class="btn btn-sm btn-outline" onclick="editGarantia(${g.id})" title="Editar">✏️</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteGarantia(${g.id})" title="Excluir">🗑️</button>
+      </td>
+    </tr>`;
+  }).join('');
 }
 
-function editGarantia(id) { openGarantiaModal(id); }
+function openGarantiaModal(garantia) {
+  const isEdit = !!garantia;
+  const modal = document.getElementById('cadastroModal');
+  const modalTitle = document.getElementById('cadastroModalTitle');
+  const modalBody = document.getElementById('cadastroModalBody');
+  const modalFooter = document.getElementById('cadastroModalFooter');
 
-function saveGarantia() {
-    var data = {
-        inicio: document.getElementById('garantiaInicio').value,
-        cliente: document.getElementById('garantiaCliente').value,
-        produto: document.getElementById('garantiaProduto').value,
-        vencimento: document.getElementById('garantiaVencimento').value,
-        situacao: document.getElementById('garantiaSituacao').value
-    };
+  modalTitle.textContent = isEdit ? 'Editar Garantia' : 'Nova Garantia';
 
-    if (!data.produto) { showToast('Informe o produto!'); return; }
+  const clientes = (appData.clientes||[]).map(c => c.nome).sort();
+  const situacoes = appData.situacaoGarantia || [];
 
-    if (currentEditId) {
-        for (var i = 0; i < appData.garantias.length; i++) {
-            if (appData.garantias[i].id === currentEditId) {
-                appData.garantias[i] = Object.assign(appData.garantias[i], data);
-                break;
-            }
-        }
-        showToast('Garantia atualizada!');
-    } else {
-        data.id = nextId(appData.garantias);
-        appData.garantias.push(data);
-        showToast('Garantia adicionada!');
+  modalBody.innerHTML = `
+    <div class="form-group">
+      <label>Produto/Serviço *</label>
+      <input type="text" id="garProduto" class="form-control" value="${isEdit ? garantia.produto : ''}">
+    </div>
+    <div class="form-group">
+      <label>Cliente</label>
+      <select id="garCliente" class="form-control">
+        <option value="">Selecione...</option>
+        ${clientes.map(c => `<option value="${c}" ${isEdit && garantia.cliente===c ? 'selected' : ''}>${c}</option>`).join('')}
+      </select>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Data Início *</label>
+        <input type="date" id="garInicio" class="form-control" value="${isEdit ? garantia.inicio : new Date().toISOString().split('T')[0]}">
+      </div>
+      <div class="form-group">
+        <label>Data Término *</label>
+        <input type="date" id="garTermino" class="form-control" value="${isEdit ? garantia.termino : ''}">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Situação</label>
+      <select id="garSit" class="form-control">
+        ${situacoes.map(s => `<option value="${s}" ${isEdit && garantia.situacao===s ? 'selected' : ''}>${s}</option>`).join('')}
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Observações</label>
+      <textarea id="garObs" class="form-control" rows="2">${isEdit ? (garantia.obs||'') : ''}</textarea>
+    </div>
+  `;
+
+  modalFooter.innerHTML = `
+    <button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button>
+    <button class="btn btn-primary" onclick="saveGarantia(${isEdit ? garantia.id : 0})">Salvar</button>
+  `;
+
+  modal.style.display = 'flex';
+}
+
+function saveGarantia(editId) {
+  const produto = document.getElementById('garProduto').value.trim();
+  const cliente = document.getElementById('garCliente').value;
+  const inicio = document.getElementById('garInicio').value;
+  const termino = document.getElementById('garTermino').value;
+  const situacao = document.getElementById('garSit').value;
+  const obs = document.getElementById('garObs').value.trim();
+
+  if (!produto || !inicio || !termino) {
+    showToast('Preencha Produto, Início e Término', 'error');
+    return;
+  }
+
+  if (editId > 0) {
+    const idx = appData.garantias.findIndex(g => g.id === editId);
+    if (idx >= 0) {
+      appData.garantias[idx] = { ...appData.garantias[idx], produto, cliente, inicio, termino, situacao, obs };
     }
-    saveData();
-    closeCadastroModal();
-    renderGarantias();
+  } else {
+    appData.garantias.push({ id: nextId(appData.garantias), produto, cliente, inicio, termino, situacao, obs });
+  }
+
+  saveData();
+  closeCadastroModal();
+  showToast(editId > 0 ? 'Garantia atualizada!' : 'Garantia adicionada!', 'success');
+  renderGarantias();
+}
+
+function editGarantia(id) {
+  const g = appData.garantias.find(g => g.id === id);
+  if (g) openGarantiaModal(g);
 }
 
 function deleteGarantia(id) {
-    if (!confirm('Excluir esta garantia?')) return;
-    appData.garantias = appData.garantias.filter(function (g) { return g.id !== id; });
-    saveData();
-    renderGarantias();
-    showToast('Garantia excluída!');
+  if (!confirm('Deseja excluir esta garantia?')) return;
+  appData.garantias = appData.garantias.filter(g => g.id !== id);
+  saveData();
+  showToast('Garantia excluída!', 'success');
+  renderGarantias();
 }
 
-// ============================================================
-// PARTE 8 — RELATÓRIOS, NOTAS, RECEITAS MEI, CONFIG, BACKUP, INIT
-// ============================================================
+// ==========================================
+// PARTE 8 — RELATÓRIOS, NOTAS, RECEITAS MEI, CONFIGURAÇÕES, BACKUP, INIT
+// ==========================================
 
-// ==================== RELATÓRIOS ====================
+// ============ RELATÓRIOS ============
 function renderRelatorios() {
-    var mesIdx = parseInt(document.getElementById('relatorioMes').value) || 0;
-    var mesNome = MESES_NOMES[mesIdx];
-    var html = '';
+  const pageEl = document.getElementById('page-relatorios');
+  if (!pageEl) return;
 
-    // COMPRAS DO MÊS
-    var comprasMes = appData.compras.filter(function (c) {
-        if (!c.data) return false;
-        var d = new Date(c.data + 'T00:00:00');
-        return d.getMonth() === mesIdx;
-    });
-    var totalComprasMes = 0;
-    var fornecedorMap = {};
-    html += '<div class="relatorio-section"><div class="relatorio-section-header"><h4>🛒 Compras - ' + mesNome + '</h4></div><div class="relatorio-section-body">';
-    for (var i = 0; i < comprasMes.length; i++) {
-        var c = comprasMes[i];
-        var total = (c.qtd || 0) * (c.valorUnit || 0);
-        totalComprasMes += total;
-        if (!fornecedorMap[c.fornecedor]) fornecedorMap[c.fornecedor] = 0;
-        fornecedorMap[c.fornecedor] += total;
-        html += '<div class="relatorio-item"><span>' + formatDate(c.data) + ' - ' + c.produto + ' (' + c.fornecedor + ')</span><span>' + formatCurrency(total) + '</span></div>';
-    }
-    if (comprasMes.length === 0) html += '<div class="relatorio-item"><span style="color:var(--text-muted);">Nenhuma compra no mês</span><span>-</span></div>';
-    html += '<div class="relatorio-item relatorio-total"><span>TOTAL COMPRAS ' + mesNome.toUpperCase() + '</span><span>' + formatCurrency(totalComprasMes) + '</span></div>';
+  const meses = ['janeiro','fevereiro','marco','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  const mesesLabel = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 
-    var topFornecedor = '';
-    var topFornecedorVal = 0;
-    for (var fk in fornecedorMap) {
-        if (fornecedorMap[fk] > topFornecedorVal) { topFornecedor = fk; topFornecedorVal = fornecedorMap[fk]; }
-    }
-    if (topFornecedor) html += '<div class="relatorio-item"><span>Maior fornecedor: <strong>' + topFornecedor + '</strong></span><span style="color:var(--orange-primary);">' + formatCurrency(topFornecedorVal) + '</span></div>';
-    html += '</div></div>';
+  // Dados mensais
+  let relMensal = meses.map((m, i) => {
+    const fc = appData.fluxoCaixa[m];
+    const entradas = fc ? (fc.entradas||[]).reduce((a,b) => a+b, 0) : 0;
+    const saidas = fc ? (fc.saidas||[]).reduce((a,b) => a+b, 0) + (fc.combustivel||[]).reduce((a,b) => a+b, 0) : 0;
+    const comprasMes = (appData.compras||[]).filter(c => {
+      const d = new Date(c.data+'T00:00:00');
+      return d.getMonth() === i && d.getFullYear() === 2026;
+    }).reduce((s,c) => s + (c.quantidade * c.valorUnit), 0);
+    const vendasMes = (appData.vendas||[]).filter(v => {
+      const d = new Date(v.data+'T00:00:00');
+      return d.getMonth() === i && d.getFullYear() === 2026;
+    }).reduce((s,v) => s + (v.quantidade * v.valorUnit), 0);
 
-    // VENDAS DO MÊS
-    var vendasMes = appData.vendas.filter(function (v) {
-        if (!v.data) return false;
-        var d = new Date(v.data + 'T00:00:00');
-        return d.getMonth() === mesIdx;
-    });
-    var totalVendasMes = 0;
-    var vendedorMap = {};
-    var clienteMap = {};
-    html += '<div class="relatorio-section"><div class="relatorio-section-header"><h4>💰 Vendas - ' + mesNome + '</h4></div><div class="relatorio-section-body">';
-    for (var j = 0; j < vendasMes.length; j++) {
-        var v = vendasMes[j];
-        var totalV = (v.qtd || 0) * (v.valor || 0);
-        totalVendasMes += totalV;
-        if (!vendedorMap[v.vendedor]) vendedorMap[v.vendedor] = 0;
-        vendedorMap[v.vendedor] += totalV;
-        if (!clienteMap[v.cliente]) clienteMap[v.cliente] = 0;
-        clienteMap[v.cliente] += totalV;
-        html += '<div class="relatorio-item"><span>' + formatDate(v.data) + ' - ' + v.produto + ' (' + v.vendedor + ' → ' + v.cliente + ')</span><span>' + formatCurrency(totalV) + '</span></div>';
-    }
-    if (vendasMes.length === 0) html += '<div class="relatorio-item"><span style="color:var(--text-muted);">Nenhuma venda no mês</span><span>-</span></div>';
-    html += '<div class="relatorio-item relatorio-total"><span>TOTAL VENDAS ' + mesNome.toUpperCase() + '</span><span>' + formatCurrency(totalVendasMes) + '</span></div>';
+    return { mes: mesesLabel[i], entradas, saidas, lucro: entradas - saidas, compras: comprasMes, vendas: vendasMes };
+  });
 
-    var topCliente = '';
-    var topClienteVal = 0;
-    for (var ck in clienteMap) {
-        if (clienteMap[ck] > topClienteVal) { topCliente = ck; topClienteVal = clienteMap[ck]; }
-    }
-    if (topCliente) html += '<div class="relatorio-item"><span>Maior cliente: <strong>' + topCliente + '</strong></span><span style="color:var(--orange-primary);">' + formatCurrency(topClienteVal) + '</span></div>';
-    html += '</div></div>';
+  const totalAnualEntradas = relMensal.reduce((s,r) => s + r.entradas, 0);
+  const totalAnualSaidas = relMensal.reduce((s,r) => s + r.saidas, 0);
+  const totalAnualLucro = totalAnualEntradas - totalAnualSaidas;
+  const totalAnualCompras = relMensal.reduce((s,r) => s + r.compras, 0);
+  const totalAnualVendas = relMensal.reduce((s,r) => s + r.vendas, 0);
 
-    // COMPRAS ANUAL
-    var totalComprasAnual = 0;
-    for (var ca = 0; ca < appData.compras.length; ca++) {
-        totalComprasAnual += (appData.compras[ca].qtd || 0) * (appData.compras[ca].valorUnit || 0);
-    }
-    html += '<div class="relatorio-section"><div class="relatorio-section-header"><h4>🛒 Compras Anual 2026</h4></div><div class="relatorio-section-body">';
-    html += '<div class="relatorio-item relatorio-total"><span>TOTAL COMPRAS ANUAL</span><span>' + formatCurrency(totalComprasAnual) + '</span></div>';
-    html += '<div class="relatorio-item"><span>Média mensal</span><span>' + formatCurrency(totalComprasAnual / 12) + '</span></div>';
-    html += '</div></div>';
+  // Ranking fornecedores
+  const fornMap = {};
+  (appData.compras||[]).forEach(c => {
+    if (!fornMap[c.fornecedor]) fornMap[c.fornecedor] = 0;
+    fornMap[c.fornecedor] += c.quantidade * c.valorUnit;
+  });
+  const rankForn = Object.entries(fornMap).sort((a,b) => b[1]-a[1]).slice(0, 10);
 
-    // VENDAS ANUAL
-    var totalVendasAnual = 0;
-    for (var va = 0; va < appData.vendas.length; va++) {
-        totalVendasAnual += (appData.vendas[va].qtd || 0) * (appData.vendas[va].valor || 0);
-    }
-    html += '<div class="relatorio-section"><div class="relatorio-section-header"><h4>💰 Vendas Anual 2026</h4></div><div class="relatorio-section-body">';
-    html += '<div class="relatorio-item relatorio-total"><span>TOTAL VENDAS ANUAL</span><span>' + formatCurrency(totalVendasAnual) + '</span></div>';
-    html += '<div class="relatorio-item"><span>Média mensal</span><span>' + formatCurrency(totalVendasAnual / 12) + '</span></div>';
-    var metaVendas = appData.empresa ? appData.empresa.metaVendas : 30000;
-    var projecao = totalVendasAnual > 0 ? (totalVendasAnual / (mesIdx + 1)) * 12 : 0;
-    html += '<div class="relatorio-item"><span>Projeção anual (baseado em ' + (mesIdx + 1) + ' meses)</span><span style="color:var(--info);">' + formatCurrency(projecao) + '</span></div>';
-    html += '<div class="relatorio-item"><span>Meta anual (R$ 30.000 x 12)</span><span>' + formatCurrency(metaVendas * 12) + '</span></div>';
-    html += '</div></div>';
+  // Ranking clientes
+  const cliMap = {};
+  (appData.vendas||[]).forEach(v => {
+    if (!cliMap[v.cliente]) cliMap[v.cliente] = 0;
+    cliMap[v.cliente] += v.quantidade * v.valorUnit;
+  });
+  const rankCli = Object.entries(cliMap).sort((a,b) => b[1]-a[1]).slice(0, 10);
 
-    // DIFERENÇA COMPRA/VENDA
-    var lucroAnual = totalVendasAnual - totalComprasAnual;
-    var lucroMes = totalVendasMes - totalComprasMes;
-    html += '<div class="relatorio-section"><div class="relatorio-section-header"><h4>📊 Diferença Compra/Venda</h4></div><div class="relatorio-section-body">';
-    html += '<div class="relatorio-item"><span>Lucro ' + mesNome + '</span><span style="color:' + (lucroMes >= 0 ? 'var(--success)' : 'var(--danger)') + ';font-weight:700;">' + formatCurrency(lucroMes) + '</span></div>';
-    html += '<div class="relatorio-item relatorio-total"><span>LUCRO ANUAL</span><span style="color:' + (lucroAnual >= 0 ? 'var(--success)' : 'var(--danger)') + '">' + formatCurrency(lucroAnual) + '</span></div>';
-    html += '</div></div>';
+  // Ranking vendedores
+  const vendMap = {};
+  (appData.vendas||[]).forEach(v => {
+    if (!vendMap[v.vendedor]) vendMap[v.vendedor] = 0;
+    vendMap[v.vendedor] += v.quantidade * v.valorUnit;
+  });
+  const rankVend = Object.entries(vendMap).sort((a,b) => b[1]-a[1]);
 
-    // VENDEDORES
-    html += '<div class="relatorio-section"><div class="relatorio-section-header"><h4>👥 Vendedores - ' + mesNome + '</h4></div><div class="relatorio-section-body">';
-    var vends = appData.config.vendedores || [];
-    for (var vi = 0; vi < vends.length; vi++) {
-        var vendNome = vends[vi];
-        var vendTotal = vendedorMap[vendNome] || 0;
-        var metaSalario = appData.empresa ? appData.empresa.metaSalario : 6000;
-        var falta = Math.max(0, metaSalario - vendTotal);
-        html += '<div class="relatorio-item"><span>' + vendNome + '</span><span>Vendas: ' + formatCurrency(vendTotal) + ' | Meta: ' + formatCurrency(metaSalario) + ' | Falta: <strong style="color:' + (falta > 0 ? 'var(--danger)' : 'var(--success)') + ';">' + formatCurrency(falta) + '</strong></span></div>';
-    }
-    html += '</div></div>';
+  pageEl.innerHTML = `
+    <div class="page-header">
+      <h2>Relatórios</h2>
+    </div>
 
-    document.getElementById('relatoriosContent').innerHTML = html;
+    <div class="dashboard-grid" style="margin-bottom:20px;">
+      <div class="card">
+        <div class="card-header"><span class="card-icon">📈</span><span>Entradas Anual</span></div>
+        <div class="card-value text-success">${formatCurrency(totalAnualEntradas)}</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-icon">📉</span><span>Saídas Anual</span></div>
+        <div class="card-value text-danger">${formatCurrency(totalAnualSaidas)}</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-icon">💰</span><span>Lucro Anual</span></div>
+        <div class="card-value ${totalAnualLucro >= 0 ? 'text-success' : 'text-danger'}">${formatCurrency(totalAnualLucro)}</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-icon">🛒</span><span>Compras Anual</span></div>
+        <div class="card-value">${formatCurrency(totalAnualCompras)}</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-icon">🏷️</span><span>Vendas Anual</span></div>
+        <div class="card-value">${formatCurrency(totalAnualVendas)}</div>
+      </div>
+    </div>
+
+    <div class="section-title">Resumo Mensal</div>
+    <div class="table-responsive" style="margin-bottom:24px;">
+      <table class="table">
+        <thead>
+          <tr><th>Mês</th><th>Entradas</th><th>Saídas</th><th>Lucro</th><th>Compras</th><th>Vendas</th></tr>
+        </thead>
+        <tbody>
+          ${relMensal.map(r => `<tr>
+            <td><strong>${r.mes}</strong></td>
+            <td class="text-success">${formatCurrency(r.entradas)}</td>
+            <td class="text-danger">${formatCurrency(r.saidas)}</td>
+            <td class="${r.lucro >= 0 ? 'text-success' : 'text-danger'}"><strong>${formatCurrency(r.lucro)}</strong></td>
+            <td>${formatCurrency(r.compras)}</td>
+            <td>${formatCurrency(r.vendas)}</td>
+          </tr>`).join('')}
+          <tr style="background:var(--bg-tertiary);font-weight:bold;">
+            <td>TOTAL ANUAL</td>
+            <td class="text-success">${formatCurrency(totalAnualEntradas)}</td>
+            <td class="text-danger">${formatCurrency(totalAnualSaidas)}</td>
+            <td class="${totalAnualLucro >= 0 ? 'text-success' : 'text-danger'}">${formatCurrency(totalAnualLucro)}</td>
+            <td>${formatCurrency(totalAnualCompras)}</td>
+            <td>${formatCurrency(totalAnualVendas)}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;margin-bottom:24px;">
+      <div>
+        <div class="section-title">Top 10 Fornecedores</div>
+        <div class="table-responsive">
+          <table class="table">
+            <thead><tr><th>#</th><th>Fornecedor</th><th>Total</th></tr></thead>
+            <tbody>${rankForn.map((f,i) => `<tr><td>${i+1}</td><td><strong>${f[0]}</strong></td><td>${formatCurrency(f[1])}</td></tr>`).join('')}</tbody>
+          </table>
+        </div>
+      </div>
+      <div>
+        <div class="section-title">Top Clientes</div>
+        <div class="table-responsive">
+          <table class="table">
+            <thead><tr><th>#</th><th>Cliente</th><th>Total</th></tr></thead>
+            <tbody>${rankCli.map((c,i) => `<tr><td>${i+1}</td><td><strong>${c[0]}</strong></td><td>${formatCurrency(c[1])}</td></tr>`).join('')}</tbody>
+          </table>
+        </div>
+      </div>
+      <div>
+        <div class="section-title">Vendedores</div>
+        <div class="table-responsive">
+          <table class="table">
+            <thead><tr><th>#</th><th>Vendedor</th><th>Total</th></tr></thead>
+            <tbody>${rankVend.map((v,i) => `<tr><td>${i+1}</td><td><strong>${v[0]}</strong></td><td>${formatCurrency(v[1])}</td></tr>`).join('')}</tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  `;
 }
 
-// ==================== NOTAS DE ENTRADA ====================
+// ============ NOTAS DE ENTRADA ============
 function renderNotasEntrada() {
-    var lista = appData.notasEntrada || [];
-    var totalGeral = 0;
+  const pageEl = document.getElementById('page-notasentrada');
+  if (!pageEl) return;
 
-    var html = '';
-    for (var i = 0; i < lista.length; i++) {
-        var n = lista[i];
-        totalGeral += (n.valor || 0);
-        html += '<tr>';
-        html += '<td>' + formatDate(n.data) + '</td>';
-        html += '<td>' + (n.fornecedor || '') + '</td>';
-        html += '<td style="font-weight:700;">' + formatCurrency(n.valor || 0) + '</td>';
-        html += '<td>' + MESES_NOMES[n.mesRef || 0] + '</td>';
-        html += '<td><button class="btn btn-sm btn-secondary" onclick="editNotaEntrada(' + n.id + ')">✏️</button> <button class="btn btn-sm btn-danger" onclick="deleteNotaEntrada(' + n.id + ')">🗑️</button></td>';
-        html += '</tr>';
-    }
+  const notas = appData.notasEntrada || [];
+  const total = notas.reduce((s,n) => s + (n.valor||0), 0);
 
-    document.getElementById('notasEntradaBody').innerHTML = html || '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">Nenhuma nota de entrada</td></tr>';
+  pageEl.innerHTML = `
+    <div class="page-header">
+      <h2>Notas de Entrada</h2>
+      <button class="btn btn-primary" onclick="openNotaEntradaModal()"><span>+</span> Nova Nota</button>
+    </div>
 
-    var cardsHTML = '';
-    cardsHTML += '<div class="summary-card"><div class="s-value" style="color:var(--orange-primary)">' + formatCurrency(totalGeral) + '</div><div class="s-label">Total</div></div>';
-    cardsHTML += '<div class="summary-card"><div class="s-value">' + lista.length + '</div><div class="s-label">Registros</div></div>';
-    document.getElementById('notasEntradaCards').innerHTML = cardsHTML;
+    <div class="dashboard-grid" style="margin-bottom:20px;">
+      <div class="card">
+        <div class="card-header"><span class="card-icon">📥</span><span>Total Notas Entrada</span></div>
+        <div class="card-value">${formatCurrency(total)}</div>
+        <small>${notas.length} notas</small>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <input type="text" id="filtroNEBusca" class="form-control" placeholder="Buscar..." oninput="filtrarNotasEntrada()" style="max-width:300px">
+      <input type="date" id="filtroNEDataIni" class="form-control" style="max-width:170px" onchange="filtrarNotasEntrada()">
+      <input type="date" id="filtroNEDataFim" class="form-control" style="max-width:170px" onchange="filtrarNotasEntrada()">
+    </div>
+
+    <div class="table-responsive">
+      <table class="table">
+        <thead><tr><th>Nº Nota</th><th>Fornecedor</th><th>Data</th><th>Valor</th><th>Obs</th><th style="width:120px">Ações</th></tr></thead>
+        <tbody id="notasEntradaBody"></tbody>
+      </table>
+    </div>
+  `;
+
+  filtrarNotasEntrada();
 }
 
-function openNotaEntradaModal(id) {
-    currentEditId = id || null;
-    var n = null;
-    if (id) {
-        for (var i = 0; i < appData.notasEntrada.length; i++) {
-            if (appData.notasEntrada[i].id === id) { n = appData.notasEntrada[i]; break; }
-        }
-    }
+function filtrarNotasEntrada() {
+  const busca = (document.getElementById('filtroNEBusca')?.value || '').toLowerCase();
+  const dataIni = document.getElementById('filtroNEDataIni')?.value || '';
+  const dataFim = document.getElementById('filtroNEDataFim')?.value || '';
 
-    var fornecedorOpts = '<option value="">Selecione</option>';
-    for (var f = 0; f < appData.fornecedores.length; f++) {
-        var sel = n && n.fornecedor === appData.fornecedores[f].nome ? ' selected' : '';
-        fornecedorOpts += '<option value="' + appData.fornecedores[f].nome + '"' + sel + '>' + appData.fornecedores[f].nome + '</option>';
-    }
+  let lista = [...(appData.notasEntrada || [])];
+  if (busca) lista = lista.filter(n => (n.numero||'').toLowerCase().includes(busca) || (n.fornecedor||'').toLowerCase().includes(busca));
+  if (dataIni) lista = lista.filter(n => n.data >= dataIni);
+  if (dataFim) lista = lista.filter(n => n.data <= dataFim);
 
-    var mesOpts = '';
-    for (var m = 0; m < 12; m++) {
-        var selM = n && n.mesRef === m ? ' selected' : '';
-        mesOpts += '<option value="' + m + '"' + selM + '>' + MESES_NOMES[m] + '</option>';
-    }
+  lista.sort((a,b) => (b.data||'').localeCompare(a.data||''));
 
-    var html = '';
-    html += '<div class="form-row"><div class="form-group"><label>Data</label><input type="date" id="neData" value="' + (n ? n.data : new Date().toISOString().split('T')[0]) + '"></div>';
-    html += '<div class="form-group"><label>Valor</label><input type="number" id="neValor" value="' + (n ? n.valor : '') + '" step="0.01"></div></div>';
-    html += '<div class="form-group"><label>Fornecedor</label><select id="neFornecedor">' + fornecedorOpts + '</select></div>';
-    html += '<div class="form-group"><label>Mês Referência</label><select id="neMesRef">' + mesOpts + '</select></div>';
+  const tbody = document.getElementById('notasEntradaBody');
+  if (!tbody) return;
 
-    document.getElementById('cadastroModalTitle').textContent = id ? 'Editar Nota de Entrada' : 'Nova Nota de Entrada';
-    document.getElementById('cadastroModalBody').innerHTML = html;
-    document.getElementById('cadastroModalSaveBtn').setAttribute('onclick', 'saveNotaEntrada()');
-    document.getElementById('cadastroModal').classList.add('active');
+  if (lista.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--text-muted)">Nenhuma nota de entrada</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = lista.map(n => `<tr>
+    <td><strong>${n.numero || '-'}</strong></td>
+    <td>${n.fornecedor || '-'}</td>
+    <td>${formatDate(n.data)}</td>
+    <td><strong>${formatCurrency(n.valor)}</strong></td>
+    <td>${n.obs || '-'}</td>
+    <td>
+      <button class="btn btn-sm btn-outline" onclick="editNotaEntrada(${n.id})" title="Editar">✏️</button>
+      <button class="btn btn-sm btn-danger" onclick="deleteNotaEntrada(${n.id})" title="Excluir">🗑️</button>
+    </td>
+  </tr>`).join('');
 }
 
-function editNotaEntrada(id) { openNotaEntradaModal(id); }
+function openNotaEntradaModal(nota) {
+  const isEdit = !!nota;
+  const modal = document.getElementById('cadastroModal');
+  document.getElementById('cadastroModalTitle').textContent = isEdit ? 'Editar Nota de Entrada' : 'Nova Nota de Entrada';
 
-function saveNotaEntrada() {
-    var data = {
-        data: document.getElementById('neData').value,
-        fornecedor: document.getElementById('neFornecedor').value,
-        valor: parseFloat(document.getElementById('neValor').value) || 0,
-        mesRef: parseInt(document.getElementById('neMesRef').value) || 0
-    };
+  const fornecedores = (appData.fornecedores||[]).map(f => f.nome).sort();
 
-    if (currentEditId) {
-        for (var i = 0; i < appData.notasEntrada.length; i++) {
-            if (appData.notasEntrada[i].id === currentEditId) {
-                appData.notasEntrada[i] = Object.assign(appData.notasEntrada[i], data);
-                break;
-            }
-        }
-        showToast('Nota atualizada!');
-    } else {
-        data.id = nextId(appData.notasEntrada);
-        appData.notasEntrada.push(data);
-        showToast('Nota adicionada!');
-    }
-    saveData();
-    closeCadastroModal();
-    renderNotasEntrada();
+  document.getElementById('cadastroModalBody').innerHTML = `
+    <div class="form-row">
+      <div class="form-group">
+        <label>Nº Nota</label>
+        <input type="text" id="neNumero" class="form-control" value="${isEdit ? (nota.numero||'') : ''}">
+      </div>
+      <div class="form-group">
+        <label>Data *</label>
+        <input type="date" id="neData" class="form-control" value="${isEdit ? nota.data : new Date().toISOString().split('T')[0]}">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Fornecedor</label>
+        <select id="neFornecedor" class="form-control">
+          <option value="">Selecione...</option>
+          ${fornecedores.map(f => `<option value="${f}" ${isEdit && nota.fornecedor===f ? 'selected' : ''}>${f}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Valor *</label>
+        <input type="number" id="neValor" class="form-control" step="0.01" min="0" value="${isEdit ? nota.valor : ''}">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Observações</label>
+      <textarea id="neObs" class="form-control" rows="2">${isEdit ? (nota.obs||'') : ''}</textarea>
+    </div>
+  `;
+
+  document.getElementById('cadastroModalFooter').innerHTML = `
+    <button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button>
+    <button class="btn btn-primary" onclick="saveNotaEntrada(${isEdit ? nota.id : 0})">Salvar</button>
+  `;
+
+  modal.style.display = 'flex';
 }
 
-function deleteNotaEntrada(id) {
-    if (!confirm('Excluir esta nota?')) return;
-    appData.notasEntrada = appData.notasEntrada.filter(function (n) { return n.id !== id; });
-    saveData();
-    renderNotasEntrada();
-    showToast('Nota excluída!');
+function saveNotaEntrada(editId) {
+  const numero = document.getElementById('neNumero').value.trim();
+  const data = document.getElementById('neData').value;
+  const fornecedor = document.getElementById('neFornecedor').value;
+  const valor = parseFloat(document.getElementById('neValor').value) || 0;
+  const obs = document.getElementById('neObs').value.trim();
+
+  if (!data || valor <= 0) { showToast('Preencha Data e Valor', 'error'); return; }
+
+  if (editId > 0) {
+    const idx = appData.notasEntrada.findIndex(n => n.id === editId);
+    if (idx >= 0) appData.notasEntrada[idx] = { ...appData.notasEntrada[idx], numero, data, fornecedor, valor, obs };
+  } else {
+    appData.notasEntrada.push({ id: nextId(appData.notasEntrada), numero, data, fornecedor, valor, obs });
+  }
+
+  saveData(); closeCadastroModal();
+  showToast(editId > 0 ? 'Nota atualizada!' : 'Nota adicionada!', 'success');
+  renderNotasEntrada();
 }
 
-// ==================== NOTAS DE SAÍDA ====================
+function editNotaEntrada(id) { const n = appData.notasEntrada.find(n => n.id === id); if (n) openNotaEntradaModal(n); }
+function deleteNotaEntrada(id) { if (!confirm('Excluir nota?')) return; appData.notasEntrada = appData.notasEntrada.filter(n => n.id !== id); saveData(); showToast('Nota excluída!','success'); renderNotasEntrada(); }
+
+// ============ NOTAS DE SAÍDA ============
 function renderNotasSaida() {
-    var lista = appData.notasSaida || [];
-    var totalGeral = 0;
+  const pageEl = document.getElementById('page-notassaida');
+  if (!pageEl) return;
 
-    var html = '';
-    for (var i = 0; i < lista.length; i++) {
-        var n = lista[i];
-        totalGeral += (n.valor || 0);
-        html += '<tr>';
-        html += '<td>' + formatDate(n.data) + '</td>';
-        html += '<td>' + (n.cliente || '') + '</td>';
-        html += '<td style="font-weight:700;">' + formatCurrency(n.valor || 0) + '</td>';
-        html += '<td>' + MESES_NOMES[n.mesRef || 0] + '</td>';
-        html += '<td><button class="btn btn-sm btn-secondary" onclick="editNotaSaida(' + n.id + ')">✏️</button> <button class="btn btn-sm btn-danger" onclick="deleteNotaSaida(' + n.id + ')">🗑️</button></td>';
-        html += '</tr>';
-    }
+  const notas = appData.notasSaida || [];
+  const total = notas.reduce((s,n) => s + (n.valor||0), 0);
+  const dasn = total * 0.05;
+  const lucro32 = total * 0.32;
+  const inss = total * 0.05;
+  const icms = total * 0.01;
 
-    document.getElementById('notasSaidaBody').innerHTML = html || '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">Nenhuma nota de saída</td></tr>';
+  pageEl.innerHTML = `
+    <div class="page-header">
+      <h2>Notas de Saída</h2>
+      <button class="btn btn-primary" onclick="openNotaSaidaModal()"><span>+</span> Nova Nota</button>
+    </div>
 
-    // Fiscal
-    var dasnSimei = totalGeral * 0.05;
-    var lucroTotal = totalGeral * 0.32;
-    var parcelaIsenta = lucroTotal;
-    var rendTributario = totalGeral - parcelaIsenta;
-    var inss = totalGeral * 0.05;
-    var icms = totalGeral * 0.01;
-    var impostoPago = dasnSimei + inss + icms;
+    <div class="dashboard-grid" style="margin-bottom:20px;">
+      <div class="card">
+        <div class="card-header"><span class="card-icon">📤</span><span>Total Notas Saída</span></div>
+        <div class="card-value">${formatCurrency(total)}</div>
+        <small>${notas.length} notas</small>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-icon">📊</span><span>DASN-SIMEI (5%)</span></div>
+        <div class="card-value text-warning">${formatCurrency(dasn)}</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-icon">💼</span><span>Lucro 32%</span></div>
+        <div class="card-value">${formatCurrency(lucro32)}</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-icon">🏛️</span><span>INSS (5%)</span></div>
+        <div class="card-value text-danger">${formatCurrency(inss)}</div>
+      </div>
+    </div>
 
-    var fiscalHTML = '';
-    fiscalHTML += '<div class="relatorio-item"><span>Total Notas de Saída</span><span style="font-weight:700;">' + formatCurrency(totalGeral) + '</span></div>';
-    fiscalHTML += '<div class="relatorio-item"><span>DASN-SIMEI (5%)</span><span>' + formatCurrency(dasnSimei) + '</span></div>';
-    fiscalHTML += '<div class="relatorio-item"><span>Lucro Total (32%)</span><span>' + formatCurrency(lucroTotal) + '</span></div>';
-    fiscalHTML += '<div class="relatorio-item"><span>Parcela Isenta</span><span>' + formatCurrency(parcelaIsenta) + '</span></div>';
-    fiscalHTML += '<div class="relatorio-item"><span>Rendimento Tributário</span><span>' + formatCurrency(rendTributario) + '</span></div>';
-    fiscalHTML += '<div class="relatorio-item"><span>INSS (5%)</span><span>' + formatCurrency(inss) + '</span></div>';
-    fiscalHTML += '<div class="relatorio-item"><span>ICMS (1%)</span><span>' + formatCurrency(icms) + '</span></div>';
-    fiscalHTML += '<div class="relatorio-item relatorio-total"><span>TOTAL IMPOSTO PAGO</span><span>' + formatCurrency(impostoPago) + '</span></div>';
-    document.getElementById('notasSaidaFiscal').innerHTML = fiscalHTML;
+    <div class="filter-bar">
+      <input type="text" id="filtroNSBusca" class="form-control" placeholder="Buscar..." oninput="filtrarNotasSaida()" style="max-width:300px">
+      <input type="date" id="filtroNSDataIni" class="form-control" style="max-width:170px" onchange="filtrarNotasSaida()">
+      <input type="date" id="filtroNSDataFim" class="form-control" style="max-width:170px" onchange="filtrarNotasSaida()">
+    </div>
 
-    var cardsHTML = '';
-    cardsHTML += '<div class="summary-card"><div class="s-value" style="color:var(--orange-primary)">' + formatCurrency(totalGeral) + '</div><div class="s-label">Total</div></div>';
-    cardsHTML += '<div class="summary-card"><div class="s-value">' + lista.length + '</div><div class="s-label">Registros</div></div>';
-    cardsHTML += '<div class="summary-card"><div class="s-value" style="color:var(--danger)">' + formatCurrency(impostoPago) + '</div><div class="s-label">Impostos</div></div>';
-    document.getElementById('notasSaidaCards').innerHTML = cardsHTML;
+    <div class="table-responsive">
+      <table class="table">
+        <thead><tr><th>Nº Nota</th><th>Cliente</th><th>Data</th><th>Valor</th><th>Obs</th><th style="width:120px">Ações</th></tr></thead>
+        <tbody id="notasSaidaBody"></tbody>
+      </table>
+    </div>
+  `;
+
+  filtrarNotasSaida();
 }
 
-function openNotaSaidaModal(id) {
-    currentEditId = id || null;
-    var n = null;
-    if (id) {
-        for (var i = 0; i < appData.notasSaida.length; i++) {
-            if (appData.notasSaida[i].id === id) { n = appData.notasSaida[i]; break; }
-        }
-    }
+function filtrarNotasSaida() {
+  const busca = (document.getElementById('filtroNSBusca')?.value || '').toLowerCase();
+  const dataIni = document.getElementById('filtroNSDataIni')?.value || '';
+  const dataFim = document.getElementById('filtroNSDataFim')?.value || '';
 
-    var clienteOpts = '<option value="">Selecione</option>';
-    for (var c = 0; c < appData.clientes.length; c++) {
-        var sel = n && n.cliente === appData.clientes[c].nome ? ' selected' : '';
-        clienteOpts += '<option value="' + appData.clientes[c].nome + '"' + sel + '>' + appData.clientes[c].nome + '</option>';
-    }
+  let lista = [...(appData.notasSaida || [])];
+  if (busca) lista = lista.filter(n => (n.numero||'').toLowerCase().includes(busca) || (n.cliente||'').toLowerCase().includes(busca));
+  if (dataIni) lista = lista.filter(n => n.data >= dataIni);
+  if (dataFim) lista = lista.filter(n => n.data <= dataFim);
 
-    var mesOpts = '';
-    for (var m = 0; m < 12; m++) {
-        var selM = n && n.mesRef === m ? ' selected' : '';
-        mesOpts += '<option value="' + m + '"' + selM + '>' + MESES_NOMES[m] + '</option>';
-    }
+  lista.sort((a,b) => (b.data||'').localeCompare(a.data||''));
 
-    var html = '';
-    html += '<div class="form-row"><div class="form-group"><label>Data</label><input type="date" id="nsData" value="' + (n ? n.data : new Date().toISOString().split('T')[0]) + '"></div>';
-    html += '<div class="form-group"><label>Valor</label><input type="number" id="nsValor" value="' + (n ? n.valor : '') + '" step="0.01"></div></div>';
-    html += '<div class="form-group"><label>Cliente</label><select id="nsCliente">' + clienteOpts + '</select></div>';
-    html += '<div class="form-group"><label>Mês Referência</label><select id="nsMesRef">' + mesOpts + '</select></div>';
+  const tbody = document.getElementById('notasSaidaBody');
+  if (!tbody) return;
 
-    document.getElementById('cadastroModalTitle').textContent = id ? 'Editar Nota de Saída' : 'Nova Nota de Saída';
-    document.getElementById('cadastroModalBody').innerHTML = html;
-    document.getElementById('cadastroModalSaveBtn').setAttribute('onclick', 'saveNotaSaida()');
-    document.getElementById('cadastroModal').classList.add('active');
+  if (lista.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--text-muted)">Nenhuma nota de saída</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = lista.map(n => `<tr>
+    <td><strong>${n.numero || '-'}</strong></td>
+    <td>${n.cliente || '-'}</td>
+    <td>${formatDate(n.data)}</td>
+    <td><strong>${formatCurrency(n.valor)}</strong></td>
+    <td>${n.obs || '-'}</td>
+    <td>
+      <button class="btn btn-sm btn-outline" onclick="editNotaSaida(${n.id})" title="Editar">✏️</button>
+      <button class="btn btn-sm btn-danger" onclick="deleteNotaSaida(${n.id})" title="Excluir">🗑️</button>
+    </td>
+  </tr>`).join('');
 }
 
-function editNotaSaida(id) { openNotaSaidaModal(id); }
+function openNotaSaidaModal(nota) {
+  const isEdit = !!nota;
+  const modal = document.getElementById('cadastroModal');
+  document.getElementById('cadastroModalTitle').textContent = isEdit ? 'Editar Nota de Saída' : 'Nova Nota de Saída';
 
-function saveNotaSaida() {
-    var data = {
-        data: document.getElementById('nsData').value,
-        cliente: document.getElementById('nsCliente').value,
-        valor: parseFloat(document.getElementById('nsValor').value) || 0,
-        mesRef: parseInt(document.getElementById('nsMesRef').value) || 0
-    };
+  const clientes = (appData.clientes||[]).map(c => c.nome).sort();
 
-    if (currentEditId) {
-        for (var i = 0; i < appData.notasSaida.length; i++) {
-            if (appData.notasSaida[i].id === currentEditId) {
-                appData.notasSaida[i] = Object.assign(appData.notasSaida[i], data);
-                break;
-            }
-        }
-        showToast('Nota atualizada!');
-    } else {
-        data.id = nextId(appData.notasSaida);
-        appData.notasSaida.push(data);
-        showToast('Nota adicionada!');
-    }
-    saveData();
-    closeCadastroModal();
-    renderNotasSaida();
+  document.getElementById('cadastroModalBody').innerHTML = `
+    <div class="form-row">
+      <div class="form-group">
+        <label>Nº Nota</label>
+        <input type="text" id="nsNumero" class="form-control" value="${isEdit ? (nota.numero||'') : ''}">
+      </div>
+      <div class="form-group">
+        <label>Data *</label>
+        <input type="date" id="nsData" class="form-control" value="${isEdit ? nota.data : new Date().toISOString().split('T')[0]}">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Cliente</label>
+        <select id="nsCliente" class="form-control">
+          <option value="">Selecione...</option>
+          ${clientes.map(c => `<option value="${c}" ${isEdit && nota.cliente===c ? 'selected' : ''}>${c}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Valor *</label>
+        <input type="number" id="nsValor" class="form-control" step="0.01" min="0" value="${isEdit ? nota.valor : ''}">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Observações</label>
+      <textarea id="nsObs" class="form-control" rows="2">${isEdit ? (nota.obs||'') : ''}</textarea>
+    </div>
+  `;
+
+  document.getElementById('cadastroModalFooter').innerHTML = `
+    <button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button>
+    <button class="btn btn-primary" onclick="saveNotaSaida(${isEdit ? nota.id : 0})">Salvar</button>
+  `;
+
+  modal.style.display = 'flex';
 }
 
-function deleteNotaSaida(id) {
-    if (!confirm('Excluir esta nota?')) return;
-    appData.notasSaida = appData.notasSaida.filter(function (n) { return n.id !== id; });
-    saveData();
-    renderNotasSaida();
-    showToast('Nota excluída!');
+function saveNotaSaida(editId) {
+  const numero = document.getElementById('nsNumero').value.trim();
+  const data = document.getElementById('nsData').value;
+  const cliente = document.getElementById('nsCliente').value;
+  const valor = parseFloat(document.getElementById('nsValor').value) || 0;
+  const obs = document.getElementById('nsObs').value.trim();
+
+  if (!data || valor <= 0) { showToast('Preencha Data e Valor', 'error'); return; }
+
+  if (editId > 0) {
+    const idx = appData.notasSaida.findIndex(n => n.id === editId);
+    if (idx >= 0) appData.notasSaida[idx] = { ...appData.notasSaida[idx], numero, data, cliente, valor, obs };
+  } else {
+    appData.notasSaida.push({ id: nextId(appData.notasSaida), numero, data, cliente, valor, obs });
+  }
+
+  saveData(); closeCadastroModal();
+  showToast(editId > 0 ? 'Nota atualizada!' : 'Nota adicionada!', 'success');
+  renderNotasSaida();
 }
 
-// ==================== RECEITAS MEI ====================
+function editNotaSaida(id) { const n = appData.notasSaida.find(n => n.id === id); if (n) openNotaSaidaModal(n); }
+function deleteNotaSaida(id) { if (!confirm('Excluir nota?')) return; appData.notasSaida = appData.notasSaida.filter(n => n.id !== id); saveData(); showToast('Nota excluída!','success'); renderNotasSaida(); }
+
+// ============ RECEITAS MEI ============
 function renderReceitasMei() {
-    var mesIdx = parseInt(document.getElementById('meiMes').value) || 0;
-    var mesNome = MESES_NOMES[mesIdx];
+  const pageEl = document.getElementById('page-receitasmei');
+  if (!pageEl) return;
 
-    var notasMes = (appData.notasSaida || []).filter(function (n) { return n.mesRef === mesIdx; });
-    var totalComNota = 0;
-    for (var i = 0; i < notasMes.length; i++) {
-        totalComNota += (notasMes[i].valor || 0);
-    }
+  const mesesLabel = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 
-    var vendasMes = (appData.vendas || []).filter(function (v) {
-        if (!v.data) return false;
-        return new Date(v.data + 'T00:00:00').getMonth() === mesIdx;
+  // Calcular receitas por mês baseado nas vendas
+  let receitasMensal = mesesLabel.map((mes, i) => {
+    const vendasMes = (appData.vendas||[]).filter(v => {
+      const d = new Date(v.data+'T00:00:00');
+      return d.getMonth() === i && d.getFullYear() === 2026;
     });
-    var totalVendasMes = 0;
-    for (var j = 0; j < vendasMes.length; j++) {
-        totalVendasMes += (vendasMes[j].qtd || 0) * (vendasMes[j].valor || 0);
-    }
-    var totalSemNota = Math.max(0, totalVendasMes - totalComNota);
-    var totalGeral = totalComNota + totalSemNota;
+    const comNota = vendasMes.filter(v => v.tipo === 'Direta').reduce((s,v) => s + (v.quantidade * v.valorUnit), 0);
+    const semNota = vendasMes.filter(v => v.tipo === 'Revenda').reduce((s,v) => s + (v.quantidade * v.valorUnit), 0);
+    const total = comNota + semNota;
+    return { mes, comNota, semNota, total };
+  });
 
-    var html = '<div class="mei-doc" id="meiDocPrint">';
-    html += '<h2>RELATÓRIO MENSAL DAS RECEITAS BRUTAS</h2>';
-    html += '<p style="text-align:center;">MICROEMPREENDEDOR INDIVIDUAL - MEI</p>';
-    html += '<br>';
-    html += '<table>';
-    html += '<tr><td><strong>CNPJ:</strong></td><td>' + (appData.empresa ? appData.empresa.cnpj : '29.595.239/0001-33') + '</td></tr>';
-    html += '<tr><td><strong>Empreendedor:</strong></td><td>' + (appData.empresa ? appData.empresa.nome : 'WD MÁQUINAS') + '</td></tr>';
-    html += '<tr><td><strong>Período de Apuração:</strong></td><td>' + mesNome + ' de 2026</td></tr>';
-    html += '</table>';
-    html += '<br>';
+  const totalAnual = receitasMensal.reduce((s,r) => s + r.total, 0);
+  const limiteMei = 81000;
+  const pctLimite = Math.min(100, (totalAnual / limiteMei * 100));
 
-    html += '<table>';
-    html += '<tr><th colspan="2">I - RECEITA BRUTA MENSAL - REVENDA DE MERCADORIAS (COMÉRCIO)</th></tr>';
-    html += '<tr><td>1. Receita com emissão de nota fiscal/documento fiscal</td><td style="text-align:right;">' + formatCurrency(totalComNota) + '</td></tr>';
-    html += '<tr><td>2. Receita sem emissão de nota fiscal/documento fiscal</td><td style="text-align:right;">' + formatCurrency(totalSemNota) + '</td></tr>';
-    html += '<tr><td><strong>3. TOTAL (1+2)</strong></td><td style="text-align:right;"><strong>' + formatCurrency(totalGeral) + '</strong></td></tr>';
-    html += '</table>';
-    html += '<br>';
+  pageEl.innerHTML = `
+    <div class="page-header">
+      <h2>Receitas MEI — 2026</h2>
+    </div>
 
-    html += '<table>';
-    html += '<tr><th colspan="2">II - RECEITA BRUTA MENSAL - VENDA DE PRODUTOS INDUSTRIALIZADOS (INDÚSTRIA)</th></tr>';
-    html += '<tr><td>4. Receita com emissão de nota fiscal/documento fiscal</td><td style="text-align:right;">' + formatCurrency(0) + '</td></tr>';
-    html += '<tr><td>5. Receita sem emissão de nota fiscal/documento fiscal</td><td style="text-align:right;">' + formatCurrency(0) + '</td></tr>';
-    html += '<tr><td><strong>6. TOTAL (4+5)</strong></td><td style="text-align:right;"><strong>' + formatCurrency(0) + '</strong></td></tr>';
-    html += '</table>';
-    html += '<br>';
+    <div class="dashboard-grid" style="margin-bottom:20px;">
+      <div class="card">
+        <div class="card-header"><span class="card-icon">💰</span><span>Receita Bruta Anual</span></div>
+        <div class="card-value">${formatCurrency(totalAnual)}</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-icon">📊</span><span>Limite MEI</span></div>
+        <div class="card-value">${formatCurrency(limiteMei)}</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${pctLimite}%;${pctLimite > 80 ? 'background:var(--danger)' : ''}"></div></div>
+        <small>${pctLimite.toFixed(1)}% utilizado</small>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-icon">📋</span><span>DAS Mensal Estimado</span></div>
+        <div class="card-value text-warning">${formatCurrency(71.60)}</div>
+        <small>INSS + ISS/ICMS</small>
+      </div>
+    </div>
 
-    html += '<table>';
-    html += '<tr><th colspan="2">III - RECEITA BRUTA MENSAL - PRESTAÇÃO DE SERVIÇOS</th></tr>';
-    html += '<tr><td>7. Receita com emissão de nota fiscal/documento fiscal</td><td style="text-align:right;">' + formatCurrency(0) + '</td></tr>';
-    html += '<tr><td>8. Receita sem emissão de nota fiscal/documento fiscal</td><td style="text-align:right;">' + formatCurrency(0) + '</td></tr>';
-    html += '<tr><td><strong>9. TOTAL (7+8)</strong></td><td style="text-align:right;"><strong>' + formatCurrency(0) + '</strong></td></tr>';
-    html += '</table>';
-    html += '<br>';
-
-    html += '<table>';
-    html += '<tr style="background:#ddd;"><td><strong>IV - TOTAL GERAL DAS RECEITAS BRUTAS NO MÊS (3+6+9)</strong></td><td style="text-align:right;"><strong>' + formatCurrency(totalGeral) + '</strong></td></tr>';
-    html += '</table>';
-    html += '<br><br>';
-
-    html += '<p style="text-align:center;">LOCAL E DATA: Uberlândia, _____ de ' + mesNome + ' de 2026</p>';
-    html += '<br><br>';
-    html += '<p style="text-align:center;">_____________________________________________</p>';
-    html += '<p style="text-align:center;">ASSINATURA DO EMPRESÁRIO</p>';
-    html += '</div>';
-
-    document.getElementById('meiDocumento').innerHTML = html;
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr><th>Mês</th><th>Com Nota Fiscal</th><th>Sem Nota Fiscal</th><th>Total Bruto</th></tr>
+        </thead>
+        <tbody>
+          ${receitasMensal.map(r => `<tr>
+            <td><strong>${r.mes}</strong></td>
+            <td>${formatCurrency(r.comNota)}</td>
+            <td>${formatCurrency(r.semNota)}</td>
+            <td><strong>${formatCurrency(r.total)}</strong></td>
+          </tr>`).join('')}
+          <tr style="background:var(--bg-tertiary);font-weight:bold;">
+            <td>TOTAL ANUAL</td>
+            <td>${formatCurrency(receitasMensal.reduce((s,r) => s+r.comNota, 0))}</td>
+            <td>${formatCurrency(receitasMensal.reduce((s,r) => s+r.semNota, 0))}</td>
+            <td>${formatCurrency(totalAnual)}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  `;
 }
 
-function gerarPDFMei() {
-    var conteudo = document.getElementById('meiDocPrint');
-    if (!conteudo) { showToast('Gere o relatório primeiro!'); return; }
-
-    var win = window.open('', '_blank');
-    win.document.write('<html><head><title>Receitas MEI - WD Máquinas</title>');
-    win.document.write('<style>body{font-family:Arial,sans-serif;padding:40px;color:#333;font-size:14px;line-height:1.6;}');
-    win.document.write('h2{text-align:center;margin-bottom:10px;}table{width:100%;border-collapse:collapse;margin:16px 0;}');
-    win.document.write('th,td{border:1px solid #999;padding:8px 12px;font-size:13px;}th{background:#eee;font-weight:700;text-align:left;}');
-    win.document.write('p{margin:4px 0;}@media print{body{padding:20px;}}</style></head><body>');
-    win.document.write(conteudo.innerHTML);
-    win.document.write('</body></html>');
-    win.document.close();
-    setTimeout(function () { win.print(); }, 500);
-}
-
-// ==================== CONFIGURAÇÕES ====================
-// ==================== CONFIGURAÇÕES ====================
+// ============ CONFIGURAÇÕES ============
 function renderConfiguracoes() {
-    var configs = [
-        { key: 'vendedores', label: 'Vendedores', icon: '👥' },
-        { key: 'formasPagamento', label: 'Formas de Pagamento', icon: '💳' },
-        { key: 'tiposUnidade', label: 'Tipos de Unidade', icon: '📏' },
-        { key: 'situacaoCompra', label: 'Situação da Compra', icon: '🛒' },
-        { key: 'tipoVenda', label: 'Tipo de Venda', icon: '💰' },
-        { key: 'situacaoEntrega', label: 'Situação de Entrega', icon: '📦' },
-        { key: 'situacaoGarantia', label: 'Situação de Garantia', icon: '🛡️' },
-        { key: 'situacaoCheque', label: 'Situação do Cheque', icon: '📝' }
-    ];
+  const pageEl = document.getElementById('page-configuracoes');
+  if (!pageEl) return;
 
-    // LOGO DA EMPRESA
-    var html = '';
-    html += '<div class="config-section">';
-    html += '<div class="config-section-header"><h4>🏢 Logo da Empresa</h4></div>';
-    html += '<div class="config-section-body">';
-    html += '<p style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:12px;">Proporção recomendada: <strong>260 x 70 pixels</strong> (retangular horizontal). Tamanho máximo: 500KB. Formatos: PNG, JPG, SVG.</p>';
-    html += '<div class="img-upload-area" onclick="document.getElementById(\'logoUploadInput\').click()" style="max-width:300px;">';
-    if (appData.empresa && appData.empresa.logo) {
-        html += '<img src="' + appData.empresa.logo + '" id="logoPreview" style="max-width:260px;max-height:70px;object-fit:contain;">';
-    } else {
-        html += '<p id="logoPreview">📷 Clique para adicionar o logo (260x70px)</p>';
-    }
-    html += '</div>';
-    html += '<input type="file" id="logoUploadInput" accept="image/*" style="display:none" onchange="handleLogoUpload(event)">';
-    if (appData.empresa && appData.empresa.logo) {
-        html += '<button class="btn btn-danger btn-sm" onclick="removeLogo()" style="margin-top:8px;">🗑️ Remover Logo</button>';
-    }
-    html += '</div></div>';
+  const configs = [
+    { key: 'vendedores', label: 'Vendedores' },
+    { key: 'formasPagamento', label: 'Formas de Pagamento' },
+    { key: 'tipoUnidade', label: 'Tipos de Unidade' },
+    { key: 'tipoVenda', label: 'Tipos de Venda' },
+    { key: 'situacaoCompra', label: 'Situação de Compra' },
+    { key: 'situacaoEntrega', label: 'Situação de Entrega' },
+    { key: 'situacaoCheque', label: 'Situação de Cheque' },
+    { key: 'situacaoGarantia', label: 'Situação de Garantia' },
+    { key: 'situacaoBoleto', label: 'Situação de Boleto' }
+  ];
 
-    // LISTAS DE CONFIGURAÇÕES
-    for (var c = 0; c < configs.length; c++) {
-        var cfg = configs[c];
-        var items = appData.config[cfg.key] || [];
+  let logoSection = `
+    <div class="card" style="margin-bottom:24px;">
+      <div class="card-header"><span class="card-icon">🖼️</span><span>Logo da Empresa</span></div>
+      <div style="padding:16px;">
+        <p style="color:var(--text-secondary);margin-bottom:12px;">Tamanho recomendado: <strong>260 × 70 px</strong> | Máximo: 500 KB | Formatos: PNG, JPG, SVG</p>
+        <div style="display:flex;align-items:center;gap:16px;">
+          <div id="configLogoPreview" style="width:260px;height:70px;border:2px dashed var(--border-color);border-radius:8px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--bg-tertiary)">
+            ${appData.empresa && appData.empresa.logo ? `<img src="${appData.empresa.logo}" style="max-width:100%;max-height:100%;object-fit:contain">` : '<span style="color:var(--text-muted)">Sem logo</span>'}
+          </div>
+          <div>
+            <label class="btn btn-primary" style="cursor:pointer;margin-right:8px;">
+              📷 Enviar Logo
+              <input type="file" accept="image/*" onchange="handleLogoUpload(event)" style="display:none">
+            </label>
+            ${appData.empresa && appData.empresa.logo ? `<button class="btn btn-danger" onclick="removeLogo()">🗑️ Remover</button>` : ''}
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
 
-        html += '<div class="config-section">';
-        html += '<div class="config-section-header"><h4>' + cfg.icon + ' ' + cfg.label + ' (' + items.length + ')</h4></div>';
-        html += '<div class="config-section-body">';
+  let configsHTML = configs.map(cfg => {
+    const items = appData[cfg.key] || [];
+    return `
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-header" style="cursor:pointer" onclick="toggleConfigList('${cfg.key}')">
+          <span><strong>${cfg.label}</strong> (${items.length})</span>
+          <span id="configArrow_${cfg.key}">▶</span>
+        </div>
+        <div id="configList_${cfg.key}" style="display:none;padding:12px;">
+          <div style="display:flex;gap:8px;margin-bottom:12px;">
+            <input type="text" id="configInput_${cfg.key}" class="form-control" placeholder="Novo item..." style="flex:1">
+            <button class="btn btn-primary btn-sm" onclick="addConfigItem('${cfg.key}')">+ Adicionar</button>
+          </div>
+          <div id="configItems_${cfg.key}">
+            ${items.map((item, i) => `
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--bg-tertiary);border-radius:6px;margin-bottom:4px;">
+                <span>${item}</span>
+                <button class="btn btn-sm btn-danger" onclick="removeConfigItem('${cfg.key}', ${i})" style="padding:2px 8px;font-size:12px">✕</button>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
 
-        for (var i = 0; i < items.length; i++) {
-            html += '<div class="config-item"><span>' + items[i] + '</span>';
-            html += '<div class="config-item-actions">';
-            html += '<button onclick="editConfigItem(\'' + cfg.key + '\',' + i + ')" title="Editar">✏️</button>';
-            html += '<button class="del" onclick="deleteConfigItem(\'' + cfg.key + '\',' + i + ')" title="Excluir">🗑️</button>';
-            html += '</div></div>';
-        }
+  pageEl.innerHTML = `
+    <div class="page-header">
+      <h2>Configurações</h2>
+    </div>
+    ${logoSection}
+    <div class="section-title">Listas de Configuração</div>
+    ${configsHTML}
+  `;
+}
 
-        html += '<div class="config-add">';
-        html += '<input type="text" id="configAdd_' + cfg.key + '" placeholder="Adicionar ' + cfg.label.toLowerCase() + '...">';
-        html += '<button class="btn btn-primary btn-sm" onclick="addConfigItem(\'' + cfg.key + '\')">+</button>';
-        html += '</div></div></div>';
-    }
+function toggleConfigList(key) {
+  const list = document.getElementById('configList_' + key);
+  const arrow = document.getElementById('configArrow_' + key);
+  if (list.style.display === 'none') {
+    list.style.display = 'block';
+    arrow.textContent = '▼';
+  } else {
+    list.style.display = 'none';
+    arrow.textContent = '▶';
+  }
+}
 
-    document.getElementById('configContent').innerHTML = html;
+function addConfigItem(key) {
+  const input = document.getElementById('configInput_' + key);
+  const val = input.value.trim();
+  if (!val) { showToast('Digite um valor', 'error'); return; }
+  if (!appData[key]) appData[key] = [];
+  if (appData[key].includes(val)) { showToast('Item já existe', 'error'); return; }
+  appData[key].push(val);
+  saveData();
+  showToast('Item adicionado!', 'success');
+  renderConfiguracoes();
+  // Reabrir a lista
+  setTimeout(() => { toggleConfigList(key); }, 100);
+}
+
+function removeConfigItem(key, idx) {
+  if (!confirm('Remover este item?')) return;
+  appData[key].splice(idx, 1);
+  saveData();
+  showToast('Item removido!', 'success');
+  renderConfiguracoes();
+  setTimeout(() => { toggleConfigList(key); }, 100);
 }
 
 function handleLogoUpload(event) {
-    var file = event.target.files[0];
-    if (!file) return;
-
-    if (file.size > 500000) {
-        showToast('Imagem muito grande! Máximo 500KB.');
-        return;
-    }
-
-    var reader = new FileReader();
-    reader.onload = function (e) {
-        var imgData = e.target.result;
-        if (!appData.empresa) appData.empresa = getDefaultData().empresa;
-        appData.empresa.logo = imgData;
-        saveData();
-        updateSidebarLogo();
-        renderConfiguracoes();
-        showToast('Logo atualizado com sucesso!');
-    };
-    reader.readAsDataURL(file);
-    event.target.value = '';
+  const file = event.target.files[0];
+  if (!file) return;
+  if (file.size > 500 * 1024) {
+    showToast('Imagem deve ter no máximo 500 KB', 'error');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    if (!appData.empresa) appData.empresa = {};
+    appData.empresa.logo = e.target.result;
+    saveData();
+    updateSidebarLogo();
+    showToast('Logo atualizado!', 'success');
+    renderConfiguracoes();
+  };
+  reader.readAsDataURL(file);
 }
 
 function removeLogo() {
-    if (!confirm('Remover o logo da empresa?')) return;
-    appData.empresa.logo = "";
-    saveData();
-    updateSidebarLogo();
-    renderConfiguracoes();
-    showToast('Logo removido!');
+  if (!confirm('Remover o logo da empresa?')) return;
+  if (appData.empresa) appData.empresa.logo = '';
+  saveData();
+  updateSidebarLogo();
+  showToast('Logo removido!', 'success');
+  renderConfiguracoes();
 }
 
+// ============ BACKUP ============
+function renderBackupInfo() {
+  const pageEl = document.getElementById('page-backup');
+  if (!pageEl) return;
 
-// ==================== BACKUP ====================
+  const dataSize = new Blob([JSON.stringify(appData)]).size;
+  const dataSizeKB = (dataSize / 1024).toFixed(1);
+
+  const counts = {
+    compras: (appData.compras||[]).length,
+    vendas: (appData.vendas||[]).length,
+    clientes: (appData.clientes||[]).length,
+    fornecedores: (appData.fornecedores||[]).length,
+    produtos: (appData.produtos||[]).length,
+    pFornecedores: (appData.pFornecedores||[]).length,
+    boletos: (appData.boletos||[]).length,
+    cheques: (appData.cheques||[]).length,
+    prestacoes: (appData.prestacoes||[]).length,
+    projetos: (appData.projetos||[]).length,
+    pagClientes: (appData.pagClientes||[]).length,
+    garantias: (appData.garantias||[]).length,
+    notasEntrada: (appData.notasEntrada||[]).length,
+    notasSaida: (appData.notasSaida||[]).length
+  };
+
+  const totalRegistros = Object.values(counts).reduce((a,b) => a+b, 0);
+
+  pageEl.innerHTML = `
+    <div class="page-header">
+      <h2>Backup e Restauração</h2>
+    </div>
+
+    <div class="dashboard-grid" style="margin-bottom:24px;">
+      <div class="card">
+        <div class="card-header"><span class="card-icon">📊</span><span>Total Registros</span></div>
+        <div class="card-value">${totalRegistros}</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-icon">💾</span><span>Tamanho dos Dados</span></div>
+        <div class="card-value">${dataSizeKB} KB</div>
+      </div>
+    </div>
+
+    <div class="section-title">Registros por Módulo</div>
+    <div class="table-responsive" style="margin-bottom:24px;">
+      <table class="table">
+        <thead><tr><th>Módulo</th><th>Registros</th></tr></thead>
+        <tbody>
+          ${Object.entries(counts).map(([k,v]) => `<tr><td>${k}</td><td><strong>${v}</strong></td></tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section-title">Ações</div>
+    <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:12px;">
+      <button class="btn btn-primary" onclick="exportBackup()">📥 Exportar Backup (JSON)</button>
+      <label class="btn btn-outline" style="cursor:pointer">
+        📤 Importar Backup
+        <input type="file" accept=".json" onchange="importBackup(event)" style="display:none">
+      </label>
+      <button class="btn btn-warning" onclick="restoreDefaults()">🔄 Restaurar Padrão</button>
+      <button class="btn btn-danger" onclick="clearAllData()">🗑️ Limpar Todos os Dados</button>
+    </div>
+  `;
+}
+
 function exportBackup() {
-    var dataStr = JSON.stringify(appData, null, 2);
-    var blob = new Blob([dataStr], { type: 'application/json' });
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement('a');
-    a.href = url;
-    a.download = 'wdmaquinas_backup_' + new Date().toISOString().split('T')[0] + '.json';
-    a.click();
-    URL.revokeObjectURL(url);
-    showToast('Backup exportado com sucesso!');
+  const data = JSON.stringify(appData, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `wdmaquinas_backup_${new Date().toISOString().split('T')[0]}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('Backup exportado!', 'success');
 }
 
 function importBackup(event) {
-    var file = event.target.files[0];
-    if (!file) return;
+  const file = event.target.files[0];
+  if (!file) return;
 
-    var reader = new FileReader();
-    reader.onload = function (e) {
-        try {
-            var data = JSON.parse(e.target.result);
-            appData = data;
-            saveData();
-            showToast('Backup restaurado com sucesso!');
-            renderPage(currentPage);
-        } catch (err) {
-            showToast('Erro ao ler arquivo! Verifique se é um JSON válido.');
-        }
-    };
-    reader.readAsText(file);
-    event.target.value = '';
-}
-
-function clearAllData() {
-    if (!confirm('ATENÇÃO: Isso vai apagar TODOS os dados! Tem certeza?')) return;
-    if (!confirm('Tem CERTEZA MESMO? Esta ação não pode ser desfeita!')) return;
-
-    localStorage.removeItem('wdmaquinas_data');
-    appData = {
-        empresa: getDefaultData().empresa,
-        config: getDefaultData().config,
-        clientes: [], fornecedores: [], produtos: [], pfornecedores: [],
-        compras: [], vendas: [], estoque: [],
-        boletos: [], cheques: [], prestacoes: [], projetos: [],
-        pagClientes: [], garantias: [],
-        notasEntrada: [], notasSaida: [],
-        fluxoCaixa: {}
-    };
-    saveData();
-    renderPage(currentPage);
-    showToast('Todos os dados foram limpos!');
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if (!confirm('Isso substituirá todos os dados atuais. Deseja continuar?')) return;
+      appData = imported;
+      saveData();
+      updateSidebarLogo();
+      showToast('Backup importado com sucesso!', 'success');
+      navigateTo('dashboard');
+    } catch(err) {
+      showToast('Arquivo inválido!', 'error');
+    }
+  };
+  reader.readAsText(file);
 }
 
 function restoreDefaults() {
-    if (!confirm('Restaurar todos os dados originais do Excel? Dados atuais serão perdidos!')) return;
-
-    appData = getDefaultData();
-    saveData();
-    renderPage(currentPage);
-    showToast('Dados restaurados ao padrão!');
+  if (!confirm('Restaurar todos os dados para o padrão original? Isso apagará alterações feitas.')) return;
+  appData = getDefaultData();
+  saveData();
+  updateSidebarLogo();
+  showToast('Dados restaurados ao padrão!', 'success');
+  navigateTo('dashboard');
 }
 
-function renderBackupInfo() {
-    var dataSize = (new Blob([JSON.stringify(appData)])).size;
-    var sizeKB = (dataSize / 1024).toFixed(2);
-
-    var html = '';
-    html += '<div class="view-detail"><span class="view-label">Tamanho dos dados:</span><span>' + sizeKB + ' KB</span></div>';
-    html += '<div class="view-detail"><span class="view-label">Compras:</span><span>' + (appData.compras || []).length + ' registros</span></div>';
-    html += '<div class="view-detail"><span class="view-label">Vendas:</span><span>' + (appData.vendas || []).length + ' registros</span></div>';
-    html += '<div class="view-detail"><span class="view-label">Clientes:</span><span>' + (appData.clientes || []).length + ' registros</span></div>';
-    html += '<div class="view-detail"><span class="view-label">Fornecedores:</span><span>' + (appData.fornecedores || []).length + ' registros</span></div>';
-    html += '<div class="view-detail"><span class="view-label">Produtos:</span><span>' + (appData.produtos || []).length + ' registros</span></div>';
-    html += '<div class="view-detail"><span class="view-label">P. Fornecedores:</span><span>' + (appData.pfornecedores || []).length + ' registros</span></div>';
-    html += '<div class="view-detail"><span class="view-label">Estoque:</span><span>' + (appData.estoque || []).length + ' itens</span></div>';
-    html += '<div class="view-detail"><span class="view-label">Boletos:</span><span>' + (appData.boletos || []).length + ' registros</span></div>';
-    html += '<div class="view-detail"><span class="view-label">Cheques:</span><span>' + (appData.cheques || []).length + ' registros</span></div>';
-    html += '<div class="view-detail"><span class="view-label">Prestações:</span><span>' + (appData.prestacoes || []).length + ' registros</span></div>';
-    html += '<div class="view-detail"><span class="view-label">Projetos:</span><span>' + (appData.projetos || []).length + ' registros</span></div>';
-    html += '<div class="view-detail"><span class="view-label">Garantias:</span><span>' + (appData.garantias || []).length + ' registros</span></div>';
-    html += '<div class="view-detail"><span class="view-label">Notas Entrada:</span><span>' + (appData.notasEntrada || []).length + ' registros</span></div>';
-    html += '<div class="view-detail"><span class="view-label">Notas Saída:</span><span>' + (appData.notasSaida || []).length + ' registros</span></div>';
-    html += '<div class="view-detail"><span class="view-label">Vendedores:</span><span>' + (appData.config.vendedores || []).length + '</span></div>';
-    html += '<div class="view-detail"><span class="view-label">Formas Pagamento:</span><span>' + (appData.config.formasPagamento || []).length + '</span></div>';
-
-    document.getElementById('backupInfo').innerHTML = html;
+function clearAllData() {
+  if (!confirm('ATENÇÃO: Isso apagará TODOS os dados permanentemente! Deseja continuar?')) return;
+  if (!confirm('Tem certeza ABSOLUTA? Esta ação não pode ser desfeita!')) return;
+  localStorage.removeItem('wdmaquinas_data');
+  appData = getDefaultData();
+  // limpar todos os arrays
+  Object.keys(appData).forEach(k => {
+    if (Array.isArray(appData[k])) appData[k] = [];
+  });
+  appData.fluxoCaixa = {};
+  saveData();
+  updateSidebarLogo();
+  showToast('Todos os dados foram apagados!', 'success');
+  navigateTo('dashboard');
 }
 
-// ==================== INICIALIZAÇÃO ====================
+// ==========================================
+// INIT
+// ==========================================
 function init() {
-    loadData();
+  loadData();
 
-    // Data no topbar
-    var hoje = new Date();
-    var dias = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
-    var meses = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
-    document.getElementById('topbarDate').textContent = dias[hoje.getDay()] + ', ' + hoje.getDate() + ' de ' + meses[hoje.getMonth()] + ' de ' + hoje.getFullYear();
+  // Data atual na topbar
+  const dateEl = document.getElementById('currentDate');
+  if (dateEl) {
+    const hoje = new Date();
+    const diasSemana = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
+    const meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+    dateEl.textContent = `${diasSemana[hoje.getDay()]}, ${hoje.getDate()} de ${meses[hoje.getMonth()]} de ${hoje.getFullYear()}`;
+  }
 
-    // Fechar modais ao clicar fora
-    document.getElementById('cadastroModal').addEventListener('click', function (e) {
-        if (e.target === this) closeCadastroModal();
-    });
-    document.getElementById('viewModal').addEventListener('click', function (e) {
-        if (e.target === this) closeViewModal();
-    });
+  // Fechar modais ao clicar fora
+  document.getElementById('cadastroModal')?.addEventListener('click', function(e) {
+    if (e.target === this) closeCadastroModal();
+  });
+  document.getElementById('viewModal')?.addEventListener('click', function(e) {
+    if (e.target === this) closeViewModal();
+  });
 
-    // Render dashboard
-    renderDashboard();
-
-    saveData();
+  // Renderizar dashboard
+  navigateTo('dashboard');
 }
 
-// Iniciar quando a página carregar
+// Iniciar quando DOM pronto
 document.addEventListener('DOMContentLoaded', init);
