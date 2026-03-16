@@ -7,1674 +7,263 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-primary: #0a0a0a;
-            --bg-secondary: #111111;
-            --bg-tertiary: #1a1a1a;
-            --bg-card: #161616;
-            --bg-hover: #1e1e1e;
-            --accent-primary: #3B82F6;
-            --accent-secondary: #60A5FA;
-            --accent-dark: #2563EB;
-            --accent-light: #93C5FD;
-            --accent-glow: rgba(59, 130, 246, 0.15);
-            --text-primary: #ffffff;
-            --text-secondary: #b0b0b0;
-            --text-muted: #666666;
-            --border-color: #2a2a2a;
-            --success: #00c853;
-            --danger: #ff1744;
-            --warning: #ffc107;
-            --info: #2196f3;
-            --shadow: 0 4px 24px rgba(0,0,0,0.4);
-            --radius: 12px;
-            --radius-sm: 8px;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            overflow: hidden;
-            height: 100vh;
-        }
-
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: var(--bg-secondary); }
-        ::-webkit-scrollbar-thumb { background: var(--accent-primary); border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--accent-secondary); }
-
-        .app-container {
-            display: flex;
-            height: 100vh;
-        }
-
-        .sidebar {
-            width: 260px;
-            min-width: 260px;
-            background: var(--bg-secondary);
-            border-right: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
-            transition: var(--transition);
-            z-index: 100;
-        }
-
-        .sidebar-header {
-            padding: 20px;
-            border-bottom: 1px solid var(--border-color);
-            text-align: center;
-        }
-
-        .sidebar-header h1 {
-            font-size: 1.4rem;
-            font-weight: 800;
-            color: var(--accent-primary);
-            letter-spacing: 1px;
-        }
-
-        .sidebar-header p {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            margin-top: 4px;
-            letter-spacing: 0.5px;
-        }
-
-        .sidebar-nav {
-            flex: 1;
-            overflow-y: auto;
-            padding: 10px 0;
-        }
-
-        .nav-section {
-            margin-bottom: 8px;
-        }
-
-        .nav-section-title {
-            padding: 8px 20px;
-            font-size: 0.65rem;
-            font-weight: 700;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-        }
-
-        .nav-item {
-            display: flex;
-            align-items: center;
-            padding: 10px 20px;
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: var(--transition);
-            font-size: 0.85rem;
-            font-weight: 500;
-            border-left: 3px solid transparent;
-        }
-
-        .nav-item:hover {
-            background: var(--bg-hover);
-            color: var(--text-primary);
-        }
-
-        .nav-item.active {
-            background: var(--accent-glow);
-            color: var(--accent-primary);
-            border-left-color: var(--accent-primary);
-        }
-
-        .nav-item .nav-icon {
-            width: 20px;
-            margin-right: 12px;
-            text-align: center;
-            font-size: 1rem;
-        }
-
-        .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .topbar {
-            height: 60px;
-            min-height: 60px;
-            background: var(--bg-secondary);
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 24px;
-        }
-
-        .topbar-left {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .menu-toggle {
-            display: none;
-            background: none;
-            border: none;
-            color: var(--text-primary);
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-
-        .topbar-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-        }
-
-        .topbar-right {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .topbar-date {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-        }
-
-        .btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: var(--radius-sm);
-            font-family: 'Inter', sans-serif;
-            font-size: 0.8rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .btn-primary {
-            background: var(--accent-primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: var(--accent-secondary);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
-        }
-
-        .btn-secondary {
-            background: var(--bg-tertiary);
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-        }
-
-        .btn-secondary:hover {
-            background: var(--bg-hover);
-            border-color: var(--accent-primary);
-        }
-
-        .btn-danger {
-            background: var(--danger);
-            color: white;
-        }
-
-        .btn-danger:hover {
-            opacity: 0.9;
-            transform: translateY(-1px);
-        }
-
-        .btn-success {
-            background: var(--success);
-            color: white;
-        }
-
-        .btn-sm {
-            padding: 5px 10px;
-            font-size: 0.75rem;
-        }
-
-        .content-area {
-            flex: 1;
-            overflow-y: auto;
-            padding: 24px;
-        }
-
-        .page {
-            display: none;
-        }
-
-        .page.active {
-            display: block;
-        }
-
-        .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-
-        .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius);
-            padding: 20px;
-            transition: var(--transition);
-        }
-
-        .card:hover {
-            border-color: var(--accent-primary);
-            box-shadow: 0 0 20px var(--accent-glow);
-        }
-
-        .card-icon {
-            font-size: 1.5rem;
-            margin-bottom: 8px;
-        }
-
-        .card-value {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: var(--accent-primary);
-            margin-bottom: 4px;
-        }
-
-        .card-label {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .table-container {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius);
-            overflow: hidden;
-            margin-bottom: 24px;
-        }
-
-        .table-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px 20px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .table-header h3 {
-            font-size: 0.95rem;
-            font-weight: 700;
-        }
-
-        .table-scroll {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th {
-            padding: 12px 16px;
-            text-align: left;
-            font-size: 0.7rem;
-            font-weight: 700;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            background: var(--bg-tertiary);
-            border-bottom: 1px solid var(--border-color);
-            white-space: nowrap;
-        }
-
-        td {
-            padding: 12px 16px;
-            font-size: 0.83rem;
-            border-bottom: 1px solid var(--border-color);
-            white-space: nowrap;
-        }
-
-        tr:hover td {
-            background: var(--bg-hover);
-        }
-
-        .fluxo-container {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius);
-            overflow: hidden;
-            margin-bottom: 24px;
-        }
-
-        .fluxo-summary {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 12px;
-            padding: 20px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .fluxo-summary .summary-card {
-            background: var(--bg-tertiary);
-            border-radius: var(--radius-sm);
-            padding: 14px;
-            text-align: center;
-        }
-
-        .summary-card .s-value {
-            font-size: 1.2rem;
-            font-weight: 800;
-        }
-
-        .summary-card .s-label {
-            font-size: 0.7rem;
-            color: var(--text-secondary);
-            margin-top: 4px;
-        }
-
-        .fluxo-scroll {
-            overflow-x: auto;
-            overflow-y: auto;
-            max-height: 65vh;
-        }
-
-        .fluxo-scroll table th,
-        .fluxo-scroll table td {
-            padding: 6px 10px;
-            font-size: 0.75rem;
-            min-width: 90px;
-            text-align: center;
-        }
-
-        .fluxo-scroll table .col-desc {
-            min-width: 160px;
-            text-align: left;
-            position: sticky;
-            left: 0;
-            background: var(--bg-card);
-            z-index: 2;
-            font-weight: 600;
-        }
-
-        .fluxo-scroll table th.col-desc {
-            background: var(--bg-tertiary);
-        }
-
-        .fluxo-scroll .row-header td {
-            background: var(--accent-primary);
-            color: white;
-            font-weight: 700;
-            font-size: 0.7rem;
-            text-transform: uppercase;
-        }
-
-        .fluxo-scroll .row-total td {
-            background: var(--bg-tertiary);
-            font-weight: 700;
-            color: var(--accent-primary);
-        }
-
-        .fluxo-scroll .row-separator td {
-            height: 4px;
-            padding: 0;
-            background: var(--accent-primary);
-        }
-
-        .fluxo-scroll .row-saldo td {
-            background: var(--bg-tertiary);
-            font-weight: 600;
-            color: var(--success);
-        }
-
-        .fluxo-scroll .editable:hover {
-            background: var(--accent-glow);
-            cursor: pointer;
-        }
-
-        .fluxo-scroll input.cell-edit {
-            width: 80px;
-            background: var(--bg-primary);
-            border: 1px solid var(--accent-primary);
-            color: var(--text-primary);
-            padding: 2px 4px;
-            font-size: 0.75rem;
-            text-align: center;
-            border-radius: 4px;
-            font-family: 'Inter', sans-serif;
-        }
-
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-overlay.active {
-            display: flex;
-        }
-
-        .modal {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius);
-            width: 90%;
-            max-width: 600px;
-            max-height: 85vh;
-            overflow-y: auto;
-            box-shadow: var(--shadow);
-        }
-
-        .modal-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 20px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .modal-header h3 {
-            font-size: 1rem;
-            font-weight: 700;
-            color: var(--accent-primary);
-        }
-
-        .modal-close {
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            font-size: 1.5rem;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .modal-close:hover {
-            color: var(--danger);
-        }
-
-        .modal-body {
-            padding: 20px;
-        }
-
-        .modal-footer {
-            padding: 16px 20px;
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            justify-content: flex-end;
-            gap: 8px;
-        }
-
-        .form-group {
-            margin-bottom: 16px;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-            margin-bottom: 6px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 10px 12px;
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-sm);
-            color: var(--text-primary);
-            font-family: 'Inter', sans-serif;
-            font-size: 0.85rem;
-            transition: var(--transition);
-        }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: var(--accent-primary);
-            box-shadow: 0 0 0 3px var(--accent-glow);
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .toast-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 2000;
-        }
-
-        .toast {
-            background: var(--bg-card);
-            border: 1px solid var(--accent-primary);
-            border-radius: var(--radius-sm);
-            padding: 14px 20px;
-            margin-bottom: 8px;
-            font-size: 0.85rem;
-            color: var(--text-primary);
-            box-shadow: var(--shadow);
-            animation: slideIn 0.3s ease;
-        }
-
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        .progress-container {
-            margin-bottom: 16px;
-        }
-
-        .progress-label {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.75rem;
-            margin-bottom: 6px;
-        }
-
-        .progress-bar {
-            height: 8px;
-            background: var(--bg-tertiary);
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
-            border-radius: 4px;
-            transition: width 0.5s ease;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
-        .badge-success { background: rgba(0,200,83,0.15); color: var(--success); }
-        .badge-danger { background: rgba(255,23,68,0.15); color: var(--danger); }
-        .badge-warning { background: rgba(255,193,7,0.15); color: var(--warning); }
-        .badge-info { background: rgba(33,150,243,0.15); color: var(--info); }
-        .badge-accent { background: var(--accent-glow); color: var(--accent-primary); }
-
-        .search-bar {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        .search-bar input {
-            flex: 1;
-            padding: 10px 16px;
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-sm);
-            color: var(--text-primary);
-            font-family: 'Inter', sans-serif;
-            font-size: 0.85rem;
-        }
-
-        .search-bar input:focus {
-            outline: none;
-            border-color: var(--accent-primary);
-        }
-
-        .config-section {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius);
-            margin-bottom: 16px;
-            overflow: hidden;
-        }
-
-        .config-section-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 14px 20px;
-            background: var(--bg-tertiary);
-            cursor: pointer;
-        }
-
-        .config-section-header h4 {
-            font-size: 0.85rem;
-            font-weight: 700;
-            color: var(--accent-primary);
-        }
-
-        .config-section-body {
-            padding: 16px 20px;
-        }
-
-        .config-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 8px 12px;
-            background: var(--bg-tertiary);
-            border-radius: var(--radius-sm);
-            margin-bottom: 6px;
-            font-size: 0.83rem;
-        }
-
-        .config-item-actions {
-            display: flex;
-            gap: 6px;
-        }
-
-        .config-item-actions button {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            cursor: pointer;
-            font-size: 0.85rem;
-            transition: var(--transition);
-        }
-
-        .config-item-actions button:hover {
-            color: var(--accent-primary);
-        }
-
-        .config-item-actions button.del:hover {
-            color: var(--danger);
-        }
-
-        .config-add {
-            display: flex;
-            gap: 8px;
-            margin-top: 10px;
-        }
-
-        .config-add input {
-            flex: 1;
-            padding: 8px 12px;
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-sm);
-            color: var(--text-primary);
-            font-family: 'Inter', sans-serif;
-            font-size: 0.83rem;
-        }
-
-        .config-add input:focus {
-            outline: none;
-            border-color: var(--accent-primary);
-        }
-
-        .backup-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-
-        .backup-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius);
-            padding: 24px;
-            text-align: center;
-        }
-
-        .backup-card h4 {
-            color: var(--accent-primary);
-            margin-bottom: 8px;
-        }
-
-        .backup-card p {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            margin-bottom: 16px;
-        }
-
-        .cadastro-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid var(--accent-primary);
-        }
-
-        .cadastro-avatar-placeholder {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: var(--bg-tertiary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1rem;
-            color: var(--text-muted);
-            border: 2px solid var(--border-color);
-        }
-
-        .produto-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius);
-            overflow: hidden;
-            transition: var(--transition);
-        }
-
-        .produto-card:hover {
-            border-color: var(--accent-primary);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-        }
-
-        .produto-card-img {
-            width: 100%;
-            height: 140px;
-            object-fit: cover;
-            background: var(--bg-tertiary);
-        }
-
-        .produto-card-body {
-            padding: 14px;
-        }
-
-        .produto-card-body h4 {
-            font-size: 0.85rem;
-            margin-bottom: 8px;
-        }
-
-        .produto-card-body .preco {
-            font-size: 1rem;
-            font-weight: 800;
-            color: var(--accent-primary);
-        }
-
-        .produto-card-body .preco-label {
-            font-size: 0.65rem;
-            color: var(--text-muted);
-        }
-
-        .produto-card-actions {
-            padding: 10px 14px;
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            gap: 6px;
-        }
-
-        .img-upload-area {
-            border: 2px dashed var(--border-color);
-            border-radius: var(--radius-sm);
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: var(--transition);
-            margin-bottom: 12px;
-        }
-
-        .img-upload-area:hover {
-            border-color: var(--accent-primary);
-        }
-
-        .img-upload-area img {
-            max-width: 100%;
-            max-height: 120px;
-            border-radius: var(--radius-sm);
-        }
-
-        .img-upload-area p {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }
-
-        .estoque-bar {
-            width: 100%;
-            height: 6px;
-            background: var(--bg-primary);
-            border-radius: 3px;
-            margin-top: 4px;
-        }
-
-        .estoque-bar-fill {
-            height: 100%;
-            border-radius: 3px;
-            transition: width 0.3s;
-        }
-
-        .estoque-baixo .estoque-bar-fill { background: var(--danger); }
-        .estoque-medio .estoque-bar-fill { background: var(--warning); }
-        .estoque-alto .estoque-bar-fill { background: var(--success); }
-
-        .badge-wander { background: rgba(33,150,243,0.15); color: #2196f3; }
-        .badge-daniel { background: rgba(0,200,83,0.15); color: #00c853; }
-
-        .prestacao-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius);
-            overflow: hidden;
-            margin-bottom: 16px;
-        }
-
-        .prestacao-card-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px 20px;
-            background: var(--bg-tertiary);
-        }
-
-        .prestacao-card-header h4 {
-            color: var(--accent-primary);
-            font-size: 0.9rem;
-        }
-
-        .prestacao-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            gap: 8px;
-            padding: 16px 20px;
-        }
-
-        .prestacao-mes {
-            text-align: center;
-            background: var(--bg-tertiary);
-            border-radius: var(--radius-sm);
-            padding: 10px 6px;
-        }
-
-        .prestacao-mes .mes-nome {
-            font-size: 0.65rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-        }
-
-        .prestacao-mes .mes-valor {
-            font-size: 0.85rem;
-            font-weight: 700;
-            color: var(--accent-primary);
-            margin-top: 4px;
-        }
-
-        .dias-restantes { font-weight: 700; }
-        .dias-ok { color: var(--success); }
-        .dias-alerta { color: var(--warning); }
-        .dias-vencido { color: var(--danger); }
-
-        .relatorio-section {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius);
-            margin-bottom: 20px;
-            overflow: hidden;
-        }
-
-        .relatorio-section-header {
-            padding: 16px 20px;
-            background: var(--bg-tertiary);
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .relatorio-section-header h4 {
-            font-size: 0.9rem;
-            font-weight: 700;
-            color: var(--accent-primary);
-        }
-
-        .relatorio-section-body {
-            padding: 20px;
-        }
-
-        .relatorio-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid var(--border-color);
-            font-size: 0.85rem;
-        }
-
-        .relatorio-item:last-child {
-            border-bottom: none;
-        }
-
-        .relatorio-total {
-            font-weight: 800;
-            color: var(--accent-primary);
-            font-size: 1rem;
-        }
-
-        .mei-doc {
-            background: white;
-            color: #333;
-            padding: 40px;
-            border-radius: var(--radius);
-            max-width: 800px;
-            margin: 0 auto;
-            font-size: 0.9rem;
-            line-height: 1.6;
-        }
-
-        .mei-doc h2 {
-            text-align: center;
-            margin-bottom: 20px;
-            font-size: 1.1rem;
-        }
-
-        .mei-doc table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 16px 0;
-        }
-
-        .mei-doc table th,
-        .mei-doc table td {
-            border: 1px solid #999;
-            padding: 8px 12px;
-            font-size: 0.85rem;
-            color: #333;
-            background: white;
-        }
-
-        .mei-doc table th {
-            background: #eee;
-            font-weight: 700;
-            text-transform: none;
-            letter-spacing: 0;
-        }
-
-        .chart-container {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius);
-            padding: 20px;
-            margin-bottom: 24px;
-        }
-
-        .chart-container h3 {
-            font-size: 0.9rem;
-            margin-bottom: 16px;
-            color: var(--accent-primary);
-        }
-
-        .chart-bars {
-            display: flex;
-            align-items: flex-end;
-            gap: 12px;
-            height: 200px;
-            padding-top: 20px;
-        }
-
-        .chart-bar-group {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            height: 100%;
-            justify-content: flex-end;
-        }
-
-        .chart-bar {
-            width: 30px;
-            border-radius: 4px 4px 0 0;
-            transition: height 0.5s ease;
-        }
-
-        .chart-bar.entrada { background: var(--accent-primary); }
-        .chart-bar.saida { background: var(--text-muted); }
-
-        .chart-bar-label {
-            font-size: 0.65rem;
-            color: var(--text-muted);
-            margin-top: 8px;
-        }
-
-        .chart-bar-value {
-            font-size: 0.6rem;
-            color: var(--text-secondary);
-            margin-bottom: 4px;
-        }
-
-        .chart-bars-double {
-            display: flex;
-            gap: 4px;
-            align-items: flex-end;
-            height: 100%;
-        }
-
-        .filter-bar {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-        }
-
-        .filter-bar select {
-            padding: 8px 12px;
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-sm);
-            color: var(--text-primary);
-            font-family: 'Inter', sans-serif;
-            font-size: 0.83rem;
-        }
-
-        .filter-bar select:focus {
-            outline: none;
-            border-color: var(--accent-primary);
-        }
-
-        .page-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-
-        .page-header h2 {
-            font-size: 1.2rem;
-            font-weight: 800;
-        }
-
-        .page-header .counter {
-            background: var(--accent-glow);
-            color: var(--accent-primary);
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 700;
-        }
-
-        .view-detail {
-            display: grid;
-            grid-template-columns: 120px 1fr;
-            gap: 8px;
-            margin-bottom: 8px;
-            font-size: 0.85rem;
-        }
-
-        .view-detail .view-label {
-            color: var(--text-muted);
-            font-weight: 600;
-        }
-
-        .view-avatar-lg {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid var(--accent-primary);
-            margin: 0 auto 16px auto;
-            display: block;
-        }
-
-        /* FLUXO MES NOVO ESTILO */
-        .fluxo-mes-table th {
-            padding: 12px 16px;
-            text-align: left;
-            font-size: 0.7rem;
-            font-weight: 700;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            background: var(--bg-tertiary);
-            border-bottom: 1px solid var(--border-color);
-            white-space: nowrap;
-        }
-
-        .fluxo-mes-table td {
-            padding: 14px 16px;
-            font-size: 0.83rem;
-            border-bottom: 1px solid var(--border-color);
-            white-space: nowrap;
-        }
-
-        .fluxo-mes-table tr:hover td {
-            background: var(--bg-hover);
-        }
-
-        .badge-entrada { background: rgba(59,130,246,0.15); color: var(--accent-primary); }
-        .badge-saida { background: rgba(255,23,68,0.15); color: var(--danger); }
-        .badge-dinheiro { background: rgba(255,193,7,0.15); color: var(--warning); }
-        .badge-combustivel { background: rgba(255,152,0,0.15); color: #ff9800; }
-
-        @media (max-width: 768px) {
-            .sidebar {
-                position: fixed;
-                left: -260px;
-            }
-
-            .sidebar.open {
-                left: 0;
-            }
-
-            .menu-toggle {
-                display: block;
-            }
-
-            .cards-grid {
-                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            }
-
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-
-            .fluxo-summary {
-                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            }
+            --bg-primary:#0a0a0a;--bg-secondary:#111111;--bg-tertiary:#1a1a1a;--bg-card:#161616;--bg-hover:#1e1e1e;
+            --accent-primary:#3B82F6;--accent-secondary:#60A5FA;--accent-dark:#2563EB;--accent-light:#93C5FD;
+            --accent-glow:rgba(59,130,246,0.15);--text-primary:#ffffff;--text-secondary:#b0b0b0;--text-muted:#666666;
+            --border-color:#2a2a2a;--success:#00c853;--danger:#ff1744;--warning:#ffc107;--info:#2196f3;
+            --shadow:0 4px 24px rgba(0,0,0,0.4);--radius:12px;--radius-sm:8px;
+            --transition:all 0.3s cubic-bezier(0.4,0,0.2,1);
+        }
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'Inter',sans-serif;background:var(--bg-primary);color:var(--text-primary);overflow:hidden;height:100vh;}
+        ::-webkit-scrollbar{width:6px;height:6px;}
+        ::-webkit-scrollbar-track{background:var(--bg-secondary);}
+        ::-webkit-scrollbar-thumb{background:var(--accent-primary);border-radius:3px;}
+        .app-container{display:flex;height:100vh;}
+        /* SIDEBAR */
+        .sidebar{width:260px;min-width:260px;background:var(--bg-secondary);border-right:1px solid var(--border-color);display:flex;flex-direction:column;height:100vh;overflow:hidden;transition:var(--transition);z-index:100;}
+        .sidebar-header{padding:20px;border-bottom:1px solid var(--border-color);text-align:center;}
+        .sidebar-header h1{font-size:1.4rem;font-weight:800;color:var(--accent-primary);letter-spacing:1px;}
+        .sidebar-header p{font-size:0.7rem;color:var(--text-muted);margin-top:4px;}
+        .sidebar-nav{flex:1;overflow-y:auto;padding:10px 0;}
+        .nav-section{margin-bottom:8px;}
+        .nav-section-title{padding:8px 20px;font-size:0.65rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1.5px;}
+        .nav-item{display:flex;align-items:center;padding:10px 20px;color:var(--text-secondary);cursor:pointer;transition:var(--transition);font-size:0.85rem;font-weight:500;border-left:3px solid transparent;}
+        .nav-item:hover{background:var(--bg-hover);color:var(--text-primary);}
+        .nav-item.active{background:var(--accent-glow);color:var(--accent-primary);border-left-color:var(--accent-primary);}
+        .nav-item .nav-icon{width:20px;margin-right:12px;text-align:center;font-size:1rem;}
+        /* MAIN */
+        .main-content{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+        .topbar{height:60px;min-height:60px;background:var(--bg-secondary);border-bottom:1px solid var(--border-color);display:flex;align-items:center;justify-content:space-between;padding:0 24px;}
+        .topbar-left{display:flex;align-items:center;gap:16px;}
+        .menu-toggle{display:none;background:none;border:none;color:var(--text-primary);font-size:1.5rem;cursor:pointer;}
+        .topbar-title{font-size:1.1rem;font-weight:600;}
+        .topbar-date{font-size:0.8rem;color:var(--text-secondary);}
+        .content-area{flex:1;overflow-y:auto;padding:24px;}
+        .page-content{display:none;}
+        /* CARDS */
+        .dashboard-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-bottom:16px;}
+        .card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--radius);padding:20px;transition:var(--transition);}
+        .card:hover{border-color:var(--accent-primary);box-shadow:0 0 20px var(--accent-glow);}
+        .card-accent{border-color:var(--accent-primary);box-shadow:0 0 20px var(--accent-glow);}
+        .card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;font-size:0.8rem;color:var(--text-secondary);}
+        .card-icon{margin-right:8px;}
+        .card-value{font-size:1.5rem;font-weight:800;color:var(--accent-primary);}
+        /* TABLE */
+        .table-responsive{overflow-x:auto;background:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--radius);margin-bottom:16px;}
+        .table{width:100%;border-collapse:collapse;}
+        .table th{padding:12px 16px;text-align:left;font-size:0.7rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;background:var(--bg-tertiary);border-bottom:1px solid var(--border-color);white-space:nowrap;}
+        .table td{padding:12px 16px;font-size:0.83rem;border-bottom:1px solid var(--border-color);white-space:nowrap;}
+        .table tr:hover td{background:var(--bg-hover);}
+        /* BADGES */
+        .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.7rem;font-weight:700;text-transform:uppercase;}
+        .badge-success{background:rgba(0,200,83,0.15);color:var(--success);}
+        .badge-danger{background:rgba(255,23,68,0.15);color:var(--danger);}
+        .badge-warning{background:rgba(255,193,7,0.15);color:var(--warning);}
+        .badge-info{background:rgba(33,150,243,0.15);color:var(--info);}
+        /* BUTTONS */
+        .btn{padding:8px 16px;border:none;border-radius:var(--radius-sm);font-family:'Inter',sans-serif;font-size:0.8rem;font-weight:600;cursor:pointer;transition:var(--transition);display:inline-flex;align-items:center;gap:6px;}
+        .btn-primary{background:var(--accent-primary);color:white;}
+        .btn-primary:hover{background:var(--accent-secondary);transform:translateY(-1px);box-shadow:0 4px 12px rgba(59,130,246,0.4);}
+        .btn-secondary{background:var(--bg-tertiary);color:var(--text-primary);border:1px solid var(--border-color);}
+        .btn-secondary:hover{background:var(--bg-hover);border-color:var(--accent-primary);}
+        .btn-danger{background:var(--danger);color:white;}
+        .btn-danger:hover{opacity:0.9;}
+        .btn-warning{background:var(--warning);color:#000;}
+        .btn-outline{background:transparent;border:1px solid var(--border-color);color:var(--text-secondary);}
+        .btn-outline:hover{border-color:var(--accent-primary);color:var(--accent-primary);}
+        .btn-sm{padding:5px 10px;font-size:0.75rem;}
+        /* FORMS */
+        .form-group{margin-bottom:16px;}
+        .form-group label{display:block;font-size:0.75rem;font-weight:600;color:var(--text-secondary);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;}
+        .form-control{width:100%;padding:10px 12px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:var(--radius-sm);color:var(--text-primary);font-family:'Inter',sans-serif;font-size:0.85rem;transition:var(--transition);}
+        .form-control:focus{outline:none;border-color:var(--accent-primary);box-shadow:0 0 0 3px var(--accent-glow);}
+        .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+        /* FILTER BAR */
+        .filter-bar{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
+        /* PROGRESS */
+        .progress-bar{height:8px;background:var(--bg-tertiary);border-radius:4px;overflow:hidden;}
+        .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent-primary),var(--accent-secondary));border-radius:4px;transition:width 0.5s ease;}
+        /* SECTION TITLE */
+        .section-title{font-size:1rem;font-weight:700;margin-bottom:12px;color:var(--accent-primary);}
+        /* PAGE HEADER */
+        .page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;}
+        .page-header h2{font-size:1.2rem;font-weight:800;}
+        /* MODAL */
+        .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center;}
+        .modal{background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:var(--radius);width:90%;max-width:600px;max-height:85vh;overflow-y:auto;box-shadow:var(--shadow);}
+        .modal-header{display:flex;align-items:center;justify-content:space-between;padding:20px;border-bottom:1px solid var(--border-color);}
+        .modal-header h3{font-size:1rem;font-weight:700;color:var(--accent-primary);}
+        .modal-close{background:none;border:none;color:var(--text-secondary);font-size:1.5rem;cursor:pointer;}
+        .modal-close:hover{color:var(--danger);}
+        .modal-body{padding:20px;}
+        .modal-footer{padding:16px 20px;border-top:1px solid var(--border-color);display:flex;justify-content:flex-end;gap:8px;}
+        /* TOAST */
+        .toast{position:fixed;top:20px;right:20px;z-index:2000;padding:14px 20px;border-radius:var(--radius-sm);font-size:0.85rem;color:white;box-shadow:var(--shadow);transform:translateX(150%);transition:transform 0.3s ease;max-width:350px;}
+        .toast.show{transform:translateX(0);}
+        .toast.success{background:var(--success);}
+        .toast.error{background:var(--danger);}
+        /* DETAIL GRID */
+        .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+        .detail-item{padding:8px;background:var(--bg-tertiary);border-radius:var(--radius-sm);}
+        .detail-label{font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;display:block;margin-bottom:4px;}
+        /* HELPERS */
+        .text-success{color:var(--success)!important;}
+        .text-danger{color:var(--danger)!important;}
+        .text-warning{color:var(--warning)!important;}
+        .text-muted{color:var(--text-muted)!important;}
+        .metas-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:16px;}
+        /* RESPONSIVE */
+        @media(max-width:768px){
+            .sidebar{position:fixed;left:-260px;}
+            .sidebar.open{left:0;}
+            .menu-toggle{display:block;}
+            .dashboard-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));}
+            .form-row{grid-template-columns:1fr;}
         }
     </style>
 </head>
 <body>
-    <div class="app-container">
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <img id="sidebarLogo" src="" alt="Logo" style="display:none;max-width:220px;max-height:70px;object-fit:contain;margin:0 auto 6px auto;">
-                <h1 id="sidebarTitle">WD MÁQUINAS</h1>
-                <p>CNPJ: 29.595.239/0001-33</p>
-            </div>
-            <nav class="sidebar-nav">
-                <div class="nav-section">
-                    <div class="nav-section-title">Principal</div>
-                    <div class="nav-item active" onclick="navigateTo('dashboard')">
-                        <span class="nav-icon">📊</span> Dashboard
-                    </div>
-                </div>
-                <div class="nav-section">
-                    <div class="nav-section-title">Fluxo de Caixa</div>
-                    <div class="nav-item" onclick="navigateTo('janeiro')"><span class="nav-icon">📅</span> Janeiro</div>
-                    <div class="nav-item" onclick="navigateTo('fevereiro')"><span class="nav-icon">📅</span> Fevereiro</div>
-                    <div class="nav-item" onclick="navigateTo('marco')"><span class="nav-icon">📅</span> Março</div>
-                    <div class="nav-item" onclick="navigateTo('abril')"><span class="nav-icon">📅</span> Abril</div>
-                    <div class="nav-item" onclick="navigateTo('maio')"><span class="nav-icon">📅</span> Maio</div>
-                    <div class="nav-item" onclick="navigateTo('junho')"><span class="nav-icon">📅</span> Junho</div>
-                    <div class="nav-item" onclick="navigateTo('julho')"><span class="nav-icon">📅</span> Julho</div>
-                    <div class="nav-item" onclick="navigateTo('agosto')"><span class="nav-icon">📅</span> Agosto</div>
-                    <div class="nav-item" onclick="navigateTo('setembro')"><span class="nav-icon">📅</span> Setembro</div>
-                    <div class="nav-item" onclick="navigateTo('outubro')"><span class="nav-icon">📅</span> Outubro</div>
-                    <div class="nav-item" onclick="navigateTo('novembro')"><span class="nav-icon">📅</span> Novembro</div>
-                    <div class="nav-item" onclick="navigateTo('dezembro')"><span class="nav-icon">📅</span> Dezembro</div>
-                </div>
-                <div class="nav-section">
-                    <div class="nav-section-title">Gestão</div>
-                    <div class="nav-item" onclick="navigateTo('compras')"><span class="nav-icon">🛒</span> Compras</div>
-                    <div class="nav-item" onclick="navigateTo('vendas')"><span class="nav-icon">💰</span> Vendas</div>
-                    <div class="nav-item" onclick="navigateTo('estoque')"><span class="nav-icon">📦</span> Estoque</div>
-                </div>
-                <div class="nav-section">
-                    <div class="nav-section-title">Cadastros</div>
-                    <div class="nav-item" onclick="navigateTo('produtos')"><span class="nav-icon">🏷️</span> Produtos</div>
-                    <div class="nav-item" onclick="navigateTo('clientes')"><span class="nav-icon">👥</span> Clientes</div>
-                    <div class="nav-item" onclick="navigateTo('fornecedores')"><span class="nav-icon">🏭</span> Fornecedores</div>
-                    <div class="nav-item" onclick="navigateTo('pfornecedores')"><span class="nav-icon">📋</span> P. Fornecedores</div>
-                </div>
-                <div class="nav-section">
-                    <div class="nav-section-title">Financeiro</div>
-                    <div class="nav-item" onclick="navigateTo('boletos')"><span class="nav-icon">🔖</span> Boletos</div>
-                    <div class="nav-item" onclick="navigateTo('cheques')"><span class="nav-icon">📝</span> Cheques</div>
-                    <div class="nav-item" onclick="navigateTo('prestacoes')"><span class="nav-icon">💳</span> Prestações</div>
-                    <div class="nav-item" onclick="navigateTo('projetos')"><span class="nav-icon">📐</span> Projetos</div>
-                    <div class="nav-item" onclick="navigateTo('pagclientes')"><span class="nav-icon">🤝</span> Pag. Clientes</div>
-                    <div class="nav-item" onclick="navigateTo('garantias')"><span class="nav-icon">🛡️</span> Garantias</div>
-                </div>
-                <div class="nav-section">
-                    <div class="nav-section-title">Relatórios</div>
-                    <div class="nav-item" onclick="navigateTo('relatorios')"><span class="nav-icon">📈</span> Relatórios</div>
-                    <div class="nav-item" onclick="navigateTo('notasentrada')"><span class="nav-icon">📥</span> Notas Entrada</div>
-                    <div class="nav-item" onclick="navigateTo('notassaida')"><span class="nav-icon">📤</span> Notas Saída</div>
-                    <div class="nav-item" onclick="navigateTo('receitasmei')"><span class="nav-icon">📄</span> Receitas MEI</div>
-                </div>
-                <div class="nav-section">
-                    <div class="nav-section-title">Sistema</div>
-                    <div class="nav-item" onclick="navigateTo('configuracoes')"><span class="nav-icon">⚙️</span> Configurações</div>
-                    <div class="nav-item" onclick="navigateTo('backup')"><span class="nav-icon">💾</span> Backup</div>
-                </div>
-            </nav>
-        </aside>
-
-        <main class="main-content">
-            <div class="topbar">
-                <div class="topbar-left">
-                    <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
-                    <span class="topbar-title" id="topbarTitle">Dashboard</span>
-                </div>
-                <div class="topbar-right">
-                    <span class="topbar-date" id="topbarDate"></span>
-                </div>
-            </div>
-
-            <div class="content-area">
-
-                <!-- ==================== DASHBOARD ==================== -->
-                <div class="page active" id="page-dashboard">
-                    <div class="cards-grid" id="dashboardCards"></div>
-
-                    <div class="cards-grid">
-                        <div class="card">
-                            <div class="progress-container">
-                                <div class="progress-label">
-                                    <span>Meta Vendas Mensal</span>
-                                    <span id="metaVendasValue">R$ 0 / R$ 30.000</span>
-                                </div>
-                                <div class="progress-bar">
-                                    <div class="progress-fill" id="metaVendasBar" style="width:0%"></div>
-                                </div>
-                            </div>
-                            <div class="progress-container">
-                                <div class="progress-label">
-                                    <span>Salário Wander</span>
-                                    <span id="metaWanderValue">R$ 0 / R$ 6.000</span>
-                                </div>
-                                <div class="progress-bar">
-                                    <div class="progress-fill" id="metaWanderBar" style="width:0%"></div>
-                                </div>
-                            </div>
-                            <div class="progress-container">
-                                <div class="progress-label">
-                                    <span>Salário Daniel</span>
-                                    <span id="metaDanielValue">R$ 0 / R$ 6.000</span>
-                                </div>
-                                <div class="progress-bar">
-                                    <div class="progress-fill" id="metaDanielBar" style="width:0%"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="chart-container">
-                        <h3>📊 Entradas vs Saídas por Mês</h3>
-                        <div class="chart-bars" id="chartEntradasSaidas"></div>
-                    </div>
-
-                    <div class="chart-container">
-                        <h3>👥 Vendas por Vendedor</h3>
-                        <div id="chartVendedores" style="display:flex;gap:24px;align-items:center;padding:10px 0;"></div>
-                    </div>
-
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-                        <div class="table-container">
-                            <div class="table-header"><h3>🛒 Últimas Compras</h3></div>
-                            <div class="table-scroll">
-                                <table><thead><tr><th>Data</th><th>Produto</th><th>Valor</th><th>Status</th></tr></thead>
-                                <tbody id="dashUltimasCompras"></tbody></table>
-                            </div>
-                        </div>
-                        <div class="table-container">
-                            <div class="table-header"><h3>💰 Últimas Vendas</h3></div>
-                            <div class="table-scroll">
-                                <table><thead><tr><th>Data</th><th>Produto</th><th>Valor</th><th>Vendedor</th></tr></thead>
-                                <tbody id="dashUltimasVendas"></tbody></table>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;">
-                        <div class="table-container">
-                            <div class="table-header"><h3>⚠️ Compras Pendentes</h3></div>
-                            <div class="table-scroll">
-                                <table><thead><tr><th>Produto</th><th>Fornecedor</th><th>Valor</th><th>Vencimento</th></tr></thead>
-                                <tbody id="dashComprasPendentes"></tbody></table>
-                            </div>
-                        </div>
-                        <div class="table-container">
-                            <div class="table-header"><h3>💳 Prestações do Mês</h3></div>
-                            <div class="table-scroll">
-                                <table><thead><tr><th>Nome</th><th>Parcela</th><th>Valor</th></tr></thead>
-                                <tbody id="dashPrestacoes"></tbody></table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ==================== MESES (JAN-DEZ) — NOVO ESTILO ==================== -->
-                <div class="page" id="page-janeiro">
-                    <div class="page-header">
-                        <h2>📅 Janeiro 2026</h2>
-                        <div style="display:flex;gap:8px;">
-                            <button class="btn btn-primary" onclick="openFluxoMesModal('janeiro','entrada')">+ Entrada</button>
-                            <button class="btn btn-danger" onclick="openFluxoMesModal('janeiro','saida')">+ Saída</button>
-                        </div>
-                    </div>
-                    <div class="fluxo-summary" id="sumJaneiro"></div>
-                    <div class="filter-bar">
-                        <input type="text" id="fluxoBusca_janeiro" placeholder="Buscar descrição..." oninput="renderFluxoMes(getMesConfig('janeiro'))" style="flex:1;padding:8px 12px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:var(--radius-sm);color:var(--text-primary);font-family:'Inter',sans-serif;">
-                        <select id="fluxoFiltro_janeiro" onchange="renderFluxoMes(getMesConfig('janeiro'))">
-                            <option value="">Todos</option>
-                            <option value="entrada">Entradas</option>
-                            <option value="saida">Saídas</option>
-                            <option value="wander">Wander</option>
-                            <option value="daniel">Daniel</option>
-                            <option value="dinheiro">Dinheiro</option>
-                            <option value="combustivel">Combustível</option>
-                        </select>
-                        <select id="fluxoFiltroDia_janeiro" onchange="renderFluxoMes(getMesConfig('janeiro'))">
-                            <option value="">Todos os Dias</option>
-                        </select>
-                    </div>
-                    <div class="table-container">
-                        <div class="table-scroll"><table class="fluxo-mes-table"><thead><tr><th>Data</th><th>Tipo</th><th>Descrição</th><th>Valor</th><th>Ações</th></tr></thead><tbody id="fluxoBody_janeiro"></tbody></table></div>
-                    </div>
-                </div>
-
-                <div class="page" id="page-fevereiro">
-                    <div class="page-header">
-                        <h2>📅 Fevereiro 2026</h2>
-                        <div style="display:flex;gap:8px;">
-                            <button class="btn btn-primary" onclick="openFluxoMesModal('fevereiro','entrada')">+ Entrada</button>
-                            <button class="btn btn-danger" onclick="openFluxoMesModal('fevereiro','saida')">+ Saída</button>
-                        </div>
-                    </div>
-                    <div class="fluxo-summary" id="sumFevereiro"></div>
-                    <div class="filter-bar">
-                        <input type="text" id="fluxoBusca_fevereiro" placeholder="Buscar descrição..." oninput="renderFluxoMes(getMesConfig('fevereiro'))" style="flex:1;padding:8px 12px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:var(--radius-sm);color:var(--text-primary);font-family:'Inter',sans-serif;">
-                        <select id="fluxoFiltro_fevereiro" onchange="renderFluxoMes(getMesConfig('fevereiro'))">
-                            <option value="">Todos</option><option value="entrada">Entradas</option><option value="saida">Saídas</option><option value="wander">Wander</option><option value="daniel">Daniel</option><option value="dinheiro">Dinheiro</option><option value="combustivel">Combustível</option>
-                        </select>
-                        <select id="fluxoFiltroDia_fevereiro" onchange="renderFluxoMes(getMesConfig('fevereiro'))"><option value="">Todos os Dias</option></select>
-                    </div>
-                    <div class="table-container"><div class="table-scroll"><table class="fluxo-mes-table"><thead><tr><th>Data</th><th>Tipo</th><th>Descrição</th><th>Valor</th><th>Ações</th></tr></thead><tbody id="fluxoBody_fevereiro"></tbody></table></div></div>
-                </div>
-
-                <div class="page" id="page-marco">
-                    <div class="page-header">
-                        <h2>📅 Março 2026</h2>
-                        <div style="display:flex;gap:8px;">
-                            <button class="btn btn-primary" onclick="openFluxoMesModal('marco','entrada')">+ Entrada</button>
-                            <button class="btn btn-danger" onclick="openFluxoMesModal('marco','saida')">+ Saída</button>
-                        </div>
-                    </div>
-                    <div class="fluxo-summary" id="sumMarco"></div>
-                    <div class="filter-bar">
-                        <input type="text" id="fluxoBusca_marco" placeholder="Buscar descrição..." oninput="renderFluxoMes(getMesConfig('marco'))" style="flex:1;padding:8px 12px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:var(--radius-sm);color:var(--text-primary);font-family:'Inter',sans-serif;">
-                        <select id="fluxoFiltro_marco" onchange="renderFluxoMes(getMesConfig('marco'))">
-                            <option value="">Todos</option><option value="entrada">Entradas</option><option value="saida">Saídas</option><option value="wander">Wander</option><option value="daniel">Daniel</option><option value="dinheiro">Dinheiro</option><option value="combustivel">Combustível</option>
-                        </select>
-                        <select id="fluxoFiltroDia_marco" onchange="renderFluxoMes(getMesConfig('marco'))"><option value="">Todos os Dias</option></select>
-                    </div>
-                    <div class="table-container"><div class="table-scroll"><table class="fluxo-mes-table"><thead><tr><th>Data</th><th>Tipo</th><th>Descrição</th><th>Valor</th><th>Ações</th></tr></thead><tbody id="fluxoBody_marco"></tbody></table></div></div>
-                </div>
-
-                <div class="page" id="page-abril">
-                    <div class="page-header"><h2>📅 Abril 2026</h2><div style="display:flex;gap:8px;"><button class="btn btn-primary" onclick="openFluxoMesModal('abril','entrada')">+ Entrada</button><button class="btn btn-danger" onclick="openFluxoMesModal('abril','saida')">+ Saída</button></div></div>
-                    <div class="fluxo-summary" id="sumAbril"></div>
-                    <div class="filter-bar"><input type="text" id="fluxoBusca_abril" placeholder="Buscar descrição..." oninput="renderFluxoMes(getMesConfig('abril'))" style="flex:1;padding:8px 12px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:var(--radius-sm);color:var(--text-primary);font-family:'Inter',sans-serif;"><select id="fluxoFiltro_abril" onchange="renderFluxoMes(getMesConfig('abril'))"><option value="">Todos</option><option value="entrada">Entradas</option><option value="saida">Saídas</option><option value="wander">Wander</option><option value="daniel">Daniel</option><option value="dinheiro">Dinheiro</option><option value="combustivel">Combustível</option></select><select id="fluxoFiltroDia_abril" onchange="renderFluxoMes(getMesConfig('abril'))"><option value="">Todos os Dias</option></select></div>
-                    <div class="table-container"><div class="table-scroll"><table class="fluxo-mes-table"><thead><tr><th>Data</th><th>Tipo</th><th>Descrição</th><th>Valor</th><th>Ações</th></tr></thead><tbody id="fluxoBody_abril"></tbody></table></div></div>
-                </div>
-
-                <div class="page" id="page-maio">
-                    <div class="page-header"><h2>📅 Maio 2026</h2><div style="display:flex;gap:8px;"><button class="btn btn-primary" onclick="openFluxoMesModal('maio','entrada')">+ Entrada</button><button class="btn btn-danger" onclick="openFluxoMesModal('maio','saida')">+ Saída</button></div></div>
-                    <div class="fluxo-summary" id="sumMaio"></div>
-                    <div class="filter-bar"><input type="text" id="fluxoBusca_maio" placeholder="Buscar descrição..." oninput="renderFluxoMes(getMesConfig('maio'))" style="flex:1;padding:8px 12px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:var(--radius-sm);color:var(--text-primary);font-family:'Inter',sans-serif;"><select id="fluxoFiltro_maio" onchange="renderFluxoMes(getMesConfig('maio'))"><option value="">Todos</option><option value="entrada">Entradas</option><option value="saida">Saídas</option><option value="wander">Wander</option><option value="daniel">Daniel</option><option value="dinheiro">Dinheiro</option><option value="combustivel">Combustível</option></select><select id="fluxoFiltroDia_maio" onchange="renderFluxoMes(getMesConfig('maio'))"><option value="">Todos os Dias</option></select></div>
-                    <div class="table-container"><div class="table-scroll"><table class="fluxo-mes-table"><thead><tr><th>Data</th><th>Tipo</th><th>Descrição</th><th>Valor</th><th>Ações</th></tr></thead><tbody id="fluxoBody_maio"></tbody></table></div></div>
-                </div>
-
-                <div class="page" id="page-junho">
-                    <div class="page-header"><h2>📅 Junho 2026</h2><div style="display:flex;gap:8px;"><button class="btn btn-primary" onclick="openFluxoMesModal('junho','entrada')">+ Entrada</button><button class="btn btn-danger" onclick="openFluxoMesModal('junho','saida')">+ Saída</button></div></div>
-                    <div class="fluxo-summary" id="sumJunho"></div>
-                    <div class="filter-bar"><input type="text" id="fluxoBusca_junho" placeholder="Buscar descrição..." oninput="renderFluxoMes(getMesConfig('junho'))" style="flex:1;padding:8px 12px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:var(--radius-sm);color:var(--text-primary);font-family:'Inter',sans-serif;"><select id="fluxoFiltro_junho" onchange="renderFluxoMes(getMesConfig('junho'))"><option value="">Todos</option><option value="entrada">Entradas</option><option value="saida">Saídas</option><option value="wander">Wander</option><option value="daniel">Daniel</option><option value="dinheiro">Dinheiro</option><option value="combustivel">Combustível</option></select><select id="fluxoFiltroDia_junho" onchange="renderFluxoMes(getMesConfig('junho'))"><option value="">Todos os Dias</option></select></div>
-                    <div class="table-container"><div class="table-scroll"><table class="fluxo-mes-table"><thead><tr><th>Data</th><th>Tipo</th><th>Descrição</th><th>Valor</th><th>Ações</th></tr></thead><tbody id="fluxoBody_junho"></tbody></table></div></div>
-                </div>
-
-                <div class="page" id="page-julho">
-                    <div class="page-header"><h2>📅 Julho 2026</h2><div style="display:flex;gap:8px;"><button class="btn btn-primary" onclick="openFluxoMesModal('julho','entrada')">+ Entrada</button><button class="btn btn-danger" onclick="openFluxoMesModal('julho','saida')">+ Saída</button></div></div>
-                    <div class="fluxo-summary" id="sumJulho"></div>
-                    <div class="filter-bar"><input type="text" id="fluxoBusca_julho" placeholder="Buscar descrição..." oninput="renderFluxoMes(getMesConfig('julho'))" style="flex:1;padding:8px 12px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:var(--radius-sm);color:var(--text-primary);font-family:'Inter',sans-serif;"><select id="fluxoFiltro_julho" onchange="renderFluxoMes(getMesConfig('julho'))"><option value="">Todos</option><option value="entrada">Entradas</option><option value="saida">Saídas</option><option value="wander">Wander</option><option value="daniel">Daniel</option><option value="dinheiro">Dinheiro</option><option value="combustivel">Combustível</option></select><select id="fluxoFiltroDia_julho" onchange="renderFluxoMes(getMesConfig('julho'))"><option value="">Todos os Dias</option></select></div>
-                    <div class="table-container"><div class="table-scroll"><table class="fluxo-mes-table"><thead><tr><th>Data</th><th>Tipo</th><th>Descrição</th><th>Valor</th><th>Ações</th></tr></thead><tbody id="fluxoBody_julho"></tbody></table></div></div>
-                </div>
-
-                <div class="page" id="page-agosto">
-                    <div class="page-header"><h2>📅 Agosto 2026</h2><div style="display:flex;gap:8px;"><button class="btn btn-primary" onclick="openFluxoMesModal('agosto','entrada')">+ Entrada</button><button class="btn btn-danger" onclick="openFluxoMesModal('agosto','saida')">+ Saída</button></div></div>
-                    <div class="fluxo-summary" id="sumAgosto"></div>
-                    <div class="filter-bar"><input type="text" id="fluxoBusca_agosto" placeholder="Buscar descrição..." oninput="renderFluxoMes(getMesConfig('agosto'))" style="flex:1;padding:8px 12px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:var(--radius-sm);color:var(--text-primary);font-family:'Inter',sans-serif;"><select id="fluxoFiltro_agosto" onchange="renderFluxoMes(getMesConfig('agosto'))"><option value="">Todos</option><option value="entrada">Entradas</option><option value="saida">Saídas</option><option value="wander">Wander</option><option value="daniel">Daniel</option><option value="dinheiro">Dinheiro</option><option value="combustivel">Combustível</option></select><select id="fluxoFiltroDia_agosto" onchange="renderFluxoMes(getMesConfig('agosto'))"><option value="">Todos os Dias</option></select></div>
-                    <div class="table-container"><div class="table-scroll"><table class="fluxo-mes-table"><thead><tr><th>Data</th><th>Tipo</th><th>Descrição</th><th>Valor</th><th>Ações</th></tr></thead><tbody id="fluxoBody_agosto"></tbody></table></div></div>
-                </div>
-
-                <div class="page" id="page-setembro">
-                    <div class="page-header"><h2>📅 Setembro 2026</h2><div style="display:flex;gap:8px;"><button class="btn btn-primary" onclick="openFluxoMesModal('setembro','entrada')">+ Entrada</button><button class="btn btn-danger" onclick="openFluxoMesModal('setembro','saida')">+ Saída</button></div></div>
-                    <div class="fluxo-summary" id="sumSetembro"></div>
-                    <div class="filter-bar"><input type="text" id="fluxoBusca_setembro" placeholder="Buscar descrição..." oninput="renderFluxoMes(getMesConfig('setembro'))" style="flex:1;padding:8px 12px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:var(--radius-sm);color:var(--text-primary);font-family:'Inter',sans-serif;"><select id="fluxoFiltro_setembro" onchange="renderFluxoMes(getMesConfig('setembro'))"><option value="">Todos</option><option value="entrada">Entradas</option><option value="saida">Saídas</option><option value="wander">Wander</option><option value="daniel">Daniel</option><option value="dinheiro">Dinheiro</option><option value="combustivel">Combustível</option></select><select id="fluxoFiltroDia_setembro" onchange="renderFluxoMes(getMesConfig('setembro'))"><option value="">Todos os Dias</option></select></div>
-                    <div class="table-container"><div class="table-scroll"><table class="fluxo-mes-table"><thead><tr><th>Data</th><th>Tipo</th><th>Descrição</th><th>Valor</th><th>Ações</th></tr></thead><tbody id="fluxoBody_setembro"></tbody></table></div></div>
-                </div>
-
-                <div class="page" id="page-outubro">
-                    <div class="page-header"><h2>📅 Outubro 2026</h2><div style="display:flex;gap:8px;"><button class="btn btn-primary" onclick="openFluxoMesModal('outubro','entrada')">+ Entrada</button><button class="btn btn-danger" onclick="openFluxoMesModal('outubro','saida')">+ Saída</button></div></div>
-                    <div class="fluxo-summary" id="sumOutubro"></div>
-                    <div class="filter-bar"><input type="text" id="fluxoBusca_outubro" placeholder="Buscar descrição..." oninput="renderFluxoMes(getMesConfig('outubro'))" style="flex:1;padding:8px 12px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:var(--radius-sm);color:var(--text-primary);font-family:'Inter',sans-serif;"><select id="fluxoFiltro_outubro" onchange="renderFluxoMes(getMesConfig('outubro'))"><option value="">Todos</option><option value="entrada">Entradas</option><option value="saida">Saídas</option><option value="wander">Wander</option><option value="daniel">Daniel</option><option value="dinheiro">Dinheiro</option><option value="combustivel">Combustível</option></select><select id="fluxoFiltroDia_outubro" onchange="renderFluxoMes(getMesConfig('outubro'))"><option value="">Todos os Dias</option></select></div>
-                    <div class="table-container"><div class="table-scroll"><table class="fluxo-mes-table"><thead><tr><th>Data</th><th>Tipo</th><th>Descrição</th><th>Valor</th><th>Ações</th></tr></thead><tbody id="fluxoBody_outubro"></tbody></table></div></div>
-                </div>
-
-                <div class="page" id="page-novembro">
-                    <div class="page-header"><h2>📅 Novembro 2026</h2><div style="display:flex;gap:8px;"><button class="btn btn-primary" onclick="openFluxoMesModal('novembro','entrada')">+ Entrada</button><button class="btn btn-danger" onclick="openFluxoMesModal('novembro','saida')">+ Saída</button></div></div>
-                    <div class="fluxo-summary" id="sumNovembro"></div>
-                    <div class="filter-bar"><input type="text" id="fluxoBusca_novembro" placeholder="Buscar descrição..." oninput="renderFluxoMes(getMesConfig('novembro'))" style="flex:1;padding:8px 12px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:var(--radius-sm);color:var(--text-primary);font-family:'Inter',sans-serif;"><select id="fluxoFiltro_novembro" onchange="renderFluxoMes(getMesConfig('novembro'))"><option value="">Todos</option><option value="entrada">Entradas</option><option value="saida">Saídas</option><option value="wander">Wander</option><option value="daniel">Daniel</option><option value="dinheiro">Dinheiro</option><option value="combustivel">Combustível</option></select><select id="fluxoFiltroDia_novembro" onchange="renderFluxoMes(getMesConfig('novembro'))"><option value="">Todos os Dias</option></select></div>
-                    <div class="table-container"><div class="table-scroll"><table class="fluxo-mes-table"><thead><tr><th>Data</th><th>Tipo</th><th>Descrição</th><th>Valor</th><th>Ações</th></tr></thead><tbody id="fluxoBody_novembro"></tbody></table></div></div>
-                </div>
-
-                <div class="page" id="page-dezembro">
-                    <div class="page-header"><h2>📅 Dezembro 2026</h2><div style="display:flex;gap:8px;"><button class="btn btn-primary" onclick="openFluxoMesModal('dezembro','entrada')">+ Entrada</button><button class="btn btn-danger" onclick="openFluxoMesModal('dezembro','saida')">+ Saída</button></div></div>
-                    <div class="fluxo-summary" id="sumDezembro"></div>
-                    <div class="filter-bar"><input type="text" id="fluxoBusca_dezembro" placeholder="Buscar descrição..." oninput="renderFluxoMes(getMesConfig('dezembro'))" style="flex:1;padding:8px 12px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:var(--radius-sm);color:var(--text-primary);font-family:'Inter',sans-serif;"><select id="fluxoFiltro_dezembro" onchange="renderFluxoMes(getMesConfig('dezembro'))"><option value="">Todos</option><option value="entrada">Entradas</option><option value="saida">Saídas</option><option value="wander">Wander</option><option value="daniel">Daniel</option><option value="dinheiro">Dinheiro</option><option value="combustivel">Combustível</option></select><select id="fluxoFiltroDia_dezembro" onchange="renderFluxoMes(getMesConfig('dezembro'))"><option value="">Todos os Dias</option></select></div>
-                    <div class="table-container"><div class="table-scroll"><table class="fluxo-mes-table"><thead><tr><th>Data</th><th>Tipo</th><th>Descrição</th><th>Valor</th><th>Ações</th></tr></thead><tbody id="fluxoBody_dezembro"></tbody></table></div></div>
-                </div>
-
-                <!-- ==================== COMPRAS ==================== -->
-                <div class="page" id="page-compras">
-                    <div class="page-header">
-                        <h2>🛒 Compras</h2>
-                        <button class="btn btn-primary" onclick="openCompraModal()">+ Nova Compra</button>
-                    </div>
-                    <div class="fluxo-summary" id="comprasCards"></div>
-                    <div class="filter-bar">
-                        <input type="text" id="comprasBusca" placeholder="Buscar produto, fornecedor..." oninput="renderCompras()" style="flex:1;padding:8px 12px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:var(--radius-sm);color:var(--text-primary);font-family:'Inter',sans-serif;">
-                        <select id="comprasFilterStatus" onchange="renderCompras()">
-                            <option value="">Todos Status</option>
-                        </select>
-                    </div>
-                    <div class="table-container">
-                        <div class="table-scroll">
-                            <table><thead><tr><th>Data</th><th>Venc.</th><th>Produto</th><th>Qtd</th><th>V.Unit</th><th>Fornecedor</th><th>Pagto</th><th>Total</th><th>Status</th><th>Dias</th><th>Ações</th></tr></thead>
-                            <tbody id="comprasBody"></tbody></table>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ==================== VENDAS ==================== -->
-                <div class="page" id="page-vendas">
-                    <div class="page-header">
-                        <h2>💰 Vendas</h2>
-                        <button class="btn btn-primary" onclick="openVendaModal()">+ Nova Venda</button>
-                    </div>
-                    <div class="fluxo-summary" id="vendasCards"></div>
-                    <div class="filter-bar">
-                        <input type="text" id="vendasBusca" placeholder="Buscar produto, cliente..." oninput="renderVendas()" style="flex:1;padding:8px 12px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:var(--radius-sm);color:var(--text-primary);font-family:'Inter',sans-serif;">
-                        <select id="vendasFilterStatus" onchange="renderVendas()"><option value="">Todos Status</option></select>
-                        <select id="vendasFilterVendedor" onchange="renderVendas()"><option value="">Todos Vendedores</option></select>
-                    </div>
-                    <div class="table-container">
-                        <div class="table-scroll">
-                            <table><thead><tr><th>Data</th><th>Produto</th><th>Vendedor</th><th>Qtd</th><th>Valor</th><th>Cliente</th><th>Total</th><th>Status</th><th>Entrega</th><th>Ações</th></tr></thead>
-                            <tbody id="vendasBody"></tbody></table>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ==================== ESTOQUE ==================== -->
-                <div class="page" id="page-estoque">
-                    <div class="page-header"><h2>📦 Estoque</h2></div>
-                    <div class="fluxo-summary" id="estoqueCards"></div>
-                    <div class="search-bar"><input type="text" id="estoqueBusca" placeholder="Buscar produto..." oninput="renderEstoque()"></div>
-                    <div class="table-container"><div class="table-scroll"><table><thead><tr><th>Produto</th><th>Em Estoque</th><th>Compras</th><th>Vendas</th><th>T. Compra</th><th>T. Venda</th><th>Lucros</th><th>V. Estoque</th></tr></thead><tbody id="estoqueBody"></tbody></table></div></div>
-                </div>
-
-                <!-- ==================== PRODUTOS ==================== -->
-                <div class="page" id="page-produtos">
-                    <div class="page-header"><h2>🏷️ Produtos <span class="counter" id="produtosCount">0</span></h2><button class="btn btn-primary" onclick="openCadastroModal('produtos')">+ Novo Produto</button></div>
-                    <div class="search-bar"><input type="text" id="produtosBusca" placeholder="Buscar produto..." oninput="renderProdutos()"></div>
-                    <div class="cards-grid" id="produtosGrid" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr));"></div>
-                </div>
-
-                <!-- ==================== CLIENTES ==================== -->
-                <div class="page" id="page-clientes">
-                    <div class="page-header"><h2>👥 Clientes <span class="counter" id="clientesCount">0</span></h2><button class="btn btn-primary" onclick="openCadastroModal('clientes')">+ Novo Cliente</button></div>
-                    <div class="search-bar"><input type="text" id="clientesBusca" placeholder="Buscar nome, CPF/CNPJ, cidade..." oninput="renderClientes()"></div>
-                    <div class="table-container"><div class="table-scroll"><table><thead><tr><th></th><th>Nome</th><th>CPF/CNPJ</th><th>Telefone</th><th>Cidade/UF</th><th>Ações</th></tr></thead><tbody id="clientesBody"></tbody></table></div></div>
-                </div>
-
-                <!-- ==================== FORNECEDORES ==================== -->
-                <div class="page" id="page-fornecedores">
-                    <div class="page-header"><h2>🏭 Fornecedores <span class="counter" id="fornecedoresCount">0</span></h2><button class="btn btn-primary" onclick="openCadastroModal('fornecedores')">+ Novo Fornecedor</button></div>
-                    <div class="search-bar"><input type="text" id="fornecedoresBusca" placeholder="Buscar nome, CPF/CNPJ, cidade..." oninput="renderFornecedores()"></div>
-                    <div class="table-container"><div class="table-scroll"><table><thead><tr><th></th><th>Nome</th><th>CPF/CNPJ</th><th>Telefone</th><th>Cidade/UF</th><th>Ações</th></tr></thead><tbody id="fornecedoresBody"></tbody></table></div></div>
-                </div>
-
-                <!-- ==================== P. FORNECEDORES ==================== -->
-                <div class="page" id="page-pfornecedores">
-                    <div class="page-header"><h2>📋 Produtos dos Fornecedores <span class="counter" id="pfornecedoresCount">0</span></h2><button class="btn btn-primary" onclick="openCadastroModal('pfornecedores')">+ Novo Produto</button></div>
-                    <div class="search-bar"><input type="text" id="pfornecedoresBusca" placeholder="Buscar produto..." oninput="renderPFornecedores()"></div>
-                    <div class="cards-grid" id="pfornecedoresGrid" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr));"></div>
-                </div>
-
-                <!-- ==================== BOLETOS ==================== -->
-                <div class="page" id="page-boletos">
-                    <div class="page-header"><h2>🔖 Boletos</h2><button class="btn btn-primary" onclick="openBoletoModal()">+ Novo Boleto</button></div>
-                    <div class="fluxo-summary" id="boletosCards"></div>
-                    <div class="table-container"><div class="table-scroll"><table><thead><tr><th>Data Saída</th><th>Cliente</th><th>Valor</th><th>Vencimento</th><th>Data Receber</th><th>Situação</th><th>Ações</th></tr></thead><tbody id="boletosBody"></tbody></table></div></div>
-                </div>
-
-                <!-- ==================== CHEQUES ==================== -->
-                <div class="page" id="page-cheques">
-                    <div class="page-header"><h2>📝 Cheques</h2><button class="btn btn-primary" onclick="openChequeModal()">+ Novo Cheque</button></div>
-                    <div class="fluxo-summary" id="chequesCards"></div>
-                    <div class="table-container"><div class="table-scroll"><table><thead><tr><th>Data</th><th>Cliente</th><th>Banco</th><th>Nº Cheque</th><th>Valor</th><th>Vencimento</th><th>Compensou</th><th>Situação</th><th>Obs</th><th>Ações</th></tr></thead><tbody id="chequesBody"></tbody></table></div></div>
-                </div>
-
-                <!-- ==================== PRESTAÇÕES ==================== -->
-                <div class="page" id="page-prestacoes">
-                    <div class="page-header"><h2>💳 Prestações</h2><button class="btn btn-primary" onclick="openPrestacaoModal()">+ Nova Prestação</button></div>
-                    <div class="fluxo-summary" id="prestacoesCards"></div>
-                    <div id="prestacoesLista"></div>
-                </div>
-
-                <!-- ==================== PROJETOS ==================== -->
-                <div class="page" id="page-projetos">
-                    <div class="page-header"><h2>📐 Projetos</h2><button class="btn btn-primary" onclick="openProjetoModal()">+ Novo Projeto</button></div>
-                    <div class="fluxo-summary" id="projetosCards"></div>
-                    <div id="projetosLista"></div>
-                </div>
-
-                <!-- ==================== PAG. CLIENTES ==================== -->
-                <div class="page" id="page-pagclientes">
-                    <div class="page-header"><h2>🤝 Pagamentos de Clientes</h2><button class="btn btn-primary" onclick="openPagClienteModal()">+ Novo Pagamento</button></div>
-                    <div class="fluxo-summary" id="pagclientesCards"></div>
-                    <div class="table-container"><div class="table-scroll"><table><thead><tr><th>Data</th><th>Cliente</th><th>Valor</th><th>Forma Pagto</th><th>Obs</th><th>Ações</th></tr></thead><tbody id="pagclientesBody"></tbody></table></div></div>
-                    <div id="pagclientesResumo" style="margin-top:16px;"></div>
-                </div>
-
-                <!-- ==================== GARANTIAS ==================== -->
-                <div class="page" id="page-garantias">
-                    <div class="page-header"><h2>🛡️ Garantias</h2><button class="btn btn-primary" onclick="openGarantiaModal()">+ Nova Garantia</button></div>
-                    <div class="fluxo-summary" id="garantiasCards"></div>
-                    <div class="table-container"><div class="table-scroll"><table><thead><tr><th>Início</th><th>Cliente</th><th>Produto</th><th>Vencimento</th><th>Situação</th><th>Tempo</th><th>Ações</th></tr></thead><tbody id="garantiasBody"></tbody></table></div></div>
-                </div>
-
-                <!-- ==================== RELATÓRIOS ==================== -->
-                <div class="page" id="page-relatorios">
-                    <div class="page-header"><h2>📈 Relatórios</h2><div><select id="relatorioMes" onchange="renderRelatorios()" style="padding:8px 12px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:var(--radius-sm);color:var(--text-primary);font-family:'Inter',sans-serif;"><option value="0">Janeiro</option><option value="1">Fevereiro</option><option value="2">Março</option><option value="3">Abril</option><option value="4">Maio</option><option value="5">Junho</option><option value="6">Julho</option><option value="7">Agosto</option><option value="8">Setembro</option><option value="9">Outubro</option><option value="10">Novembro</option><option value="11">Dezembro</option></select></div></div>
-                    <div id="relatoriosContent"></div>
-                </div>
-
-                <!-- ==================== NOTAS ENTRADA ==================== -->
-                <div class="page" id="page-notasentrada">
-                    <div class="page-header"><h2>📥 Notas de Entrada</h2><button class="btn btn-primary" onclick="openNotaEntradaModal()">+ Nova Nota</button></div>
-                    <div class="fluxo-summary" id="notasEntradaCards"></div>
-                    <div class="table-container"><div class="table-scroll"><table><thead><tr><th>Data</th><th>Fornecedor</th><th>Valor</th><th>Mês Ref.</th><th>Ações</th></tr></thead><tbody id="notasEntradaBody"></tbody></table></div></div>
-                </div>
-
-                <!-- ==================== NOTAS SAÍDA ==================== -->
-                <div class="page" id="page-notassaida">
-                    <div class="page-header"><h2>📤 Notas de Saída</h2><button class="btn btn-primary" onclick="openNotaSaidaModal()">+ Nova Nota</button></div>
-                    <div class="fluxo-summary" id="notasSaidaCards"></div>
-                    <div class="table-container"><div class="table-scroll"><table><thead><tr><th>Data</th><th>Cliente</th><th>Valor</th><th>Mês Ref.</th><th>Ações</th></tr></thead><tbody id="notasSaidaBody"></tbody></table></div></div>
-                    <div class="relatorio-section" style="margin-top:16px;"><div class="relatorio-section-header"><h4>Resumo Fiscal</h4></div><div class="relatorio-section-body" id="notasSaidaFiscal"></div></div>
-                </div>
-
-                <!-- ==================== RECEITAS MEI ==================== -->
-                <div class="page" id="page-receitasmei">
-                    <div class="page-header"><h2>📄 Relatório Mensal das Receitas Brutas - MEI</h2><button class="btn btn-primary" onclick="gerarPDFMei()">📄 Gerar PDF</button></div>
-                    <div style="margin-bottom:16px;"><select id="meiMes" onchange="renderReceitasMei()" style="padding:8px 12px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:var(--radius-sm);color:var(--text-primary);font-family:'Inter',sans-serif;"><option value="0">Janeiro</option><option value="1">Fevereiro</option><option value="2">Março</option><option value="3">Abril</option><option value="4">Maio</option><option value="5">Junho</option><option value="6">Julho</option><option value="7">Agosto</option><option value="8">Setembro</option><option value="9">Outubro</option><option value="10">Novembro</option><option value="11">Dezembro</option></select></div>
-                    <div id="meiDocumento"></div>
-                </div>
-
-                <!-- ==================== CONFIGURAÇÕES ==================== -->
-                <div class="page" id="page-configuracoes">
-                    <div class="page-header"><h2>⚙️ Configurações</h2></div>
-                    <div id="configContent"></div>
-                </div>
-
-                <!-- ==================== BACKUP ==================== -->
-                <div class="page" id="page-backup">
-                    <div class="page-header"><h2>💾 Backup & Restauração</h2></div>
-                    <div class="backup-grid">
-                        <div class="backup-card"><h4>📥 Exportar Backup</h4><p>Baixar todos os dados em arquivo JSON</p><button class="btn btn-primary" onclick="exportBackup()">Exportar JSON</button></div>
-                        <div class="backup-card"><h4>📤 Importar Backup</h4><p>Restaurar dados de um arquivo JSON</p><input type="file" id="importFile" accept=".json" onchange="importBackup(event)" style="display:none;"><button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">Importar JSON</button></div>
-                        <div class="backup-card"><h4>🗑️ Limpar Dados</h4><p>Remover todos os dados do sistema</p><button class="btn btn-danger" onclick="clearAllData()">Limpar Tudo</button></div>
-                        <div class="backup-card"><h4>🔄 Restaurar Padrão</h4><p>Voltar aos dados originais do Excel</p><button class="btn btn-secondary" onclick="restoreDefaults()">Restaurar</button></div>
-                    </div>
-                    <div class="table-container"><div class="table-header"><h3>ℹ️ Informações do Sistema</h3></div><div style="padding:20px;" id="backupInfo"></div></div>
-                </div>
-
-            </div>
-        </main>
-    </div>
-
-    <!-- MODAL CADASTRO -->
-    <div class="modal-overlay" id="cadastroModal">
-        <div class="modal">
-            <div class="modal-header"><h3 id="cadastroModalTitle">Novo</h3><button class="modal-close" onclick="closeCadastroModal()">&times;</button></div>
-            <div class="modal-body" id="cadastroModalBody"></div>
-            <div class="modal-footer" id="cadastroModalFooter"><button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button><button class="btn btn-primary" id="cadastroModalSaveBtn" onclick="saveCadastro()">Salvar</button></div>
+<div class="app-container">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <img id="sidebarLogo" src="" alt="Logo" style="display:none;max-width:220px;max-height:70px;object-fit:contain;margin:0 auto 6px auto;">
+            <h1>WD MÁQUINAS</h1>
+            <p>CNPJ: 59.483.994/0001-01</p>
         </div>
-    </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <div class="nav-section-title">Principal</div>
+                <div class="nav-item active" onclick="navigateTo('dashboard')"><span class="nav-icon">📊</span> Dashboard</div>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">Fluxo de Caixa</div>
+                <div class="nav-item" onclick="navigateTo('janeiro')"><span class="nav-icon">📅</span> Janeiro</div>
+                <div class="nav-item" onclick="navigateTo('fevereiro')"><span class="nav-icon">📅</span> Fevereiro</div>
+                <div class="nav-item" onclick="navigateTo('marco')"><span class="nav-icon">📅</span> Março</div>
+                <div class="nav-item" onclick="navigateTo('abril')"><span class="nav-icon">📅</span> Abril</div>
+                <div class="nav-item" onclick="navigateTo('maio')"><span class="nav-icon">📅</span> Maio</div>
+                <div class="nav-item" onclick="navigateTo('junho')"><span class="nav-icon">📅</span> Junho</div>
+                <div class="nav-item" onclick="navigateTo('julho')"><span class="nav-icon">📅</span> Julho</div>
+                <div class="nav-item" onclick="navigateTo('agosto')"><span class="nav-icon">📅</span> Agosto</div>
+                <div class="nav-item" onclick="navigateTo('setembro')"><span class="nav-icon">📅</span> Setembro</div>
+                <div class="nav-item" onclick="navigateTo('outubro')"><span class="nav-icon">📅</span> Outubro</div>
+                <div class="nav-item" onclick="navigateTo('novembro')"><span class="nav-icon">📅</span> Novembro</div>
+                <div class="nav-item" onclick="navigateTo('dezembro')"><span class="nav-icon">📅</span> Dezembro</div>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">Gestão</div>
+                <div class="nav-item" onclick="navigateTo('compras')"><span class="nav-icon">🛒</span> Compras</div>
+                <div class="nav-item" onclick="navigateTo('vendas')"><span class="nav-icon">💰</span> Vendas</div>
+                <div class="nav-item" onclick="navigateTo('estoque')"><span class="nav-icon">📦</span> Estoque</div>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">Cadastros</div>
+                <div class="nav-item" onclick="navigateTo('produtos')"><span class="nav-icon">🏷️</span> Produtos</div>
+                <div class="nav-item" onclick="navigateTo('clientes')"><span class="nav-icon">👥</span> Clientes</div>
+                <div class="nav-item" onclick="navigateTo('fornecedores')"><span class="nav-icon">🏭</span> Fornecedores</div>
+                <div class="nav-item" onclick="navigateTo('pfornecedores')"><span class="nav-icon">📋</span> P. Fornecedores</div>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">Financeiro</div>
+                <div class="nav-item" onclick="navigateTo('boletos')"><span class="nav-icon">🔖</span> Boletos</div>
+                <div class="nav-item" onclick="navigateTo('cheques')"><span class="nav-icon">📝</span> Cheques</div>
+                <div class="nav-item" onclick="navigateTo('prestacoes')"><span class="nav-icon">💳</span> Prestações</div>
+                <div class="nav-item" onclick="navigateTo('projetos')"><span class="nav-icon">📐</span> Projetos</div>
+                <div class="nav-item" onclick="navigateTo('pagclientes')"><span class="nav-icon">🤝</span> Pag. Clientes</div>
+                <div class="nav-item" onclick="navigateTo('garantias')"><span class="nav-icon">🛡️</span> Garantias</div>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">Relatórios</div>
+                <div class="nav-item" onclick="navigateTo('relatorios')"><span class="nav-icon">📈</span> Relatórios</div>
+                <div class="nav-item" onclick="navigateTo('notasentrada')"><span class="nav-icon">📥</span> Notas Entrada</div>
+                <div class="nav-item" onclick="navigateTo('notassaida')"><span class="nav-icon">📤</span> Notas Saída</div>
+                <div class="nav-item" onclick="navigateTo('receitasmei')"><span class="nav-icon">📄</span> Receitas MEI</div>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">Sistema</div>
+                <div class="nav-item" onclick="navigateTo('configuracoes')"><span class="nav-icon">⚙️</span> Configurações</div>
+                <div class="nav-item" onclick="navigateTo('backup')"><span class="nav-icon">💾</span> Backup</div>
+            </div>
+        </nav>
+    </aside>
 
-    <!-- MODAL VISUALIZAÇÃO -->
-    <div class="modal-overlay" id="viewModal">
-        <div class="modal">
-            <div class="modal-header"><h3 id="viewModalTitle">Detalhes</h3><button class="modal-close" onclick="closeViewModal()">&times;</button></div>
-            <div class="modal-body" id="viewModalBody"></div>
-            <div class="modal-footer"><button class="btn btn-secondary" onclick="closeViewModal()">Fechar</button></div>
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <div class="topbar">
+            <div class="topbar-left">
+                <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+                <span class="topbar-title" id="pageTitle">Dashboard</span>
+            </div>
+            <div class="topbar-right">
+                <span class="topbar-date" id="currentDate"></span>
+            </div>
         </div>
+        <div class="content-area">
+            <!-- Todas as páginas — conteúdo gerado pelo JS -->
+            <div class="page-content" id="page-dashboard" style="display:block;"><div id="dashboardCards"></div></div>
+            <div class="page-content" id="page-janeiro"></div>
+            <div class="page-content" id="page-fevereiro"></div>
+            <div class="page-content" id="page-marco"></div>
+            <div class="page-content" id="page-abril"></div>
+            <div class="page-content" id="page-maio"></div>
+            <div class="page-content" id="page-junho"></div>
+            <div class="page-content" id="page-julho"></div>
+            <div class="page-content" id="page-agosto"></div>
+            <div class="page-content" id="page-setembro"></div>
+            <div class="page-content" id="page-outubro"></div>
+            <div class="page-content" id="page-novembro"></div>
+            <div class="page-content" id="page-dezembro"></div>
+            <div class="page-content" id="page-compras"></div>
+            <div class="page-content" id="page-vendas"></div>
+            <div class="page-content" id="page-estoque"></div>
+            <div class="page-content" id="page-produtos"></div>
+            <div class="page-content" id="page-clientes"></div>
+            <div class="page-content" id="page-fornecedores"></div>
+            <div class="page-content" id="page-pfornecedores"></div>
+            <div class="page-content" id="page-boletos"></div>
+            <div class="page-content" id="page-cheques"></div>
+            <div class="page-content" id="page-prestacoes"></div>
+            <div class="page-content" id="page-projetos"></div>
+            <div class="page-content" id="page-pagclientes"></div>
+            <div class="page-content" id="page-garantias"></div>
+            <div class="page-content" id="page-relatorios"></div>
+            <div class="page-content" id="page-notasentrada"></div>
+            <div class="page-content" id="page-notassaida"></div>
+            <div class="page-content" id="page-receitasmei"></div>
+            <div class="page-content" id="page-configuracoes"></div>
+            <div class="page-content" id="page-backup"></div>
+        </div>
+    </main>
+</div>
+
+<!-- MODAL CADASTRO -->
+<div class="modal-overlay" id="cadastroModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 id="cadastroModalTitle">Cadastro</h3>
+            <button class="modal-close" onclick="closeCadastroModal()">✕</button>
+        </div>
+        <div class="modal-body" id="cadastroModalBody"></div>
+        <div class="modal-footer" id="cadastroModalFooter"></div>
     </div>
+</div>
 
-    <div class="toast-container" id="toastContainer"></div>
+<!-- MODAL VIEW -->
+<div class="modal-overlay" id="viewModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 id="viewModalTitle">Detalhes</h3>
+            <button class="modal-close" onclick="closeViewModal()">✕</button>
+        </div>
+        <div class="modal-body" id="viewModalBody"></div>
+    </div>
+</div>
 
-    <script src="script.js"></script>
+<!-- TOAST -->
+<div id="toast" class="toast"></div>
+
+<script src="script.js"></script>
 </body>
 </html>
