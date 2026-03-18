@@ -26,7 +26,53 @@ function formatDate(d) {
   if (parts.length === 3) return parts[2] + '/' + parts[1] + '/' + parts[0];
   return d;
 }
+// ---------- MÁSCARAS AUTOMÁTICAS ----------
+function maskCPF(v) {
+  v = v.replace(/\D/g, '').substring(0, 11);
+  v = v.replace(/(\d{3})(\d)/, '$1.$2');
+  v = v.replace(/(\d{3})(\d)/, '$1.$2');
+  v = v.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+  return v;
+}
 
+function maskCNPJ(v) {
+  v = v.replace(/\D/g, '').substring(0, 14);
+  v = v.replace(/^(\d{2})(\d)/, '$1.$2');
+  v = v.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
+  v = v.replace(/\.(\d{3})(\d)/, '.$1/$2');
+  v = v.replace(/(\d{4})(\d)/, '$1-$2');
+  return v;
+}
+
+function maskCPFouCNPJ(v) {
+  var digits = v.replace(/\D/g, '');
+  if (digits.length <= 11) return maskCPF(v);
+  return maskCNPJ(v);
+}
+
+function maskTelefone(v) {
+  v = v.replace(/\D/g, '').substring(0, 11);
+  if (v.length <= 10) {
+    v = v.replace(/(\d{2})(\d)/, '($1) $2');
+    v = v.replace(/(\d{4})(\d)/, '$1-$2');
+  } else {
+    v = v.replace(/(\d{2})(\d)/, '($1) $2');
+    v = v.replace(/(\d{5})(\d)/, '$1-$2');
+  }
+  return v;
+}
+
+function applyMask(inputId, maskFn) {
+  var el = document.getElementById(inputId);
+  if (!el) return;
+  el.addEventListener('input', function() {
+    var pos = el.selectionStart;
+    var oldLen = el.value.length;
+    el.value = maskFn(el.value);
+    var newLen = el.value.length;
+    el.setSelectionRange(pos + (newLen - oldLen), pos + (newLen - oldLen));
+  });
+}
 // ---------- DADOS PADRÃO ----------
 function getDefaultData() {
   return {
@@ -128,7 +174,30 @@ function openViewModal() { document.getElementById('viewModal').style.display = 
 function closeViewModal() { document.getElementById('viewModal').style.display = 'none'; }
 
 // ---------- SIDEBAR TOGGLE ----------
+// ---------- SIDEBAR TOGGLE & COLLAPSE ----------
 function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+
+function collapseSidebar() {
+  var sb = document.getElementById('sidebar');
+  var btn = document.getElementById('expandBtn');
+  sb.classList.toggle('collapsed');
+  if (sb.classList.contains('collapsed')) {
+    btn.style.display = 'inline-flex';
+  } else {
+    btn.style.display = 'none';
+  }
+}
+
+function updateSidebarInfo() {
+  var emp = appData.empresa || {};
+  var nameEl = document.getElementById('sidebarNome');
+  var cnpjEl = document.getElementById('sidebarCnpj');
+  var logoEl = document.getElementById('sidebarLogo');
+  if (nameEl && emp.nome) nameEl.textContent = emp.nome.toUpperCase();
+  if (cnpjEl && emp.cnpj) cnpjEl.textContent = 'CNPJ: ' + emp.cnpj;
+  if (logoEl && emp.logo) { logoEl.src = emp.logo; logoEl.style.display = 'block'; }
+  else if (logoEl) { logoEl.style.display = 'none'; }
+}
 
 // ============================================================
 // NAVEGAÇÃO
@@ -349,6 +418,16 @@ function openFluxoModal(mesKey, editIdx) {
     '<button class="btn btn-primary" id="btnSalvarFluxo">Salvar</button>';
 
   openCadastroModal();
+    setTimeout(function(){
+    applyMask('clTelefone', maskTelefone);
+    applyMask('clCpfCnpj', maskCPFouCNPJ);
+    applyMask('clCpf', maskCPF);
+    applyMask('clCnpj', maskCNPJ);
+    applyMask('fnTelefone', maskTelefone);
+    applyMask('fnCpfCnpj', maskCPFouCNPJ);
+    applyMask('fnCnpj', maskCNPJ);
+  }, 50);
+
 
   setTimeout(function(){
     var btnSalvar = document.getElementById('btnSalvarFluxo');
@@ -662,7 +741,16 @@ function saveCliente(id) {
   saveData();closeCadastroModal();renderClientesPage();showToast(id?'Cliente atualizado!':'Cliente cadastrado!','success');
 }
 
-function editCliente(id){const c=appData.clientes.find(x=>x.id===id);if(c)openClienteModal(c);}
+function editCliente(id){const c=appData.clientes.find(x=>x.id===id);if(c)openClienteModal(c);
+    setTimeout(function(){
+    applyMask('clTelefone', maskTelefone);
+    applyMask('clCpfCnpj', maskCPFouCNPJ);
+    applyMask('clCpf', maskCPF);
+    applyMask('clCnpj', maskCNPJ);
+    applyMask('fnTelefone', maskTelefone);
+    applyMask('fnCpfCnpj', maskCPFouCNPJ);
+    applyMask('fnCnpj', maskCNPJ);
+  }, 50);}
 
 function viewCliente(id) {
   const c=appData.clientes.find(x=>x.id===id);if(!c)return;
@@ -718,7 +806,17 @@ function saveFornecedor(id) {
   saveData();closeCadastroModal();renderFornecedoresPage();showToast(id?'Fornecedor atualizado!':'Fornecedor cadastrado!','success');
 }
 
-function editFornecedor(id){const f=appData.fornecedores.find(x=>x.id===id);if(f)openFornecedorModal(f);}
+function editFornecedor(id){const f=appData.fornecedores.find(x=>x.id===id);if(f)openFornecedorModal(f);
+    setTimeout(function(){
+    applyMask('clTelefone', maskTelefone);
+    applyMask('clCpfCnpj', maskCPFouCNPJ);
+    applyMask('clCpf', maskCPF);
+    applyMask('clCnpj', maskCNPJ);
+    applyMask('fnTelefone', maskTelefone);
+    applyMask('fnCpfCnpj', maskCPFouCNPJ);
+    applyMask('fnCnpj', maskCNPJ);
+  }, 50);
+}
 
 function viewFornecedor(id) {
   const f=appData.fornecedores.find(x=>x.id===id);if(!f)return;
@@ -1171,46 +1269,97 @@ function deleteReceitaMei(id){if(!confirm('Excluir receita?'))return;appData.rec
 // CONFIGURAÇÕES
 // ============================================================
 function renderConfiguracoesPage() {
-  const pg=document.getElementById('page-configuracoes');const cats=appData.categoriasFluxo||[];
-  pg.innerHTML=`
-    <div class="page-header"><h2>⚙️ Configurações</h2></div>
-
-    <div class="card" style="margin-bottom:16px">
-      <div class="section-title">Empresa</div>
-      <div class="form-row"><div class="form-group"><label>Nome</label><input type="text" class="form-control" id="cfgNome" value="${appData.empresa.nome}"></div><div class="form-group"><label>CNPJ</label><input type="text" class="form-control" id="cfgCnpj" value="${appData.empresa.cnpj}"></div></div>
-      <div class="form-group"><label>Logo (URL)</label><input type="text" class="form-control" id="cfgLogo" value="${appData.empresa.logo||''}"></div>
-      <button class="btn btn-primary" onclick="saveConfigEmpresa()">Salvar Empresa</button>
-    </div>
-
-    <div class="card" style="margin-bottom:16px">
-      <div class="section-title">Vendedores</div>
-      <div id="cfgVendList">${(appData.vendedores||[]).map((v,i)=>`<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><input type="text" class="form-control" value="${v}" onchange="appData.vendedores[${i}]=this.value" style="flex:1"><button class="btn btn-sm btn-danger" onclick="appData.vendedores.splice(${i},1);renderConfiguracoesPage()">🗑️</button></div>`).join('')}</div>
-      <button class="btn btn-sm btn-secondary" onclick="appData.vendedores.push('');renderConfiguracoesPage()">+ Adicionar</button>
-      <button class="btn btn-sm btn-primary" style="margin-left:8px" onclick="saveData();showToast('Vendedores salvos!','success')">Salvar</button>
-    </div>
-
-    <div class="card" style="margin-bottom:16px">
-      <div class="section-title">Formas de Pagamento</div>
-      <div id="cfgPgtoList">${(appData.formasPagamento||[]).map((f,i)=>`<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><input type="text" class="form-control" value="${f}" onchange="appData.formasPagamento[${i}]=this.value" style="flex:1"><button class="btn btn-sm btn-danger" onclick="appData.formasPagamento.splice(${i},1);renderConfiguracoesPage()">🗑️</button></div>`).join('')}</div>
-      <button class="btn btn-sm btn-secondary" onclick="appData.formasPagamento.push('');renderConfiguracoesPage()">+ Adicionar</button>
-      <button class="btn btn-sm btn-primary" style="margin-left:8px" onclick="saveData();showToast('Formas salvas!','success')">Salvar</button>
-    </div>
-
-    <div class="card" style="margin-bottom:16px">
-      <div class="section-title">Categorias de Fluxo de Caixa</div>
-      <p style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:12px">Cada categoria é do tipo <strong style="color:var(--success)">Entrada</strong> ou <strong style="color:var(--danger)">Saída</strong>.</p>
-      <div id="cfgCatList">${cats.map((c,i)=>`<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><input type="text" class="form-control" value="${c.nome}" onchange="appData.categoriasFluxo[${i}].nome=this.value" style="flex:1"><select class="form-control" style="width:120px" onchange="appData.categoriasFluxo[${i}].tipo=this.value"><option value="entrada" ${c.tipo==='entrada'?'selected':''}>Entrada</option><option value="saida" ${c.tipo==='saida'?'selected':''}>Saída</option></select><button class="btn btn-sm btn-danger" onclick="appData.categoriasFluxo.splice(${i},1);renderConfiguracoesPage()">🗑️</button></div>`).join('')}</div>
-      <button class="btn btn-sm btn-secondary" onclick="if(!appData.categoriasFluxo)appData.categoriasFluxo=[];appData.categoriasFluxo.push({nome:'',tipo:'entrada'});renderConfiguracoesPage()">+ Adicionar Categoria</button>
-      <button class="btn btn-sm btn-primary" style="margin-left:8px" onclick="appData.categoriasFluxo=(appData.categoriasFluxo||[]).filter(c=>c.nome.trim()!=='');saveData();showToast('Categorias salvas!','success');renderConfiguracoesPage()">Salvar</button>
-    </div>
-
-    <div class="card" style="margin-bottom:16px">
-      <div class="section-title">Tipos de Unidade</div>
-      <div id="cfgUnidList">${(appData.tipoUnidade||[]).map((u,i)=>`<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><input type="text" class="form-control" value="${u}" onchange="appData.tipoUnidade[${i}]=this.value" style="flex:1"><button class="btn btn-sm btn-danger" onclick="appData.tipoUnidade.splice(${i},1);renderConfiguracoesPage()">🗑️</button></div>`).join('')}</div>
-      <button class="btn btn-sm btn-secondary" onclick="appData.tipoUnidade.push('');renderConfiguracoesPage()">+ Adicionar</button>
-      <button class="btn btn-sm btn-primary" style="margin-left:8px" onclick="saveData();showToast('Unidades salvas!','success')">Salvar</button>
-    </div>`;
+  var pg = document.getElementById('page-configuracoes');
+  var emp = appData.empresa || {};
+  var logoPreview = emp.logo ? '<img src="' + emp.logo + '" alt="Logo"><br>' : '';
+  pg.innerHTML =
+    '<div class="page-header"><h2>⚙️ Configurações</h2></div>' +
+    '<div class="card" style="margin-bottom:16px">' +
+      '<div class="section-title">Empresa</div>' +
+      '<div class="form-row">' +
+        '<div class="form-group"><label>Nome</label><input type="text" class="form-control" id="cfgNome" value="' + (emp.nome || '') + '"></div>' +
+        '<div class="form-group"><label>CNPJ</label><input type="text" class="form-control" id="cfgCnpj" value="' + (emp.cnpj || '') + '" placeholder="00.000.000/0000-00"></div>' +
+      '</div>' +
+      '<div class="form-group">' +
+        '<label>Logo da Empresa</label>' +
+        '<div class="logo-upload-area" id="logoUploadArea" onclick="document.getElementById(\'logoFileInput\').click()">' +
+          '<div id="logoPreviewContainer">' + logoPreview + '</div>' +
+          '<div class="upload-text">Clique para selecionar a logo</div>' +
+          '<div class="upload-hint">Recomendado: 220x70 px | PNG ou JPG | Máx. 500KB</div>' +
+          '<input type="file" id="logoFileInput" accept="image/png,image/jpeg,image/webp" style="display:none" onchange="handleLogoUpload(event)">' +
+        '</div>' +
+      '</div>' +
+      (emp.logo ? '<button class="btn btn-danger btn-sm" style="margin-bottom:12px" onclick="removeLogo()">Remover Logo</button>' : '') +
+      '<button class="btn btn-primary" onclick="salvarEmpresa()">Salvar Empresa</button>' +
+    '</div>' +
+    '<div class="card" style="margin-bottom:16px">' +
+      '<div class="section-title">Vendedores</div>' +
+      '<div id="cfgVendedoresLista" style="margin-bottom:8px">' +
+        (appData.vendedores || []).map(function(v, i) {
+          return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="color:var(--text-secondary)">' + v + '</span><button class="btn btn-sm btn-danger" onclick="removeVendedor(' + i + ')">✕</button></div>';
+        }).join('') +
+      '</div>' +
+      '<div style="display:flex;gap:8px"><input type="text" class="form-control" id="cfgNovoVendedor" placeholder="Nome do vendedor" style="max-width:250px"><button class="btn btn-primary btn-sm" onclick="addVendedor()">Adicionar</button></div>' +
+    '</div>' +
+    '<div class="card" style="margin-bottom:16px">' +
+      '<div class="section-title">Formas de Pagamento</div>' +
+      '<div id="cfgPgtoLista" style="margin-bottom:8px">' +
+        (appData.formasPagamento || []).map(function(f, i) {
+          return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="color:var(--text-secondary)">' + f + '</span><button class="btn btn-sm btn-danger" onclick="removePgto(' + i + ')">✕</button></div>';
+        }).join('') +
+      '</div>' +
+      '<div style="display:flex;gap:8px"><input type="text" class="form-control" id="cfgNovoPgto" placeholder="Forma de pagamento" style="max-width:250px"><button class="btn btn-primary btn-sm" onclick="addPgto()">Adicionar</button></div>' +
+    '</div>' +
+    '<div class="card">' +
+      '<div class="section-title">Categorias do Fluxo de Caixa</div>' +
+      '<div id="cfgCatLista" style="margin-bottom:8px">' +
+        (appData.categoriasFluxo || []).map(function(c, i) {
+          return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span class="badge ' + (c.tipo === 'entrada' ? 'badge-success' : 'badge-danger') + '">' + c.tipo + '</span><span style="color:var(--text-secondary)">' + c.nome + '</span><button class="btn btn-sm btn-danger" onclick="removeCat(' + i + ')">✕</button></div>';
+        }).join('') +
+      '</div>' +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap"><input type="text" class="form-control" id="cfgNovaCat" placeholder="Nome da categoria" style="max-width:200px"><select class="form-control" id="cfgNovaCatTipo" style="max-width:120px"><option value="entrada">Entrada</option><option value="saida">Saída</option></select><button class="btn btn-primary btn-sm" onclick="addCat()">Adicionar</button></div>' +
+    '</div>';
+  // Aplicar máscara no CNPJ
+  setTimeout(function(){ applyMask('cfgCnpj', maskCNPJ); }, 50);
 }
+
+function handleLogoUpload(event) {
+  var file = event.target.files[0];
+  if (!file) return;
+  if (file.size > 512000) { showToast('Arquivo muito grande. Máximo 500KB.', 'error'); return; }
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    appData.empresa.logo = e.target.result;
+    saveData();
+    updateSidebarInfo();
+    renderConfiguracoesPage();
+    showToast('Logo atualizada!', 'success');
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeLogo() {
+  appData.empresa.logo = '';
+  saveData();
+  updateSidebarInfo();
+  renderConfiguracoesPage();
+  showToast('Logo removida!', 'success');
+}
+
+function salvarEmpresa() {
+  appData.empresa.nome = document.getElementById('cfgNome').value.trim();
+  appData.empresa.cnpj = document.getElementById('cfgCnpj').value.trim();
+  saveData();
+  updateSidebarInfo();
+  showToast('Empresa atualizada!', 'success');
+}
+
+function addVendedor() { var v=document.getElementById('cfgNovoVendedor').value.trim(); if(!v)return; appData.vendedores.push(v); saveData(); renderConfiguracoesPage(); }
+function removeVendedor(i) { appData.vendedores.splice(i,1); saveData(); renderConfiguracoesPage(); }
+function addPgto() { var f=document.getElementById('cfgNovoPgto').value.trim(); if(!f)return; appData.formasPagamento.push(f); saveData(); renderConfiguracoesPage(); }
+function removePgto(i) { appData.formasPagamento.splice(i,1); saveData(); renderConfiguracoesPage(); }
+function addCat() { var n=document.getElementById('cfgNovaCat').value.trim(); var t=document.getElementById('cfgNovaCatTipo').value; if(!n)return; appData.categoriasFluxo.push({nome:n,tipo:t}); saveData(); renderConfiguracoesPage(); }
+function removeCat(i) { appData.categoriasFluxo.splice(i,1); saveData(); renderConfiguracoesPage(); }
 
 function saveConfigEmpresa() {
   appData.empresa.nome=document.getElementById('cfgNome').value;
@@ -1390,3 +1539,24 @@ async function init() {
 
 // Start
 if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',init);}else{init();}
+// ---------- INIT ----------
+document.addEventListener('DOMContentLoaded', async function() {
+  // Supabase
+  try {
+    if (typeof supabase !== 'undefined') {
+      supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      console.log('Supabase conectado');
+    }
+  } catch(e) { console.warn('Supabase indisponível'); }
+
+  // Data
+  const d = new Date();
+  const dias = ['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'];
+  const meses = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  document.getElementById('currentDate').textContent = dias[d.getDay()] + ', ' + d.getDate() + ' de ' + meses[d.getMonth()] + ' de ' + d.getFullYear();
+
+  await loadData();
+  renderDashboard();
+  updateSidebarInfo();
+});
+
