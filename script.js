@@ -26,6 +26,7 @@ function formatDate(d) {
   if (parts.length === 3) return parts[2] + '/' + parts[1] + '/' + parts[0];
   return d;
 }
+
 // ---------- MÁSCARAS AUTOMÁTICAS ----------
 function maskCPF(v) {
   v = v.replace(/\D/g, '').substring(0, 11);
@@ -73,6 +74,23 @@ function applyMask(inputId, maskFn) {
     el.setSelectionRange(pos + (newLen - oldLen), pos + (newLen - oldLen));
   });
 }
+
+function applyAllMasks() {
+  setTimeout(function() {
+    applyMask('clTelefone', maskTelefone);
+    applyMask('clCelular', maskTelefone);
+    applyMask('clCpf', maskCPF);
+    applyMask('clCnpj', maskCNPJ);
+    applyMask('clCpfCnpj', maskCPFouCNPJ);
+    applyMask('fnTelefone', maskTelefone);
+    applyMask('fnCelular', maskTelefone);
+    applyMask('fnCpf', maskCPF);
+    applyMask('fnCnpj', maskCNPJ);
+    applyMask('fnCpfCnpj', maskCPFouCNPJ);
+    applyMask('cfgCnpj', maskCNPJ);
+  }, 100);
+}
+
 // ---------- DADOS PADRÃO ----------
 function getDefaultData() {
   return {
@@ -121,7 +139,6 @@ function getDefaultData() {
 
 // ---------- LOAD / SAVE ----------
 async function loadData() {
-  // Tentar Supabase
   if (supabaseClient) {
     try {
       const { data, error } = await supabaseClient.from('wdmaquinas_data').select('*').eq('id', 1).single();
@@ -133,12 +150,10 @@ async function loadData() {
       }
     } catch (e) { console.warn('Supabase load falhou:', e.message); }
   }
-  // Fallback localStorage
   try {
     const local = localStorage.getItem('wdmaquinas_data');
     if (local) { appData = JSON.parse(local); ensureDefaults(); console.log('Dados carregados do localStorage'); return; }
   } catch (e) {}
-  // Padrão
   appData = getDefaultData();
   console.log('Dados padrão carregados');
 }
@@ -173,7 +188,6 @@ function closeCadastroModal() { document.getElementById('cadastroModal').style.d
 function openViewModal() { document.getElementById('viewModal').style.display = 'flex'; }
 function closeViewModal() { document.getElementById('viewModal').style.display = 'none'; }
 
-// ---------- SIDEBAR TOGGLE ----------
 // ---------- SIDEBAR TOGGLE & COLLAPSE ----------
 function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
 
@@ -311,7 +325,6 @@ function renderFluxoMes(mesKey, mesNome, mesIdx) {
   const fc = appData.fluxoCaixa[mesKey];
   const lancs = fc.lancamentos || [];
 
-  // Calcular caixa acumulado até o mês anterior
   let caixaAnterior = 0;
   for (let i = 0; i < mesIdx; i++) {
     const fcAnt = (appData.fluxoCaixa || {})[mesesNav[i]];
@@ -323,8 +336,6 @@ function renderFluxoMes(mesKey, mesNome, mesIdx) {
   const totalEntradas = lancs.filter(l => l.tipo === 'entrada').reduce((s, l) => s + (l.valor || 0), 0);
   const totalSaidas = lancs.filter(l => l.tipo === 'saida').reduce((s, l) => s + (l.valor || 0), 0);
   const caixaAtual = caixaAnterior + totalEntradas - totalSaidas;
-
-  // Dinheiro em Notas e Salário
   const dinheiroNotas = lancs.filter(l => l.categoria === 'Dinheiro em Notas').reduce((s, l) => s + (l.tipo === 'entrada' ? (l.valor||0) : -(l.valor||0)), 0);
   const salarioRec = lancs.filter(l => l.categoria === 'Salário' && l.tipo === 'entrada').reduce((s, l) => s + (l.valor || 0), 0);
 
@@ -347,7 +358,7 @@ function renderFluxoMes(mesKey, mesNome, mesIdx) {
       </select>
     </div>
     <div class="table-responsive">
-      <table class="table"><thead><tr><th>Dia</th><th>Tipo</th><th>Categoria</th><th>Descrição</th><th>Valor</th><th>Ações</th></tr></thead>
+      <table class="table"><thead><tr><th>Data</th><th>Tipo</th><th>Categoria</th><th>Descrição</th><th>Valor</th><th>Ações</th></tr></thead>
       <tbody id="fluxoBody-${mesKey}"></tbody></table>
     </div>`;
   renderFluxoTable(mesKey, lancs);
@@ -418,16 +429,6 @@ function openFluxoModal(mesKey, editIdx) {
     '<button class="btn btn-primary" id="btnSalvarFluxo">Salvar</button>';
 
   openCadastroModal();
-    setTimeout(function(){
-    applyMask('clTelefone', maskTelefone);
-    applyMask('clCpfCnpj', maskCPFouCNPJ);
-    applyMask('clCpf', maskCPF);
-    applyMask('clCnpj', maskCNPJ);
-    applyMask('fnTelefone', maskTelefone);
-    applyMask('fnCpfCnpj', maskCPFouCNPJ);
-    applyMask('fnCnpj', maskCNPJ);
-  }, 50);
-
 
   setTimeout(function(){
     var btnSalvar = document.getElementById('btnSalvarFluxo');
@@ -436,7 +437,8 @@ function openFluxoModal(mesKey, editIdx) {
     }
   }, 50);
 }
- function setFluxoTipo(tipo) {
+
+function setFluxoTipo(tipo) {
   fluxoModalTipo = tipo;
   document.getElementById('btnEntrada').className = 'fluxo-tipo-btn ' + (tipo === 'entrada' ? 'entrada-active' : '');
   document.getElementById('btnSaida').className = 'fluxo-tipo-btn ' + (tipo === 'saida' ? 'saida-active' : '');
@@ -474,7 +476,7 @@ function saveFluxo(mesKey, editIdx) {
   var mesIdx = mesesNav.indexOf(mesKey);
   renderFluxoMes(mesKey, mesesNomes[mesIdx], mesIdx);
 }
-// ---------- EDIT & DELETE FLUXO ----------
+
 function editFluxo(mesKey, idx) {
   if (!appData.fluxoCaixa || !appData.fluxoCaixa[mesKey] || !appData.fluxoCaixa[mesKey].lancamentos) return;
   if (idx < 0 || idx >= appData.fluxoCaixa[mesKey].lancamentos.length) return;
@@ -490,6 +492,7 @@ function deleteFluxo(mesKey, idx) {
   renderFluxoMes(mesKey, mesesNomes[mesIdx], mesIdx);
   showToast('Lançamento excluído!', 'success');
 }
+
 // ============================================================
 // COMPRAS
 // ============================================================
@@ -628,242 +631,108 @@ function openVendaModal(venda) {
   document.getElementById('cadastroModalBody').innerHTML=`
     <div class="form-row"><div class="form-group"><label>Data</label><input type="date" class="form-control" id="vData" value="${venda?venda.data:new Date().toISOString().split('T')[0]}"></div><div class="form-group"><label>Cliente</label><select class="form-control" id="vCliente"><option value="">Selecione...</option>${cliOpts}</select></div></div>
     <div class="form-group"><label>Produto</label><input type="text" class="form-control" id="vProduto" value="${venda?venda.produto:''}"></div>
-    <div class="form-row"><div class="form-group"><label>Qtd</label><input type="number" class="form-control" id="vQtd" value="${venda?venda.quantidade:1}" min="1"></div><div class="form-group"><label>Valor Unit.</label><input type="number" class="form-control" id="vValorUnit" value="${venda?venda.valorUnit:''}" step="0.01"></div></div>
-    <div class="form-row"><div class="form-group"><label>Vendedor</label><select class="form-control" id="vVendedor">${vendOpts}</select></div><div class="form-group"><label>Forma Pgto</label><select class="form-control" id="vPgto">${pgtoOpts}</select></div></div>
-    <div class="form-row"><div class="form-group"><label>Tipo</label><select class="form-control" id="vTipo">${tipoOpts}</select></div><div class="form-group"><label>Situação</label><select class="form-control" id="vSit"><option value="Pago" ${venda&&venda.situacao==='Pago'?'selected':''}>Pago</option><option value="Devendo" ${venda&&venda.situacao==='Devendo'?'selected':''}>Devendo</option></select></div></div>
+    <div class="form-row"><div class="form-group"><label>Qtd</label><input type="number" class="form-control" id="vQtd" value="${venda?venda.quantidade:1}" min="1"></div><div class="form-group"><label>Valor Unit.</label><input type="number" class="form-control" id="vValor" value="${venda?venda.valorUnit:''}" step="0.01"></div></div>
+    <div class="form-row"><div class="form-group"><label>Vendedor</label><select class="form-control" id="vVendedor">${vendOpts}</select></div><div class="form-group"><label>Tipo Venda</label><select class="form-control" id="vTipo">${tipoOpts}</select></div></div>
+    <div class="form-row"><div class="form-group"><label>Forma Pgto</label><select class="form-control" id="vPgto">${pgtoOpts}</select></div><div class="form-group"><label>Situação</label><select class="form-control" id="vSit"><option value="Pago" ${venda&&venda.situacao==='Pago'?'selected':''}>Pago</option><option value="Devendo" ${venda&&venda.situacao==='Devendo'?'selected':''}>Devendo</option></select></div></div>
     <div class="form-group"><label>Obs</label><textarea class="form-control" id="vObs" rows="2">${venda?venda.obs||'':''}</textarea></div>`;
   document.getElementById('cadastroModalFooter').innerHTML=`<button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button><button class="btn btn-primary" onclick="saveVenda(${isEdit?venda.id:'null'})">Salvar</button>`;
   openCadastroModal();
 }
 
 function saveVenda(id) {
-  const obj={data:document.getElementById('vData').value,cliente:document.getElementById('vCliente').value,produto:document.getElementById('vProduto').value,quantidade:parseFloat(document.getElementById('vQtd').value)||1,valorUnit:parseFloat(document.getElementById('vValorUnit').value)||0,vendedor:document.getElementById('vVendedor').value,formaPagamento:document.getElementById('vPgto').value,tipo:document.getElementById('vTipo').value,situacao:document.getElementById('vSit').value,obs:document.getElementById('vObs').value};
-  if(!obj.cliente||!obj.produto){showToast('Preencha cliente e produto','error');return;}
+  const obj={data:document.getElementById('vData').value,cliente:document.getElementById('vCliente').value,produto:document.getElementById('vProduto').value.trim(),quantidade:parseFloat(document.getElementById('vQtd').value)||1,valorUnit:parseFloat(document.getElementById('vValor').value)||0,vendedor:document.getElementById('vVendedor').value,tipo:document.getElementById('vTipo').value,formaPagamento:document.getElementById('vPgto').value,situacao:document.getElementById('vSit').value,obs:document.getElementById('vObs').value};
+  if(!obj.produto){showToast('Informe o produto','error');return;}
   if(id){const idx=appData.vendas.findIndex(v=>v.id===id);if(idx>-1){obj.id=id;appData.vendas[idx]=obj;}}else{obj.id=nextId(appData.vendas);appData.vendas.push(obj);}
   saveData();closeCadastroModal();renderVendasPage();showToast(id?'Venda atualizada!':'Venda cadastrada!','success');
 }
 
-function editVenda(id){const v=appData.vendas.find(x=>x.id===id);if(v)openVendaModal(v);}
+function editVenda(id){const v=(appData.vendas||[]).find(x=>x.id===id);if(v)openVendaModal(v);}
 
 function viewVenda(id) {
-  const v=appData.vendas.find(x=>x.id===id);if(!v)return;
+  const v=(appData.vendas||[]).find(x=>x.id===id);if(!v)return;
   document.getElementById('viewModalTitle').textContent='Venda #'+v.id;
   document.getElementById('viewModalBody').innerHTML=`<div class="detail-grid">
     <div class="detail-item"><span class="detail-label">Data</span>${formatDate(v.data)}</div><div class="detail-item"><span class="detail-label">Cliente</span>${v.cliente}</div>
     <div class="detail-item"><span class="detail-label">Produto</span>${v.produto}</div><div class="detail-item"><span class="detail-label">Qtd</span>${v.quantidade}</div>
     <div class="detail-item"><span class="detail-label">V.Unit</span>${formatCurrency(v.valorUnit)}</div><div class="detail-item"><span class="detail-label">Total</span>${formatCurrency(v.quantidade*v.valorUnit)}</div>
     <div class="detail-item"><span class="detail-label">Vendedor</span>${v.vendedor}</div><div class="detail-item"><span class="detail-label">Pgto</span>${v.formaPagamento}</div>
-    <div class="detail-item"><span class="detail-label">Tipo</span>${v.tipo}</div><div class="detail-item"><span class="detail-label">Situação</span><span class="badge ${v.situacao==='Pago'?'badge-success':'badge-danger'}">${v.situacao}</span></div>
+    <div class="detail-item"><span class="detail-label">Tipo</span>${v.tipo}</div>
+    <div class="detail-item"><span class="detail-label">Situação</span><span class="badge ${v.situacao==='Pago'?'badge-success':'badge-danger'}">${v.situacao}</span></div>
   </div>${v.obs?`<div style="margin-top:12px;padding:10px;background:var(--bg-tertiary);border-radius:var(--radius-sm)"><strong>Obs:</strong> ${v.obs}</div>`:''}`;
   openViewModal();
 }
 
-function deleteVenda(id){if(!confirm('Excluir venda?'))return;appData.vendas=appData.vendas.filter(v=>v.id!==id);saveData();renderVendasPage();showToast('Venda excluída!','success');}
+function deleteVenda(id){if(!confirm('Excluir venda?'))return;appData.vendas=(appData.vendas||[]).filter(v=>v.id!==id);saveData();renderVendasPage();showToast('Venda excluída!','success');}
 
 // ============================================================
 // ESTOQUE
 // ============================================================
 function renderEstoquePage() {
-  const pg=document.getElementById('page-estoque');const estoque=appData.estoque||[];
-  pg.innerHTML=`<div class="page-header"><h2>📦 Estoque</h2><button class="btn btn-primary" onclick="openEstoqueModal()">+ Novo Item</button></div>
-    <div class="filter-bar"><input type="text" class="form-control" style="max-width:250px" placeholder="Buscar..." oninput="filterEstoque(this.value)"></div>
-    <div class="table-responsive"><table class="table"><thead><tr><th>ID</th><th>Produto</th><th>Qtd</th><th>Unidade</th><th>Local</th><th>Mín.</th><th>Status</th><th>Ações</th></tr></thead><tbody id="estoqueBody"></tbody></table></div>`;
-  renderEstoqueTable(estoque);
+  const pg = document.getElementById('page-estoque');
+  const produtos = appData.produtos || [];
+  pg.innerHTML = `
+    <div class="page-header"><h2>📦 Estoque</h2></div>
+    <div class="filter-bar">
+      <input type="text" class="form-control" style="max-width:250px" placeholder="Buscar produto..." oninput="filterEstoque(this.value)">
+    </div>
+    <div class="table-responsive"><table class="table"><thead><tr><th>ID</th><th>Produto</th><th>Unidade</th><th>Estoque Min.</th><th>Estoque Atual</th><th>Status</th></tr></thead>
+    <tbody id="estoqueBody"></tbody></table></div>`;
+  renderEstoqueTable(produtos);
 }
 
-function renderEstoqueTable(items) {
-  const tbody=document.getElementById('estoqueBody');if(!tbody)return;
-  tbody.innerHTML=items.length===0?'<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhum item</td></tr>':
-    items.map(e=>{const low=e.quantidade<=(e.estoqueMin||0);return`<tr><td>${e.id}</td><td>${e.produto}</td><td>${e.quantidade}</td><td>${e.unidade||'Un'}</td><td>${e.localizacao||'-'}</td><td>${e.estoqueMin||0}</td><td><span class="badge ${low?'badge-danger':'badge-success'}">${low?'Baixo':'OK'}</span></td><td><button class="btn btn-sm btn-primary" onclick="editEstoque(${e.id})">✏️</button><button class="btn btn-sm btn-danger" onclick="deleteEstoque(${e.id})">🗑️</button></td></tr>`;}).join('');
+function renderEstoqueTable(produtos) {
+  const tbody = document.getElementById('estoqueBody'); if(!tbody)return;
+  tbody.innerHTML = produtos.length===0?'<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhum produto cadastrado</td></tr>':
+    produtos.map(p=>{
+      const atual=p.estoqueAtual||0;const min=p.estoqueMin||0;
+      const status=atual<=0?'badge-danger':atual<=min?'badge-warning':'badge-success';
+      const statusTxt=atual<=0?'Sem Estoque':atual<=min?'Baixo':'OK';
+      return `<tr><td>${p.id}</td><td>${p.nome}</td><td>${p.unidade||'Unidade'}</td><td>${min}</td><td>${atual}</td><td><span class="badge ${status}">${statusTxt}</span></td></tr>`;
+    }).join('');
 }
 
-function filterEstoque(q){q=q.toLowerCase();renderEstoqueTable((appData.estoque||[]).filter(e=>e.produto.toLowerCase().includes(q)));}
-
-function openEstoqueModal(item) {
-  const isEdit=!!item;const unidOpts=(appData.tipoUnidade||[]).map(u=>`<option value="${u}" ${item&&item.unidade===u?'selected':''}>${u}</option>`).join('');
-  document.getElementById('cadastroModalTitle').textContent=isEdit?'Editar Item':'Novo Item';
-  document.getElementById('cadastroModalBody').innerHTML=`
-    <div class="form-group"><label>Produto *</label><input type="text" class="form-control" id="eProd" value="${item?item.produto:''}"></div>
-    <div class="form-row"><div class="form-group"><label>Qtd</label><input type="number" class="form-control" id="eQtd" value="${item?item.quantidade:0}" min="0"></div><div class="form-group"><label>Unidade</label><select class="form-control" id="eUnid">${unidOpts}</select></div></div>
-    <div class="form-row"><div class="form-group"><label>Estoque Mín.</label><input type="number" class="form-control" id="eMin" value="${item?item.estoqueMin||0:0}" min="0"></div><div class="form-group"><label>Localização</label><input type="text" class="form-control" id="eLocal" value="${item?item.localizacao||'':''}"></div></div>`;
-  document.getElementById('cadastroModalFooter').innerHTML=`<button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button><button class="btn btn-primary" onclick="saveEstoque(${isEdit?item.id:'null'})">Salvar</button>`;
-  openCadastroModal();
-}
-
-function saveEstoque(id) {
-  const obj={produto:document.getElementById('eProd').value.trim(),quantidade:parseFloat(document.getElementById('eQtd').value)||0,unidade:document.getElementById('eUnid').value,estoqueMin:parseFloat(document.getElementById('eMin').value)||0,localizacao:document.getElementById('eLocal').value};
-  if(!obj.produto){showToast('Informe o produto','error');return;}if(!appData.estoque)appData.estoque=[];
-  if(id){const idx=appData.estoque.findIndex(e=>e.id===id);if(idx>-1){obj.id=id;appData.estoque[idx]=obj;}}else{obj.id=nextId(appData.estoque);appData.estoque.push(obj);}
-  saveData();closeCadastroModal();renderEstoquePage();showToast(id?'Item atualizado!':'Item cadastrado!','success');
-}
-
-function editEstoque(id){const e=(appData.estoque||[]).find(x=>x.id===id);if(e)openEstoqueModal(e);}
-function deleteEstoque(id){if(!confirm('Excluir item?'))return;appData.estoque=(appData.estoque||[]).filter(e=>e.id!==id);saveData();renderEstoquePage();showToast('Item excluído!','success');}
-
-// ============================================================
-// CLIENTES
-// ============================================================
-function renderClientesPage() {
-  const pg=document.getElementById('page-clientes');const clientes=appData.clientes||[];
-  pg.innerHTML=`<div class="page-header"><h2>👥 Clientes</h2><button class="btn btn-primary" onclick="openClienteModal()">+ Novo Cliente</button></div>
-    <div class="filter-bar"><input type="text" class="form-control" style="max-width:300px" placeholder="Buscar cliente..." oninput="filterClientes(this.value)"></div>
-    <div class="table-responsive"><table class="table"><thead><tr><th>ID</th><th>Nome</th><th>CPF/CNPJ</th><th>Telefone</th><th>Cidade</th><th>UF</th><th>Ações</th></tr></thead><tbody id="clientesBody"></tbody></table></div>`;
-  renderClientesTable(clientes);
-}
-
-function renderClientesTable(clientes) {
-  const tbody=document.getElementById('clientesBody');if(!tbody)return;
-  tbody.innerHTML=clientes.length===0?'<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhum cliente</td></tr>':
-    clientes.map(c=>`<tr><td>${c.id}</td><td>${c.nome}</td><td>${c.cpfCnpj||'-'}</td><td>${c.telefone||'-'}</td><td>${c.cidade||'-'}</td><td>${c.estado||'-'}</td><td><button class="btn btn-sm btn-outline" onclick="viewCliente(${c.id})">👁️</button><button class="btn btn-sm btn-primary" onclick="editCliente(${c.id})">✏️</button><button class="btn btn-sm btn-danger" onclick="deleteCliente(${c.id})">🗑️</button></td></tr>`).join('');
-}
-
-function filterClientes(q){q=q.toLowerCase();renderClientesTable((appData.clientes||[]).filter(c=>c.nome.toLowerCase().includes(q)||(c.cpfCnpj||'').includes(q)));}
-
-function openClienteModal(cli) {
-  const isEdit=!!cli;
-  document.getElementById('cadastroModalTitle').textContent=isEdit?'Editar Cliente':'Novo Cliente';
-  document.getElementById('cadastroModalBody').innerHTML=`
-    <div class="form-group"><label>Nome *</label><input type="text" class="form-control" id="cNome" value="${cli?cli.nome:''}"></div>
-    <div class="form-row"><div class="form-group"><label>CPF/CNPJ</label><input type="text" class="form-control" id="cDoc" value="${cli?cli.cpfCnpj||'':''}"></div><div class="form-group"><label>Telefone</label><input type="text" class="form-control" id="cTel" value="${cli?cli.telefone||'':''}"></div></div>
-    <div class="form-group"><label>Email</label><input type="email" class="form-control" id="cEmail" value="${cli?cli.email||'':''}"></div>
-    <div class="form-group"><label>Endereço</label><input type="text" class="form-control" id="cEnd" value="${cli?cli.endereco||'':''}"></div>
-    <div class="form-row"><div class="form-group"><label>Cidade</label><input type="text" class="form-control" id="cCidade" value="${cli?cli.cidade||'':''}"></div><div class="form-group"><label>UF</label><input type="text" class="form-control" id="cEstado" value="${cli?cli.estado||'':''}" maxlength="2"></div></div>
-    <div class="form-row"><div class="form-group"><label>CEP</label><input type="text" class="form-control" id="cCep" value="${cli?cli.cep||'':''}"></div><div class="form-group"><label>Imagem (URL)</label><input type="text" class="form-control" id="cImg" value="${cli?cli.img||'':''}"></div></div>
-    <div class="form-group"><label>Obs</label><textarea class="form-control" id="cObs" rows="2">${cli?cli.obs||'':''}</textarea></div>`;
-  document.getElementById('cadastroModalFooter').innerHTML=`<button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button><button class="btn btn-primary" onclick="saveCliente(${isEdit?cli.id:'null'})">Salvar</button>`;
-  openCadastroModal();
-}
-
-function saveCliente(id) {
-  const obj={nome:document.getElementById('cNome').value.trim(),cpfCnpj:document.getElementById('cDoc').value,telefone:document.getElementById('cTel').value,email:document.getElementById('cEmail').value,endereco:document.getElementById('cEnd').value,cidade:document.getElementById('cCidade').value,estado:document.getElementById('cEstado').value.toUpperCase(),cep:document.getElementById('cCep').value,img:document.getElementById('cImg').value,obs:document.getElementById('cObs').value};
-  if(!obj.nome){showToast('Informe o nome','error');return;}
-  if(id){const idx=appData.clientes.findIndex(c=>c.id===id);if(idx>-1){obj.id=id;appData.clientes[idx]=obj;}}else{obj.id=nextId(appData.clientes);appData.clientes.push(obj);}
-  saveData();closeCadastroModal();renderClientesPage();showToast(id?'Cliente atualizado!':'Cliente cadastrado!','success');
-}
-
-function editCliente(id){const c=appData.clientes.find(x=>x.id===id);if(c)openClienteModal(c);
-    setTimeout(function(){
-    applyMask('clTelefone', maskTelefone);
-    applyMask('clCpfCnpj', maskCPFouCNPJ);
-    applyMask('clCpf', maskCPF);
-    applyMask('clCnpj', maskCNPJ);
-    applyMask('fnTelefone', maskTelefone);
-    applyMask('fnCpfCnpj', maskCPFouCNPJ);
-    applyMask('fnCnpj', maskCNPJ);
-  }, 50);}
-
-function viewCliente(id) {
-  const c=appData.clientes.find(x=>x.id===id);if(!c)return;
-  document.getElementById('viewModalTitle').textContent=c.nome;
-  document.getElementById('viewModalBody').innerHTML=`<div class="detail-grid">
-    <div class="detail-item"><span class="detail-label">CPF/CNPJ</span>${c.cpfCnpj||'-'}</div><div class="detail-item"><span class="detail-label">Telefone</span>${c.telefone||'-'}</div>
-    <div class="detail-item"><span class="detail-label">Email</span>${c.email||'-'}</div><div class="detail-item"><span class="detail-label">Endereço</span>${c.endereco||'-'}</div>
-    <div class="detail-item"><span class="detail-label">Cidade</span>${c.cidade||'-'}</div><div class="detail-item"><span class="detail-label">UF</span>${c.estado||'-'}</div>
-    <div class="detail-item"><span class="detail-label">CEP</span>${c.cep||'-'}</div></div>${c.obs?`<div style="margin-top:12px;padding:10px;background:var(--bg-tertiary);border-radius:var(--radius-sm)"><strong>Obs:</strong> ${c.obs}</div>`:''}`;
-  openViewModal();
-}
-
-function deleteCliente(id){if(!confirm('Excluir cliente?'))return;appData.clientes=appData.clientes.filter(c=>c.id!==id);saveData();renderClientesPage();showToast('Cliente excluído!','success');}
-
-// ============================================================
-// FORNECEDORES
-// ============================================================
-function renderFornecedoresPage() {
-  const pg=document.getElementById('page-fornecedores');const fornecedores=appData.fornecedores||[];
-  pg.innerHTML=`<div class="page-header"><h2>🏭 Fornecedores</h2><button class="btn btn-primary" onclick="openFornecedorModal()">+ Novo Fornecedor</button></div>
-    <div class="filter-bar"><input type="text" class="form-control" style="max-width:300px" placeholder="Buscar fornecedor..." oninput="filterFornecedores(this.value)"></div>
-    <div class="table-responsive"><table class="table"><thead><tr><th>ID</th><th>Nome</th><th>CPF/CNPJ</th><th>Telefone</th><th>Cidade</th><th>Ações</th></tr></thead><tbody id="fornecedoresBody"></tbody></table></div>`;
-  renderFornecedoresTable(fornecedores);
-}
-
-function renderFornecedoresTable(fornecedores) {
-  const tbody=document.getElementById('fornecedoresBody');if(!tbody)return;
-  tbody.innerHTML=fornecedores.length===0?'<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhum fornecedor</td></tr>':
-    fornecedores.map(f=>`<tr><td>${f.id}</td><td>${f.nome}</td><td>${f.cpfCnpj||'-'}</td><td>${f.telefone||'-'}</td><td>${f.cidade||'-'}</td><td><button class="btn btn-sm btn-outline" onclick="viewFornecedor(${f.id})">👁️</button><button class="btn btn-sm btn-primary" onclick="editFornecedor(${f.id})">✏️</button><button class="btn btn-sm btn-danger" onclick="deleteFornecedor(${f.id})">🗑️</button></td></tr>`).join('');
-}
-
-function filterFornecedores(q){q=q.toLowerCase();renderFornecedoresTable((appData.fornecedores||[]).filter(f=>f.nome.toLowerCase().includes(q)));}
-
-function openFornecedorModal(forn) {
-  const isEdit=!!forn;
-  document.getElementById('cadastroModalTitle').textContent=isEdit?'Editar Fornecedor':'Novo Fornecedor';
-  document.getElementById('cadastroModalBody').innerHTML=`
-    <div class="form-group"><label>Nome *</label><input type="text" class="form-control" id="fNome" value="${forn?forn.nome:''}"></div>
-    <div class="form-row"><div class="form-group"><label>CPF/CNPJ</label><input type="text" class="form-control" id="fDoc" value="${forn?forn.cpfCnpj||'':''}"></div><div class="form-group"><label>Telefone</label><input type="text" class="form-control" id="fTel" value="${forn?forn.telefone||'':''}"></div></div>
-    <div class="form-group"><label>Email</label><input type="email" class="form-control" id="fEmail" value="${forn?forn.email||'':''}"></div>
-    <div class="form-group"><label>Endereço</label><input type="text" class="form-control" id="fEnd" value="${forn?forn.endereco||'':''}"></div>
-    <div class="form-row"><div class="form-group"><label>Cidade</label><input type="text" class="form-control" id="fCidade" value="${forn?forn.cidade||'':''}"></div><div class="form-group"><label>UF</label><input type="text" class="form-control" id="fEstado" value="${forn?forn.estado||'':''}" maxlength="2"></div></div>
-    <div class="form-row"><div class="form-group"><label>CEP</label><input type="text" class="form-control" id="fCep" value="${forn?forn.cep||'':''}"></div><div class="form-group"><label>Imagem (URL)</label><input type="text" class="form-control" id="fImg" value="${forn?forn.img||'':''}"></div></div>
-    <div class="form-group"><label>Obs</label><textarea class="form-control" id="fObs" rows="2">${forn?forn.obs||'':''}</textarea></div>`;
-  document.getElementById('cadastroModalFooter').innerHTML=`<button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button><button class="btn btn-primary" onclick="saveFornecedor(${isEdit?forn.id:'null'})">Salvar</button>`;
-  openCadastroModal();
-}
-
-function saveFornecedor(id) {
-  const obj={nome:document.getElementById('fNome').value.trim(),cpfCnpj:document.getElementById('fDoc').value,telefone:document.getElementById('fTel').value,email:document.getElementById('fEmail').value,endereco:document.getElementById('fEnd').value,cidade:document.getElementById('fCidade').value,estado:document.getElementById('fEstado').value.toUpperCase(),cep:document.getElementById('fCep').value,img:document.getElementById('fImg').value,obs:document.getElementById('fObs').value};
-  if(!obj.nome){showToast('Informe o nome','error');return;}
-  if(id){const idx=appData.fornecedores.findIndex(f=>f.id===id);if(idx>-1){obj.id=id;appData.fornecedores[idx]=obj;}}else{obj.id=nextId(appData.fornecedores);appData.fornecedores.push(obj);}
-  saveData();closeCadastroModal();renderFornecedoresPage();showToast(id?'Fornecedor atualizado!':'Fornecedor cadastrado!','success');
-}
-
-function editFornecedor(id){const f=appData.fornecedores.find(x=>x.id===id);if(f)openFornecedorModal(f);
-    setTimeout(function(){
-    applyMask('clTelefone', maskTelefone);
-    applyMask('clCpfCnpj', maskCPFouCNPJ);
-    applyMask('clCpf', maskCPF);
-    applyMask('clCnpj', maskCNPJ);
-    applyMask('fnTelefone', maskTelefone);
-    applyMask('fnCpfCnpj', maskCPFouCNPJ);
-    applyMask('fnCnpj', maskCNPJ);
-  }, 50);
-}
-
-function viewFornecedor(id) {
-  const f=appData.fornecedores.find(x=>x.id===id);if(!f)return;
-  document.getElementById('viewModalTitle').textContent=f.nome;
-  document.getElementById('viewModalBody').innerHTML=`<div class="detail-grid">
-    <div class="detail-item"><span class="detail-label">CPF/CNPJ</span>${f.cpfCnpj||'-'}</div><div class="detail-item"><span class="detail-label">Telefone</span>${f.telefone||'-'}</div>
-    <div class="detail-item"><span class="detail-label">Email</span>${f.email||'-'}</div><div class="detail-item"><span class="detail-label">Endereço</span>${f.endereco||'-'}</div>
-    <div class="detail-item"><span class="detail-label">Cidade</span>${f.cidade||'-'}</div><div class="detail-item"><span class="detail-label">UF</span>${f.estado||'-'}</div></div>`;
-  openViewModal();
-}
-
-function deleteFornecedor(id){if(!confirm('Excluir fornecedor?'))return;appData.fornecedores=appData.fornecedores.filter(f=>f.id!==id);saveData();renderFornecedoresPage();showToast('Fornecedor excluído!','success');}
+function filterEstoque(q){q=q.toLowerCase();renderEstoqueTable((appData.produtos||[]).filter(p=>p.nome.toLowerCase().includes(q)));}
 
 // ============================================================
 // PRODUTOS
 // ============================================================
 function renderProdutosPage() {
-  const pg=document.getElementById('page-produtos');const produtos=appData.produtos||[];
-  pg.innerHTML=`<div class="page-header"><h2>🏷️ Produtos</h2><button class="btn btn-primary" onclick="openProdutoModal()">+ Novo Produto</button></div>
-    <div class="filter-bar"><input type="text" class="form-control" style="max-width:300px" placeholder="Buscar produto..." oninput="filterProdutos(this.value)"></div>
-    <div class="table-responsive"><table class="table"><thead><tr><th>ID</th><th>Nome</th><th>Categoria</th><th>Unidade</th><th>P.Custo</th><th>P.Venda</th><th>Ações</th></tr></thead><tbody id="produtosBody"></tbody></table></div>`;
+  const pg = document.getElementById('page-produtos');
+  const produtos = appData.produtos || [];
+  pg.innerHTML = `
+    <div class="page-header"><h2>🏷️ Produtos</h2><button class="btn btn-primary" onclick="openProdutoModal()">+ Novo Produto</button></div>
+    <div class="filter-bar"><input type="text" class="form-control" style="max-width:250px" placeholder="Buscar produto..." oninput="filterProdutos(this.value)"></div>
+    <div class="table-responsive"><table class="table"><thead><tr><th>ID</th><th>Nome</th><th>Unidade</th><th>Preço Compra</th><th>Preço Venda</th><th>Est.Min</th><th>Est.Atual</th><th>Ações</th></tr></thead>
+    <tbody id="produtosBody"></tbody></table></div>`;
   renderProdutosTable(produtos);
 }
 
 function renderProdutosTable(produtos) {
   const tbody=document.getElementById('produtosBody');if(!tbody)return;
-  tbody.innerHTML=produtos.length===0?'<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhum produto</td></tr>':
-    produtos.map(p=>`<tr><td>${p.id}</td><td>${p.nome}</td><td>${p.categoria||'-'}</td><td>${p.unidade||'-'}</td><td>${formatCurrency(p.precoCusto||0)}</td><td>${formatCurrency(p.precoVenda||0)}</td><td><button class="btn btn-sm btn-primary" onclick="editProduto(${p.id})">✏️</button><button class="btn btn-sm btn-danger" onclick="deleteProduto(${p.id})">🗑️</button></td></tr>`).join('');
+  tbody.innerHTML=produtos.length===0?'<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhum produto</td></tr>':
+    produtos.map(p=>`<tr><td>${p.id}</td><td>${p.nome}</td><td>${p.unidade||'Unidade'}</td><td>${formatCurrency(p.precoCompra)}</td><td>${formatCurrency(p.precoVenda)}</td><td>${p.estoqueMin||0}</td><td>${p.estoqueAtual||0}</td>
+    <td><button class="btn btn-sm btn-primary" onclick="editProduto(${p.id})">✏️</button><button class="btn btn-sm btn-danger" onclick="deleteProduto(${p.id})">🗑️</button></td></tr>`).join('');
 }
 
 function filterProdutos(q){q=q.toLowerCase();renderProdutosTable((appData.produtos||[]).filter(p=>p.nome.toLowerCase().includes(q)));}
 
-function openProdutoModal(prod) {
-  const isEdit=!!prod;const unidOpts=(appData.tipoUnidade||[]).map(u=>`<option value="${u}" ${prod&&prod.unidade===u?'selected':''}>${u}</option>`).join('');
+function openProdutoModal(produto) {
+  const isEdit=!!produto;
+  const unOpts=(appData.tipoUnidade||[]).map(u=>`<option value="${u}" ${produto&&produto.unidade===u?'selected':''}>${u}</option>`).join('');
   document.getElementById('cadastroModalTitle').textContent=isEdit?'Editar Produto':'Novo Produto';
   document.getElementById('cadastroModalBody').innerHTML=`
-    <div class="form-group"><label>Nome *</label><input type="text" class="form-control" id="pNome" value="${prod?prod.nome:''}"></div>
-    <div class="form-row"><div class="form-group"><label>Categoria</label><input type="text" class="form-control" id="pCat" value="${prod?prod.categoria||'':''}"></div><div class="form-group"><label>Unidade</label><select class="form-control" id="pUnid">${unidOpts}</select></div></div>
-    <div class="form-row"><div class="form-group"><label>P.Custo</label><input type="number" class="form-control" id="pCusto" value="${prod?prod.precoCusto||'':''}" step="0.01"></div><div class="form-group"><label>P.Venda</label><input type="number" class="form-control" id="pVenda" value="${prod?prod.precoVenda||'':''}" step="0.01"></div></div>
-    <div class="form-group"><label>Descrição</label><textarea class="form-control" id="pDesc" rows="2">${prod?prod.descricao||'':''}</textarea></div>`;
-  document.getElementById('cadastroModalFooter').innerHTML=`<button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button><button class="btn btn-primary" onclick="saveProduto(${isEdit?prod.id:'null'})">Salvar</button>`;
+    <div class="form-group"><label>Nome *</label><input type="text" class="form-control" id="prNome" value="${produto?produto.nome:''}"></div>
+    <div class="form-row"><div class="form-group"><label>Unidade</label><select class="form-control" id="prUnidade">${unOpts}</select></div><div class="form-group"><label>Preço Compra</label><input type="number" class="form-control" id="prCompra" value="${produto?produto.precoCompra:''}" step="0.01"></div></div>
+    <div class="form-row"><div class="form-group"><label>Preço Venda</label><input type="number" class="form-control" id="prVenda" value="${produto?produto.precoVenda:''}" step="0.01"></div><div class="form-group"><label>Est. Mínimo</label><input type="number" class="form-control" id="prEstMin" value="${produto?produto.estoqueMin:0}"></div></div>
+    <div class="form-group"><label>Est. Atual</label><input type="number" class="form-control" id="prEstAtual" value="${produto?produto.estoqueAtual:0}"></div>
+    <div class="form-group"><label>Obs</label><textarea class="form-control" id="prObs" rows="2">${produto?produto.obs||'':''}</textarea></div>`;
+  document.getElementById('cadastroModalFooter').innerHTML=`<button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button><button class="btn btn-primary" onclick="saveProduto(${isEdit?produto.id:'null'})">Salvar</button>`;
   openCadastroModal();
 }
 
 function saveProduto(id) {
-  const obj={nome:document.getElementById('pNome').value.trim(),categoria:document.getElementById('pCat').value,unidade:document.getElementById('pUnid').value,precoCusto:parseFloat(document.getElementById('pCusto').value)||0,precoVenda:parseFloat(document.getElementById('pVenda').value)||0,descricao:document.getElementById('pDesc').value};
-  if(!obj.nome){showToast('Informe o nome','error');return;}if(!appData.produtos)appData.produtos=[];
+  const obj={nome:document.getElementById('prNome').value.trim(),unidade:document.getElementById('prUnidade').value,precoCompra:parseFloat(document.getElementById('prCompra').value)||0,precoVenda:parseFloat(document.getElementById('prVenda').value)||0,estoqueMin:parseInt(document.getElementById('prEstMin').value)||0,estoqueAtual:parseInt(document.getElementById('prEstAtual').value)||0,obs:document.getElementById('prObs').value};
+  if(!obj.nome){showToast('Informe o nome','error');return;}
   if(id){const idx=appData.produtos.findIndex(p=>p.id===id);if(idx>-1){obj.id=id;appData.produtos[idx]=obj;}}else{obj.id=nextId(appData.produtos);appData.produtos.push(obj);}
   saveData();closeCadastroModal();renderProdutosPage();showToast(id?'Produto atualizado!':'Produto cadastrado!','success');
 }
@@ -872,81 +741,220 @@ function editProduto(id){const p=(appData.produtos||[]).find(x=>x.id===id);if(p)
 function deleteProduto(id){if(!confirm('Excluir produto?'))return;appData.produtos=(appData.produtos||[]).filter(p=>p.id!==id);saveData();renderProdutosPage();showToast('Produto excluído!','success');}
 
 // ============================================================
+// CLIENTES
+// ============================================================
+function renderClientesPage() {
+  const pg = document.getElementById('page-clientes');
+  const clientes = appData.clientes || [];
+  pg.innerHTML = `
+    <div class="page-header"><h2>👥 Clientes</h2><button class="btn btn-primary" onclick="openClienteModal()">+ Novo Cliente</button></div>
+    <div class="filter-bar"><input type="text" class="form-control" style="max-width:250px" placeholder="Buscar cliente..." oninput="filterClientes(this.value)"></div>
+    <div class="table-responsive"><table class="table"><thead><tr><th>ID</th><th>Nome</th><th>CPF/CNPJ</th><th>Telefone</th><th>Cidade</th><th>Ações</th></tr></thead>
+    <tbody id="clientesBody"></tbody></table></div>`;
+  renderClientesTable(clientes);
+}
+
+function renderClientesTable(clientes) {
+  const tbody=document.getElementById('clientesBody');if(!tbody)return;
+  tbody.innerHTML=clientes.length===0?'<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhum cliente</td></tr>':
+    clientes.map(c=>`<tr><td>${c.id}</td><td>${c.nome}</td><td>${c.cpfCnpj||'-'}</td><td>${c.telefone||'-'}</td><td>${c.cidade||'-'}</td>
+    <td><button class="btn btn-sm btn-outline" onclick="viewCliente(${c.id})">👁️</button><button class="btn btn-sm btn-primary" onclick="editCliente(${c.id})">✏️</button><button class="btn btn-sm btn-danger" onclick="deleteCliente(${c.id})">🗑️</button></td></tr>`).join('');
+}
+
+function filterClientes(q){q=q.toLowerCase();renderClientesTable((appData.clientes||[]).filter(c=>c.nome.toLowerCase().includes(q)));}
+
+function openClienteModal(cliente) {
+  const isEdit=!!cliente;
+  document.getElementById('cadastroModalTitle').textContent=isEdit?'Editar Cliente':'Novo Cliente';
+  document.getElementById('cadastroModalBody').innerHTML=`
+    <div class="form-group"><label>Nome *</label><input type="text" class="form-control" id="clNome" value="${cliente?cliente.nome:''}"></div>
+    <div class="form-row"><div class="form-group"><label>CPF/CNPJ</label><input type="text" class="form-control" id="clCpfCnpj" value="${cliente?cliente.cpfCnpj||'':''}" placeholder="000.000.000-00"></div><div class="form-group"><label>Telefone</label><input type="text" class="form-control" id="clTelefone" value="${cliente?cliente.telefone||'':''}" placeholder="(00) 00000-0000"></div></div>
+    <div class="form-row"><div class="form-group"><label>Email</label><input type="email" class="form-control" id="clEmail" value="${cliente?cliente.email||'':''}"></div><div class="form-group"><label>Cidade</label><input type="text" class="form-control" id="clCidade" value="${cliente?cliente.cidade||'':''}"></div></div>
+    <div class="form-group"><label>Endereço</label><input type="text" class="form-control" id="clEndereco" value="${cliente?cliente.endereco||'':''}"></div>
+    <div class="form-group"><label>Obs</label><textarea class="form-control" id="clObs" rows="2">${cliente?cliente.obs||'':''}</textarea></div>`;
+  document.getElementById('cadastroModalFooter').innerHTML=`<button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button><button class="btn btn-primary" onclick="saveCliente(${isEdit?cliente.id:'null'})">Salvar</button>`;
+  openCadastroModal();
+  applyAllMasks();
+}
+
+function saveCliente(id) {
+  const obj={nome:document.getElementById('clNome').value.trim(),cpfCnpj:document.getElementById('clCpfCnpj').value.trim(),telefone:document.getElementById('clTelefone').value.trim(),email:document.getElementById('clEmail').value.trim(),cidade:document.getElementById('clCidade').value.trim(),endereco:document.getElementById('clEndereco').value.trim(),obs:document.getElementById('clObs').value};
+  if(!obj.nome){showToast('Informe o nome','error');return;}
+  if(id){const idx=appData.clientes.findIndex(c=>c.id===id);if(idx>-1){obj.id=id;appData.clientes[idx]=obj;}}else{obj.id=nextId(appData.clientes);appData.clientes.push(obj);}
+  saveData();closeCadastroModal();renderClientesPage();showToast(id?'Cliente atualizado!':'Cliente cadastrado!','success');
+}
+
+function editCliente(id){const c=(appData.clientes||[]).find(x=>x.id===id);if(c)openClienteModal(c);}
+
+function viewCliente(id) {
+  const c=(appData.clientes||[]).find(x=>x.id===id);if(!c)return;
+  document.getElementById('viewModalTitle').textContent='Cliente #'+c.id;
+  document.getElementById('viewModalBody').innerHTML=`<div class="detail-grid">
+    <div class="detail-item"><span class="detail-label">Nome</span>${c.nome}</div><div class="detail-item"><span class="detail-label">CPF/CNPJ</span>${c.cpfCnpj||'-'}</div>
+    <div class="detail-item"><span class="detail-label">Telefone</span>${c.telefone||'-'}</div><div class="detail-item"><span class="detail-label">Email</span>${c.email||'-'}</div>
+    <div class="detail-item"><span class="detail-label">Cidade</span>${c.cidade||'-'}</div><div class="detail-item"><span class="detail-label">Endereço</span>${c.endereco||'-'}</div>
+  </div>${c.obs?`<div style="margin-top:12px;padding:10px;background:var(--bg-tertiary);border-radius:var(--radius-sm)"><strong>Obs:</strong> ${c.obs}</div>`:''}`;
+  openViewModal();
+}
+
+function deleteCliente(id){if(!confirm('Excluir cliente?'))return;appData.clientes=(appData.clientes||[]).filter(c=>c.id!==id);saveData();renderClientesPage();showToast('Cliente excluído!','success');}
+
+// ============================================================
+// FORNECEDORES
+// ============================================================
+function renderFornecedoresPage() {
+  const pg = document.getElementById('page-fornecedores');
+  const fornecedores = appData.fornecedores || [];
+  pg.innerHTML = `
+    <div class="page-header"><h2>🏭 Fornecedores</h2><button class="btn btn-primary" onclick="openFornecedorModal()">+ Novo Fornecedor</button></div>
+    <div class="filter-bar"><input type="text" class="form-control" style="max-width:250px" placeholder="Buscar fornecedor..." oninput="filterFornecedores(this.value)"></div>
+    <div class="table-responsive"><table class="table"><thead><tr><th>ID</th><th>Nome</th><th>CNPJ</th><th>Telefone</th><th>Cidade</th><th>Ações</th></tr></thead>
+    <tbody id="fornecedoresBody"></tbody></table></div>`;
+  renderFornecedoresTable(fornecedores);
+}
+
+function renderFornecedoresTable(fornecedores) {
+  const tbody=document.getElementById('fornecedoresBody');if(!tbody)return;
+  tbody.innerHTML=fornecedores.length===0?'<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhum fornecedor</td></tr>':
+    fornecedores.map(f=>`<tr><td>${f.id}</td><td>${f.nome}</td><td>${f.cnpj||'-'}</td><td>${f.telefone||'-'}</td><td>${f.cidade||'-'}</td>
+    <td><button class="btn btn-sm btn-outline" onclick="viewFornecedor(${f.id})">👁️</button><button class="btn btn-sm btn-primary" onclick="editFornecedor(${f.id})">✏️</button><button class="btn btn-sm btn-danger" onclick="deleteFornecedor(${f.id})">🗑️</button></td></tr>`).join('');
+}
+
+function filterFornecedores(q){q=q.toLowerCase();renderFornecedoresTable((appData.fornecedores||[]).filter(f=>f.nome.toLowerCase().includes(q)));}
+
+function openFornecedorModal(fornecedor) {
+  const isEdit=!!fornecedor;
+  document.getElementById('cadastroModalTitle').textContent=isEdit?'Editar Fornecedor':'Novo Fornecedor';
+  document.getElementById('cadastroModalBody').innerHTML=`
+    <div class="form-group"><label>Nome *</label><input type="text" class="form-control" id="fnNome" value="${fornecedor?fornecedor.nome:''}"></div>
+    <div class="form-row"><div class="form-group"><label>CNPJ</label><input type="text" class="form-control" id="fnCnpj" value="${fornecedor?fornecedor.cnpj||'':''}" placeholder="00.000.000/0000-00"></div><div class="form-group"><label>Telefone</label><input type="text" class="form-control" id="fnTelefone" value="${fornecedor?fornecedor.telefone||'':''}" placeholder="(00) 00000-0000"></div></div>
+    <div class="form-row"><div class="form-group"><label>Email</label><input type="email" class="form-control" id="fnEmail" value="${fornecedor?fornecedor.email||'':''}"></div><div class="form-group"><label>Cidade</label><input type="text" class="form-control" id="fnCidade" value="${fornecedor?fornecedor.cidade||'':''}"></div></div>
+    <div class="form-group"><label>Endereço</label><input type="text" class="form-control" id="fnEndereco" value="${fornecedor?fornecedor.endereco||'':''}"></div>
+    <div class="form-group"><label>Obs</label><textarea class="form-control" id="fnObs" rows="2">${fornecedor?fornecedor.obs||'':''}</textarea></div>`;
+  document.getElementById('cadastroModalFooter').innerHTML=`<button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button><button class="btn btn-primary" onclick="saveFornecedor(${isEdit?fornecedor.id:'null'})">Salvar</button>`;
+  openCadastroModal();
+  applyAllMasks();
+}
+
+function saveFornecedor(id) {
+  const obj={nome:document.getElementById('fnNome').value.trim(),cnpj:document.getElementById('fnCnpj').value.trim(),telefone:document.getElementById('fnTelefone').value.trim(),email:document.getElementById('fnEmail').value.trim(),cidade:document.getElementById('fnCidade').value.trim(),endereco:document.getElementById('fnEndereco').value.trim(),obs:document.getElementById('fnObs').value};
+  if(!obj.nome){showToast('Informe o nome','error');return;}
+  if(id){const idx=appData.fornecedores.findIndex(f=>f.id===id);if(idx>-1){obj.id=id;appData.fornecedores[idx]=obj;}}else{obj.id=nextId(appData.fornecedores);appData.fornecedores.push(obj);}
+  saveData();closeCadastroModal();renderFornecedoresPage();showToast(id?'Fornecedor atualizado!':'Fornecedor cadastrado!','success');
+}
+
+function editFornecedor(id){const f=(appData.fornecedores||[]).find(x=>x.id===id);if(f)openFornecedorModal(f);}
+
+function viewFornecedor(id) {
+  const f=(appData.fornecedores||[]).find(x=>x.id===id);if(!f)return;
+  document.getElementById('viewModalTitle').textContent='Fornecedor #'+f.id;
+  document.getElementById('viewModalBody').innerHTML=`<div class="detail-grid">
+    <div class="detail-item"><span class="detail-label">Nome</span>${f.nome}</div><div class="detail-item"><span class="detail-label">CNPJ</span>${f.cnpj||'-'}</div>
+    <div class="detail-item"><span class="detail-label">Telefone</span>${f.telefone||'-'}</div><div class="detail-item"><span class="detail-label">Email</span>${f.email||'-'}</div>
+    <div class="detail-item"><span class="detail-label">Cidade</span>${f.cidade||'-'}</div><div class="detail-item"><span class="detail-label">Endereço</span>${f.endereco||'-'}</div>
+  </div>${f.obs?`<div style="margin-top:12px;padding:10px;background:var(--bg-tertiary);border-radius:var(--radius-sm)"><strong>Obs:</strong> ${f.obs}</div>`:''}`;
+  openViewModal();
+}
+
+function deleteFornecedor(id){if(!confirm('Excluir fornecedor?'))return;appData.fornecedores=(appData.fornecedores||[]).filter(f=>f.id!==id);saveData();renderFornecedoresPage();showToast('Fornecedor excluído!','success');}
+
+// ============================================================
 // PRODUTOS DE FORNECEDORES
 // ============================================================
 function renderPFornecedoresPage() {
-  const pg=document.getElementById('page-pfornecedores');const pf=appData.pFornecedores||[];
-  pg.innerHTML=`<div class="page-header"><h2>📋 P. Fornecedores</h2><button class="btn btn-primary" onclick="openPFornModal()">+ Novo</button></div>
-    <div class="filter-bar"><input type="text" class="form-control" style="max-width:300px" placeholder="Buscar..." oninput="filterPForn(this.value)"></div>
-    <div class="table-responsive"><table class="table"><thead><tr><th>ID</th><th>Fornecedor</th><th>Produto</th><th>Preço</th><th>Obs</th><th>Ações</th></tr></thead><tbody id="pfornBody"></tbody></table></div>`;
-  renderPFornTable(pf);
+  const pg = document.getElementById('page-pfornecedores');
+  const pf = appData.pFornecedores || [];
+  pg.innerHTML = `
+    <div class="page-header"><h2>📋 Produtos de Fornecedores</h2><button class="btn btn-primary" onclick="openPFornecedorModal()">+ Novo</button></div>
+    <div class="filter-bar"><input type="text" class="form-control" style="max-width:250px" placeholder="Buscar..." oninput="filterPFornecedores(this.value)"></div>
+    <div class="table-responsive"><table class="table"><thead><tr><th>ID</th><th>Fornecedor</th><th>Produto</th><th>Preço</th><th>Obs</th><th>Ações</th></tr></thead>
+    <tbody id="pfBody"></tbody></table></div>`;
+  renderPFornecedoresTable(pf);
 }
 
-function renderPFornTable(items) {
-  const tbody=document.getElementById('pfornBody');if(!tbody)return;
-  tbody.innerHTML=items.length===0?'<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhum registro</td></tr>':
-    items.map(p=>`<tr><td>${p.id}</td><td>${p.fornecedor}</td><td>${p.produto}</td><td>${formatCurrency(p.preco||0)}</td><td>${p.obs||'-'}</td><td><button class="btn btn-sm btn-primary" onclick="editPForn(${p.id})">✏️</button><button class="btn btn-sm btn-danger" onclick="deletePForn(${p.id})">🗑️</button></td></tr>`).join('');
+function renderPFornecedoresTable(pf) {
+  const tbody=document.getElementById('pfBody');if(!tbody)return;
+  tbody.innerHTML=pf.length===0?'<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhum registro</td></tr>':
+    pf.map(p=>`<tr><td>${p.id}</td><td>${p.fornecedor}</td><td>${p.produto}</td><td>${formatCurrency(p.preco)}</td><td>${p.obs||'-'}</td>
+    <td><button class="btn btn-sm btn-primary" onclick="editPFornecedor(${p.id})">✏️</button><button class="btn btn-sm btn-danger" onclick="deletePFornecedor(${p.id})">🗑️</button></td></tr>`).join('');
 }
 
-function filterPForn(q){q=q.toLowerCase();renderPFornTable((appData.pFornecedores||[]).filter(p=>p.fornecedor.toLowerCase().includes(q)||p.produto.toLowerCase().includes(q)));}
+function filterPFornecedores(q){q=q.toLowerCase();renderPFornecedoresTable((appData.pFornecedores||[]).filter(p=>p.fornecedor.toLowerCase().includes(q)||p.produto.toLowerCase().includes(q)));}
 
-function openPFornModal(item) {
-  const isEdit=!!item;const fornOpts=(appData.fornecedores||[]).map(f=>`<option value="${f.nome}" ${item&&item.fornecedor===f.nome?'selected':''}>${f.nome}</option>`).join('');
-  document.getElementById('cadastroModalTitle').textContent=isEdit?'Editar':'Novo P.Fornecedor';
+function openPFornecedorModal(pf) {
+  const isEdit=!!pf;
+  const fornOpts=(appData.fornecedores||[]).map(f=>`<option value="${f.nome}" ${pf&&pf.fornecedor===f.nome?'selected':''}>${f.nome}</option>`).join('');
+  document.getElementById('cadastroModalTitle').textContent=isEdit?'Editar':'Novo Produto de Fornecedor';
   document.getElementById('cadastroModalBody').innerHTML=`
     <div class="form-group"><label>Fornecedor</label><select class="form-control" id="pfForn"><option value="">Selecione...</option>${fornOpts}</select></div>
-    <div class="form-group"><label>Produto</label><input type="text" class="form-control" id="pfProd" value="${item?item.produto:''}"></div>
-    <div class="form-group"><label>Preço</label><input type="number" class="form-control" id="pfPreco" value="${item?item.preco||'':''}" step="0.01"></div>
-    <div class="form-group"><label>Obs</label><textarea class="form-control" id="pfObs" rows="2">${item?item.obs||'':''}</textarea></div>`;
-  document.getElementById('cadastroModalFooter').innerHTML=`<button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button><button class="btn btn-primary" onclick="savePForn(${isEdit?item.id:'null'})">Salvar</button>`;
+    <div class="form-group"><label>Produto *</label><input type="text" class="form-control" id="pfProd" value="${pf?pf.produto:''}"></div>
+    <div class="form-group"><label>Preço</label><input type="number" class="form-control" id="pfPreco" value="${pf?pf.preco:''}" step="0.01"></div>
+    <div class="form-group"><label>Obs</label><textarea class="form-control" id="pfObs" rows="2">${pf?pf.obs||'':''}</textarea></div>`;
+  document.getElementById('cadastroModalFooter').innerHTML=`<button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button><button class="btn btn-primary" onclick="savePFornecedor(${isEdit?pf.id:'null'})">Salvar</button>`;
   openCadastroModal();
 }
 
-function savePForn(id) {
+function savePFornecedor(id) {
   const obj={fornecedor:document.getElementById('pfForn').value,produto:document.getElementById('pfProd').value.trim(),preco:parseFloat(document.getElementById('pfPreco').value)||0,obs:document.getElementById('pfObs').value};
-  if(!obj.fornecedor||!obj.produto){showToast('Preencha fornecedor e produto','error');return;}if(!appData.pFornecedores)appData.pFornecedores=[];
+  if(!obj.produto){showToast('Informe o produto','error');return;}
   if(id){const idx=appData.pFornecedores.findIndex(p=>p.id===id);if(idx>-1){obj.id=id;appData.pFornecedores[idx]=obj;}}else{obj.id=nextId(appData.pFornecedores);appData.pFornecedores.push(obj);}
   saveData();closeCadastroModal();renderPFornecedoresPage();showToast(id?'Atualizado!':'Cadastrado!','success');
 }
 
-function editPForn(id){const p=(appData.pFornecedores||[]).find(x=>x.id===id);if(p)openPFornModal(p);}
-function deletePForn(id){if(!confirm('Excluir?'))return;appData.pFornecedores=(appData.pFornecedores||[]).filter(p=>p.id!==id);saveData();renderPFornecedoresPage();showToast('Excluído!','success');}
+function editPFornecedor(id){const p=(appData.pFornecedores||[]).find(x=>x.id===id);if(p)openPFornecedorModal(p);}
+function deletePFornecedor(id){if(!confirm('Excluir?'))return;appData.pFornecedores=(appData.pFornecedores||[]).filter(p=>p.id!==id);saveData();renderPFornecedoresPage();showToast('Excluído!','success');}
 
 // ============================================================
 // BOLETOS
 // ============================================================
 function renderBoletosPage() {
-  const pg=document.getElementById('page-boletos');const boletos=appData.boletos||[];
-  pg.innerHTML=`<div class="page-header"><h2>🔖 Boletos</h2><button class="btn btn-primary" onclick="openBoletoModal()">+ Novo Boleto</button></div>
-    <div class="filter-bar"><input type="text" class="form-control" style="max-width:250px" placeholder="Buscar..." oninput="filterBoletos(this.value)"><select class="form-control" style="max-width:150px" onchange="filterBoletosSit(this.value)"><option value="">Todas</option>${(appData.situacaoBoleto||[]).map(s=>`<option value="${s}">${s}</option>`).join('')}</select></div>
-    <div class="table-responsive"><table class="table"><thead><tr><th>ID</th><th>Descrição</th><th>Valor</th><th>Vencimento</th><th>Fornecedor</th><th>Situação</th><th>Ações</th></tr></thead><tbody id="boletosBody"></tbody></table></div>`;
+  const pg = document.getElementById('page-boletos');
+  const boletos = appData.boletos || [];
+  const totalPend = boletos.filter(b=>b.situacao==='Pendente').reduce((s,b)=>s+(b.valor||0),0);
+  const totalPago = boletos.filter(b=>b.situacao==='Pago').reduce((s,b)=>s+(b.valor||0),0);
+  pg.innerHTML = `
+    <div class="page-header"><h2>🔖 Boletos</h2><button class="btn btn-primary" onclick="openBoletoModal()">+ Novo Boleto</button></div>
+    <div class="dashboard-grid">
+      <div class="card card-accent"><div class="card-header"><span>Total</span></div><div class="card-value">${formatCurrency(totalPend+totalPago)}</div></div>
+      <div class="card"><div class="card-header"><span>Pago</span></div><div class="card-value text-success">${formatCurrency(totalPago)}</div></div>
+      <div class="card"><div class="card-header"><span>Pendente</span></div><div class="card-value text-warning">${formatCurrency(totalPend)}</div></div>
+      <div class="card"><div class="card-header"><span>Qtd</span></div><div class="card-value">${boletos.length}</div></div>
+    </div>
+    <div class="filter-bar"><input type="text" class="form-control" style="max-width:250px" placeholder="Buscar boleto..." oninput="filterBoletos(this.value)">
+      <select class="form-control" style="max-width:150px" onchange="filterBoletosSit(this.value)"><option value="">Todas</option>${(appData.situacaoBoleto||[]).map(s=>`<option value="${s}">${s}</option>`).join('')}</select>
+    </div>
+    <div class="table-responsive"><table class="table"><thead><tr><th>ID</th><th>Descrição</th><th>Valor</th><th>Vencimento</th><th>Situação</th><th>Ações</th></tr></thead>
+    <tbody id="boletosBody"></tbody></table></div>`;
   renderBoletosTable(boletos);
 }
 
 function renderBoletosTable(boletos) {
   const tbody=document.getElementById('boletosBody');if(!tbody)return;
-  tbody.innerHTML=boletos.length===0?'<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhum boleto</td></tr>':
-    boletos.map(b=>`<tr><td>${b.id}</td><td>${b.descricao||'-'}</td><td>${formatCurrency(b.valor)}</td><td>${formatDate(b.vencimento)}</td><td>${b.fornecedor||'-'}</td><td><span class="badge ${b.situacao==='Pago'?'badge-success':b.situacao==='Vencido'?'badge-danger':'badge-warning'}">${b.situacao}</span></td><td><button class="btn btn-sm btn-primary" onclick="editBoleto(${b.id})">✏️</button><button class="btn btn-sm btn-danger" onclick="deleteBoleto(${b.id})">🗑️</button></td></tr>`).join('');
+  tbody.innerHTML=boletos.length===0?'<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhum boleto</td></tr>':
+    boletos.map(b=>`<tr><td>${b.id}</td><td>${b.descricao||'-'}</td><td>${formatCurrency(b.valor)}</td><td>${formatDate(b.vencimento)}</td>
+    <td><span class="badge ${b.situacao==='Pago'?'badge-success':b.situacao==='Vencido'?'badge-danger':'badge-warning'}">${b.situacao}</span></td>
+    <td><button class="btn btn-sm btn-primary" onclick="editBoleto(${b.id})">✏️</button><button class="btn btn-sm btn-danger" onclick="deleteBoleto(${b.id})">🗑️</button></td></tr>`).join('');
 }
 
-function filterBoletos(q){q=q.toLowerCase();renderBoletosTable((appData.boletos||[]).filter(b=>(b.descricao||'').toLowerCase().includes(q)||(b.fornecedor||'').toLowerCase().includes(q)));}
+function filterBoletos(q){q=q.toLowerCase();renderBoletosTable((appData.boletos||[]).filter(b=>(b.descricao||'').toLowerCase().includes(q)));}
 function filterBoletosSit(s){renderBoletosTable(s?(appData.boletos||[]).filter(b=>b.situacao===s):(appData.boletos||[]));}
 
 function openBoletoModal(boleto) {
-  const isEdit=!!boleto;const fornOpts=(appData.fornecedores||[]).map(f=>`<option value="${f.nome}" ${boleto&&boleto.fornecedor===f.nome?'selected':''}>${f.nome}</option>`).join('');const sitOpts=(appData.situacaoBoleto||[]).map(s=>`<option value="${s}" ${boleto&&boleto.situacao===s?'selected':''}>${s}</option>`).join('');
+  const isEdit=!!boleto;
+  const sitOpts=(appData.situacaoBoleto||[]).map(s=>`<option value="${s}" ${boleto&&boleto.situacao===s?'selected':''}>${s}</option>`).join('');
   document.getElementById('cadastroModalTitle').textContent=isEdit?'Editar Boleto':'Novo Boleto';
   document.getElementById('cadastroModalBody').innerHTML=`
-    <div class="form-group"><label>Descrição</label><input type="text" class="form-control" id="bDesc" value="${boleto?boleto.descricao||'':''}"></div>
-    <div class="form-row"><div class="form-group"><label>Valor</label><input type="number" class="form-control" id="bValor" value="${boleto?boleto.valor:''}" step="0.01"></div><div class="form-group"><label>Vencimento</label><input type="date" class="form-control" id="bVenc" value="${boleto?boleto.vencimento:''}"></div></div>
-    <div class="form-row"><div class="form-group"><label>Fornecedor</label><select class="form-control" id="bForn"><option value="">Selecione...</option>${fornOpts}</select></div><div class="form-group"><label>Situação</label><select class="form-control" id="bSit">${sitOpts}</select></div></div>
-    <div class="form-group"><label>Obs</label><textarea class="form-control" id="bObs" rows="2">${boleto?boleto.obs||'':''}</textarea></div>`;
+    <div class="form-group"><label>Descrição *</label><input type="text" class="form-control" id="blDesc" value="${boleto?boleto.descricao:''}"></div>
+    <div class="form-row"><div class="form-group"><label>Valor</label><input type="number" class="form-control" id="blValor" value="${boleto?boleto.valor:''}" step="0.01"></div><div class="form-group"><label>Vencimento</label><input type="date" class="form-control" id="blVenc" value="${boleto?boleto.vencimento:''}"></div></div>
+    <div class="form-group"><label>Situação</label><select class="form-control" id="blSit">${sitOpts}</select></div>
+    <div class="form-group"><label>Obs</label><textarea class="form-control" id="blObs" rows="2">${boleto?boleto.obs||'':''}</textarea></div>`;
   document.getElementById('cadastroModalFooter').innerHTML=`<button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button><button class="btn btn-primary" onclick="saveBoleto(${isEdit?boleto.id:'null'})">Salvar</button>`;
   openCadastroModal();
 }
 
 function saveBoleto(id) {
-  const obj={descricao:document.getElementById('bDesc').value,valor:parseFloat(document.getElementById('bValor').value)||0,vencimento:document.getElementById('bVenc').value,fornecedor:document.getElementById('bForn').value,situacao:document.getElementById('bSit').value,obs:document.getElementById('bObs').value};
-  if(!appData.boletos)appData.boletos=[];
+  const obj={descricao:document.getElementById('blDesc').value.trim(),valor:parseFloat(document.getElementById('blValor').value)||0,vencimento:document.getElementById('blVenc').value,situacao:document.getElementById('blSit').value,obs:document.getElementById('blObs').value};
+  if(!obj.descricao){showToast('Informe a descrição','error');return;}
   if(id){const idx=appData.boletos.findIndex(b=>b.id===id);if(idx>-1){obj.id=id;appData.boletos[idx]=obj;}}else{obj.id=nextId(appData.boletos);appData.boletos.push(obj);}
   saveData();closeCadastroModal();renderBoletosPage();showToast(id?'Boleto atualizado!':'Boleto cadastrado!','success');
 }
@@ -958,29 +966,41 @@ function deleteBoleto(id){if(!confirm('Excluir boleto?'))return;appData.boletos=
 // CHEQUES
 // ============================================================
 function renderChequesPage() {
-  const pg=document.getElementById('page-cheques');const cheques=appData.cheques||[];
-  pg.innerHTML=`<div class="page-header"><h2>📝 Cheques</h2><button class="btn btn-primary" onclick="openChequeModal()">+ Novo Cheque</button></div>
-    <div class="table-responsive"><table class="table"><thead><tr><th>ID</th><th>Nº</th><th>Valor</th><th>Data</th><th>Emitente</th><th>Situação</th><th>Ações</th></tr></thead><tbody id="chequesBody"></tbody></table></div>`;
-  const tbody=document.getElementById('chequesBody');
-  tbody.innerHTML=cheques.length===0?'<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhum cheque</td></tr>':
-    cheques.map(c=>`<tr><td>${c.id}</td><td>${c.numero||'-'}</td><td>${formatCurrency(c.valor)}</td><td>${formatDate(c.data)}</td><td>${c.emitente||'-'}</td><td><span class="badge ${c.situacao==='Compensado'?'badge-success':c.situacao==='Devolvido'?'badge-danger':'badge-warning'}">${c.situacao}</span></td><td><button class="btn btn-sm btn-primary" onclick="editCheque(${c.id})">✏️</button><button class="btn btn-sm btn-danger" onclick="deleteCheque(${c.id})">🗑️</button></td></tr>`).join('');
+  const pg = document.getElementById('page-cheques');
+  const cheques = appData.cheques || [];
+  pg.innerHTML = `
+    <div class="page-header"><h2>📝 Cheques</h2><button class="btn btn-primary" onclick="openChequeModal()">+ Novo Cheque</button></div>
+    <div class="filter-bar"><input type="text" class="form-control" style="max-width:250px" placeholder="Buscar cheque..." oninput="filterCheques(this.value)"></div>
+    <div class="table-responsive"><table class="table"><thead><tr><th>ID</th><th>Nº Cheque</th><th>Valor</th><th>Data</th><th>Destinatário</th><th>Situação</th><th>Ações</th></tr></thead>
+    <tbody id="chequesBody"></tbody></table></div>`;
+  renderChequesTable(cheques);
 }
 
+function renderChequesTable(cheques) {
+  const tbody=document.getElementById('chequesBody');if(!tbody)return;
+  tbody.innerHTML=cheques.length===0?'<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhum cheque</td></tr>':
+    cheques.map(c=>`<tr><td>${c.id}</td><td>${c.numero||'-'}</td><td>${formatCurrency(c.valor)}</td><td>${formatDate(c.data)}</td><td>${c.destinatario||'-'}</td>
+    <td><span class="badge ${c.situacao==='Compensado'?'badge-success':c.situacao==='Devolvido'?'badge-danger':'badge-warning'}">${c.situacao}</span></td>
+    <td><button class="btn btn-sm btn-primary" onclick="editCheque(${c.id})">✏️</button><button class="btn btn-sm btn-danger" onclick="deleteCheque(${c.id})">🗑️</button></td></tr>`).join('');
+}
+
+function filterCheques(q){q=q.toLowerCase();renderChequesTable((appData.cheques||[]).filter(c=>(c.numero||'').toLowerCase().includes(q)||(c.destinatario||'').toLowerCase().includes(q)));}
+
 function openChequeModal(cheque) {
-  const isEdit=!!cheque;const sitOpts=(appData.situacaoCheque||[]).map(s=>`<option value="${s}" ${cheque&&cheque.situacao===s?'selected':''}>${s}</option>`).join('');
+  const isEdit=!!cheque;
+  const sitOpts=(appData.situacaoCheque||[]).map(s=>`<option value="${s}" ${cheque&&cheque.situacao===s?'selected':''}>${s}</option>`).join('');
   document.getElementById('cadastroModalTitle').textContent=isEdit?'Editar Cheque':'Novo Cheque';
   document.getElementById('cadastroModalBody').innerHTML=`
-    <div class="form-row"><div class="form-group"><label>Nº Cheque</label><input type="text" class="form-control" id="chNum" value="${cheque?cheque.numero||'':''}"></div><div class="form-group"><label>Valor</label><input type="number" class="form-control" id="chValor" value="${cheque?cheque.valor:''}" step="0.01"></div></div>
-    <div class="form-row"><div class="form-group"><label>Data</label><input type="date" class="form-control" id="chData" value="${cheque?cheque.data:''}"></div><div class="form-group"><label>Situação</label><select class="form-control" id="chSit">${sitOpts}</select></div></div>
-    <div class="form-group"><label>Emitente</label><input type="text" class="form-control" id="chEmit" value="${cheque?cheque.emitente||'':''}"></div>
+    <div class="form-row"><div class="form-group"><label>Nº Cheque</label><input type="text" class="form-control" id="chNum" value="${cheque?cheque.numero:''}"></div><div class="form-group"><label>Valor</label><input type="number" class="form-control" id="chValor" value="${cheque?cheque.valor:''}" step="0.01"></div></div>
+    <div class="form-row"><div class="form-group"><label>Data</label><input type="date" class="form-control" id="chData" value="${cheque?cheque.data:new Date().toISOString().split('T')[0]}"></div><div class="form-group"><label>Situação</label><select class="form-control" id="chSit">${sitOpts}</select></div></div>
+    <div class="form-group"><label>Destinatário</label><input type="text" class="form-control" id="chDest" value="${cheque?cheque.destinatario:''}"></div>
     <div class="form-group"><label>Obs</label><textarea class="form-control" id="chObs" rows="2">${cheque?cheque.obs||'':''}</textarea></div>`;
   document.getElementById('cadastroModalFooter').innerHTML=`<button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button><button class="btn btn-primary" onclick="saveCheque(${isEdit?cheque.id:'null'})">Salvar</button>`;
   openCadastroModal();
 }
 
 function saveCheque(id) {
-  const obj={numero:document.getElementById('chNum').value,valor:parseFloat(document.getElementById('chValor').value)||0,data:document.getElementById('chData').value,situacao:document.getElementById('chSit').value,emitente:document.getElementById('chEmit').value,obs:document.getElementById('chObs').value};
-  if(!appData.cheques)appData.cheques=[];
+  const obj={numero:document.getElementById('chNum').value.trim(),valor:parseFloat(document.getElementById('chValor').value)||0,data:document.getElementById('chData').value,situacao:document.getElementById('chSit').value,destinatario:document.getElementById('chDest').value.trim(),obs:document.getElementById('chObs').value};
   if(id){const idx=appData.cheques.findIndex(c=>c.id===id);if(idx>-1){obj.id=id;appData.cheques[idx]=obj;}}else{obj.id=nextId(appData.cheques);appData.cheques.push(obj);}
   saveData();closeCadastroModal();renderChequesPage();showToast(id?'Cheque atualizado!':'Cheque cadastrado!','success');
 }
@@ -992,29 +1012,40 @@ function deleteCheque(id){if(!confirm('Excluir cheque?'))return;appData.cheques=
 // PRESTAÇÕES
 // ============================================================
 function renderPrestacoesPage() {
-  const pg=document.getElementById('page-prestacoes');const prestacoes=appData.prestacoes||[];
-  pg.innerHTML=`<div class="page-header"><h2>💳 Prestações</h2><button class="btn btn-primary" onclick="openPrestacaoModal()">+ Nova Prestação</button></div>
-    <div class="table-responsive"><table class="table"><thead><tr><th>ID</th><th>Descrição</th><th>V.Total</th><th>Parcelas</th><th>V.Parcela</th><th>Pagas</th><th>Restante</th><th>Status</th><th>Ações</th></tr></thead><tbody id="prestacoesBody"></tbody></table></div>`;
-  const tbody=document.getElementById('prestacoesBody');
-  tbody.innerHTML=prestacoes.length===0?'<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhuma prestação</td></tr>':
-    prestacoes.map(p=>{const pagas=p.parcelasPagas||0;const rest=(p.parcelas-pagas)*(p.valorParcela||0);const sit=pagas>=p.parcelas?'Quitado':'Em aberto';return`<tr><td>${p.id}</td><td>${p.descricao}</td><td>${formatCurrency(p.valorTotal)}</td><td>${p.parcelas}</td><td>${formatCurrency(p.valorParcela||0)}</td><td>${pagas}/${p.parcelas}</td><td>${formatCurrency(rest)}</td><td><span class="badge ${sit==='Quitado'?'badge-success':'badge-warning'}">${sit}</span></td><td><button class="btn btn-sm btn-primary" onclick="editPrestacao(${p.id})">✏️</button><button class="btn btn-sm btn-danger" onclick="deletePrestacao(${p.id})">🗑️</button></td></tr>`;}).join('');
+  const pg = document.getElementById('page-prestacoes');
+  const prestacoes = appData.prestacoes || [];
+  pg.innerHTML = `
+    <div class="page-header"><h2>💳 Prestações</h2><button class="btn btn-primary" onclick="openPrestacaoModal()">+ Nova Prestação</button></div>
+    <div class="filter-bar"><input type="text" class="form-control" style="max-width:250px" placeholder="Buscar..." oninput="filterPrestacoes(this.value)"></div>
+    <div class="table-responsive"><table class="table"><thead><tr><th>ID</th><th>Descrição</th><th>Valor Parcela</th><th>Parcelas</th><th>Pagas</th><th>Início</th><th>Ações</th></tr></thead>
+    <tbody id="prestacoesBody"></tbody></table></div>`;
+  renderPrestacoesTable(prestacoes);
 }
+
+function renderPrestacoesTable(prestacoes) {
+  const tbody=document.getElementById('prestacoesBody');if(!tbody)return;
+  tbody.innerHTML=prestacoes.length===0?'<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhuma prestação</td></tr>':
+    prestacoes.map(p=>`<tr><td>${p.id}</td><td>${p.descricao||'-'}</td><td>${formatCurrency(p.valorParcela)}</td><td>${p.totalParcelas||0}</td><td>${p.parcelasPagas||0}</td><td>${formatDate(p.dataInicio)}</td>
+    <td><button class="btn btn-sm btn-primary" onclick="editPrestacao(${p.id})">✏️</button><button class="btn btn-sm btn-danger" onclick="deletePrestacao(${p.id})">🗑️</button></td></tr>`).join('');
+}
+
+function filterPrestacoes(q){q=q.toLowerCase();renderPrestacoesTable((appData.prestacoes||[]).filter(p=>(p.descricao||'').toLowerCase().includes(q)));}
 
 function openPrestacaoModal(prest) {
   const isEdit=!!prest;
   document.getElementById('cadastroModalTitle').textContent=isEdit?'Editar Prestação':'Nova Prestação';
   document.getElementById('cadastroModalBody').innerHTML=`
-    <div class="form-group"><label>Descrição</label><input type="text" class="form-control" id="prDesc" value="${prest?prest.descricao:''}"></div>
-    <div class="form-row"><div class="form-group"><label>V.Total</label><input type="number" class="form-control" id="prTotal" value="${prest?prest.valorTotal:''}" step="0.01"></div><div class="form-group"><label>Parcelas</label><input type="number" class="form-control" id="prParc" value="${prest?prest.parcelas:''}" min="1"></div></div>
-    <div class="form-row"><div class="form-group"><label>V.Parcela</label><input type="number" class="form-control" id="prVP" value="${prest?prest.valorParcela||'':''}" step="0.01"></div><div class="form-group"><label>Pagas</label><input type="number" class="form-control" id="prPagas" value="${prest?prest.parcelasPagas||0:0}" min="0"></div></div>
-    <div class="form-group"><label>Obs</label><textarea class="form-control" id="prObs" rows="2">${prest?prest.obs||'':''}</textarea></div>`;
+    <div class="form-group"><label>Descrição *</label><input type="text" class="form-control" id="psDesc" value="${prest?prest.descricao:''}"></div>
+    <div class="form-row"><div class="form-group"><label>Valor Parcela</label><input type="number" class="form-control" id="psValor" value="${prest?prest.valorParcela:''}" step="0.01"></div><div class="form-group"><label>Total Parcelas</label><input type="number" class="form-control" id="psTotal" value="${prest?prest.totalParcelas:''}" min="1"></div></div>
+    <div class="form-row"><div class="form-group"><label>Parcelas Pagas</label><input type="number" class="form-control" id="psPagas" value="${prest?prest.parcelasPagas:0}" min="0"></div><div class="form-group"><label>Data Início</label><input type="date" class="form-control" id="psData" value="${prest?prest.dataInicio:''}"></div></div>
+    <div class="form-group"><label>Obs</label><textarea class="form-control" id="psObs" rows="2">${prest?prest.obs||'':''}</textarea></div>`;
   document.getElementById('cadastroModalFooter').innerHTML=`<button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button><button class="btn btn-primary" onclick="savePrestacao(${isEdit?prest.id:'null'})">Salvar</button>`;
   openCadastroModal();
 }
 
 function savePrestacao(id) {
-  const obj={descricao:document.getElementById('prDesc').value,valorTotal:parseFloat(document.getElementById('prTotal').value)||0,parcelas:parseInt(document.getElementById('prParc').value)||1,valorParcela:parseFloat(document.getElementById('prVP').value)||0,parcelasPagas:parseInt(document.getElementById('prPagas').value)||0,obs:document.getElementById('prObs').value};
-  if(!appData.prestacoes)appData.prestacoes=[];
+  const obj={descricao:document.getElementById('psDesc').value.trim(),valorParcela:parseFloat(document.getElementById('psValor').value)||0,totalParcelas:parseInt(document.getElementById('psTotal').value)||1,parcelasPagas:parseInt(document.getElementById('psPagas').value)||0,dataInicio:document.getElementById('psData').value,obs:document.getElementById('psObs').value};
+  if(!obj.descricao){showToast('Informe a descrição','error');return;}
   if(id){const idx=appData.prestacoes.findIndex(p=>p.id===id);if(idx>-1){obj.id=id;appData.prestacoes[idx]=obj;}}else{obj.id=nextId(appData.prestacoes);appData.prestacoes.push(obj);}
   saveData();closeCadastroModal();renderPrestacoesPage();showToast(id?'Prestação atualizada!':'Prestação cadastrada!','success');
 }
@@ -1026,30 +1057,43 @@ function deletePrestacao(id){if(!confirm('Excluir prestação?'))return;appData.
 // PROJETOS
 // ============================================================
 function renderProjetosPage() {
-  const pg=document.getElementById('page-projetos');const projetos=appData.projetos||[];
-  pg.innerHTML=`<div class="page-header"><h2>📐 Projetos</h2><button class="btn btn-primary" onclick="openProjetoModal()">+ Novo Projeto</button></div>
-    <div class="table-responsive"><table class="table"><thead><tr><th>ID</th><th>Nome</th><th>Cliente</th><th>Valor</th><th>Início</th><th>Previsão</th><th>Status</th><th>Ações</th></tr></thead><tbody id="projetosBody"></tbody></table></div>`;
-  const tbody=document.getElementById('projetosBody');
-  tbody.innerHTML=projetos.length===0?'<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhum projeto</td></tr>':
-    projetos.map(p=>`<tr><td>${p.id}</td><td>${p.nome}</td><td>${p.cliente||'-'}</td><td>${formatCurrency(p.valor||0)}</td><td>${formatDate(p.inicio)}</td><td>${formatDate(p.previsao)}</td><td><span class="badge ${p.status==='Concluído'?'badge-success':p.status==='Cancelado'?'badge-danger':'badge-info'}">${p.status}</span></td><td><button class="btn btn-sm btn-primary" onclick="editProjeto(${p.id})">✏️</button><button class="btn btn-sm btn-danger" onclick="deleteProjeto(${p.id})">🗑️</button></td></tr>`).join('');
+  const pg = document.getElementById('page-projetos');
+  const projetos = appData.projetos || [];
+  pg.innerHTML = `
+    <div class="page-header"><h2>📐 Projetos</h2><button class="btn btn-primary" onclick="openProjetoModal()">+ Novo Projeto</button></div>
+    <div class="filter-bar"><input type="text" class="form-control" style="max-width:250px" placeholder="Buscar..." oninput="filterProjetos(this.value)"></div>
+    <div class="table-responsive"><table class="table"><thead><tr><th>ID</th><th>Nome</th><th>Cliente</th><th>Valor</th><th>Início</th><th>Previsão</th><th>Status</th><th>Ações</th></tr></thead>
+    <tbody id="projetosBody"></tbody></table></div>`;
+  renderProjetosTable(projetos);
 }
 
-function openProjetoModal(proj) {
-  const isEdit=!!proj;const cliOpts=(appData.clientes||[]).map(c=>`<option value="${c.nome}" ${proj&&proj.cliente===c.nome?'selected':''}>${c.nome}</option>`).join('');
+function renderProjetosTable(projetos) {
+  const tbody=document.getElementById('projetosBody');if(!tbody)return;
+  tbody.innerHTML=projetos.length===0?'<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhum projeto</td></tr>':
+    projetos.map(p=>`<tr><td>${p.id}</td><td>${p.nome}</td><td>${p.cliente||'-'}</td><td>${formatCurrency(p.valor)}</td><td>${formatDate(p.dataInicio)}</td><td>${formatDate(p.previsao)}</td>
+    <td><span class="badge ${p.status==='Concluído'?'badge-success':p.status==='Cancelado'?'badge-danger':'badge-warning'}">${p.status||'Em andamento'}</span></td>
+    <td><button class="btn btn-sm btn-primary" onclick="editProjeto(${p.id})">✏️</button><button class="btn btn-sm btn-danger" onclick="deleteProjeto(${p.id})">🗑️</button></td></tr>`).join('');
+}
+
+function filterProjetos(q){q=q.toLowerCase();renderProjetosTable((appData.projetos||[]).filter(p=>p.nome.toLowerCase().includes(q)));}
+
+function openProjetoModal(projeto) {
+  const isEdit=!!projeto;
+  const cliOpts=(appData.clientes||[]).map(c=>`<option value="${c.nome}" ${projeto&&projeto.cliente===c.nome?'selected':''}>${c.nome}</option>`).join('');
   document.getElementById('cadastroModalTitle').textContent=isEdit?'Editar Projeto':'Novo Projeto';
   document.getElementById('cadastroModalBody').innerHTML=`
-    <div class="form-group"><label>Nome</label><input type="text" class="form-control" id="projNome" value="${proj?proj.nome:''}"></div>
-    <div class="form-row"><div class="form-group"><label>Cliente</label><select class="form-control" id="projCli"><option value="">Selecione...</option>${cliOpts}</select></div><div class="form-group"><label>Valor</label><input type="number" class="form-control" id="projValor" value="${proj?proj.valor||'':''}" step="0.01"></div></div>
-    <div class="form-row"><div class="form-group"><label>Início</label><input type="date" class="form-control" id="projInicio" value="${proj?proj.inicio:''}"></div><div class="form-group"><label>Previsão</label><input type="date" class="form-control" id="projPrev" value="${proj?proj.previsao:''}"></div></div>
-    <div class="form-group"><label>Status</label><select class="form-control" id="projStatus"><option value="Em andamento" ${proj&&proj.status==='Em andamento'?'selected':''}>Em andamento</option><option value="Concluído" ${proj&&proj.status==='Concluído'?'selected':''}>Concluído</option><option value="Cancelado" ${proj&&proj.status==='Cancelado'?'selected':''}>Cancelado</option></select></div>
-    <div class="form-group"><label>Descrição</label><textarea class="form-control" id="projDesc" rows="2">${proj?proj.descricao||'':''}</textarea></div>`;
-  document.getElementById('cadastroModalFooter').innerHTML=`<button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button><button class="btn btn-primary" onclick="saveProjeto(${isEdit?proj.id:'null'})">Salvar</button>`;
+    <div class="form-group"><label>Nome *</label><input type="text" class="form-control" id="pjNome" value="${projeto?projeto.nome:''}"></div>
+    <div class="form-row"><div class="form-group"><label>Cliente</label><select class="form-control" id="pjCliente"><option value="">Selecione...</option>${cliOpts}</select></div><div class="form-group"><label>Valor</label><input type="number" class="form-control" id="pjValor" value="${projeto?projeto.valor:''}" step="0.01"></div></div>
+    <div class="form-row"><div class="form-group"><label>Início</label><input type="date" class="form-control" id="pjInicio" value="${projeto?projeto.dataInicio:''}"></div><div class="form-group"><label>Previsão</label><input type="date" class="form-control" id="pjPrevisao" value="${projeto?projeto.previsao:''}"></div></div>
+    <div class="form-group"><label>Status</label><select class="form-control" id="pjStatus"><option value="Em andamento" ${projeto&&projeto.status==='Em andamento'?'selected':''}>Em andamento</option><option value="Concluído" ${projeto&&projeto.status==='Concluído'?'selected':''}>Concluído</option><option value="Cancelado" ${projeto&&projeto.status==='Cancelado'?'selected':''}>Cancelado</option></select></div>
+    <div class="form-group"><label>Obs</label><textarea class="form-control" id="pjObs" rows="2">${projeto?projeto.obs||'':''}</textarea></div>`;
+  document.getElementById('cadastroModalFooter').innerHTML=`<button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button><button class="btn btn-primary" onclick="saveProjeto(${isEdit?projeto.id:'null'})">Salvar</button>`;
   openCadastroModal();
 }
 
 function saveProjeto(id) {
-  const obj={nome:document.getElementById('projNome').value,cliente:document.getElementById('projCli').value,valor:parseFloat(document.getElementById('projValor').value)||0,inicio:document.getElementById('projInicio').value,previsao:document.getElementById('projPrev').value,status:document.getElementById('projStatus').value,descricao:document.getElementById('projDesc').value};
-  if(!appData.projetos)appData.projetos=[];
+  const obj={nome:document.getElementById('pjNome').value.trim(),cliente:document.getElementById('pjCliente').value,valor:parseFloat(document.getElementById('pjValor').value)||0,dataInicio:document.getElementById('pjInicio').value,previsao:document.getElementById('pjPrevisao').value,status:document.getElementById('pjStatus').value,obs:document.getElementById('pjObs').value};
+  if(!obj.nome){showToast('Informe o nome','error');return;}
   if(id){const idx=appData.projetos.findIndex(p=>p.id===id);if(idx>-1){obj.id=id;appData.projetos[idx]=obj;}}else{obj.id=nextId(appData.projetos);appData.projetos.push(obj);}
   saveData();closeCadastroModal();renderProjetosPage();showToast(id?'Projeto atualizado!':'Projeto cadastrado!','success');
 }
@@ -1061,29 +1105,41 @@ function deleteProjeto(id){if(!confirm('Excluir projeto?'))return;appData.projet
 // PAGAMENTOS DE CLIENTES
 // ============================================================
 function renderPagClientesPage() {
-  const pg=document.getElementById('page-pagclientes');const pags=appData.pagClientes||[];
-  pg.innerHTML=`<div class="page-header"><h2>🤝 Pag. Clientes</h2><button class="btn btn-primary" onclick="openPagClienteModal()">+ Novo Pagamento</button></div>
-    <div class="table-responsive"><table class="table"><thead><tr><th>ID</th><th>Cliente</th><th>Valor</th><th>Data</th><th>Pgto</th><th>Referência</th><th>Ações</th></tr></thead><tbody id="pagClientesBody"></tbody></table></div>`;
-  const tbody=document.getElementById('pagClientesBody');
-  tbody.innerHTML=pags.length===0?'<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhum pagamento</td></tr>':
-    pags.map(p=>`<tr><td>${p.id}</td><td>${p.cliente}</td><td>${formatCurrency(p.valor)}</td><td>${formatDate(p.data)}</td><td>${p.formaPagamento||'-'}</td><td>${p.referencia||'-'}</td><td><button class="btn btn-sm btn-primary" onclick="editPagCliente(${p.id})">✏️</button><button class="btn btn-sm btn-danger" onclick="deletePagCliente(${p.id})">🗑️</button></td></tr>`).join('');
+  const pg = document.getElementById('page-pagclientes');
+  const pags = appData.pagClientes || [];
+  pg.innerHTML = `
+    <div class="page-header"><h2>🤝 Pagamentos de Clientes</h2><button class="btn btn-primary" onclick="openPagClienteModal()">+ Novo Pagamento</button></div>
+    <div class="filter-bar"><input type="text" class="form-control" style="max-width:250px" placeholder="Buscar..." oninput="filterPagClientes(this.value)"></div>
+    <div class="table-responsive"><table class="table"><thead><tr><th>ID</th><th>Cliente</th><th>Valor</th><th>Data</th><th>Forma Pgto</th><th>Ações</th></tr></thead>
+    <tbody id="pagClientesBody"></tbody></table></div>`;
+  renderPagClientesTable(pags);
 }
 
+function renderPagClientesTable(pags) {
+  const tbody=document.getElementById('pagClientesBody');if(!tbody)return;
+  tbody.innerHTML=pags.length===0?'<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhum pagamento</td></tr>':
+    pags.map(p=>`<tr><td>${p.id}</td><td>${p.cliente||'-'}</td><td>${formatCurrency(p.valor)}</td><td>${formatDate(p.data)}</td><td>${p.formaPagamento||'-'}</td>
+    <td><button class="btn btn-sm btn-primary" onclick="editPagCliente(${p.id})">✏️</button><button class="btn btn-sm btn-danger" onclick="deletePagCliente(${p.id})">🗑️</button></td></tr>`).join('');
+}
+
+function filterPagClientes(q){q=q.toLowerCase();renderPagClientesTable((appData.pagClientes||[]).filter(p=>(p.cliente||'').toLowerCase().includes(q)));}
+
 function openPagClienteModal(pag) {
-  const isEdit=!!pag;const cliOpts=(appData.clientes||[]).map(c=>`<option value="${c.nome}" ${pag&&pag.cliente===c.nome?'selected':''}>${c.nome}</option>`).join('');const pgtoOpts=(appData.formasPagamento||[]).map(f=>`<option value="${f}" ${pag&&pag.formaPagamento===f?'selected':''}>${f}</option>`).join('');
+  const isEdit=!!pag;
+  const cliOpts=(appData.clientes||[]).map(c=>`<option value="${c.nome}" ${pag&&pag.cliente===c.nome?'selected':''}>${c.nome}</option>`).join('');
+  const pgtoOpts=(appData.formasPagamento||[]).map(f=>`<option value="${f}" ${pag&&pag.formaPagamento===f?'selected':''}>${f}</option>`).join('');
   document.getElementById('cadastroModalTitle').textContent=isEdit?'Editar Pagamento':'Novo Pagamento';
   document.getElementById('cadastroModalBody').innerHTML=`
-    <div class="form-row"><div class="form-group"><label>Cliente</label><select class="form-control" id="pcCli"><option value="">Selecione...</option>${cliOpts}</select></div><div class="form-group"><label>Valor</label><input type="number" class="form-control" id="pcValor" value="${pag?pag.valor:''}" step="0.01"></div></div>
-    <div class="form-row"><div class="form-group"><label>Data</label><input type="date" class="form-control" id="pcData" value="${pag?pag.data:new Date().toISOString().split('T')[0]}"></div><div class="form-group"><label>Pgto</label><select class="form-control" id="pcPgto">${pgtoOpts}</select></div></div>
-    <div class="form-group"><label>Referência</label><input type="text" class="form-control" id="pcRef" value="${pag?pag.referencia||'':''}"></div>
+    <div class="form-group"><label>Cliente</label><select class="form-control" id="pcCliente"><option value="">Selecione...</option>${cliOpts}</select></div>
+    <div class="form-row"><div class="form-group"><label>Valor</label><input type="number" class="form-control" id="pcValor" value="${pag?pag.valor:''}" step="0.01"></div><div class="form-group"><label>Data</label><input type="date" class="form-control" id="pcData" value="${pag?pag.data:new Date().toISOString().split('T')[0]}"></div></div>
+    <div class="form-group"><label>Forma Pgto</label><select class="form-control" id="pcPgto">${pgtoOpts}</select></div>
     <div class="form-group"><label>Obs</label><textarea class="form-control" id="pcObs" rows="2">${pag?pag.obs||'':''}</textarea></div>`;
   document.getElementById('cadastroModalFooter').innerHTML=`<button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button><button class="btn btn-primary" onclick="savePagCliente(${isEdit?pag.id:'null'})">Salvar</button>`;
   openCadastroModal();
 }
 
 function savePagCliente(id) {
-  const obj={cliente:document.getElementById('pcCli').value,valor:parseFloat(document.getElementById('pcValor').value)||0,data:document.getElementById('pcData').value,formaPagamento:document.getElementById('pcPgto').value,referencia:document.getElementById('pcRef').value,obs:document.getElementById('pcObs').value};
-  if(!appData.pagClientes)appData.pagClientes=[];
+  const obj={cliente:document.getElementById('pcCliente').value,valor:parseFloat(document.getElementById('pcValor').value)||0,data:document.getElementById('pcData').value,formaPagamento:document.getElementById('pcPgto').value,obs:document.getElementById('pcObs').value};
   if(id){const idx=appData.pagClientes.findIndex(p=>p.id===id);if(idx>-1){obj.id=id;appData.pagClientes[idx]=obj;}}else{obj.id=nextId(appData.pagClientes);appData.pagClientes.push(obj);}
   saveData();closeCadastroModal();renderPagClientesPage();showToast(id?'Pagamento atualizado!':'Pagamento cadastrado!','success');
 }
@@ -1095,37 +1151,43 @@ function deletePagCliente(id){if(!confirm('Excluir pagamento?'))return;appData.p
 // GARANTIAS
 // ============================================================
 function renderGarantiasPage() {
-  const pg=document.getElementById('page-garantias');const garantias=appData.garantias||[];
-  pg.innerHTML=`<div class="page-header"><h2>🛡️ Garantias</h2><button class="btn btn-primary" onclick="openGarantiaModal()">+ Nova Garantia</button></div>
+  const pg = document.getElementById('page-garantias');
+  const garantias = appData.garantias || [];
+  pg.innerHTML = `
+    <div class="page-header"><h2>🛡️ Garantias</h2><button class="btn btn-primary" onclick="openGarantiaModal()">+ Nova Garantia</button></div>
     <div class="filter-bar"><input type="text" class="form-control" style="max-width:250px" placeholder="Buscar..." oninput="filterGarantias(this.value)"></div>
-    <div class="table-responsive"><table class="table"><thead><tr><th>ID</th><th>Produto</th><th>Cliente</th><th>Início</th><th>Fim</th><th>Situação</th><th>Ações</th></tr></thead><tbody id="garantiasBody"></tbody></table></div>`;
+    <div class="table-responsive"><table class="table"><thead><tr><th>ID</th><th>Produto</th><th>Cliente</th><th>Data Compra</th><th>Validade</th><th>Situação</th><th>Ações</th></tr></thead>
+    <tbody id="garantiasBody"></tbody></table></div>`;
   renderGarantiasTable(garantias);
 }
 
 function renderGarantiasTable(garantias) {
   const tbody=document.getElementById('garantiasBody');if(!tbody)return;
   tbody.innerHTML=garantias.length===0?'<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhuma garantia</td></tr>':
-    garantias.map(g=>`<tr><td>${g.id}</td><td>${g.produto}</td><td>${g.cliente||'-'}</td><td>${formatDate(g.inicio)}</td><td>${formatDate(g.fim)}</td><td><span class="badge ${g.situacao==='Ativa'?'badge-success':g.situacao==='Expirada'?'badge-danger':'badge-warning'}">${g.situacao}</span></td><td><button class="btn btn-sm btn-primary" onclick="editGarantia(${g.id})">✏️</button><button class="btn btn-sm btn-danger" onclick="deleteGarantia(${g.id})">🗑️</button></td></tr>`).join('');
+    garantias.map(g=>`<tr><td>${g.id}</td><td>${g.produto||'-'}</td><td>${g.cliente||'-'}</td><td>${formatDate(g.dataCompra)}</td><td>${formatDate(g.validade)}</td>
+    <td><span class="badge ${g.situacao==='Ativa'?'badge-success':g.situacao==='Expirada'?'badge-danger':'badge-warning'}">${g.situacao}</span></td>
+    <td><button class="btn btn-sm btn-primary" onclick="editGarantia(${g.id})">✏️</button><button class="btn btn-sm btn-danger" onclick="deleteGarantia(${g.id})">🗑️</button></td></tr>`).join('');
 }
 
-function filterGarantias(q){q=q.toLowerCase();renderGarantiasTable((appData.garantias||[]).filter(g=>g.produto.toLowerCase().includes(q)||(g.cliente||'').toLowerCase().includes(q)));}
+function filterGarantias(q){q=q.toLowerCase();renderGarantiasTable((appData.garantias||[]).filter(g=>(g.produto||'').toLowerCase().includes(q)||(g.cliente||'').toLowerCase().includes(q)));}
 
-function openGarantiaModal(gar) {
-  const isEdit=!!gar;const cliOpts=(appData.clientes||[]).map(c=>`<option value="${c.nome}" ${gar&&gar.cliente===c.nome?'selected':''}>${c.nome}</option>`).join('');const sitOpts=(appData.situacaoGarantia||[]).map(s=>`<option value="${s}" ${gar&&gar.situacao===s?'selected':''}>${s}</option>`).join('');
+function openGarantiaModal(garantia) {
+  const isEdit=!!garantia;
+  const sitOpts=(appData.situacaoGarantia||[]).map(s=>`<option value="${s}" ${garantia&&garantia.situacao===s?'selected':''}>${s}</option>`).join('');
   document.getElementById('cadastroModalTitle').textContent=isEdit?'Editar Garantia':'Nova Garantia';
   document.getElementById('cadastroModalBody').innerHTML=`
-    <div class="form-group"><label>Produto</label><input type="text" class="form-control" id="garProd" value="${gar?gar.produto:''}"></div>
-    <div class="form-group"><label>Cliente</label><select class="form-control" id="garCli"><option value="">Selecione...</option>${cliOpts}</select></div>
-    <div class="form-row"><div class="form-group"><label>Início</label><input type="date" class="form-control" id="garInicio" value="${gar?gar.inicio:''}"></div><div class="form-group"><label>Fim</label><input type="date" class="form-control" id="garFim" value="${gar?gar.fim:''}"></div></div>
-    <div class="form-group"><label>Situação</label><select class="form-control" id="garSit">${sitOpts}</select></div>
-    <div class="form-group"><label>Obs</label><textarea class="form-control" id="garObs" rows="2">${gar?gar.obs||'':''}</textarea></div>`;
-  document.getElementById('cadastroModalFooter').innerHTML=`<button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button><button class="btn btn-primary" onclick="saveGarantia(${isEdit?gar.id:'null'})">Salvar</button>`;
+    <div class="form-group"><label>Produto *</label><input type="text" class="form-control" id="grProduto" value="${garantia?garantia.produto:''}"></div>
+    <div class="form-group"><label>Cliente</label><input type="text" class="form-control" id="grCliente" value="${garantia?garantia.cliente:''}"></div>
+    <div class="form-row"><div class="form-group"><label>Data Compra</label><input type="date" class="form-control" id="grDataCompra" value="${garantia?garantia.dataCompra:''}"></div><div class="form-group"><label>Validade</label><input type="date" class="form-control" id="grValidade" value="${garantia?garantia.validade:''}"></div></div>
+    <div class="form-group"><label>Situação</label><select class="form-control" id="grSit">${sitOpts}</select></div>
+    <div class="form-group"><label>Obs</label><textarea class="form-control" id="grObs" rows="2">${garantia?garantia.obs||'':''}</textarea></div>`;
+  document.getElementById('cadastroModalFooter').innerHTML=`<button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button><button class="btn btn-primary" onclick="saveGarantia(${isEdit?garantia.id:'null'})">Salvar</button>`;
   openCadastroModal();
 }
 
 function saveGarantia(id) {
-  const obj={produto:document.getElementById('garProd').value,cliente:document.getElementById('garCli').value,inicio:document.getElementById('garInicio').value,fim:document.getElementById('garFim').value,situacao:document.getElementById('garSit').value,obs:document.getElementById('garObs').value};
-  if(!appData.garantias)appData.garantias=[];
+  const obj={produto:document.getElementById('grProduto').value.trim(),cliente:document.getElementById('grCliente').value.trim(),dataCompra:document.getElementById('grDataCompra').value,validade:document.getElementById('grValidade').value,situacao:document.getElementById('grSit').value,obs:document.getElementById('grObs').value};
+  if(!obj.produto){showToast('Informe o produto','error');return;}
   if(id){const idx=appData.garantias.findIndex(g=>g.id===id);if(idx>-1){obj.id=id;appData.garantias[idx]=obj;}}else{obj.id=nextId(appData.garantias);appData.garantias.push(obj);}
   saveData();closeCadastroModal();renderGarantiasPage();showToast(id?'Garantia atualizada!':'Garantia cadastrada!','success');
 }
@@ -1137,25 +1199,35 @@ function deleteGarantia(id){if(!confirm('Excluir garantia?'))return;appData.gara
 // RELATÓRIOS
 // ============================================================
 function renderRelatoriosPage() {
-  const pg=document.getElementById('page-relatorios');
-  const compras=appData.compras||[];const vendas=appData.vendas||[];
-  const totalC=compras.reduce((s,c)=>s+(c.quantidade*c.valorUnit),0);
-  const totalV=vendas.reduce((s,v)=>s+(v.quantidade*v.valorUnit),0);
-  const lucro=totalV-totalC;
+  const pg = document.getElementById('page-relatorios');
+  const compras = appData.compras || [];
+  const vendas = appData.vendas || [];
+  const totalCompras = compras.reduce((s,c)=>s+(c.quantidade*c.valorUnit),0);
+  const totalVendas = vendas.reduce((s,v)=>s+(v.quantidade*v.valorUnit),0);
 
-  const porVend={};vendas.forEach(v=>{if(!porVend[v.vendedor])porVend[v.vendedor]=0;porVend[v.vendedor]+=v.quantidade*v.valorUnit;});
-  const porForn={};compras.forEach(c=>{if(!porForn[c.fornecedor])porForn[c.fornecedor]=0;porForn[c.fornecedor]+=c.quantidade*c.valorUnit;});
-  const topForn=Object.entries(porForn).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  let resumoMeses = '';
+  mesesNav.forEach(function(mes, idx) {
+    const fc = (appData.fluxoCaixa||{})[mes];
+    if (!fc || !fc.lancamentos || fc.lancamentos.length === 0) return;
+    const ent = fc.lancamentos.filter(l=>l.tipo==='entrada').reduce((s,l)=>s+(l.valor||0),0);
+    const sai = fc.lancamentos.filter(l=>l.tipo==='saida').reduce((s,l)=>s+(l.valor||0),0);
+    resumoMeses += `<tr><td>${mesesNomes[idx]}</td><td class="text-success">${formatCurrency(ent)}</td><td class="text-danger">${formatCurrency(sai)}</td><td class="${(ent-sai)>=0?'text-success':'text-danger'}">${formatCurrency(ent-sai)}</td></tr>`;
+  });
 
-  pg.innerHTML=`<div class="page-header"><h2>📈 Relatórios</h2></div>
+  pg.innerHTML = `
+    <div class="page-header"><h2>📈 Relatórios</h2></div>
     <div class="dashboard-grid">
-      <div class="card card-accent"><div class="card-header"><span>Total Compras</span></div><div class="card-value text-danger">${formatCurrency(totalC)}</div></div>
-      <div class="card"><div class="card-header"><span>Total Vendas</span></div><div class="card-value text-success">${formatCurrency(totalV)}</div></div>
-      <div class="card"><div class="card-header"><span>Lucro Bruto</span></div><div class="card-value ${lucro>=0?'text-success':'text-danger'}">${formatCurrency(lucro)}</div></div>
+      <div class="card card-accent"><div class="card-header"><span>Total Compras</span></div><div class="card-value text-danger">${formatCurrency(totalCompras)}</div></div>
+      <div class="card"><div class="card-header"><span>Total Vendas</span></div><div class="card-value text-success">${formatCurrency(totalVendas)}</div></div>
+      <div class="card"><div class="card-header"><span>Lucro Bruto</span></div><div class="card-value ${(totalVendas-totalCompras)>=0?'text-success':'text-danger'}">${formatCurrency(totalVendas-totalCompras)}</div></div>
+      <div class="card"><div class="card-header"><span>Produtos</span></div><div class="card-value">${(appData.produtos||[]).length}</div></div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-      <div class="card"><div class="section-title">Vendas por Vendedor</div>${Object.entries(porVend).map(([v,t])=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-color)"><span>${v}</span><strong>${formatCurrency(t)}</strong></div>`).join('')||'<p style="color:var(--text-muted)">Sem dados</p>'}</div>
-      <div class="card"><div class="section-title">Top 5 Fornecedores</div>${topForn.map(([f,t])=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-color)"><span>${f}</span><strong>${formatCurrency(t)}</strong></div>`).join('')||'<p style="color:var(--text-muted)">Sem dados</p>'}</div>
+    <div class="card" style="margin-top:16px">
+      <div class="section-title">Resumo Mensal do Fluxo de Caixa</div>
+      <div class="table-responsive" style="border:none">
+        <table class="table"><thead><tr><th>Mês</th><th>Entradas</th><th>Saídas</th><th>Saldo</th></tr></thead>
+        <tbody>${resumoMeses || '<tr><td colspan="4" style="text-align:center;color:var(--text-muted)">Nenhum dado</td></tr>'}</tbody></table>
+      </div>
     </div>`;
 }
 
@@ -1163,28 +1235,40 @@ function renderRelatoriosPage() {
 // NOTAS DE ENTRADA
 // ============================================================
 function renderNotasEntradaPage() {
-  const pg=document.getElementById('page-notasentrada');const notas=appData.notasEntrada||[];
-  pg.innerHTML=`<div class="page-header"><h2>📥 Notas de Entrada</h2><button class="btn btn-primary" onclick="openNotaEntradaModal()">+ Nova Nota</button></div>
-    <div class="table-responsive"><table class="table"><thead><tr><th>ID</th><th>Nº Nota</th><th>Fornecedor</th><th>Data</th><th>Valor</th><th>Ações</th></tr></thead><tbody id="notasEntradaBody"></tbody></table></div>`;
-  const tbody=document.getElementById('notasEntradaBody');
-  tbody.innerHTML=notas.length===0?'<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhuma nota</td></tr>':
-    notas.map(n=>`<tr><td>${n.id}</td><td>${n.numero||'-'}</td><td>${n.fornecedor||'-'}</td><td>${formatDate(n.data)}</td><td>${formatCurrency(n.valor||0)}</td><td><button class="btn btn-sm btn-primary" onclick="editNotaEntrada(${n.id})">✏️</button><button class="btn btn-sm btn-danger" onclick="deleteNotaEntrada(${n.id})">🗑️</button></td></tr>`).join('');
+  const pg = document.getElementById('page-notasentrada');
+  const notas = appData.notasEntrada || [];
+  pg.innerHTML = `
+    <div class="page-header"><h2>📥 Notas de Entrada</h2><button class="btn btn-primary" onclick="openNotaEntradaModal()">+ Nova Nota</button></div>
+    <div class="filter-bar"><input type="text" class="form-control" style="max-width:250px" placeholder="Buscar..." oninput="filterNotasEntrada(this.value)"></div>
+    <div class="table-responsive"><table class="table"><thead><tr><th>ID</th><th>Nº Nota</th><th>Fornecedor</th><th>Valor</th><th>Data</th><th>Ações</th></tr></thead>
+    <tbody id="notasEntradaBody"></tbody></table></div>`;
+  renderNotasEntradaTable(notas);
 }
 
+function renderNotasEntradaTable(notas) {
+  const tbody=document.getElementById('notasEntradaBody');if(!tbody)return;
+  tbody.innerHTML=notas.length===0?'<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhuma nota</td></tr>':
+    notas.map(n=>`<tr><td>${n.id}</td><td>${n.numero||'-'}</td><td>${n.fornecedor||'-'}</td><td>${formatCurrency(n.valor)}</td><td>${formatDate(n.data)}</td>
+    <td><button class="btn btn-sm btn-primary" onclick="editNotaEntrada(${n.id})">✏️</button><button class="btn btn-sm btn-danger" onclick="deleteNotaEntrada(${n.id})">🗑️</button></td></tr>`).join('');
+}
+
+function filterNotasEntrada(q){q=q.toLowerCase();renderNotasEntradaTable((appData.notasEntrada||[]).filter(n=>(n.numero||'').toLowerCase().includes(q)||(n.fornecedor||'').toLowerCase().includes(q)));}
+
 function openNotaEntradaModal(nota) {
-  const isEdit=!!nota;const fornOpts=(appData.fornecedores||[]).map(f=>`<option value="${f.nome}" ${nota&&nota.fornecedor===f.nome?'selected':''}>${f.nome}</option>`).join('');
-  document.getElementById('cadastroModalTitle').textContent=isEdit?'Editar Nota Entrada':'Nova Nota Entrada';
+  const isEdit=!!nota;
+  const fornOpts=(appData.fornecedores||[]).map(f=>`<option value="${f.nome}" ${nota&&nota.fornecedor===f.nome?'selected':''}>${f.nome}</option>`).join('');
+  document.getElementById('cadastroModalTitle').textContent=isEdit?'Editar Nota Entrada':'Nova Nota de Entrada';
   document.getElementById('cadastroModalBody').innerHTML=`
-    <div class="form-row"><div class="form-group"><label>Nº Nota</label><input type="text" class="form-control" id="neNum" value="${nota?nota.numero||'':''}"></div><div class="form-group"><label>Data</label><input type="date" class="form-control" id="neData" value="${nota?nota.data:''}"></div></div>
-    <div class="form-row"><div class="form-group"><label>Fornecedor</label><select class="form-control" id="neForn"><option value="">Selecione...</option>${fornOpts}</select></div><div class="form-group"><label>Valor</label><input type="number" class="form-control" id="neValor" value="${nota?nota.valor||'':''}" step="0.01"></div></div>
+    <div class="form-row"><div class="form-group"><label>Nº Nota</label><input type="text" class="form-control" id="neNum" value="${nota?nota.numero:''}"></div><div class="form-group"><label>Data</label><input type="date" class="form-control" id="neData" value="${nota?nota.data:new Date().toISOString().split('T')[0]}"></div></div>
+    <div class="form-group"><label>Fornecedor</label><select class="form-control" id="neForn"><option value="">Selecione...</option>${fornOpts}</select></div>
+    <div class="form-group"><label>Valor</label><input type="number" class="form-control" id="neValor" value="${nota?nota.valor:''}" step="0.01"></div>
     <div class="form-group"><label>Obs</label><textarea class="form-control" id="neObs" rows="2">${nota?nota.obs||'':''}</textarea></div>`;
   document.getElementById('cadastroModalFooter').innerHTML=`<button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button><button class="btn btn-primary" onclick="saveNotaEntrada(${isEdit?nota.id:'null'})">Salvar</button>`;
   openCadastroModal();
 }
 
 function saveNotaEntrada(id) {
-  const obj={numero:document.getElementById('neNum').value,data:document.getElementById('neData').value,fornecedor:document.getElementById('neForn').value,valor:parseFloat(document.getElementById('neValor').value)||0,obs:document.getElementById('neObs').value};
-  if(!appData.notasEntrada)appData.notasEntrada=[];
+  const obj={numero:document.getElementById('neNum').value.trim(),data:document.getElementById('neData').value,fornecedor:document.getElementById('neForn').value,valor:parseFloat(document.getElementById('neValor').value)||0,obs:document.getElementById('neObs').value};
   if(id){const idx=appData.notasEntrada.findIndex(n=>n.id===id);if(idx>-1){obj.id=id;appData.notasEntrada[idx]=obj;}}else{obj.id=nextId(appData.notasEntrada);appData.notasEntrada.push(obj);}
   saveData();closeCadastroModal();renderNotasEntradaPage();showToast(id?'Nota atualizada!':'Nota cadastrada!','success');
 }
@@ -1196,28 +1280,40 @@ function deleteNotaEntrada(id){if(!confirm('Excluir nota?'))return;appData.notas
 // NOTAS DE SAÍDA
 // ============================================================
 function renderNotasSaidaPage() {
-  const pg=document.getElementById('page-notassaida');const notas=appData.notasSaida||[];
-  pg.innerHTML=`<div class="page-header"><h2>📤 Notas de Saída</h2><button class="btn btn-primary" onclick="openNotaSaidaModal()">+ Nova Nota</button></div>
-    <div class="table-responsive"><table class="table"><thead><tr><th>ID</th><th>Nº Nota</th><th>Cliente</th><th>Data</th><th>Valor</th><th>Ações</th></tr></thead><tbody id="notasSaidaBody"></tbody></table></div>`;
-  const tbody=document.getElementById('notasSaidaBody');
-  tbody.innerHTML=notas.length===0?'<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhuma nota</td></tr>':
-    notas.map(n=>`<tr><td>${n.id}</td><td>${n.numero||'-'}</td><td>${n.cliente||'-'}</td><td>${formatDate(n.data)}</td><td>${formatCurrency(n.valor||0)}</td><td><button class="btn btn-sm btn-primary" onclick="editNotaSaida(${n.id})">✏️</button><button class="btn btn-sm btn-danger" onclick="deleteNotaSaida(${n.id})">🗑️</button></td></tr>`).join('');
+  const pg = document.getElementById('page-notassaida');
+  const notas = appData.notasSaida || [];
+  pg.innerHTML = `
+    <div class="page-header"><h2>📤 Notas de Saída</h2><button class="btn btn-primary" onclick="openNotaSaidaModal()">+ Nova Nota</button></div>
+    <div class="filter-bar"><input type="text" class="form-control" style="max-width:250px" placeholder="Buscar..." oninput="filterNotasSaida(this.value)"></div>
+    <div class="table-responsive"><table class="table"><thead><tr><th>ID</th><th>Nº Nota</th><th>Cliente</th><th>Valor</th><th>Data</th><th>Ações</th></tr></thead>
+    <tbody id="notasSaidaBody"></tbody></table></div>`;
+  renderNotasSaidaTable(notas);
 }
 
+function renderNotasSaidaTable(notas) {
+  const tbody=document.getElementById('notasSaidaBody');if(!tbody)return;
+  tbody.innerHTML=notas.length===0?'<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhuma nota</td></tr>':
+    notas.map(n=>`<tr><td>${n.id}</td><td>${n.numero||'-'}</td><td>${n.cliente||'-'}</td><td>${formatCurrency(n.valor)}</td><td>${formatDate(n.data)}</td>
+    <td><button class="btn btn-sm btn-primary" onclick="editNotaSaida(${n.id})">✏️</button><button class="btn btn-sm btn-danger" onclick="deleteNotaSaida(${n.id})">🗑️</button></td></tr>`).join('');
+}
+
+function filterNotasSaida(q){q=q.toLowerCase();renderNotasSaidaTable((appData.notasSaida||[]).filter(n=>(n.numero||'').toLowerCase().includes(q)||(n.cliente||'').toLowerCase().includes(q)));}
+
 function openNotaSaidaModal(nota) {
-  const isEdit=!!nota;const cliOpts=(appData.clientes||[]).map(c=>`<option value="${c.nome}" ${nota&&nota.cliente===c.nome?'selected':''}>${c.nome}</option>`).join('');
-  document.getElementById('cadastroModalTitle').textContent=isEdit?'Editar Nota Saída':'Nova Nota Saída';
+  const isEdit=!!nota;
+  const cliOpts=(appData.clientes||[]).map(c=>`<option value="${c.nome}" ${nota&&nota.cliente===c.nome?'selected':''}>${c.nome}</option>`).join('');
+  document.getElementById('cadastroModalTitle').textContent=isEdit?'Editar Nota Saída':'Nova Nota de Saída';
   document.getElementById('cadastroModalBody').innerHTML=`
-    <div class="form-row"><div class="form-group"><label>Nº Nota</label><input type="text" class="form-control" id="nsNum" value="${nota?nota.numero||'':''}"></div><div class="form-group"><label>Data</label><input type="date" class="form-control" id="nsData" value="${nota?nota.data:''}"></div></div>
-    <div class="form-row"><div class="form-group"><label>Cliente</label><select class="form-control" id="nsCli"><option value="">Selecione...</option>${cliOpts}</select></div><div class="form-group"><label>Valor</label><input type="number" class="form-control" id="nsValor" value="${nota?nota.valor||'':''}" step="0.01"></div></div>
+    <div class="form-row"><div class="form-group"><label>Nº Nota</label><input type="text" class="form-control" id="nsNum" value="${nota?nota.numero:''}"></div><div class="form-group"><label>Data</label><input type="date" class="form-control" id="nsData" value="${nota?nota.data:new Date().toISOString().split('T')[0]}"></div></div>
+    <div class="form-group"><label>Cliente</label><select class="form-control" id="nsCliente"><option value="">Selecione...</option>${cliOpts}</select></div>
+    <div class="form-group"><label>Valor</label><input type="number" class="form-control" id="nsValor" value="${nota?nota.valor:''}" step="0.01"></div>
     <div class="form-group"><label>Obs</label><textarea class="form-control" id="nsObs" rows="2">${nota?nota.obs||'':''}</textarea></div>`;
   document.getElementById('cadastroModalFooter').innerHTML=`<button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button><button class="btn btn-primary" onclick="saveNotaSaida(${isEdit?nota.id:'null'})">Salvar</button>`;
   openCadastroModal();
 }
 
 function saveNotaSaida(id) {
-  const obj={numero:document.getElementById('nsNum').value,data:document.getElementById('nsData').value,cliente:document.getElementById('nsCli').value,valor:parseFloat(document.getElementById('nsValor').value)||0,obs:document.getElementById('nsObs').value};
-  if(!appData.notasSaida)appData.notasSaida=[];
+  const obj={numero:document.getElementById('nsNum').value.trim(),data:document.getElementById('nsData').value,cliente:document.getElementById('nsCliente').value,valor:parseFloat(document.getElementById('nsValor').value)||0,obs:document.getElementById('nsObs').value};
   if(id){const idx=appData.notasSaida.findIndex(n=>n.id===id);if(idx>-1){obj.id=id;appData.notasSaida[idx]=obj;}}else{obj.id=nextId(appData.notasSaida);appData.notasSaida.push(obj);}
   saveData();closeCadastroModal();renderNotasSaidaPage();showToast(id?'Nota atualizada!':'Nota cadastrada!','success');
 }
@@ -1229,35 +1325,44 @@ function deleteNotaSaida(id){if(!confirm('Excluir nota?'))return;appData.notasSa
 // RECEITAS MEI
 // ============================================================
 function renderReceitasMeiPage() {
-  const pg=document.getElementById('page-receitasmei');const receitas=appData.receitasMei||[];
-  const totalAnual=receitas.reduce((s,r)=>s+(r.valor||0),0);const limite=81000;
-  pg.innerHTML=`<div class="page-header"><h2>📄 Receitas MEI</h2><button class="btn btn-primary" onclick="openReceitaMeiModal()">+ Nova Receita</button></div>
+  const pg = document.getElementById('page-receitasmei');
+  const receitas = appData.receitasMei || [];
+  const totalReceitas = receitas.reduce((s,r)=>s+(r.valor||0),0);
+  pg.innerHTML = `
+    <div class="page-header"><h2>📄 Receitas MEI</h2><button class="btn btn-primary" onclick="openReceitaMeiModal()">+ Nova Receita</button></div>
     <div class="dashboard-grid">
-      <div class="card card-accent"><div class="card-header"><span>Faturamento Anual</span></div><div class="card-value">${formatCurrency(totalAnual)}</div></div>
-      <div class="card"><div class="card-header"><span>Limite MEI</span></div><div class="card-value">${formatCurrency(limite)}</div></div>
-      <div class="card"><div class="card-header"><span>Disponível</span></div><div class="card-value ${(limite-totalAnual)>=0?'text-success':'text-danger'}">${formatCurrency(limite-totalAnual)}</div></div>
-      <div class="card"><div class="card-header"><span>% Utilizado</span></div><div class="card-value">${((totalAnual/limite)*100).toFixed(1)}%</div><div class="progress-bar" style="margin-top:8px"><div class="progress-fill" style="width:${Math.min((totalAnual/limite)*100,100)}%"></div></div></div>
+      <div class="card card-accent"><div class="card-header"><span>Total Receitas</span></div><div class="card-value">${formatCurrency(totalReceitas)}</div></div>
+      <div class="card"><div class="card-header"><span>Qtd</span></div><div class="card-value">${receitas.length}</div></div>
     </div>
-    <div class="table-responsive"><table class="table"><thead><tr><th>ID</th><th>Mês</th><th>Descrição</th><th>Valor</th><th>Ações</th></tr></thead><tbody id="receitasMeiBody"></tbody></table></div>`;
-  const tbody=document.getElementById('receitasMeiBody');
-  tbody.innerHTML=receitas.length===0?'<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhuma receita</td></tr>':
-    receitas.map(r=>`<tr><td>${r.id}</td><td>${r.mes||'-'}</td><td>${r.descricao||'-'}</td><td>${formatCurrency(r.valor||0)}</td><td><button class="btn btn-sm btn-primary" onclick="editReceitaMei(${r.id})">✏️</button><button class="btn btn-sm btn-danger" onclick="deleteReceitaMei(${r.id})">🗑️</button></td></tr>`).join('');
+    <div class="filter-bar"><input type="text" class="form-control" style="max-width:250px" placeholder="Buscar..." oninput="filterReceitasMei(this.value)"></div>
+    <div class="table-responsive"><table class="table"><thead><tr><th>ID</th><th>Descrição</th><th>Valor</th><th>Data</th><th>Ações</th></tr></thead>
+    <tbody id="receitasMeiBody"></tbody></table></div>`;
+  renderReceitasMeiTable(receitas);
 }
 
-function openReceitaMeiModal(rec) {
-  const isEdit=!!rec;const meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-  const mesOpts=meses.map(m=>`<option value="${m}" ${rec&&rec.mes===m?'selected':''}>${m}</option>`).join('');
+function renderReceitasMeiTable(receitas) {
+  const tbody=document.getElementById('receitasMeiBody');if(!tbody)return;
+  tbody.innerHTML=receitas.length===0?'<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhuma receita</td></tr>':
+    receitas.map(r=>`<tr><td>${r.id}</td><td>${r.descricao||'-'}</td><td>${formatCurrency(r.valor)}</td><td>${formatDate(r.data)}</td>
+    <td><button class="btn btn-sm btn-primary" onclick="editReceitaMei(${r.id})">✏️</button><button class="btn btn-sm btn-danger" onclick="deleteReceitaMei(${r.id})">🗑️</button></td></tr>`).join('');
+}
+
+function filterReceitasMei(q){q=q.toLowerCase();renderReceitasMeiTable((appData.receitasMei||[]).filter(r=>(r.descricao||'').toLowerCase().includes(q)));}
+
+function openReceitaMeiModal(receita) {
+  const isEdit=!!receita;
   document.getElementById('cadastroModalTitle').textContent=isEdit?'Editar Receita':'Nova Receita MEI';
   document.getElementById('cadastroModalBody').innerHTML=`
-    <div class="form-row"><div class="form-group"><label>Mês</label><select class="form-control" id="rmMes">${mesOpts}</select></div><div class="form-group"><label>Valor</label><input type="number" class="form-control" id="rmValor" value="${rec?rec.valor||'':''}" step="0.01"></div></div>
-    <div class="form-group"><label>Descrição</label><input type="text" class="form-control" id="rmDesc" value="${rec?rec.descricao||'':''}"></div>`;
-  document.getElementById('cadastroModalFooter').innerHTML=`<button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button><button class="btn btn-primary" onclick="saveReceitaMei(${isEdit?rec.id:'null'})">Salvar</button>`;
+    <div class="form-group"><label>Descrição *</label><input type="text" class="form-control" id="rmDesc" value="${receita?receita.descricao:''}"></div>
+    <div class="form-row"><div class="form-group"><label>Valor</label><input type="number" class="form-control" id="rmValor" value="${receita?receita.valor:''}" step="0.01"></div><div class="form-group"><label>Data</label><input type="date" class="form-control" id="rmData" value="${receita?receita.data:new Date().toISOString().split('T')[0]}"></div></div>
+    <div class="form-group"><label>Obs</label><textarea class="form-control" id="rmObs" rows="2">${receita?receita.obs||'':''}</textarea></div>`;
+  document.getElementById('cadastroModalFooter').innerHTML=`<button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button><button class="btn btn-primary" onclick="saveReceitaMei(${isEdit?receita.id:'null'})">Salvar</button>`;
   openCadastroModal();
 }
 
 function saveReceitaMei(id) {
-  const obj={mes:document.getElementById('rmMes').value,valor:parseFloat(document.getElementById('rmValor').value)||0,descricao:document.getElementById('rmDesc').value};
-  if(!appData.receitasMei)appData.receitasMei=[];
+  const obj={descricao:document.getElementById('rmDesc').value.trim(),valor:parseFloat(document.getElementById('rmValor').value)||0,data:document.getElementById('rmData').value,obs:document.getElementById('rmObs').value};
+  if(!obj.descricao){showToast('Informe a descrição','error');return;}
   if(id){const idx=appData.receitasMei.findIndex(r=>r.id===id);if(idx>-1){obj.id=id;appData.receitasMei[idx]=obj;}}else{obj.id=nextId(appData.receitasMei);appData.receitasMei.push(obj);}
   saveData();closeCadastroModal();renderReceitasMeiPage();showToast(id?'Receita atualizada!':'Receita cadastrada!','success');
 }
@@ -1289,7 +1394,7 @@ function renderConfiguracoesPage() {
           '<input type="file" id="logoFileInput" accept="image/png,image/jpeg,image/webp" style="display:none" onchange="handleLogoUpload(event)">' +
         '</div>' +
       '</div>' +
-      (emp.logo ? '<button class="btn btn-danger btn-sm" style="margin-bottom:12px" onclick="removeLogo()">Remover Logo</button>' : '') +
+      (emp.logo ? '<button class="btn btn-danger btn-sm" style="margin-bottom:12px" onclick="removeLogo()">Remover Logo</button> ' : '') +
       '<button class="btn btn-primary" onclick="salvarEmpresa()">Salvar Empresa</button>' +
     '</div>' +
     '<div class="card" style="margin-bottom:16px">' +
@@ -1319,7 +1424,6 @@ function renderConfiguracoesPage() {
       '</div>' +
       '<div style="display:flex;gap:8px;flex-wrap:wrap"><input type="text" class="form-control" id="cfgNovaCat" placeholder="Nome da categoria" style="max-width:200px"><select class="form-control" id="cfgNovaCatTipo" style="max-width:120px"><option value="entrada">Entrada</option><option value="saida">Saída</option></select><button class="btn btn-primary btn-sm" onclick="addCat()">Adicionar</button></div>' +
     '</div>';
-  // Aplicar máscara no CNPJ
   setTimeout(function(){ applyMask('cfgCnpj', maskCNPJ); }, 50);
 }
 
@@ -1329,6 +1433,7 @@ function handleLogoUpload(event) {
   if (file.size > 512000) { showToast('Arquivo muito grande. Máximo 500KB.', 'error'); return; }
   var reader = new FileReader();
   reader.onload = function(e) {
+    if (!appData.empresa) appData.empresa = {};
     appData.empresa.logo = e.target.result;
     saveData();
     updateSidebarInfo();
@@ -1339,6 +1444,7 @@ function handleLogoUpload(event) {
 }
 
 function removeLogo() {
+  if (!appData.empresa) appData.empresa = {};
   appData.empresa.logo = '';
   saveData();
   updateSidebarInfo();
@@ -1347,6 +1453,7 @@ function removeLogo() {
 }
 
 function salvarEmpresa() {
+  if (!appData.empresa) appData.empresa = {};
   appData.empresa.nome = document.getElementById('cfgNome').value.trim();
   appData.empresa.cnpj = document.getElementById('cfgCnpj').value.trim();
   saveData();
@@ -1354,40 +1461,66 @@ function salvarEmpresa() {
   showToast('Empresa atualizada!', 'success');
 }
 
-function addVendedor() { var v=document.getElementById('cfgNovoVendedor').value.trim(); if(!v)return; appData.vendedores.push(v); saveData(); renderConfiguracoesPage(); }
+function addVendedor() { var v=document.getElementById('cfgNovoVendedor').value.trim(); if(!v)return; if(!appData.vendedores)appData.vendedores=[]; appData.vendedores.push(v); saveData(); renderConfiguracoesPage(); }
 function removeVendedor(i) { appData.vendedores.splice(i,1); saveData(); renderConfiguracoesPage(); }
-function addPgto() { var f=document.getElementById('cfgNovoPgto').value.trim(); if(!f)return; appData.formasPagamento.push(f); saveData(); renderConfiguracoesPage(); }
+function addPgto() { var f=document.getElementById('cfgNovoPgto').value.trim(); if(!f)return; if(!appData.formasPagamento)appData.formasPagamento=[]; appData.formasPagamento.push(f); saveData(); renderConfiguracoesPage(); }
 function removePgto(i) { appData.formasPagamento.splice(i,1); saveData(); renderConfiguracoesPage(); }
-function addCat() { var n=document.getElementById('cfgNovaCat').value.trim(); var t=document.getElementById('cfgNovaCatTipo').value; if(!n)return; appData.categoriasFluxo.push({nome:n,tipo:t}); saveData(); renderConfiguracoesPage(); }
+function addCat() { var n=document.getElementById('cfgNovaCat').value.trim(); var t=document.getElementById('cfgNovaCatTipo').value; if(!n)return; if(!appData.categoriasFluxo)appData.categoriasFluxo=[]; appData.categoriasFluxo.push({nome:n,tipo:t}); saveData(); renderConfiguracoesPage(); }
 function removeCat(i) { appData.categoriasFluxo.splice(i,1); saveData(); renderConfiguracoesPage(); }
 
-function saveConfigEmpresa() {
-  appData.empresa.nome=document.getElementById('cfgNome').value;
-  appData.empresa.cnpj=document.getElementById('cfgCnpj').value;
-  appData.empresa.logo=document.getElementById('cfgLogo').value;
-  saveData();
-  document.querySelector('.sidebar-header h1').textContent=appData.empresa.nome.toUpperCase();
-  document.querySelector('.sidebar-header p').textContent='CNPJ: '+appData.empresa.cnpj;
-  if(appData.empresa.logo){const el=document.getElementById('sidebarLogo');el.src=appData.empresa.logo;el.style.display='block';}
-  showToast('Empresa atualizada!','success');
+// ============================================================
+// BACKUP
+// ============================================================
+function renderBackupPage() {
+  var pg = document.getElementById('page-backup');
+  var supaOk = !!supabaseClient;
+  var statusMsg = supaOk ? '<span style="color:var(--success)">✔ Conectado</span>' : '<span style="color:var(--danger)">✖ Não conectado</span>';
+  pg.innerHTML =
+    '<div class="page-header"><h2>💾 Backup</h2></div>' +
+    '<div class="card" style="margin-bottom:16px">' +
+      '<div class="section-title">Supabase</div>' +
+      '<p style="margin-bottom:8px;color:var(--text-secondary)">Dados sincronizados automaticamente com Supabase.</p>' +
+      '<p style="margin-bottom:12px">Status: ' + statusMsg + '</p>' +
+      '<div id="supabaseStatus" style="margin-bottom:12px"></div>' +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+        '<button class="btn btn-primary" onclick="forceUpload()">⬆ Forçar Upload</button>' +
+        '<button class="btn btn-secondary" onclick="forceDownload()">⬇ Forçar Download</button>' +
+      '</div>' +
+    '</div>' +
+    '<div class="card" style="margin-bottom:16px">' +
+      '<div class="section-title">Backup Local (JSON)</div>' +
+      '<p style="margin-bottom:12px;color:var(--text-secondary)">Exporte ou importe seus dados em formato JSON.</p>' +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+        '<button class="btn btn-primary" onclick="exportBackup()">📥 Exportar Backup</button>' +
+        '<button class="btn btn-secondary" onclick="document.getElementById(\'importFile\').click()">📤 Importar Backup</button>' +
+        '<input type="file" id="importFile" accept=".json" style="display:none" onchange="importBackup(event)">' +
+      '</div>' +
+    '</div>' +
+    '<div class="card" style="border-color:var(--danger)">' +
+      '<div class="section-title" style="color:var(--danger)">⚠ Zona Perigosa</div>' +
+      '<p style="margin-bottom:12px;color:var(--text-secondary)">Excluir TODOS os dados do sistema. Esta ação não pode ser desfeita.</p>' +
+      '<button class="btn btn-danger" onclick="excluirTodosDados()">🗑️ Excluir Todos os Dados</button>' +
+    '</div>';
+  checkSupabase();
 }
 
 function checkSupabase() {
   var el = document.getElementById('supabaseStatus');
   if (!el) return;
-  if (supabaseClient) {
-    supabaseClient.from('wdmaquinas_data').select('id').eq('id', 1).single().then(function(res) {
-      if (res.error) {
-        el.innerHTML = '<span style="color:var(--danger)">✖ Erro: ' + res.error.message + '</span>';
-      } else {
-        el.innerHTML = '<span style="color:var(--success)">✔ Conectado ao Supabase</span>';
-      }
-    }).catch(function(e) {
-      el.innerHTML = '<span style="color:var(--danger)">✖ Erro: ' + e.message + '</span>';
-    });
-  } else {
-    el.innerHTML = '<span style="color:var(--warning)">⚠ Supabase não configurado</span>';
+  if (!supabaseClient) {
+    el.innerHTML = '<span style="color:var(--danger)">Supabase não configurado</span>';
+    return;
   }
+  supabaseClient.from('wdmaquinas_data').select('updated_at').eq('id', 1).single().then(function(res) {
+    if (res.data && res.data.updated_at) {
+      var d = new Date(res.data.updated_at);
+      el.innerHTML = '<span style="color:var(--success)">Último sync: ' + d.toLocaleString('pt-BR') + '</span>';
+    } else {
+      el.innerHTML = '<span style="color:var(--warning)">Nenhum dado no Supabase ainda</span>';
+    }
+  }).catch(function() {
+    el.innerHTML = '<span style="color:var(--danger)">Erro ao verificar Supabase</span>';
+  });
 }
 
 async function forceUpload() {
@@ -1404,13 +1537,15 @@ async function forceUpload() {
 async function forceDownload() {
   if (!supabaseClient) { showToast('Supabase não conectado', 'error'); return; }
   try {
-    var res = await supabaseClient.from('wdmaquinas_data').select('*').eq('id', 1).single();
-    if (res.data && res.data.payload) {
-      appData = typeof res.data.payload === 'string' ? JSON.parse(res.data.payload) : res.data.payload;
+    const { data, error } = await supabaseClient.from('wdmaquinas_data').select('*').eq('id', 1).single();
+    if (data && data.payload) {
+      appData = typeof data.payload === 'string' ? JSON.parse(data.payload) : data.payload;
       ensureDefaults();
       saveData();
-      showToast('Download realizado! Dados atualizados.', 'success');
+      showToast('Download realizado com sucesso!', 'success');
       renderDashboard();
+      updateSidebarInfo();
+      checkSupabase();
     } else {
       showToast('Nenhum dado encontrado no Supabase', 'error');
     }
@@ -1424,8 +1559,11 @@ function exportBackup() {
   var url = URL.createObjectURL(blob);
   var a = document.createElement('a');
   a.href = url;
-  a.download = 'wdmaquinas_backup_' + new Date().toISOString().split('T')[0] + '.json';
+  var hoje = new Date().toISOString().split('T')[0];
+  a.download = 'wdmaquinas_backup_' + hoje + '.json';
+  document.body.appendChild(a);
   a.click();
+  document.body.removeChild(a);
   URL.revokeObjectURL(url);
   showToast('Backup exportado!', 'success');
 }
@@ -1436,127 +1574,55 @@ function importBackup(event) {
   var reader = new FileReader();
   reader.onload = function(e) {
     try {
-      var imported = JSON.parse(e.target.result);
-      appData = imported;
+      var dados = JSON.parse(e.target.result);
+      appData = dados;
       ensureDefaults();
       saveData();
       showToast('Backup importado com sucesso!', 'success');
       renderDashboard();
+      updateSidebarInfo();
     } catch (err) {
       showToast('Erro ao importar: arquivo inválido', 'error');
     }
   };
   reader.readAsText(file);
+  event.target.value = '';
 }
 
 function excluirTodosDados() {
-  if (!confirm('⚠ ATENÇÃO: Isso vai excluir TODOS os dados do sistema.\n\nTem certeza?')) return;
-  if (!confirm('ÚLTIMA CHANCE: Realmente deseja apagar tudo?')) return;
+  if (!confirm('⚠ ATENÇÃO: Isso vai excluir TODOS os dados do sistema. Deseja continuar?')) return;
+  if (!confirm('ÚLTIMA CHANCE: Tem certeza que deseja apagar tudo? Esta ação NÃO pode ser desfeita!')) return;
   appData = getDefaultData();
   saveData();
   showToast('Todos os dados foram excluídos!', 'success');
   renderBackupPage();
   renderDashboard();
-}
-
-// ============================================================
-// BACKUP
-// ============================================================
-function renderBackupPage() {
-  var pg = document.getElementById('page-backup');
-  pg.innerHTML = '<div class="page-header"><h2>💾 Backup</h2></div>' +
-    '<div class="card" style="margin-bottom:16px"><div class="section-title">Supabase</div>' +
-    '<p style="margin-bottom:8px;color:var(--text-secondary)">Dados sincronizados automaticamente.</p>' +
-    '<div id="supabaseStatus" style="margin-bottom:12px"></div>' +
-    '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
-    '<button class="btn btn-primary" onclick="forceUpload()">⬆ Forçar Upload</button>' +
-    '<button class="btn btn-secondary" onclick="forceDownload()">⬇ Forçar Download</button>' +
-    '</div></div>' +
-    '<div class="card" style="margin-bottom:16px"><div class="section-title">Backup Local (JSON)</div>' +
-    '<p style="margin-bottom:12px;color:var(--text-secondary)">Exporte ou importe seus dados.</p>' +
-    '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
-    '<button class="btn btn-primary" onclick="exportBackup()">📥 Exportar Backup</button>' +
-    '<button class="btn btn-secondary" onclick="document.getElementById(\'importFile\').click()">📤 Importar Backup</button>' +
-    '<input type="file" id="importFile" accept=".json" style="display:none" onchange="importBackup(event)">' +
-    '</div></div>' +
-    '<div class="card" style="border-color:var(--danger)"><div class="section-title" style="color:var(--danger)">⚠ Zona Perigosa</div>' +
-    '<p style="margin-bottom:12px;color:var(--text-secondary)">Excluir TODOS os dados. Ação irreversível.</p>' +
-    '<button class="btn btn-danger" onclick="excluirTodosDados()">🗑️ Excluir Todos os Dados</button>' +
-    '</div>';
-  checkSupabase();
-}
-
-function excluirTodosDados() {
-  if (!confirm('⚠ ATENÇÃO: Isso vai excluir TODOS os dados do sistema (compras, vendas, clientes, fornecedores, fluxo de caixa, etc.).\n\nTem certeza?')) return;
-  if (!confirm('ÚLTIMA CHANCE: Realmente deseja apagar tudo? Esta ação NÃO pode ser desfeita!')) return;
-  appData = getDefaultData();
-  saveData();
-  showToast('Todos os dados foram excluídos!', 'success');
-  renderBackupPage();
-  renderDashboard();
-}
-
-function excluirTodosDados() {
-  if (!confirm('⚠ ATENÇÃO: Isso vai excluir TODOS os dados do sistema (compras, vendas, clientes, fornecedores, fluxo de caixa, etc.).\n\nTem certeza?')) return;
-  if (!confirm('ÚLTIMA CHANCE: Realmente deseja apagar tudo? Esta ação NÃO pode ser desfeita!')) return;
-
-  appData = getDefaultData();
-  saveData();
-  showToast('Todos os dados foram excluídos!', 'success');
-  renderBackupPage();
-  renderDashboard();
+  updateSidebarInfo();
 }
 
 // ============================================================
 // INICIALIZAÇÃO
 // ============================================================
-async function init() {
-  // Data atual no topbar
-  const now=new Date();
-  document.getElementById('currentDate').textContent=now.toLocaleDateString('pt-BR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-
-  // Inicializar Supabase
-  try {
-    if(window.supabase && window.supabase.createClient) {
-      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-      console.log('Supabase client inicializado');
-    }
-  } catch(e) { console.warn('Supabase init falhou:', e.message); }
-
-  // Carregar dados
-  await loadData();
-
-  // Atualizar sidebar
-  if(appData.empresa) {
-    document.querySelector('.sidebar-header h1').textContent=appData.empresa.nome.toUpperCase();
-    document.querySelector('.sidebar-header p').textContent='CNPJ: '+appData.empresa.cnpj;
-    if(appData.empresa.logo){const el=document.getElementById('sidebarLogo');el.src=appData.empresa.logo;el.style.display='block';}
-  }
-
-  // Renderizar dashboard
-  renderDashboard();
-}
-
-// Start
-if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',init);}else{init();}
-// ---------- INIT ----------
 document.addEventListener('DOMContentLoaded', async function() {
-  // Supabase
+  // Supabase init
   try {
     if (typeof supabase !== 'undefined') {
       supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
       console.log('Supabase conectado');
     }
-  } catch(e) { console.warn('Supabase indisponível'); }
+  } catch(e) { console.warn('Supabase indisponível:', e.message); }
 
-  // Data
-  const d = new Date();
-  const dias = ['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'];
-  const meses = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
-  document.getElementById('currentDate').textContent = dias[d.getDay()] + ', ' + d.getDate() + ' de ' + meses[d.getMonth()] + ' de ' + d.getFullYear();
+  // Data atual no topbar
+  var d = new Date();
+  var dias = ['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'];
+  var meses = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  var dateEl = document.getElementById('currentDate');
+  if (dateEl) {
+    dateEl.textContent = dias[d.getDay()] + ', ' + d.getDate() + ' de ' + meses[d.getMonth()] + ' de ' + d.getFullYear();
+  }
 
+  // Carregar dados e renderizar
   await loadData();
   renderDashboard();
   updateSidebarInfo();
 });
-
