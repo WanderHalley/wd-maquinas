@@ -30,7 +30,7 @@ function formatDate(d) {
 // ---------- DADOS PADRÃO ----------
 function getDefaultData() {
   return {
-    empresa: { nome: "WD Máquinas", cnpj: "59.483.994/0001-01", logo: "" },
+    empresa: { nome: "WD Máquinas", cnpj: "29.595.239/0001-33", logo: "" },
     vendedores: ["Wander", "Daniel"],
     formasPagamento: ["Boleto","Caixa da Oficina","Cartão de Crédito MP","Cartão de Crédito PagBank","Cartão de Débito MP","Cartão de Débito PagBank","Dinheiro","Link MP","Link PagBank","MP","PagBank","Pix"],
     tipoUnidade: ["Unidade","Kg","Metro","Litro","Caixa","Pacote","Par","Jogo","Rolo","Barra","Chapa","Peça"],
