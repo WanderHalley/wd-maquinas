@@ -319,35 +319,42 @@ function filterFluxoTipo(mesKey, tipo) {
 let fluxoModalTipo = 'entrada';
 
 function openFluxoModal(mesKey, editIdx) {
-  const isEdit = editIdx !== undefined;
-  let lanc = isEdit ? appData.fluxoCaixa[mesKey].lancamentos[editIdx] : null;
+  var isEdit = (editIdx !== undefined && editIdx !== null && editIdx !== 'null');
+  var lanc = isEdit ? appData.fluxoCaixa[mesKey].lancamentos[editIdx] : null;
   fluxoModalTipo = lanc ? lanc.tipo : 'entrada';
 
-  const cats = appData.categoriasFluxo || [];
-  const catsFiltradas = cats.filter(c => c.tipo === fluxoModalTipo);
-  const catOpts = catsFiltradas.map(c => `<option value="${c.nome}" ${lanc && lanc.categoria === c.nome ? 'selected' : ''}>${c.nome}</option>`).join('');
+  var cats = appData.categoriasFluxo || [];
+  var catsFiltradas = cats.filter(function(c){ return c.tipo === fluxoModalTipo; });
+  var catOpts = catsFiltradas.map(function(c){ return '<option value="' + c.nome + '"' + (lanc && lanc.categoria === c.nome ? ' selected' : '') + '>' + c.nome + '</option>'; }).join('');
+
+  var hoje = new Date().toISOString().split('T')[0];
+  var dataAtual = lanc && lanc.data ? lanc.data : hoje;
 
   document.getElementById('cadastroModalTitle').textContent = isEdit ? 'Editar Lançamento' : 'Novo Lançamento';
-  document.getElementById('cadastroModalBody').innerHTML = `
-    <div class="form-group"><label>Dia do mês *</label><input type="number" class="form-control" id="flDia" value="${lanc ? lanc.dia : 1}" min="1" max="31"></div>
-    <div class="form-group"><label>Tipo</label>
-      <div style="display:flex;gap:8px;margin-top:4px">
-        <button type="button" class="fluxo-tipo-btn ${fluxoModalTipo==='entrada'?'entrada-active':''}" id="btnEntrada" onclick="setFluxoTipo('entrada','${mesKey}',${isEdit?editIdx:'null'})">ENTRADA</button>
-        <button type="button" class="fluxo-tipo-btn ${fluxoModalTipo==='saida'?'saida-active':''}" id="btnSaida" onclick="setFluxoTipo('saida','${mesKey}',${isEdit?editIdx:'null'})">SAÍDA</button>
-      </div>
-    </div>
-    <div class="form-group"><label>Categoria</label><select class="form-control" id="flCat"><option value="">Selecione...</option>${catOpts}</select></div>
-    <div class="form-group"><label>Descrição</label><input type="text" class="form-control" id="flDesc" value="${lanc ? lanc.descricao || '' : ''}"></div>
-    <div class="form-group"><label>Valor *</label><input type="number" class="form-control" id="flValor" value="${lanc ? lanc.valor : ''}" step="0.01" min="0"></div>`;
+  document.getElementById('cadastroModalBody').innerHTML =
+    '<div class="form-group"><label>Data *</label><input type="date" class="form-control" id="flData" value="' + dataAtual + '"></div>' +
+    '<div class="form-group"><label>Tipo</label>' +
+    '<div style="display:flex;gap:8px;margin-top:4px">' +
+    '<button type="button" class="fluxo-tipo-btn ' + (fluxoModalTipo === 'entrada' ? 'entrada-active' : '') + '" id="btnEntrada" onclick="setFluxoTipo(\'entrada\')">ENTRADA</button>' +
+    '<button type="button" class="fluxo-tipo-btn ' + (fluxoModalTipo === 'saida' ? 'saida-active' : '') + '" id="btnSaida" onclick="setFluxoTipo(\'saida\')">SAÍDA</button>' +
+    '</div></div>' +
+    '<div class="form-group"><label>Categoria</label><select class="form-control" id="flCat"><option value="">Selecione...</option>' + catOpts + '</select></div>' +
+    '<div class="form-group"><label>Descrição</label><input type="text" class="form-control" id="flDesc" value="' + (lanc ? (lanc.descricao || '') : '') + '"></div>' +
+    '<div class="form-group"><label>Valor *</label><input type="number" class="form-control" id="flValor" value="' + (lanc ? lanc.valor : '') + '" step="0.01" min="0"></div>';
 
-  document.getElementById('cadastroModalFooter').innerHTML = `
-    <button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button>
-    <button class="btn btn-primary" onclick="saveFluxo('${mesKey}',${isEdit ? editIdx : 'null'})">Salvar</button>`;
+  document.getElementById('cadastroModalFooter').innerHTML =
+    '<button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button>' +
+    '<button class="btn btn-primary" id="btnSalvarFluxo">Salvar</button>';
+
   openCadastroModal();
-}
 
-function setFluxoTipo(tipo, mesKey, editIdx) {
-  fluxoModalTipo = tipo;
+  setTimeout(function(){
+    var btnSalvar = document.getElementById('btnSalvarFluxo');
+    if (btnSalvar) {
+      btnSalvar.onclick = function(){ saveFluxo(mesKey, isEdit ? editIdx : null); };
+    }
+  }, 50);
+}
   // Atualizar botões
   document.getElementById('btnEntrada').className = 'fluxo-tipo-btn ' + (tipo === 'entrada' ? 'entrada-active' : '');
   document.getElementById('btnSaida').className = 'fluxo-tipo-btn ' + (tipo === 'saida' ? 'saida-active' : '');
