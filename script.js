@@ -382,6 +382,7 @@ function saveFluxo(mesKey, editIdx) {
   var obj = { dia: dia, data: data, tipo: fluxoModalTipo, categoria: cat, descricao: desc, valor: valor };
   if (!appData.fluxoCaixa) appData.fluxoCaixa = {};
   if (!appData.fluxoCaixa[mesKey]) appData.fluxoCaixa[mesKey] = { lancamentos: [] };
+  if (!appData.fluxoCaixa[mesKey].lancamentos) appData.fluxoCaixa[mesKey].lancamentos = [];
   if (editIdx !== null && editIdx !== undefined && editIdx >= 0) {
     appData.fluxoCaixa[mesKey].lancamentos[editIdx] = obj;
     showToast('Lançamento atualizado!', 'success');
@@ -394,7 +395,6 @@ function saveFluxo(mesKey, editIdx) {
   var mesIdx = mesesNav.indexOf(mesKey);
   renderFluxoMes(mesKey, mesesNomes[mesIdx], mesIdx);
 }
-
 
 // ============================================================
 // COMPRAS
@@ -1208,6 +1208,93 @@ function saveConfigEmpresa() {
   showToast('Empresa atualizada!','success');
 }
 
+function checkSupabase() {
+  var el = document.getElementById('supabaseStatus');
+  if (!el) return;
+  if (supabaseClient) {
+    supabaseClient.from('wdmaquinas_data').select('id').eq('id', 1).single().then(function(res) {
+      if (res.error) {
+        el.innerHTML = '<span style="color:var(--danger)">✖ Erro: ' + res.error.message + '</span>';
+      } else {
+        el.innerHTML = '<span style="color:var(--success)">✔ Conectado ao Supabase</span>';
+      }
+    }).catch(function(e) {
+      el.innerHTML = '<span style="color:var(--danger)">✖ Erro: ' + e.message + '</span>';
+    });
+  } else {
+    el.innerHTML = '<span style="color:var(--warning)">⚠ Supabase não configurado</span>';
+  }
+}
+
+async function forceUpload() {
+  if (!supabaseClient) { showToast('Supabase não conectado', 'error'); return; }
+  try {
+    await supabaseClient.from('wdmaquinas_data').upsert({ id: 1, payload: appData, updated_at: new Date().toISOString() });
+    showToast('Upload realizado com sucesso!', 'success');
+    checkSupabase();
+  } catch (e) {
+    showToast('Erro no upload: ' + e.message, 'error');
+  }
+}
+
+async function forceDownload() {
+  if (!supabaseClient) { showToast('Supabase não conectado', 'error'); return; }
+  try {
+    var res = await supabaseClient.from('wdmaquinas_data').select('*').eq('id', 1).single();
+    if (res.data && res.data.payload) {
+      appData = typeof res.data.payload === 'string' ? JSON.parse(res.data.payload) : res.data.payload;
+      ensureDefaults();
+      saveData();
+      showToast('Download realizado! Dados atualizados.', 'success');
+      renderDashboard();
+    } else {
+      showToast('Nenhum dado encontrado no Supabase', 'error');
+    }
+  } catch (e) {
+    showToast('Erro no download: ' + e.message, 'error');
+  }
+}
+
+function exportBackup() {
+  var blob = new Blob([JSON.stringify(appData, null, 2)], { type: 'application/json' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'wdmaquinas_backup_' + new Date().toISOString().split('T')[0] + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Backup exportado!', 'success');
+}
+
+function importBackup(event) {
+  var file = event.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var imported = JSON.parse(e.target.result);
+      appData = imported;
+      ensureDefaults();
+      saveData();
+      showToast('Backup importado com sucesso!', 'success');
+      renderDashboard();
+    } catch (err) {
+      showToast('Erro ao importar: arquivo inválido', 'error');
+    }
+  };
+  reader.readAsText(file);
+}
+
+function excluirTodosDados() {
+  if (!confirm('⚠ ATENÇÃO: Isso vai excluir TODOS os dados do sistema.\n\nTem certeza?')) return;
+  if (!confirm('ÚLTIMA CHANCE: Realmente deseja apagar tudo?')) return;
+  appData = getDefaultData();
+  saveData();
+  showToast('Todos os dados foram excluídos!', 'success');
+  renderBackupPage();
+  renderDashboard();
+}
+
 // ============================================================
 // BACKUP
 // ============================================================
@@ -1229,7 +1316,7 @@ function renderBackupPage() {
     '<input type="file" id="importFile" accept=".json" style="display:none" onchange="importBackup(event)">' +
     '</div></div>' +
     '<div class="card" style="border-color:var(--danger)"><div class="section-title" style="color:var(--danger)">⚠ Zona Perigosa</div>' +
-    '<p style="margin-bottom:12px;color:var(--text-secondary)">Excluir TODOS os dados do sistema. Esta ação não pode ser desfeita.</p>' +
+    '<p style="margin-bottom:12px;color:var(--text-secondary)">Excluir TODOS os dados. Ação irreversível.</p>' +
     '<button class="btn btn-danger" onclick="excluirTodosDados()">🗑️ Excluir Todos os Dados</button>' +
     '</div>';
   checkSupabase();
