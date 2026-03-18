@@ -1,3 +1,8 @@
+  // Carregar dados e renderizar
+  await loadData();
+  renderDashboard();
+  updateSidebarInfo();
+});
 // ==========================================
 // WD MÁQUINAS — SISTEMA DE FLUXO DE CAIXA 2026
 // script.js — CÓDIGO COMPLETO
@@ -503,7 +508,6 @@ function deleteFluxo(mesKey, idx) {
   renderFluxoMes(mesKey, mesesNomes[mesIdx], mesIdx);
   showToast('Lançamento excluído!', 'success');
 }
-
 // ============================================================
 // COMPRAS — SEM COLUNA ID, COM EDITAR TODOS, EXCLUIR TODOS,
 // PAINEL DE RESULTADO AGREGADO, FILTRO PGTO, LISTAS SITUAÇÃO/ENTREGA
@@ -930,7 +934,6 @@ function viewVenda(id) {
 }
 
 function deleteVenda(id) { if(!confirm('Excluir venda?'))return; appData.vendas=(appData.vendas||[]).filter(v=>v.id!==id); saveData(); renderVendasPage(); showToast('Venda excluída!','success'); }
-
 // ============================================================
 // ESTOQUE
 // ============================================================
@@ -1592,7 +1595,6 @@ function viewGarantia(id) {
 }
 
 function deleteGarantia(id) { if(!confirm('Excluir garantia?'))return; appData.garantias=(appData.garantias||[]).filter(g=>g.id!==id); saveData(); renderGarantiasPage(); showToast('Garantia excluída!','success'); }
-
 // ============================================================
 // RELATÓRIOS
 // ============================================================
@@ -1818,7 +1820,6 @@ function saveReceitaMei(id) {
 
 function editReceitaMei(id) { const r=(appData.receitasMei||[]).find(x=>x.id===id); if(r)openReceitaMeiModal(r); }
 function deleteReceitaMei(id) { if(!confirm('Excluir receita?'))return; appData.receitasMei=(appData.receitasMei||[]).filter(r=>r.id!==id); saveData(); renderReceitasMeiPage(); showToast('Receita excluída!','success'); }
-
 // ============================================================
 // CONFIGURAÇÕES
 // ============================================================
