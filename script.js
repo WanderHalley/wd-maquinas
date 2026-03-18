@@ -358,37 +358,36 @@ function setFluxoTipo(tipo, mesKey, editIdx) {
 }
 
 function saveFluxo(mesKey, editIdx) {
-  const dia = parseInt(document.getElementById('flDia').value) || 1;
-  const cat = document.getElementById('flCat').value;
-  const desc = document.getElementById('flDesc').value;
-  const valor = parseFloat(document.getElementById('flValor').value) || 0;
+  var diaEl = document.getElementById('flDia');
+  var catEl = document.getElementById('flCat');
+  var descEl = document.getElementById('flDesc');
+  var valorEl = document.getElementById('flValor');
+  if (!diaEl || !valorEl) { showToast('Erro ao ler formulário', 'error'); return; }
+
+  var dia = parseInt(diaEl.value) || 1;
+  var cat = catEl ? catEl.value : '';
+  var desc = descEl ? descEl.value : '';
+  var valor = parseFloat(valorEl.value) || 0;
   if (valor <= 0) { showToast('Informe um valor válido', 'error'); return; }
 
-  const obj = { dia, tipo: fluxoModalTipo, categoria: cat, descricao: desc, valor };
+  var obj = { dia: dia, tipo: fluxoModalTipo, categoria: cat, descricao: desc, valor: valor };
 
+  if (!appData.fluxoCaixa) appData.fluxoCaixa = {};
   if (!appData.fluxoCaixa[mesKey]) appData.fluxoCaixa[mesKey] = { lancamentos: [] };
-  if (editIdx !== null && editIdx !== undefined) {
+
+  if (editIdx !== null && editIdx !== undefined && editIdx !== 'null' && editIdx >= 0) {
     appData.fluxoCaixa[mesKey].lancamentos[editIdx] = obj;
   } else {
     appData.fluxoCaixa[mesKey].lancamentos.push(obj);
   }
+
   saveData();
   closeCadastroModal();
-  const mesIdx = mesesNav.indexOf(mesKey);
+  var mesIdx = mesesNav.indexOf(mesKey);
   renderFluxoMes(mesKey, mesesNomes[mesIdx], mesIdx);
-  showToast(editIdx !== null && editIdx !== undefined ? 'Lançamento atualizado!' : 'Lançamento cadastrado!', 'success');
+  showToast((editIdx !== null && editIdx !== undefined && editIdx !== 'null' && editIdx >= 0) ? 'Lançamento atualizado!' : 'Lançamento cadastrado!', 'success');
 }
 
-function editFluxo(mesKey, idx) { openFluxoModal(mesKey, idx); }
-
-function deleteFluxo(mesKey, idx) {
-  if (!confirm('Excluir este lançamento?')) return;
-  appData.fluxoCaixa[mesKey].lancamentos.splice(idx, 1);
-  saveData();
-  const mesIdx = mesesNav.indexOf(mesKey);
-  renderFluxoMes(mesKey, mesesNomes[mesIdx], mesIdx);
-  showToast('Lançamento excluído!', 'success');
-}
 
 // ============================================================
 // COMPRAS
@@ -1206,60 +1205,51 @@ function saveConfigEmpresa() {
 // BACKUP
 // ============================================================
 function renderBackupPage() {
-  const pg=document.getElementById('page-backup');
-  pg.innerHTML=`
-    <div class="page-header"><h2>💾 Backup</h2></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-      <div class="card">
-        <div class="section-title">Exportar Backup</div>
-        <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:16px">Gera um arquivo JSON com todos os dados.</p>
-        <button class="btn btn-primary" onclick="exportBackup()">📥 Exportar JSON</button>
-      </div>
-      <div class="card">
-        <div class="section-title">Importar Backup</div>
-        <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:16px">Importa JSON. <strong style="color:var(--danger)">Substitui todos os dados!</strong></p>
-        <input type="file" id="backupFile" accept=".json" style="display:none" onchange="importBackup(event)">
-        <button class="btn btn-warning" onclick="document.getElementById('backupFile').click()">📤 Importar JSON</button>
-      </div>
-    </div>
-    <div class="card" style="margin-top:16px">
-      <div class="section-title">Supabase</div>
-      <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:12px">Dados sincronizados automaticamente.</p>
-      <div id="supabaseStatus" style="padding:10px;background:var(--bg-tertiary);border-radius:var(--radius-sm);font-size:0.85rem">Verificando...</div>
-      <div style="margin-top:12px;display:flex;gap:8px">
-        <button class="btn btn-primary" onclick="forceSyncUp()">⬆️ Forçar Upload</button>
-        <button class="btn btn-secondary" onclick="forceSyncDown()">⬇️ Forçar Download</button>
-      </div>
-    </div>`;
+  var pg = document.getElementById('page-backup');
+  var supaOk = !!supabaseClient;
+  var statusMsg = '';
+  if (supaOk) {
+    statusMsg = '<span style="color:var(--success)">✔ Conectado</span>';
+  } else {
+    statusMsg = '<span style="color:var(--danger)">✖ Não conectado</span>';
+  }
+
+  pg.innerHTML = '<div class="page-header"><h2>💾 Backup</h2></div>' +
+    '<div class="card" style="margin-bottom:16px"><div class="section-title">Supabase</div>' +
+    '<p style="margin-bottom:8px;color:var(--text-secondary)">Dados sincronizados automaticamente.</p>' +
+    '<p style="margin-bottom:12px">Status: ' + statusMsg + '</p>' +
+    '<div id="supabaseStatus" style="margin-bottom:12px"></div>' +
+    '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+    '<button class="btn btn-primary" onclick="forceUpload()">⬆ Forçar Upload</button>' +
+    '<button class="btn btn-secondary" onclick="forceDownload()">⬇ Forçar Download</button>' +
+    '</div></div>' +
+
+    '<div class="card" style="margin-bottom:16px"><div class="section-title">Backup Local (JSON)</div>' +
+    '<p style="margin-bottom:12px;color:var(--text-secondary)">Exporte todos os dados para um arquivo JSON ou importe de um backup anterior.</p>' +
+    '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+    '<button class="btn btn-primary" onclick="exportBackup()">📥 Exportar Backup</button>' +
+    '<button class="btn btn-secondary" onclick="document.getElementById(\'importFile\').click()">📤 Importar Backup</button>' +
+    '<input type="file" id="importFile" accept=".json" style="display:none" onchange="importBackup(event)">' +
+    '</div></div>' +
+
+    '<div class="card" style="border-color:var(--danger)"><div class="section-title" style="color:var(--danger)">⚠ Zona Perigosa</div>' +
+    '<p style="margin-bottom:12px;color:var(--text-secondary)">Excluir TODOS os dados do sistema. Esta ação não pode ser desfeita.</p>' +
+    '<button class="btn btn-danger" onclick="excluirTodosDados()">🗑️ Excluir Todos os Dados</button>' +
+    '</div>';
+
   checkSupabase();
 }
 
-function exportBackup() {
-  const blob=new Blob([JSON.stringify(appData,null,2)],{type:'application/json'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='wdmaquinas_backup_'+new Date().toISOString().split('T')[0]+'.json';a.click();
-  showToast('Backup exportado!','success');
-}
+function excluirTodosDados() {
+  if (!confirm('⚠ ATENÇÃO: Isso vai excluir TODOS os dados do sistema (compras, vendas, clientes, fornecedores, fluxo de caixa, etc.).\n\nTem certeza?')) return;
+  if (!confirm('ÚLTIMA CHANCE: Realmente deseja apagar tudo? Esta ação NÃO pode ser desfeita!')) return;
 
-function importBackup(event) {
-  const file=event.target.files[0];if(!file)return;
-  if(!confirm('Importar backup irá SUBSTITUIR todos os dados. Continuar?')){event.target.value='';return;}
-  const reader=new FileReader();
-  reader.onload=function(e){
-    try{const imp=JSON.parse(e.target.result);appData={...getDefaultData(),...imp};ensureDefaults();saveData();showToast('Backup importado!','success');navigateTo('dashboard');}
-    catch(err){showToast('Erro: arquivo inválido','error');}
-  };
-  reader.readAsText(file);event.target.value='';
+  appData = getDefaultData();
+  saveData();
+  showToast('Todos os dados foram excluídos!', 'success');
+  renderBackupPage();
+  renderDashboard();
 }
-
-async function checkSupabase() {
-  const el=document.getElementById('supabaseStatus');if(!el)return;
-  if(!supabaseClient){el.innerHTML='<span style="color:var(--warning)">⚠️ Supabase não conectado (usando localStorage)</span>';return;}
-  try{const{data,error}=await supabaseClient.from('wdmaquinas_data').select('id').limit(1);if(error)throw error;el.innerHTML='<span style="color:var(--success)">✅ Conectado ao Supabase</span>';}
-  catch(e){el.innerHTML='<span style="color:var(--danger)">❌ Erro: '+e.message+'</span>';}
-}
-
-async function forceSyncUp(){showToast('Enviando...','success');await saveData();showToast('Upload concluído!','success');}
-async function forceSyncDown(){showToast('Baixando...','success');await loadData();navigateTo('dashboard');showToast('Download concluído!','success');}
 
 // ============================================================
 // INICIALIZAÇÃO
