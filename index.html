@@ -13,8 +13,8 @@
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <img id="sidebarLogo" src="" alt="Logo" style="display:none;max-width:220px;max-height:70px;object-fit:contain;margin:0 auto 6px auto;">
-            <h1>WD MÁQUINAS</h1>
-            <p>CNPJ: 59.483.994/0001-01</p>
+            <h1 id="sidebarNome">WD MÁQUINAS</h1>
+            <p id="sidebarCnpj">CNPJ: 59.483.994/0001-01</p>
         </div>
         <nav class="sidebar-nav">
             <div class="nav-section">
@@ -71,6 +71,10 @@
                 <div class="nav-item" onclick="navigateTo('backup')"><span class="nav-icon">💾</span> Backup</div>
             </div>
         </nav>
+        <!-- BOTÃO RECOLHER SIDEBAR -->
+        <div class="sidebar-collapse-btn" id="sidebarCollapseBtn" onclick="collapseSidebar()">
+            <span class="collapse-arrow" id="collapseArrow">«</span>
+        </div>
     </aside>
 
     <!-- MAIN CONTENT -->
@@ -78,6 +82,7 @@
         <div class="topbar">
             <div class="topbar-left">
                 <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+                <button class="expand-btn" id="expandBtn" onclick="collapseSidebar()" style="display:none;" title="Expandir menu">»</button>
                 <span class="topbar-title" id="pageTitle">Dashboard</span>
             </div>
             <div class="topbar-right">
