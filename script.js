@@ -285,24 +285,26 @@ function renderFluxoMes(mesKey, mesNome, mesIdx) {
 }
 
 function renderFluxoTable(mesKey, lancs) {
-  const tbody = document.getElementById('fluxoBody-' + mesKey);
+  var tbody = document.getElementById('fluxoBody-' + mesKey);
   if (!tbody) return;
-  const sorted = [...lancs].sort((a, b) => (a.dia || 0) - (b.dia || 0));
-  tbody.innerHTML = sorted.length === 0 ? '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhum lançamento</td></tr>' :
-    sorted.map((l, i) => {
-      const origIdx = lancs.indexOf(l);
-      return `<tr>
-        <td>${l.dia || '-'}</td>
-        <td><span class="badge ${l.tipo==='entrada'?'badge-success':'badge-danger'}">${l.tipo==='entrada'?'Entrada':'Saída'}</span></td>
-        <td>${l.categoria || '-'}</td>
-        <td>${l.descricao || '-'}</td>
-        <td style="color:${l.tipo==='entrada'?'var(--success)':'var(--danger)'}">${l.tipo==='entrada'?'+':'-'} ${formatCurrency(l.valor)}</td>
-        <td>
-          <button class="btn btn-sm btn-primary" onclick="editFluxo('${mesKey}',${origIdx})">✏️</button>
-          <button class="btn btn-sm btn-danger" onclick="deleteFluxo('${mesKey}',${origIdx})">🗑️</button>
-        </td>
-      </tr>`;
-    }).join('');
+  var sorted = lancs.slice().sort(function(a, b) { return (a.data || '').localeCompare(b.data || ''); });
+  if (sorted.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhum lançamento</td></tr>';
+    return;
+  }
+  tbody.innerHTML = sorted.map(function(l) {
+    var origIdx = lancs.indexOf(l);
+    return '<tr>' +
+      '<td>' + (l.data ? formatDate(l.data) : (l.dia || '-')) + '</td>' +
+      '<td><span class="badge ' + (l.tipo === 'entrada' ? 'badge-success' : 'badge-danger') + '">' + (l.tipo === 'entrada' ? 'Entrada' : 'Saída') + '</span></td>' +
+      '<td>' + (l.categoria || '-') + '</td>' +
+      '<td>' + (l.descricao || '-') + '</td>' +
+      '<td style="color:' + (l.tipo === 'entrada' ? 'var(--success)' : 'var(--danger)') + '">' + (l.tipo === 'entrada' ? '+' : '-') + ' ' + formatCurrency(l.valor) + '</td>' +
+      '<td>' +
+        '<button class="btn btn-sm btn-primary" onclick="editFluxo(\'' + mesKey + '\',' + origIdx + ')">✏️</button> ' +
+        '<button class="btn btn-sm btn-danger" onclick="deleteFluxo(\'' + mesKey + '\',' + origIdx + ')">🗑️</button>' +
+      '</td></tr>';
+  }).join('');
 }
 
 function filterFluxo(mesKey, q) {
@@ -355,44 +357,42 @@ function openFluxoModal(mesKey, editIdx) {
     }
   }, 50);
 }
-  // Atualizar botões
+ function setFluxoTipo(tipo) {
+  fluxoModalTipo = tipo;
   document.getElementById('btnEntrada').className = 'fluxo-tipo-btn ' + (tipo === 'entrada' ? 'entrada-active' : '');
   document.getElementById('btnSaida').className = 'fluxo-tipo-btn ' + (tipo === 'saida' ? 'saida-active' : '');
-  // Atualizar categorias
-  const cats = (appData.categoriasFluxo || []).filter(c => c.tipo === tipo);
-  const sel = document.getElementById('flCat');
-  sel.innerHTML = '<option value="">Selecione...</option>' + cats.map(c => `<option value="${c.nome}">${c.nome}</option>`).join('');
+  var cats = (appData.categoriasFluxo || []).filter(function(c){ return c.tipo === tipo; });
+  document.getElementById('flCat').innerHTML = '<option value="">Selecione...</option>' + cats.map(function(c){ return '<option value="' + c.nome + '">' + c.nome + '</option>'; }).join('');
 }
 
 function saveFluxo(mesKey, editIdx) {
-  var diaEl = document.getElementById('flDia');
+  var dataEl = document.getElementById('flData');
   var catEl = document.getElementById('flCat');
   var descEl = document.getElementById('flDesc');
   var valorEl = document.getElementById('flValor');
-  if (!diaEl || !valorEl) { showToast('Erro ao ler formulário', 'error'); return; }
-
-  var dia = parseInt(diaEl.value) || 1;
+  if (!dataEl || !valorEl) { showToast('Erro ao ler formulário', 'error'); return; }
+  var data = dataEl.value;
   var cat = catEl ? catEl.value : '';
   var desc = descEl ? descEl.value : '';
   var valor = parseFloat(valorEl.value) || 0;
+  if (!data) { showToast('Informe a data', 'error'); return; }
   if (valor <= 0) { showToast('Informe um valor válido', 'error'); return; }
-
-  var obj = { dia: dia, tipo: fluxoModalTipo, categoria: cat, descricao: desc, valor: valor };
-
+  var partes = data.split('-');
+  var dia = parseInt(partes[2]) || 1;
+  var obj = { dia: dia, data: data, tipo: fluxoModalTipo, categoria: cat, descricao: desc, valor: valor };
   if (!appData.fluxoCaixa) appData.fluxoCaixa = {};
   if (!appData.fluxoCaixa[mesKey]) appData.fluxoCaixa[mesKey] = { lancamentos: [] };
-
-  if (editIdx !== null && editIdx !== undefined && editIdx !== 'null' && editIdx >= 0) {
+  if (editIdx !== null && editIdx !== undefined && editIdx >= 0) {
     appData.fluxoCaixa[mesKey].lancamentos[editIdx] = obj;
+    showToast('Lançamento atualizado!', 'success');
   } else {
     appData.fluxoCaixa[mesKey].lancamentos.push(obj);
+    showToast('Lançamento cadastrado!', 'success');
   }
-
   saveData();
   closeCadastroModal();
   var mesIdx = mesesNav.indexOf(mesKey);
   renderFluxoMes(mesKey, mesesNomes[mesIdx], mesIdx);
-  showToast((editIdx !== null && editIdx !== undefined && editIdx !== 'null' && editIdx >= 0) ? 'Lançamento atualizado!' : 'Lançamento cadastrado!', 'success');
 }
 
 
@@ -1213,38 +1213,36 @@ function saveConfigEmpresa() {
 // ============================================================
 function renderBackupPage() {
   var pg = document.getElementById('page-backup');
-  var supaOk = !!supabaseClient;
-  var statusMsg = '';
-  if (supaOk) {
-    statusMsg = '<span style="color:var(--success)">✔ Conectado</span>';
-  } else {
-    statusMsg = '<span style="color:var(--danger)">✖ Não conectado</span>';
-  }
-
   pg.innerHTML = '<div class="page-header"><h2>💾 Backup</h2></div>' +
     '<div class="card" style="margin-bottom:16px"><div class="section-title">Supabase</div>' +
     '<p style="margin-bottom:8px;color:var(--text-secondary)">Dados sincronizados automaticamente.</p>' +
-    '<p style="margin-bottom:12px">Status: ' + statusMsg + '</p>' +
     '<div id="supabaseStatus" style="margin-bottom:12px"></div>' +
     '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
     '<button class="btn btn-primary" onclick="forceUpload()">⬆ Forçar Upload</button>' +
     '<button class="btn btn-secondary" onclick="forceDownload()">⬇ Forçar Download</button>' +
     '</div></div>' +
-
     '<div class="card" style="margin-bottom:16px"><div class="section-title">Backup Local (JSON)</div>' +
-    '<p style="margin-bottom:12px;color:var(--text-secondary)">Exporte todos os dados para um arquivo JSON ou importe de um backup anterior.</p>' +
+    '<p style="margin-bottom:12px;color:var(--text-secondary)">Exporte ou importe seus dados.</p>' +
     '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
     '<button class="btn btn-primary" onclick="exportBackup()">📥 Exportar Backup</button>' +
     '<button class="btn btn-secondary" onclick="document.getElementById(\'importFile\').click()">📤 Importar Backup</button>' +
     '<input type="file" id="importFile" accept=".json" style="display:none" onchange="importBackup(event)">' +
     '</div></div>' +
-
     '<div class="card" style="border-color:var(--danger)"><div class="section-title" style="color:var(--danger)">⚠ Zona Perigosa</div>' +
     '<p style="margin-bottom:12px;color:var(--text-secondary)">Excluir TODOS os dados do sistema. Esta ação não pode ser desfeita.</p>' +
     '<button class="btn btn-danger" onclick="excluirTodosDados()">🗑️ Excluir Todos os Dados</button>' +
     '</div>';
-
   checkSupabase();
+}
+
+function excluirTodosDados() {
+  if (!confirm('⚠ ATENÇÃO: Isso vai excluir TODOS os dados do sistema (compras, vendas, clientes, fornecedores, fluxo de caixa, etc.).\n\nTem certeza?')) return;
+  if (!confirm('ÚLTIMA CHANCE: Realmente deseja apagar tudo? Esta ação NÃO pode ser desfeita!')) return;
+  appData = getDefaultData();
+  saveData();
+  showToast('Todos os dados foram excluídos!', 'success');
+  renderBackupPage();
+  renderDashboard();
 }
 
 function excluirTodosDados() {
