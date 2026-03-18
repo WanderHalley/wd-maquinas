@@ -1194,7 +1194,6 @@ function saveGarantia(id) {
 
 function editGarantia(id){const g=(appData.garantias||[]).find(x=>x.id===id);if(g)openGarantiaModal(g);}
 function deleteGarantia(id){if(!confirm('Excluir garantia?'))return;appData.garantias=(appData.garantias||[]).filter(g=>g.id!==id);saveData();renderGarantiasPage();showToast('Garantia excluída!','success');}
-
 // ============================================================
 // RELATÓRIOS
 // ============================================================
