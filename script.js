@@ -395,7 +395,22 @@ function saveFluxo(mesKey, editIdx) {
   var mesIdx = mesesNav.indexOf(mesKey);
   renderFluxoMes(mesKey, mesesNomes[mesIdx], mesIdx);
 }
+// ---------- EDIT & DELETE FLUXO ----------
+function editFluxo(mesKey, idx) {
+  if (!appData.fluxoCaixa || !appData.fluxoCaixa[mesKey] || !appData.fluxoCaixa[mesKey].lancamentos) return;
+  if (idx < 0 || idx >= appData.fluxoCaixa[mesKey].lancamentos.length) return;
+  openFluxoModal(mesKey, idx);
+}
 
+function deleteFluxo(mesKey, idx) {
+  if (!confirm('Excluir este lançamento?')) return;
+  if (!appData.fluxoCaixa || !appData.fluxoCaixa[mesKey] || !appData.fluxoCaixa[mesKey].lancamentos) return;
+  appData.fluxoCaixa[mesKey].lancamentos.splice(idx, 1);
+  saveData();
+  var mesIdx = mesesNav.indexOf(mesKey);
+  renderFluxoMes(mesKey, mesesNomes[mesIdx], mesIdx);
+  showToast('Lançamento excluído!', 'success');
+}
 // ============================================================
 // COMPRAS
 // ============================================================
