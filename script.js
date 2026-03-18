@@ -1,7 +1,200 @@
+:root {
+    --bg-primary:#0a0a0a;--bg-secondary:#111111;--bg-tertiary:#1a1a1a;--bg-card:#161616;--bg-hover:#1e1e1e;
+    --accent-primary:#3B82F6;--accent-secondary:#60A5FA;--accent-dark:#2563EB;--accent-light:#93C5FD;
+    --accent-glow:rgba(59,130,246,0.15);--text-primary:#ffffff;--text-secondary:#b0b0b0;--text-muted:#666666;
+    --border-color:#2a2a2a;--success:#00c853;--danger:#ff1744;--warning:#ffc107;--info:#2196f3;
+    --shadow:0 4px 24px rgba(0,0,0,0.4);--radius:12px;--radius-sm:8px;
+    --transition:all 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Inter',sans-serif;background:var(--bg-primary);color:var(--text-primary);overflow:hidden;height:100vh;}
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:var(--bg-secondary);}
+::-webkit-scrollbar-thumb{background:var(--accent-primary);border-radius:3px;}
+.app-container{display:flex;height:100vh;}
+
+/* SIDEBAR */
+.sidebar{width:260px;min-width:260px;background:var(--bg-secondary);border-right:1px solid var(--border-color);display:flex;flex-direction:column;height:100vh;overflow:hidden;transition:var(--transition);z-index:100;}
+.sidebar-header{padding:20px;border-bottom:1px solid var(--border-color);text-align:center;}
+.sidebar-header h1{font-size:1.4rem;font-weight:800;color:var(--accent-primary);letter-spacing:1px;}
+.sidebar-header p{font-size:0.7rem;color:var(--text-muted);margin-top:4px;}
+.sidebar-nav{flex:1;overflow-y:auto;padding:10px 0;}
+.nav-section{margin-bottom:8px;}
+.nav-section-title{padding:8px 20px;font-size:0.65rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1.5px;}
+.nav-item{display:flex;align-items:center;padding:10px 20px;color:var(--text-secondary);cursor:pointer;transition:var(--transition);font-size:0.85rem;font-weight:500;border-left:3px solid transparent;}
+.nav-item:hover{background:var(--bg-hover);color:var(--text-primary);}
+.nav-item.active{background:var(--accent-glow);color:var(--accent-primary);border-left-color:var(--accent-primary);}
+.nav-item .nav-icon{width:20px;margin-right:12px;text-align:center;font-size:1rem;}
+
+/* MAIN */
+.main-content{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.topbar{height:60px;min-height:60px;background:var(--bg-secondary);border-bottom:1px solid var(--border-color);display:flex;align-items:center;justify-content:space-between;padding:0 24px;}
+.topbar-left{display:flex;align-items:center;gap:16px;}
+.menu-toggle{display:none;background:none;border:none;color:var(--text-primary);font-size:1.5rem;cursor:pointer;}
+.topbar-title{font-size:1.1rem;font-weight:600;}
+.topbar-date{font-size:0.8rem;color:var(--text-secondary);}
+.content-area{flex:1;overflow-y:auto;padding:24px;}
+.page-content{display:none;}
+
+/* CARDS */
+.dashboard-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-bottom:16px;}
+.card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--radius);padding:20px;transition:var(--transition);}
+.card:hover{border-color:var(--accent-primary);box-shadow:0 0 20px var(--accent-glow);}
+.card-accent{border-color:var(--accent-primary);box-shadow:0 0 20px var(--accent-glow);}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;font-size:0.8rem;color:var(--text-secondary);}
+.card-icon{margin-right:8px;}
+.card-value{font-size:1.5rem;font-weight:800;color:var(--accent-primary);}
+
+/* TABLE */
+.table-responsive{overflow-x:auto;background:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--radius);margin-bottom:16px;}
+.table{width:100%;border-collapse:collapse;}
+.table th{padding:12px 16px;text-align:left;font-size:0.7rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;background:var(--bg-tertiary);border-bottom:1px solid var(--border-color);white-space:nowrap;}
+.table td{padding:12px 16px;font-size:0.83rem;border-bottom:1px solid var(--border-color);white-space:nowrap;}
+.table tr:hover td{background:var(--bg-hover);}
+
+/* BADGES */
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.7rem;font-weight:700;text-transform:uppercase;}
+.badge-success{background:rgba(0,200,83,0.15);color:var(--success);}
+.badge-danger{background:rgba(255,23,68,0.15);color:var(--danger);}
+.badge-warning{background:rgba(255,193,7,0.15);color:var(--warning);}
+.badge-info{background:rgba(33,150,243,0.15);color:var(--info);}
+
+/* BUTTONS */
+.btn{padding:8px 16px;border:none;border-radius:var(--radius-sm);font-family:'Inter',sans-serif;font-size:0.8rem;font-weight:600;cursor:pointer;transition:var(--transition);display:inline-flex;align-items:center;gap:6px;}
+.btn-primary{background:var(--accent-primary);color:white;}
+.btn-primary:hover{background:var(--accent-secondary);transform:translateY(-1px);box-shadow:0 4px 12px rgba(59,130,246,0.4);}
+.btn-secondary{background:var(--bg-tertiary);color:var(--text-primary);border:1px solid var(--border-color);}
+.btn-secondary:hover{background:var(--bg-hover);border-color:var(--accent-primary);}
+.btn-danger{background:var(--danger);color:white;}
+.btn-danger:hover{opacity:0.9;}
+.btn-warning{background:var(--warning);color:#000;}
+.btn-outline{background:transparent;border:1px solid var(--border-color);color:var(--text-secondary);}
+.btn-outline:hover{border-color:var(--accent-primary);color:var(--accent-primary);}
+.btn-sm{padding:5px 10px;font-size:0.75rem;}
+.btn-success{background:var(--success);color:white;}
+.btn-success:hover{opacity:0.9;}
+
+/* TIPO FLUXO TOGGLE */
+.tipo-fluxo-group{display:flex;gap:8px;margin-bottom:0;}
+.btn-tipo-entrada{background:transparent;border:2px solid var(--success);color:var(--success);padding:10px 24px;font-weight:700;font-size:0.9rem;border-radius:var(--radius-sm);cursor:pointer;transition:var(--transition);}
+.btn-tipo-entrada.active{background:var(--success);color:#fff;box-shadow:0 0 12px rgba(0,200,83,0.4);}
+.btn-tipo-saida{background:transparent;border:2px solid var(--danger);color:var(--danger);padding:10px 24px;font-weight:700;font-size:0.9rem;border-radius:var(--radius-sm);cursor:pointer;transition:var(--transition);}
+.btn-tipo-saida.active{background:var(--danger);color:#fff;box-shadow:0 0 12px rgba(255,23,68,0.4);}
+
+/* FORMS */
+.form-group{margin-bottom:16px;}
+.form-group label{display:block;font-size:0.75rem;font-weight:600;color:var(--text-secondary);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;}
+.form-control{width:100%;padding:10px 12px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:var(--radius-sm);color:var(--text-primary);font-family:'Inter',sans-serif;font-size:0.85rem;transition:var(--transition);}
+.form-control:focus{outline:none;border-color:var(--accent-primary);box-shadow:0 0 0 3px var(--accent-glow);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+/* FILTER BAR */
+.filter-bar{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
+
+/* PROGRESS */
+.progress-bar{height:8px;background:var(--bg-tertiary);border-radius:4px;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent-primary),var(--accent-secondary));border-radius:4px;transition:width 0.5s ease;}
+
+/* SECTION TITLE */
+.section-title{font-size:1rem;font-weight:700;margin-bottom:12px;color:var(--accent-primary);}
+
+/* PAGE HEADER */
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;}
+.page-header h2{font-size:1.2rem;font-weight:800;}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center;}
+.modal{background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:var(--radius);width:90%;max-width:600px;max-height:85vh;overflow-y:auto;box-shadow:var(--shadow);}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:20px;border-bottom:1px solid var(--border-color);}
+.modal-header h3{font-size:1rem;font-weight:700;color:var(--accent-primary);}
+.modal-close{background:none;border:none;color:var(--text-secondary);font-size:1.5rem;cursor:pointer;}
+.modal-close:hover{color:var(--danger);}
+.modal-body{padding:20px;}
+.modal-footer{padding:16px 20px;border-top:1px solid var(--border-color);display:flex;justify-content:flex-end;gap:8px;}
+
+/* TOAST */
+.toast{position:fixed;top:20px;right:20px;z-index:2000;padding:14px 20px;border-radius:var(--radius-sm);font-size:0.85rem;color:white;box-shadow:var(--shadow);transform:translateX(150%);transition:transform 0.3s ease;max-width:350px;}
+.toast.show{transform:translateX(0);}
+.toast.success{background:var(--success);}
+.toast.error{background:var(--danger);}
+
+/* DETAIL GRID */
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.detail-item{padding:8px;background:var(--bg-tertiary);border-radius:var(--radius-sm);}
+.detail-label{font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;display:block;margin-bottom:4px;}
+
+/* HELPERS */
+.text-success{color:var(--success)!important;}
+.text-danger{color:var(--danger)!important;}
+.text-warning{color:var(--warning)!important;}
+.text-muted{color:var(--text-muted)!important;}
+.metas-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:16px;}
+
+/* CATEGORIA FLUXO CONFIG */
+.cat-fluxo-item{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg-tertiary);border-radius:8px;margin-bottom:6px;}
+.cat-fluxo-item .cat-nome{font-weight:600;flex:1;}
+.cat-fluxo-item .cat-tipo{font-size:0.75rem;font-weight:700;padding:2px 10px;border-radius:12px;margin:0 10px;}
+.cat-fluxo-item .cat-tipo.entrada{background:rgba(0,200,83,0.15);color:var(--success);}
+.cat-fluxo-item .cat-tipo.saida{background:rgba(255,23,68,0.15);color:var(--danger);}
+.cat-fluxo-item .cat-actions{display:flex;gap:4px;}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+    .sidebar{position:fixed;left:-260px;}
+    .sidebar.open{left:0;}
+    .menu-toggle{display:block;}
+    .dashboard-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));}
+    .form-row{grid-template-columns:1fr;}
+}
+
 // ==========================================
 // WD MÁQUINAS — SISTEMA DE FLUXO DE CAIXA 2026
-// script.js — PARTE 3 (Dados, Base, Navegação)
+// script.js — COMPLETO COM SUPABASE
 // ==========================================
+
+// ---------- SUPABASE CONFIG ----------
+const SUPABASE_URL = 'https://iwbsmsadctvndhrcjkbw.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_GQpRJ7CFZOFrdmYfsN8rcA_ucfNR2AM';
+const supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+
+// Tabela única no Supabase para guardar o JSON completo
+// Você precisa criar a tabela no Supabase:
+// CREATE TABLE app_data (id int primary key default 1, data jsonb, updated_at timestamptz default now());
+// INSERT INTO app_data (id, data) VALUES (1, '{}');
+
+async function saveToSupabase() {
+  if (!supabase) return;
+  try {
+    const { error } = await supabase
+      .from('app_data')
+      .upsert({ id: 1, data: appData, updated_at: new Date().toISOString() });
+    if (error) console.error('Supabase save error:', error);
+  } catch (e) {
+    console.error('Supabase save exception:', e);
+  }
+}
+
+async function loadFromSupabase() {
+  if (!supabase) return null;
+  try {
+    const { data, error } = await supabase
+      .from('app_data')
+      .select('data')
+      .eq('id', 1)
+      .single();
+    if (error) {
+      console.error('Supabase load error:', error);
+      return null;
+    }
+    if (data && data.data && Object.keys(data.data).length > 0) {
+      return data.data;
+    }
+    return null;
+  } catch (e) {
+    console.error('Supabase load exception:', e);
+    return null;
+  }
+}
 
 // ---------- ID helper ----------
 function nextId(arr) {
@@ -9,7 +202,7 @@ function nextId(arr) {
   return Math.max(...arr.map(i => i.id || 0)) + 1;
 }
 
-// ---------- DADOS PADRÃO ----------
+// ---------- DADOS PADRÃO (sem dados hardcoded) ----------
 function getDefaultData() {
   return {
     empresa: {
@@ -17,8 +210,6 @@ function getDefaultData() {
       cnpj: "59.483.994/0001-01",
       logo: ""
     },
-
-    // CONFIGURAÇÕES
     vendedores: ["Wander", "Daniel"],
     formasPagamento: ["Boleto", "Caixa da Oficina", "Cartão de Crédito MP", "Cartão de Crédito PagBank", "Cartão de Débito MP", "Cartão de Débito PagBank", "Dinheiro", "Link MP", "Link PagBank", "MP", "PagBank", "Pix"],
     tipoUnidade: ["Unidade", "Kg", "Metro", "Litro", "Caixa", "Pacote", "Par", "Jogo", "Rolo", "Barra", "Chapa", "Peça"],
@@ -29,294 +220,116 @@ function getDefaultData() {
     situacaoGarantia: ["Ativa", "Expirada", "Utilizada"],
     situacaoBoleto: ["Pago", "Pendente", "Vencido"],
 
-    // CLIENTES
-    clientes: [
-      { id:1, nome:"Renato", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"NOVA SERRANA", estado:"MG", cep:"", obs:"", img:"" },
-      { id:2, nome:"Carlos Eduardo", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"MG", cep:"", obs:"", img:"" },
-      { id:3, nome:"João Silva", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"MG", cep:"", obs:"", img:"" }
+    // Categorias de fluxo de caixa (gerenciáveis em Configurações)
+    categoriasFluxo: [
+      { id: 1, nome: "Geral", tipo: "Entrada" },
+      { id: 2, nome: "Geral", tipo: "Saída" },
+      { id: 3, nome: "Salário", tipo: "Saída" },
+      { id: 4, nome: "Dinheiro em Notas", tipo: "Entrada" },
+      { id: 5, nome: "Dinheiro em Notas", tipo: "Saída" }
     ],
 
-    // FORNECEDORES
-    fornecedores: [
-      { id:1, nome:"JOTAFRAN", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
-      { id:2, nome:"PS INOX", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
-      { id:3, nome:"MERCADO LIVRE", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
-      { id:4, nome:"SHOPEE", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
-      { id:5, nome:"LOJA DO MECANICO", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
-      { id:6, nome:"AMAZON", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
-      { id:7, nome:"AÇOS TRÊS CORAÇÕES", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
-      { id:8, nome:"IRMÃOS FARIAS", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
-      { id:9, nome:"LEROY MERLIN", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
-      { id:10, nome:"CASA & CONSTRUÇÃO", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
-      { id:11, nome:"MAGAZINE LUIZA", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
-      { id:12, nome:"MAKITA", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
-      { id:13, nome:"NORTON", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
-      { id:14, nome:"CARBOGRAFITE", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
-      { id:15, nome:"VONDER", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
-      { id:16, nome:"ESAB", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
-      { id:17, nome:"LYNUS", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
-      { id:18, nome:"WORKER", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
-      { id:19, nome:"INOX CENTER", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
-      { id:20, nome:"AÇO CERTO", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
-      { id:21, nome:"VELOE", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
-      { id:22, nome:"COFERMETA", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
-      { id:23, nome:"DANIEL MASSON", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
-      { id:24, nome:"CLEITON LUCAS", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
-      { id:25, nome:"DISTRIBUIDORA", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
-      { id:26, nome:"FERRAGISTA", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
-      { id:27, nome:"HIDRÁULICA", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
-      { id:28, nome:"ELÉTRICA GERAL", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" },
-      { id:29, nome:"TINTAS E CIA", cpfCnpj:"", telefone:"", email:"", endereco:"", cidade:"", estado:"", cep:"", obs:"", img:"" }
-    ],
-
-    // PRODUTOS
+    clientes: [],
+    fornecedores: [],
     produtos: [],
-
-    // PRODUTOS DE FORNECEDORES
     pFornecedores: [],
-
-    // COMPRAS (100 registros reais da planilha)
-    compras: [
-      { id:1, data:"2026-01-05", vencimento:"2026-01-15", produto:"Chapa de Aço 1020 3mm", quantidade:5, valorUnit:289.90, fornecedor:"JOTAFRAN", formaPagamento:"Boleto", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:2, data:"2026-01-05", vencimento:"2026-01-20", produto:"Tubo Inox 304 2\"", quantidade:10, valorUnit:185.00, fornecedor:"PS INOX", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:3, data:"2026-01-06", vencimento:"2026-01-06", produto:"Disco de Corte 7\"", quantidade:50, valorUnit:5.90, fornecedor:"MERCADO LIVRE", formaPagamento:"Link MP", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:4, data:"2026-01-07", vencimento:"2026-01-07", produto:"Eletrodo 6013 3.25mm", quantidade:20, valorUnit:18.50, fornecedor:"ESAB", formaPagamento:"Cartão de Crédito MP", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:5, data:"2026-01-08", vencimento:"2026-01-25", produto:"Tinta Spray Preto Fosco", quantidade:12, valorUnit:14.90, fornecedor:"SHOPEE", formaPagamento:"Link MP", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:6, data:"2026-01-08", vencimento:"2026-01-08", produto:"Parafuso Sextavado M10", quantidade:100, valorUnit:0.85, fornecedor:"FERRAGISTA", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:7, data:"2026-01-09", vencimento:"2026-02-09", produto:"Serra Circular Makita", quantidade:1, valorUnit:899.90, fornecedor:"MAKITA", formaPagamento:"Boleto", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:8, data:"2026-01-10", vencimento:"2026-01-10", produto:"Lixa Flap 4.5\" Grão 60", quantidade:30, valorUnit:8.70, fornecedor:"NORTON", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:9, data:"2026-01-10", vencimento:"2026-01-10", produto:"Máscara de Solda Auto", quantidade:2, valorUnit:189.90, fornecedor:"CARBOGRAFITE", formaPagamento:"Cartão de Débito MP", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:10, data:"2026-01-12", vencimento:"2026-01-30", produto:"Barra Chata 1\" x 1/4\"", quantidade:20, valorUnit:32.50, fornecedor:"AÇOS TRÊS CORAÇÕES", formaPagamento:"Boleto", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:11, data:"2026-01-13", vencimento:"2026-01-13", produto:"Cantoneira 1\" x 1/8\"", quantidade:15, valorUnit:28.00, fornecedor:"AÇOS TRÊS CORAÇÕES", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:12, data:"2026-01-14", vencimento:"2026-01-14", produto:"Rebolo Desbaste 7\"", quantidade:20, valorUnit:12.50, fornecedor:"NORTON", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:13, data:"2026-01-15", vencimento:"2026-02-15", produto:"Compressor 50L Lynus", quantidade:1, valorUnit:1450.00, fornecedor:"LYNUS", formaPagamento:"Cartão de Crédito MP", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:14, data:"2026-01-15", vencimento:"2026-01-15", produto:"Mangueira Ar 5/16 (10m)", quantidade:3, valorUnit:45.00, fornecedor:"HIDRÁULICA", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:15, data:"2026-01-16", vencimento:"2026-01-16", produto:"Broca HSS 10mm", quantidade:10, valorUnit:15.80, fornecedor:"WORKER", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:16, data:"2026-01-17", vencimento:"2026-01-17", produto:"Chapa Inox 304 1.5mm", quantidade:3, valorUnit:520.00, fornecedor:"INOX CENTER", formaPagamento:"Boleto", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:17, data:"2026-01-18", vencimento:"2026-01-18", produto:"Arame MIG 0.8mm (15kg)", quantidade:2, valorUnit:195.00, fornecedor:"ESAB", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:18, data:"2026-01-20", vencimento:"2026-01-20", produto:"Luva Vaqueta Par", quantidade:20, valorUnit:22.00, fornecedor:"VONDER", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:19, data:"2026-01-20", vencimento:"2026-02-20", produto:"Furadeira Bancada", quantidade:1, valorUnit:1280.00, fornecedor:"LOJA DO MECANICO", formaPagamento:"Cartão de Crédito PagBank", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:20, data:"2026-01-22", vencimento:"2026-01-22", produto:"Fita Isolante 20m", quantidade:24, valorUnit:6.50, fornecedor:"ELÉTRICA GERAL", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:21, data:"2026-01-23", vencimento:"2026-01-23", produto:"Porca Sextavada M10", quantidade:100, valorUnit:0.50, fornecedor:"FERRAGISTA", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:22, data:"2026-01-24", vencimento:"2026-01-24", produto:"Tubo Quadrado 30x30 1.5mm", quantidade:10, valorUnit:48.00, fornecedor:"AÇOS TRÊS CORAÇÕES", formaPagamento:"Boleto", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:23, data:"2026-01-25", vencimento:"2026-01-25", produto:"Primer Universal 900ml", quantidade:6, valorUnit:38.00, fornecedor:"TINTAS E CIA", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:24, data:"2026-01-25", vencimento:"2026-01-25", produto:"Thinner 5L", quantidade:4, valorUnit:55.00, fornecedor:"TINTAS E CIA", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:25, data:"2026-01-27", vencimento:"2026-02-27", produto:"Morsa Bancada 6\"", quantidade:2, valorUnit:320.00, fornecedor:"LOJA DO MECANICO", formaPagamento:"Boleto", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:26, data:"2026-01-28", vencimento:"2026-01-28", produto:"Chave Combinada Jg 8-22mm", quantidade:3, valorUnit:89.90, fornecedor:"WORKER", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:27, data:"2026-01-29", vencimento:"2026-01-29", produto:"Dobradiça Industrial 4\"", quantidade:20, valorUnit:12.00, fornecedor:"FERRAGISTA", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:28, data:"2026-01-30", vencimento:"2026-01-30", produto:"Cadeado 50mm", quantidade:5, valorUnit:35.00, fornecedor:"CASA & CONSTRUÇÃO", formaPagamento:"Cartão de Débito PagBank", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:29, data:"2026-01-30", vencimento:"2026-02-28", produto:"Esmerilhadeira 7\" Makita", quantidade:1, valorUnit:750.00, fornecedor:"MAKITA", formaPagamento:"Cartão de Crédito MP", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:30, data:"2026-01-31", vencimento:"2026-01-31", produto:"Gás CO2 (Cilindro 10kg)", quantidade:2, valorUnit:180.00, fornecedor:"COFERMETA", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:31, data:"2026-02-01", vencimento:"2026-02-15", produto:"Chapa de Aço 1020 2mm", quantidade:4, valorUnit:245.00, fornecedor:"JOTAFRAN", formaPagamento:"Boleto", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:32, data:"2026-02-01", vencimento:"2026-02-01", produto:"Disco Flap 4.5\" Grão 80", quantidade:40, valorUnit:7.50, fornecedor:"NORTON", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:33, data:"2026-02-03", vencimento:"2026-02-03", produto:"Eletrodo Inox 308L 2.5mm", quantidade:10, valorUnit:42.00, fornecedor:"ESAB", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:34, data:"2026-02-04", vencimento:"2026-02-04", produto:"Fita Veda Rosca 18mm", quantidade:20, valorUnit:4.50, fornecedor:"HIDRÁULICA", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:35, data:"2026-02-05", vencimento:"2026-02-05", produto:"Silicone Alta Temp.", quantidade:10, valorUnit:18.90, fornecedor:"CASA & CONSTRUÇÃO", formaPagamento:"Cartão de Débito MP", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:36, data:"2026-02-06", vencimento:"2026-03-06", produto:"Tubo Redondo Inox 1\"", quantidade:8, valorUnit:95.00, fornecedor:"PS INOX", formaPagamento:"Boleto", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:37, data:"2026-02-07", vencimento:"2026-02-07", produto:"Pinca MIG Contato 0.8mm", quantidade:20, valorUnit:3.80, fornecedor:"COFERMETA", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:38, data:"2026-02-08", vencimento:"2026-02-08", produto:"Bocal Cerâmica TIG", quantidade:10, valorUnit:8.50, fornecedor:"COFERMETA", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:39, data:"2026-02-10", vencimento:"2026-02-25", produto:"Chapa Xadrez 3mm", quantidade:2, valorUnit:380.00, fornecedor:"AÇOS TRÊS CORAÇÕES", formaPagamento:"Boleto", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:40, data:"2026-02-10", vencimento:"2026-02-10", produto:"Arruela Lisa M10", quantidade:200, valorUnit:0.30, fornecedor:"FERRAGISTA", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:41, data:"2026-02-12", vencimento:"2026-02-12", produto:"Broca HSS 6mm", quantidade:15, valorUnit:8.90, fornecedor:"WORKER", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:42, data:"2026-02-13", vencimento:"2026-02-13", produto:"Trena 5m", quantidade:5, valorUnit:25.00, fornecedor:"VONDER", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:43, data:"2026-02-14", vencimento:"2026-02-14", produto:"Alicate Universal 8\"", quantidade:4, valorUnit:38.00, fornecedor:"WORKER", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:44, data:"2026-02-15", vencimento:"2026-02-15", produto:"Martelo Bola 500g", quantidade:3, valorUnit:45.00, fornecedor:"WORKER", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:45, data:"2026-02-17", vencimento:"2026-03-17", produto:"Tubo Quadrado 50x50 2mm", quantidade:8, valorUnit:72.00, fornecedor:"AÇOS TRÊS CORAÇÕES", formaPagamento:"Boleto", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:46, data:"2026-02-18", vencimento:"2026-02-18", produto:"Disco Corte Inox 4.5\"", quantidade:30, valorUnit:4.80, fornecedor:"NORTON", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:47, data:"2026-02-19", vencimento:"2026-02-19", produto:"Bico Corte Oxi-GLP nº3", quantidade:5, valorUnit:28.00, fornecedor:"COFERMETA", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:48, data:"2026-02-20", vencimento:"2026-02-20", produto:"Maçarico Solda PPU", quantidade:1, valorUnit:320.00, fornecedor:"COFERMETA", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:49, data:"2026-02-21", vencimento:"2026-02-21", produto:"Tinta Esmalte Preto 3.6L", quantidade:3, valorUnit:78.00, fornecedor:"TINTAS E CIA", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:50, data:"2026-02-22", vencimento:"2026-02-22", produto:"Lixadeira Orbital", quantidade:1, valorUnit:350.00, fornecedor:"MAKITA", formaPagamento:"Cartão de Crédito MP", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:51, data:"2026-02-24", vencimento:"2026-02-24", produto:"Tubo Retangular 40x20 1.5mm", quantidade:12, valorUnit:38.00, fornecedor:"AÇOS TRÊS CORAÇÕES", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:52, data:"2026-02-25", vencimento:"2026-02-25", produto:"Pingo de Solda Spray", quantidade:6, valorUnit:22.00, fornecedor:"ESAB", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:53, data:"2026-02-26", vencimento:"2026-02-26", produto:"Óculos Proteção Ampla Visão", quantidade:10, valorUnit:15.00, fornecedor:"CARBOGRAFITE", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:54, data:"2026-02-27", vencimento:"2026-02-27", produto:"Gás Argônio (Cilindro 10m³)", quantidade:1, valorUnit:280.00, fornecedor:"COFERMETA", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:55, data:"2026-02-28", vencimento:"2026-02-28", produto:"Mangote Solda Par", quantidade:6, valorUnit:28.00, fornecedor:"CARBOGRAFITE", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:56, data:"2026-03-01", vencimento:"2026-03-15", produto:"Chapa de Aço 1020 4mm", quantidade:3, valorUnit:340.00, fornecedor:"JOTAFRAN", formaPagamento:"Boleto", situacao:"Devendo", entrega:"Entregue OK", obs:"" },
-      { id:57, data:"2026-03-01", vencimento:"2026-03-01", produto:"Disco Corte 4.5\"", quantidade:50, valorUnit:4.20, fornecedor:"NORTON", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:58, data:"2026-03-02", vencimento:"2026-03-02", produto:"Vareta TIG Inox 308L 2.4mm", quantidade:5, valorUnit:65.00, fornecedor:"ESAB", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:59, data:"2026-03-03", vencimento:"2026-03-03", produto:"Tubo Inox 304 1.5\"", quantidade:6, valorUnit:145.00, fornecedor:"PS INOX", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:60, data:"2026-03-04", vencimento:"2026-03-04", produto:"Parafuso Allen M8x30", quantidade:50, valorUnit:0.95, fornecedor:"FERRAGISTA", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:61, data:"2026-03-05", vencimento:"2026-03-20", produto:"Cantoneira Inox 1\" x 1/8\"", quantidade:10, valorUnit:55.00, fornecedor:"INOX CENTER", formaPagamento:"Boleto", situacao:"Devendo", entrega:"Pendente", obs:"" },
-      { id:62, data:"2026-03-05", vencimento:"2026-03-05", produto:"Lixa Ferro Grão 100", quantidade:30, valorUnit:3.50, fornecedor:"NORTON", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:63, data:"2026-03-06", vencimento:"2026-03-06", produto:"Ponta Montada Cônica", quantidade:10, valorUnit:6.80, fornecedor:"NORTON", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:64, data:"2026-03-07", vencimento:"2026-03-07", produto:"Protetor Auricular Plug", quantidade:20, valorUnit:4.50, fornecedor:"CARBOGRAFITE", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:65, data:"2026-03-08", vencimento:"2026-03-08", produto:"Barra Roscada M12 1m", quantidade:10, valorUnit:18.00, fornecedor:"FERRAGISTA", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:66, data:"2026-03-10", vencimento:"2026-03-10", produto:"Arame MIG Inox 0.8mm (5kg)", quantidade:2, valorUnit:285.00, fornecedor:"ESAB", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:67, data:"2026-03-10", vencimento:"2026-04-10", produto:"Chapa Inox 430 1mm", quantidade:4, valorUnit:290.00, fornecedor:"INOX CENTER", formaPagamento:"Boleto", situacao:"Devendo", entrega:"Pendente", obs:"" },
-      { id:68, data:"2026-03-11", vencimento:"2026-03-11", produto:"Spray Galvanização Frio", quantidade:8, valorUnit:32.00, fornecedor:"SHOPEE", formaPagamento:"Link MP", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:69, data:"2026-03-12", vencimento:"2026-03-12", produto:"Copo Vidro TIG nº7", quantidade:10, valorUnit:5.50, fornecedor:"COFERMETA", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:70, data:"2026-03-13", vencimento:"2026-03-13", produto:"Esquadro Metalico 12\"", quantidade:3, valorUnit:42.00, fornecedor:"VONDER", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:71, data:"2026-01-05", vencimento:"2026-01-05", produto:"Combustível", quantidade:1, valorUnit:250.00, fornecedor:"VELOE", formaPagamento:"Caixa da Oficina", situacao:"Pago", entrega:"Entregue OK", obs:"Abastecimento semanal" },
-      { id:72, data:"2026-01-12", vencimento:"2026-01-12", produto:"Combustível", quantidade:1, valorUnit:250.00, fornecedor:"VELOE", formaPagamento:"Caixa da Oficina", situacao:"Pago", entrega:"Entregue OK", obs:"Abastecimento semanal" },
-      { id:73, data:"2026-01-19", vencimento:"2026-01-19", produto:"Combustível", quantidade:1, valorUnit:250.00, fornecedor:"VELOE", formaPagamento:"Caixa da Oficina", situacao:"Pago", entrega:"Entregue OK", obs:"Abastecimento semanal" },
-      { id:74, data:"2026-01-26", vencimento:"2026-01-26", produto:"Combustível", quantidade:1, valorUnit:250.00, fornecedor:"VELOE", formaPagamento:"Caixa da Oficina", situacao:"Pago", entrega:"Entregue OK", obs:"Abastecimento semanal" },
-      { id:75, data:"2026-02-02", vencimento:"2026-02-02", produto:"Combustível", quantidade:1, valorUnit:250.00, fornecedor:"VELOE", formaPagamento:"Caixa da Oficina", situacao:"Pago", entrega:"Entregue OK", obs:"Abastecimento semanal" },
-      { id:76, data:"2026-02-09", vencimento:"2026-02-09", produto:"Combustível", quantidade:1, valorUnit:250.00, fornecedor:"VELOE", formaPagamento:"Caixa da Oficina", situacao:"Pago", entrega:"Entregue OK", obs:"Abastecimento semanal" },
-      { id:77, data:"2026-02-16", vencimento:"2026-02-16", produto:"Combustível", quantidade:1, valorUnit:250.00, fornecedor:"VELOE", formaPagamento:"Caixa da Oficina", situacao:"Pago", entrega:"Entregue OK", obs:"Abastecimento semanal" },
-      { id:78, data:"2026-02-23", vencimento:"2026-02-23", produto:"Combustível", quantidade:1, valorUnit:250.00, fornecedor:"VELOE", formaPagamento:"Caixa da Oficina", situacao:"Pago", entrega:"Entregue OK", obs:"Abastecimento semanal" },
-      { id:79, data:"2026-03-02", vencimento:"2026-03-02", produto:"Combustível", quantidade:1, valorUnit:250.00, fornecedor:"VELOE", formaPagamento:"Caixa da Oficina", situacao:"Pago", entrega:"Entregue OK", obs:"Abastecimento semanal" },
-      { id:80, data:"2026-03-09", vencimento:"2026-03-09", produto:"Combustível", quantidade:1, valorUnit:250.00, fornecedor:"VELOE", formaPagamento:"Caixa da Oficina", situacao:"Pago", entrega:"Entregue OK", obs:"Abastecimento semanal" },
-      { id:81, data:"2026-01-07", vencimento:"2026-01-07", produto:"Rolo Fita Crepe 24mm", quantidade:10, valorUnit:9.00, fornecedor:"CASA & CONSTRUÇÃO", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:82, data:"2026-01-11", vencimento:"2026-01-11", produto:"Régua de Aço 1m", quantidade:3, valorUnit:35.00, fornecedor:"VONDER", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:83, data:"2026-01-14", vencimento:"2026-01-14", produto:"Alicate Pressão 10\"", quantidade:4, valorUnit:42.00, fornecedor:"WORKER", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:84, data:"2026-01-19", vencimento:"2026-01-19", produto:"Bucha Nylon S10", quantidade:100, valorUnit:0.25, fornecedor:"FERRAGISTA", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:85, data:"2026-01-21", vencimento:"2026-01-21", produto:"Escova Aço Circular 6\"", quantidade:5, valorUnit:28.00, fornecedor:"NORTON", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:86, data:"2026-01-26", vencimento:"2026-01-26", produto:"Mangueira de Gás 5m", quantidade:2, valorUnit:65.00, fornecedor:"COFERMETA", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:87, data:"2026-02-05", vencimento:"2026-02-05", produto:"Niple Inox 1/2\"", quantidade:15, valorUnit:8.00, fornecedor:"HIDRÁULICA", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:88, data:"2026-02-11", vencimento:"2026-02-11", produto:"Anel Oring Kit", quantidade:5, valorUnit:22.00, fornecedor:"HIDRÁULICA", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:89, data:"2026-02-16", vencimento:"2026-02-16", produto:"Graxa Azul 500g", quantidade:4, valorUnit:18.00, fornecedor:"LOJA DO MECANICO", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:90, data:"2026-02-22", vencimento:"2026-02-22", produto:"WD-40 Spray 300ml", quantidade:6, valorUnit:28.00, fornecedor:"AMAZON", formaPagamento:"Link MP", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:91, data:"2026-03-03", vencimento:"2026-03-03", produto:"Avental Raspa Soldador", quantidade:4, valorUnit:38.00, fornecedor:"CARBOGRAFITE", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:92, data:"2026-03-07", vencimento:"2026-03-07", produto:"Botina Segurança nº42", quantidade:2, valorUnit:95.00, fornecedor:"AMAZON", formaPagamento:"Link MP", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:93, data:"2026-03-11", vencimento:"2026-03-11", produto:"Rolo Lixa 120 (50m)", quantidade:2, valorUnit:85.00, fornecedor:"NORTON", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:94, data:"2026-03-14", vencimento:"2026-03-14", produto:"Difusor Gás MIG", quantidade:10, valorUnit:7.50, fornecedor:"COFERMETA", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:95, data:"2026-01-03", vencimento:"2026-01-03", produto:"Pedra Esmeril 6\" Grão 36", quantidade:4, valorUnit:32.00, fornecedor:"NORTON", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:96, data:"2026-01-09", vencimento:"2026-01-09", produto:"Chave Allen Jg 1.5-10mm", quantidade:5, valorUnit:28.00, fornecedor:"WORKER", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:97, data:"2026-02-08", vencimento:"2026-02-08", produto:"Mandril 13mm c/ Chave", quantidade:2, valorUnit:65.00, fornecedor:"LOJA DO MECANICO", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:98, data:"2026-02-20", vencimento:"2026-02-20", produto:"Nível Alumínio 24\"", quantidade:2, valorUnit:55.00, fornecedor:"VONDER", formaPagamento:"Pix", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:99, data:"2026-03-06", vencimento:"2026-03-06", produto:"Tampa Inox p/ Bocal MIG", quantidade:5, valorUnit:12.00, fornecedor:"COFERMETA", formaPagamento:"Dinheiro", situacao:"Pago", entrega:"Entregue OK", obs:"" },
-      { id:100, data:"2026-03-14", vencimento:"2026-04-14", produto:"Chapa Perfurada 1.5mm", quantidade:2, valorUnit:210.00, fornecedor:"INOX CENTER", formaPagamento:"Boleto", situacao:"Devendo", entrega:"Pendente", obs:"" }
-    ],
-
-    // VENDAS
-    vendas: [
-      { id:1, data:"2026-01-08", cliente:"Renato", produto:"Grade Inox Sob Medida", quantidade:1, valorUnit:1800.00, vendedor:"Wander", formaPagamento:"Pix", tipo:"Direta", situacao:"Pago", obs:"" },
-      { id:2, data:"2026-01-12", cliente:"Carlos Eduardo", produto:"Portão Basculante 3x2.5m", quantidade:1, valorUnit:4500.00, vendedor:"Wander", formaPagamento:"Cartão de Crédito MP", tipo:"Direta", situacao:"Pago", obs:"3x sem juros" },
-      { id:3, data:"2026-01-18", cliente:"João Silva", produto:"Corrimão Inox 6m", quantidade:1, valorUnit:2200.00, vendedor:"Daniel", formaPagamento:"Pix", tipo:"Direta", situacao:"Pago", obs:"" },
-      { id:4, data:"2026-01-25", cliente:"Renato", produto:"Escada Caracol", quantidade:1, valorUnit:6500.00, vendedor:"Wander", formaPagamento:"Boleto", tipo:"Direta", situacao:"Pago", obs:"" },
-      { id:5, data:"2026-02-05", cliente:"Carlos Eduardo", produto:"Mezanino Estrutura", quantidade:1, valorUnit:8500.00, vendedor:"Wander", formaPagamento:"Boleto", tipo:"Direta", situacao:"Pago", obs:"" },
-      { id:6, data:"2026-02-15", cliente:"Renato", produto:"Cobertura Policarbonato 4x3m", quantidade:1, valorUnit:3200.00, vendedor:"Daniel", formaPagamento:"Pix", tipo:"Direta", situacao:"Devendo", obs:"Falta R$910" },
-      { id:7, data:"2026-02-22", cliente:"João Silva", produto:"Guarda Corpo Inox 8m", quantidade:1, valorUnit:3800.00, vendedor:"Daniel", formaPagamento:"Cartão de Crédito PagBank", tipo:"Direta", situacao:"Pago", obs:"" },
-      { id:8, data:"2026-03-02", cliente:"Carlos Eduardo", produto:"Portão Pivotante 4x2m", quantidade:1, valorUnit:5200.00, vendedor:"Wander", formaPagamento:"Pix", tipo:"Direta", situacao:"Pago", obs:"" },
-      { id:9, data:"2026-03-10", cliente:"Renato", produto:"Janela Guilhotina Inox", quantidade:2, valorUnit:1450.00, vendedor:"Wander", formaPagamento:"Link PagBank", tipo:"Direta", situacao:"Devendo", obs:"" }
-    ],
-
-    // ESTOQUE (gerado a partir de compras/vendas — pode ser complementado)
+    compras: [],
+    vendas: [],
     estoque: [],
-
-    // BOLETOS
-    boletos: [
-      { id:1, descricao:"Chapa de Aço 1020 3mm", fornecedor:"JOTAFRAN", valor:1449.50, vencimento:"2026-01-15", situacao:"Pago", obs:"" },
-      { id:2, descricao:"Serra Circular Makita", fornecedor:"MAKITA", valor:899.90, vencimento:"2026-02-09", situacao:"Pago", obs:"" },
-      { id:3, descricao:"Barra Chata 1\" x 1/4\"", fornecedor:"AÇOS TRÊS CORAÇÕES", valor:650.00, vencimento:"2026-01-30", situacao:"Pago", obs:"" },
-      { id:4, descricao:"Compressor 50L Lynus", fornecedor:"LYNUS", valor:1450.00, vencimento:"2026-02-15", situacao:"Pago", obs:"" },
-      { id:5, descricao:"Morsa Bancada 6\"", fornecedor:"LOJA DO MECANICO", valor:640.00, vencimento:"2026-02-27", situacao:"Pago", obs:"" },
-      { id:6, descricao:"Esmerilhadeira 7\" Makita", fornecedor:"MAKITA", valor:750.00, vencimento:"2026-02-28", situacao:"Pago", obs:"" },
-      { id:7, descricao:"Chapa de Aço 1020 2mm", fornecedor:"JOTAFRAN", valor:980.00, vencimento:"2026-02-15", situacao:"Pago", obs:"" },
-      { id:8, descricao:"Tubo Redondo Inox 1\"", fornecedor:"PS INOX", valor:760.00, vencimento:"2026-03-06", situacao:"Pago", obs:"" },
-      { id:9, descricao:"Chapa Xadrez 3mm", fornecedor:"AÇOS TRÊS CORAÇÕES", valor:760.00, vencimento:"2026-02-25", situacao:"Pago", obs:"" },
-      { id:10, descricao:"Tubo Quadrado 50x50 2mm", fornecedor:"AÇOS TRÊS CORAÇÕES", valor:576.00, vencimento:"2026-03-17", situacao:"Pendente", obs:"" },
-      { id:11, descricao:"Chapa de Aço 1020 4mm", fornecedor:"JOTAFRAN", valor:1020.00, vencimento:"2026-03-15", situacao:"Pendente", obs:"" },
-      { id:12, descricao:"Cantoneira Inox 1\" x 1/8\"", fornecedor:"INOX CENTER", valor:550.00, vencimento:"2026-03-20", situacao:"Pendente", obs:"" },
-      { id:13, descricao:"Chapa Inox 430 1mm", fornecedor:"INOX CENTER", valor:1160.00, vencimento:"2026-04-10", situacao:"Pendente", obs:"" },
-      { id:14, descricao:"Chapa Perfurada 1.5mm", fornecedor:"INOX CENTER", valor:420.00, vencimento:"2026-04-14", situacao:"Pendente", obs:"" },
-      { id:15, descricao:"Furadeira Bancada", fornecedor:"LOJA DO MECANICO", valor:1280.00, vencimento:"2026-02-20", situacao:"Pago", obs:"" },
-      { id:16, descricao:"Tubo Quadrado 30x30 1.5mm", fornecedor:"AÇOS TRÊS CORAÇÕES", valor:480.00, vencimento:"2026-01-24", situacao:"Pago", obs:"" },
-      { id:17, descricao:"Chapa Inox 304 1.5mm", fornecedor:"INOX CENTER", valor:1560.00, vencimento:"2026-01-17", situacao:"Pago", obs:"" }
-    ],
-
-    // CHEQUES
+    boletos: [],
     cheques: [],
-
-    // PRESTAÇÕES
-    prestacoes: [
-      { id:1, descricao:"Empréstimo", valor:2368.63, parcelas:5, parcelaAtual:1, vencimento:"2026-01-10", situacao:"Pago", obs:"" },
-      { id:2, descricao:"Empréstimo", valor:2368.63, parcelas:5, parcelaAtual:2, vencimento:"2026-02-10", situacao:"Pago", obs:"" },
-      { id:3, descricao:"Empréstimo", valor:2368.63, parcelas:5, parcelaAtual:3, vencimento:"2026-03-10", situacao:"Pendente", obs:"" },
-      { id:4, descricao:"Empréstimo", valor:2368.63, parcelas:5, parcelaAtual:4, vencimento:"2026-04-10", situacao:"Pendente", obs:"" },
-      { id:5, descricao:"Empréstimo", valor:2368.63, parcelas:5, parcelaAtual:5, vencimento:"2026-05-10", situacao:"Pendente", obs:"" },
-      { id:6, descricao:"Bling", valor:214.83, parcelas:1, parcelaAtual:1, vencimento:"2026-01-15", situacao:"Pago", obs:"Sistema ERP" },
-      { id:7, descricao:"Frenet", valor:85.00, parcelas:10, parcelaAtual:1, vencimento:"2026-01-05", situacao:"Pago", obs:"Frete" },
-      { id:8, descricao:"Frenet", valor:85.00, parcelas:10, parcelaAtual:2, vencimento:"2026-02-05", situacao:"Pago", obs:"Frete" },
-      { id:9, descricao:"Frenet", valor:85.00, parcelas:10, parcelaAtual:3, vencimento:"2026-03-05", situacao:"Pendente", obs:"Frete" },
-      { id:10, descricao:"Flexível 1/2 C.WD", valor:269.96, parcelas:1, parcelaAtual:1, vencimento:"2026-01-20", situacao:"Pago", obs:"" },
-      { id:11, descricao:"WD", valor:349.05, parcelas:1, parcelaAtual:1, vencimento:"2026-02-15", situacao:"Pago", obs:"" }
-    ],
-
-    // PROJETOS
-    projetos: [
-      { id:1, nome:"Cons. Carro", descricao:"Conserto de Carro", orcamento:6066.00, gasto:0, situacao:"Em Andamento", inicio:"2026-01-01", previsao:"2026-06-30", obs:"" },
-      { id:2, nome:"C. Chapa", descricao:"Compra de Chapas", orcamento:6066.00, gasto:0, situacao:"Em Andamento", inicio:"2026-01-01", previsao:"2026-12-31", obs:"" }
-    ],
-
-    // PAGAMENTOS CLIENTES
-    pagClientes: [
-      { id:1, cliente:"Renato", cidade:"NOVA SERRANA", totalDevido:4320.00, totalPago:3410.00, restante:910.00, obs:"" }
-    ],
-
-    // GARANTIAS
+    prestacoes: [],
+    projetos: [],
+    pagClientes: [],
     garantias: [],
-
-    // NOTAS ENTRADA
     notasEntrada: [],
-
-    // NOTAS SAIDA
     notasSaida: [],
-
-    // RECEITAS MEI
     receitasMei: [],
 
-    // FLUXO DE CAIXA — Estrutura por mês (valores diários)
-    fluxoCaixa: {
-      janeiro: {
-        entradas: [0,3302.35,0,0,0,1800,0,0,0,0,0,4500,0,0,0,0,0,2200,0,0,0,0,0,0,6500,0,0,0,0,0,9711.11],
-        saidas: [0,1577.90,295,0,460,178.80,90,899.90,641,0,0,1070,250,0,1450,293,0,158,548,0,1280,156,50,480,456,640,889.70,240,175,750,360],
-        dinheiro: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        wander: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        daniel: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        combustivel: [250,0,0,0,0,0,0,0,0,0,0,250,0,0,0,0,0,0,250,0,0,0,0,0,0,250,0,0,0,0,0]
-      },
-      fevereiro: {
-        entradas: [0,0,0,0,8500,0,0,0,0,0,0,0,0,0,3200,0,0,0,0,0,0,3800,0,0,0,0,0,0],
-        saidas: [980,300,0,420,90,279,76,215,189,760,60,133.50,125,152,135,144,250,576,140,668,110,350,456,132,150,280,168,0],
-        dinheiro: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        wander: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        daniel: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        combustivel: [0,250,0,0,0,0,0,0,250,0,0,0,0,0,0,250,0,0,0,0,0,0,250,0,0,0,0,0]
-      },
-      marco: {
-        entradas: [5200,0,0,0,0,0,0,0,0,2900,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        saidas: [1020,460,477,870,635,130,280,0,250,570,426,256,126,495,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        dinheiro: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        wander: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        daniel: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        combustivel: [0,250,0,0,0,0,0,0,250,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-      },
-      abril: { entradas:[], saidas:[], dinheiro:[], wander:[], daniel:[], combustivel:[] },
-      maio: { entradas:[], saidas:[], dinheiro:[], wander:[], daniel:[], combustivel:[] },
-      junho: { entradas:[], saidas:[], dinheiro:[], wander:[], daniel:[], combustivel:[] },
-      julho: { entradas:[], saidas:[], dinheiro:[], wander:[], daniel:[], combustivel:[] },
-      agosto: { entradas:[], saidas:[], dinheiro:[], wander:[], daniel:[], combustivel:[] },
-      setembro: { entradas:[], saidas:[], dinheiro:[], wander:[], daniel:[], combustivel:[] },
-      outubro: { entradas:[], saidas:[], dinheiro:[], wander:[], daniel:[], combustivel:[] },
-      novembro: { entradas:[], saidas:[], dinheiro:[], wander:[], daniel:[], combustivel:[] },
-      dezembro: { entradas:[], saidas:[], dinheiro:[], wander:[], daniel:[], combustivel:[] }
-    }
+    // Fluxo de caixa — agora lançamentos individuais em vez de arrays por dia
+    fluxoCaixaLancamentos: []
+    // Cada lançamento: { id, mes, dia, tipo: "Entrada"|"Saída", categoria, valor }
   };
 }
 
 // ---------- DADOS EM MEMÓRIA ----------
 let appData = {};
+let _saveTimeout = null;
 
-function loadData() {
-  const saved = localStorage.getItem('wdmaquinas_data');
-  if (saved) {
-    try { appData = JSON.parse(saved); } catch(e) { appData = getDefaultData(); }
+async function loadData() {
+  // Tentar carregar do Supabase primeiro
+  const supaData = await loadFromSupabase();
+  if (supaData) {
+    appData = supaData;
   } else {
-    appData = getDefaultData();
+    // Fallback: localStorage
+    const saved = localStorage.getItem('wdmaquinas_data');
+    if (saved) {
+      try { appData = JSON.parse(saved); } catch(e) { appData = getDefaultData(); }
+    } else {
+      appData = getDefaultData();
+    }
   }
-  // garantir campos
+
+  // Garantir campos novos
   const def = getDefaultData();
   for (let k in def) {
     if (!(k in appData)) appData[k] = def[k];
   }
-  if (!appData.fluxoCaixa) appData.fluxoCaixa = def.fluxoCaixa;
+  if (!appData.categoriasFluxo) appData.categoriasFluxo = def.categoriasFluxo;
+  if (!appData.fluxoCaixaLancamentos) appData.fluxoCaixaLancamentos = [];
+
+  // Migrar fluxoCaixa antigo para fluxoCaixaLancamentos se necessário
+  if (appData.fluxoCaixa && !appData._fluxoMigrated) {
+    migrateOldFluxo();
+    appData._fluxoMigrated = true;
+  }
+
   updateSidebarLogo();
 }
 
+function migrateOldFluxo() {
+  const meses = ['janeiro','fevereiro','marco','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  const fc = appData.fluxoCaixa;
+  if (!fc) return;
+
+  let lancId = nextId(appData.fluxoCaixaLancamentos);
+
+  meses.forEach(mesKey => {
+    const mesData = fc[mesKey];
+    if (!mesData) return;
+
+    const dias = (mesData.entradas || []).length;
+    for (let d = 0; d < dias; d++) {
+      const dia = d + 1;
+      if ((mesData.entradas || [])[d] > 0) {
+        appData.fluxoCaixaLancamentos.push({ id: lancId++, mes: mesKey, dia, tipo: "Entrada", categoria: "Geral", valor: mesData.entradas[d] });
+      }
+      if ((mesData.saidas || [])[d] > 0) {
+        appData.fluxoCaixaLancamentos.push({ id: lancId++, mes: mesKey, dia, tipo: "Saída", categoria: "Geral", valor: mesData.saidas[d] });
+      }
+      if ((mesData.dinheiro || [])[d] > 0) {
+        appData.fluxoCaixaLancamentos.push({ id: lancId++, mes: mesKey, dia, tipo: "Entrada", categoria: "Dinheiro em Notas", valor: mesData.dinheiro[d] });
+      }
+      if ((mesData.combustivel || [])[d] > 0) {
+        appData.fluxoCaixaLancamentos.push({ id: lancId++, mes: mesKey, dia, tipo: "Saída", categoria: "Geral", valor: mesData.combustivel[d] });
+      }
+      if ((mesData.wander || [])[d] > 0) {
+        appData.fluxoCaixaLancamentos.push({ id: lancId++, mes: mesKey, dia, tipo: "Saída", categoria: "Salário", valor: mesData.wander[d] });
+      }
+      if ((mesData.daniel || [])[d] > 0) {
+        appData.fluxoCaixaLancamentos.push({ id: lancId++, mes: mesKey, dia, tipo: "Saída", categoria: "Salário", valor: mesData.daniel[d] });
+      }
+    }
+  });
+}
+
 function saveData() {
+  // Salvar localStorage imediatamente
   localStorage.setItem('wdmaquinas_data', JSON.stringify(appData));
+  // Debounce Supabase save (a cada 2s)
+  if (_saveTimeout) clearTimeout(_saveTimeout);
+  _saveTimeout = setTimeout(() => { saveToSupabase(); }, 2000);
 }
 
 // ---------- LOGO SIDEBAR ----------
@@ -343,7 +356,7 @@ function formatDate(d) {
 function getDiasEntreHoje(dateStr) {
   if (!dateStr) return 0;
   const hoje = new Date(); hoje.setHours(0,0,0,0);
-  const d = new Date(dateStr + 'T00:00:00'); 
+  const d = new Date(dateStr + 'T00:00:00');
   return Math.ceil((d - hoje) / (1000*60*60*24));
 }
 
@@ -352,16 +365,12 @@ let currentPage = 'dashboard';
 
 function navigateTo(page) {
   currentPage = page;
-  // esconder todas as páginas
   document.querySelectorAll('.page-content').forEach(p => p.style.display = 'none');
-  // mostrar a página
   const el = document.getElementById('page-' + page);
   if (el) el.style.display = 'block';
-  // atualizar sidebar ativo
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   const active = document.querySelector(`.nav-item[onclick*="'${page}'"]`);
   if (active) active.classList.add('active');
-  // atualizar titulo topbar
   const titles = {
     dashboard:'Dashboard', janeiro:'Janeiro', fevereiro:'Fevereiro', marco:'Março',
     abril:'Abril', maio:'Maio', junho:'Junho', julho:'Julho', agosto:'Agosto',
@@ -375,9 +384,7 @@ function navigateTo(page) {
   };
   const titleEl = document.getElementById('pageTitle');
   if (titleEl) titleEl.textContent = titles[page] || page;
-  // renderizar conteúdo
   renderPage(page);
-  // fechar sidebar mobile
   document.querySelector('.sidebar').classList.remove('open');
 }
 
@@ -410,7 +417,6 @@ function renderPage(page) {
   }
 }
 
-// ---------- SIDEBAR TOGGLE ----------
 function toggleSidebar() {
   document.querySelector('.sidebar').classList.toggle('open');
 }
@@ -424,7 +430,7 @@ function showToast(msg, type) {
   setTimeout(() => { t.className = 'toast'; }, 3000);
 }
 
-// ---------- MODAL HELPERS ----------
+// ---------- MODAL HELPERS (NÃO fecha ao clicar fora) ----------
 function closeCadastroModal() {
   const m = document.getElementById('cadastroModal');
   if (m) m.style.display = 'none';
@@ -435,15 +441,74 @@ function closeViewModal() {
 }
 
 // ==========================================
-// PARTE 4 — DASHBOARD + FLUXO DE CAIXA MENSAL
+// DASHBOARD
 // ==========================================
+const mesConfig = {
+  janeiro:   { label:'Janeiro',   dias:31, key:'janeiro' },
+  fevereiro: { label:'Fevereiro', dias:28, key:'fevereiro' },
+  marco:     { label:'Março',     dias:31, key:'marco' },
+  abril:     { label:'Abril',     dias:30, key:'abril' },
+  maio:      { label:'Maio',      dias:31, key:'maio' },
+  junho:     { label:'Junho',     dias:30, key:'junho' },
+  julho:     { label:'Julho',     dias:31, key:'julho' },
+  agosto:    { label:'Agosto',    dias:31, key:'agosto' },
+  setembro:  { label:'Setembro',  dias:30, key:'setembro' },
+  outubro:   { label:'Outubro',   dias:31, key:'outubro' },
+  novembro:  { label:'Novembro',  dias:30, key:'novembro' },
+  dezembro:  { label:'Dezembro',  dias:31, key:'dezembro' }
+};
 
-// ---------- DASHBOARD ----------
+const mesIndexMap = {
+  janeiro:0, fevereiro:1, marco:2, abril:3, maio:4, junho:5,
+  julho:6, agosto:7, setembro:8, outubro:9, novembro:10, dezembro:11
+};
+
+const mesesOrdem = ['janeiro','fevereiro','marco','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+
+// Helpers de fluxo
+function getLancamentosMes(mesKey) {
+  return (appData.fluxoCaixaLancamentos || []).filter(l => l.mes === mesKey);
+}
+
+function getTotaisMes(mesKey) {
+  const lancs = getLancamentosMes(mesKey);
+  let entradas = 0, saidas = 0, dinheiroNotas = 0, salario = 0;
+  lancs.forEach(l => {
+    if (l.tipo === 'Entrada') {
+      entradas += l.valor;
+      if (l.categoria === 'Dinheiro em Notas') dinheiroNotas += l.valor;
+    } else {
+      saidas += l.valor;
+      if (l.categoria === 'Salário') salario += l.valor;
+      if (l.categoria === 'Dinheiro em Notas') dinheiroNotas -= l.valor; // se saída de dinheiro
+    }
+  });
+  return { entradas, saidas, dinheiroNotas, salario };
+}
+
+function getCaixaAtualAteMes(mesKey) {
+  const idx = mesesOrdem.indexOf(mesKey);
+  let caixa = 0;
+  for (let i = 0; i <= idx; i++) {
+    const t = getTotaisMes(mesesOrdem[i]);
+    caixa += t.entradas - t.saidas;
+  }
+  return caixa;
+}
+
+function getCaixaAtualTotal() {
+  let caixa = 0;
+  mesesOrdem.forEach(m => {
+    const t = getTotaisMes(m);
+    caixa += t.entradas - t.saidas;
+  });
+  return caixa;
+}
+
 function renderDashboard() {
   const container = document.getElementById('dashboardCards');
   if (!container) return;
 
-  // Cálculos
   const totalCompras = (appData.compras||[]).reduce((s,c) => s + (c.quantidade * c.valorUnit), 0);
   const totalVendas = (appData.vendas||[]).reduce((s,v) => s + (v.quantidade * v.valorUnit), 0);
   const comprasPagas = (appData.compras||[]).filter(c => c.situacao==='Pago').reduce((s,c) => s + (c.quantidade * c.valorUnit), 0);
@@ -455,19 +520,15 @@ function renderDashboard() {
   const prestacoesPendentes = (appData.prestacoes||[]).filter(p => p.situacao!=='Pago').reduce((s,p) => s + p.valor, 0);
   const totalDividas = comprasDevendo + boletosPendentes + prestacoesPendentes + vendasDevendo;
 
-  // Entradas e Saídas totais dos fluxos
-  let entradasFluxo = 0, saidasFluxo = 0;
-  const meses = ['janeiro','fevereiro','marco','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
-  meses.forEach(m => {
-    const fc = appData.fluxoCaixa[m];
-    if (fc) {
-      entradasFluxo += (fc.entradas||[]).reduce((a,b) => a+b, 0);
-      saidasFluxo += (fc.saidas||[]).reduce((a,b) => a+b, 0) + (fc.combustivel||[]).reduce((a,b) => a+b, 0);
-    }
-  });
-  const caixaAtual = entradasFluxo - saidasFluxo;
+  const caixaAtual = getCaixaAtualTotal();
 
-  // Metas
+  let entradasFluxo = 0, saidasFluxo = 0;
+  mesesOrdem.forEach(m => {
+    const t = getTotaisMes(m);
+    entradasFluxo += t.entradas;
+    saidasFluxo += t.saidas;
+  });
+
   const metaVendas = 15000;
   const mesAtual = new Date().getMonth();
   const vendasMesAtual = (appData.vendas||[]).filter(v => {
@@ -591,147 +652,63 @@ function renderDashboard() {
 }
 
 // ==========================================
-// FLUXO DE CAIXA MENSAL — ESTILO LISTA
+// FLUXO DE CAIXA MENSAL — NOVO SISTEMA
 // ==========================================
-const mesConfig = {
-  janeiro:   { label:'Janeiro',   dias:31, key:'janeiro' },
-  fevereiro: { label:'Fevereiro', dias:28, key:'fevereiro' },
-  marco:     { label:'Março',     dias:31, key:'marco' },
-  abril:     { label:'Abril',     dias:30, key:'abril' },
-  maio:      { label:'Maio',      dias:31, key:'maio' },
-  junho:     { label:'Junho',     dias:30, key:'junho' },
-  julho:     { label:'Julho',     dias:31, key:'julho' },
-  agosto:    { label:'Agosto',    dias:31, key:'agosto' },
-  setembro:  { label:'Setembro',  dias:30, key:'setembro' },
-  outubro:   { label:'Outubro',   dias:31, key:'outubro' },
-  novembro:  { label:'Novembro',  dias:30, key:'novembro' },
-  dezembro:  { label:'Dezembro',  dias:31, key:'dezembro' }
-};
-
-const mesIndexMap = {
-  janeiro:0, fevereiro:1, marco:2, abril:3, maio:4, junho:5,
-  julho:6, agosto:7, setembro:8, outubro:9, novembro:10, dezembro:11
-};
-
-function initFluxoMes(mesKey, dias) {
-  if (!appData.fluxoCaixa) appData.fluxoCaixa = {};
-  if (!appData.fluxoCaixa[mesKey]) {
-    appData.fluxoCaixa[mesKey] = { entradas:[], saidas:[], dinheiro:[], wander:[], daniel:[], combustivel:[] };
-  }
-  const fc = appData.fluxoCaixa[mesKey];
-  ['entradas','saidas','dinheiro','wander','daniel','combustivel'].forEach(tipo => {
-    if (!fc[tipo]) fc[tipo] = [];
-    while (fc[tipo].length < dias) fc[tipo].push(0);
-  });
-}
-
-function getSaldoMesesAnteriores(mesKey) {
-  const meses = ['janeiro','fevereiro','marco','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
-  const idx = meses.indexOf(mesKey);
-  let saldo = 0;
-  for (let i = 0; i < idx; i++) {
-    const fc = appData.fluxoCaixa[meses[i]];
-    if (fc) {
-      saldo += (fc.entradas||[]).reduce((a,b) => a+b, 0);
-      saldo -= (fc.saidas||[]).reduce((a,b) => a+b, 0);
-      saldo -= (fc.combustivel||[]).reduce((a,b) => a+b, 0);
-    }
-  }
-  return saldo;
-}
 
 function renderFluxoMes(page) {
   const cfg = mesConfig[page];
   if (!cfg) return;
   const { key, dias, label } = cfg;
-  initFluxoMes(key, dias);
-  const fc = appData.fluxoCaixa[key];
 
-  const container = document.getElementById('fluxo' + label.replace('ç','c').replace('Março','Marco'));
-  // Usar um ID genérico — buscar pelo container da página
   const pageEl = document.getElementById('page-' + page);
   if (!pageEl) return;
 
-  const totalEntradas = fc.entradas.reduce((a,b) => a+b, 0);
-  const totalSaidas = fc.saidas.reduce((a,b) => a+b, 0);
-  const totalCombustivel = fc.combustivel.reduce((a,b) => a+b, 0);
-  const totalDinheiro = fc.dinheiro.reduce((a,b) => a+b, 0);
-  const totalWander = fc.wander.reduce((a,b) => a+b, 0);
-  const totalDaniel = fc.daniel.reduce((a,b) => a+b, 0);
-  const saldoAnterior = getSaldoMesesAnteriores(key);
-  const saldoMes = totalEntradas - totalSaidas - totalCombustivel;
-  const caixaFinal = saldoAnterior + saldoMes;
+  const lancs = getLancamentosMes(key);
+  const totais = getTotaisMes(key);
+  const caixaAtual = getCaixaAtualAteMes(key);
 
-  // Construir lista de lançamentos (entradas e saídas)
-  let lancamentos = [];
-  for (let d = 0; d < dias; d++) {
-    const dia = d + 1;
-    const dataStr = `2026-${String(mesIndexMap[key]+1).padStart(2,'0')}-${String(dia).padStart(2,'0')}`;
-    if (fc.entradas[d] > 0) {
-      lancamentos.push({ id: `E-${d}`, data: dataStr, dia, tipo:'Entrada', categoria:'Entrada', valor: fc.entradas[d], idx: d, tipoKey:'entradas' });
+  // Dinheiro em Notas: soma entradas com cat "Dinheiro em Notas" - saídas com cat "Dinheiro em Notas"
+  let dinheiroNotas = 0;
+  lancs.forEach(l => {
+    if (l.categoria === 'Dinheiro em Notas') {
+      dinheiroNotas += l.tipo === 'Entrada' ? l.valor : -l.valor;
     }
-    if (fc.saidas[d] > 0) {
-      lancamentos.push({ id: `S-${d}`, data: dataStr, dia, tipo:'Saída', categoria:'Saída Geral', valor: fc.saidas[d], idx: d, tipoKey:'saidas' });
-    }
-    if (fc.combustivel[d] > 0) {
-      lancamentos.push({ id: `C-${d}`, data: dataStr, dia, tipo:'Saída', categoria:'Combustível', valor: fc.combustivel[d], idx: d, tipoKey:'combustivel' });
-    }
-    if (fc.dinheiro[d] > 0) {
-      lancamentos.push({ id: `D-${d}`, data: dataStr, dia, tipo:'Saída', categoria:'Dinheiro', valor: fc.dinheiro[d], idx: d, tipoKey:'dinheiro' });
-    }
-    if (fc.wander[d] > 0) {
-      lancamentos.push({ id: `W-${d}`, data: dataStr, dia, tipo:'Saída', categoria:'Wander', valor: fc.wander[d], idx: d, tipoKey:'wander' });
-    }
-    if (fc.daniel[d] > 0) {
-      lancamentos.push({ id: `DN-${d}`, data: dataStr, dia, tipo:'Saída', categoria:'Daniel', valor: fc.daniel[d], idx: d, tipoKey:'daniel' });
-    }
-  }
+  });
 
-  // Ordenar por data
-  lancamentos.sort((a,b) => a.dia - b.dia);
+  // Salário Recebido: soma de saídas com cat "Salário"
+  const salarioRecebido = lancs.filter(l => l.categoria === 'Salário' && l.tipo === 'Saída').reduce((s,l) => s + l.valor, 0);
+
+  // Categorias para filtro
+  const categoriasUsadas = [...new Set(lancs.map(l => l.categoria))].sort();
 
   pageEl.innerHTML = `
     <div class="page-header">
       <h2>Fluxo de Caixa — ${label} 2026</h2>
     </div>
 
-    <!-- Cards Resumo -->
     <div class="dashboard-grid" style="margin-bottom:20px;">
+      <div class="card card-accent">
+        <div class="card-header"><span class="card-icon">💰</span><span>Caixa Atual</span></div>
+        <div class="card-value ${caixaAtual >= 0 ? 'text-success' : 'text-danger'}">${formatCurrency(caixaAtual)}</div>
+      </div>
       <div class="card">
         <div class="card-header"><span class="card-icon">📈</span><span>Total Entradas</span></div>
-        <div class="card-value text-success">${formatCurrency(totalEntradas)}</div>
+        <div class="card-value text-success">${formatCurrency(totais.entradas)}</div>
       </div>
       <div class="card">
         <div class="card-header"><span class="card-icon">📉</span><span>Total Saídas</span></div>
-        <div class="card-value text-danger">${formatCurrency(totalSaidas + totalCombustivel)}</div>
+        <div class="card-value text-danger">${formatCurrency(totais.saidas)}</div>
       </div>
       <div class="card">
-        <div class="card-header"><span class="card-icon">⛽</span><span>Combustível</span></div>
-        <div class="card-value text-warning">${formatCurrency(totalCombustivel)}</div>
+        <div class="card-header"><span class="card-icon">💵</span><span>Dinheiro em Notas</span></div>
+        <div class="card-value">${formatCurrency(dinheiroNotas)}</div>
       </div>
       <div class="card">
-        <div class="card-header"><span class="card-icon">💵</span><span>Dinheiro</span></div>
-        <div class="card-value">${formatCurrency(totalDinheiro)}</div>
-      </div>
-      <div class="card">
-        <div class="card-header"><span class="card-icon">👤</span><span>Wander</span></div>
-        <div class="card-value">${formatCurrency(totalWander)}</div>
-      </div>
-      <div class="card">
-        <div class="card-header"><span class="card-icon">👤</span><span>Daniel</span></div>
-        <div class="card-value">${formatCurrency(totalDaniel)}</div>
-      </div>
-      <div class="card">
-        <div class="card-header"><span class="card-icon">🔙</span><span>Saldo Anterior</span></div>
-        <div class="card-value ${saldoAnterior >= 0 ? 'text-success' : 'text-danger'}">${formatCurrency(saldoAnterior)}</div>
-      </div>
-      <div class="card card-accent">
-        <div class="card-header"><span class="card-icon">💰</span><span>Caixa Final</span></div>
-        <div class="card-value ${caixaFinal >= 0 ? 'text-success' : 'text-danger'}">${formatCurrency(caixaFinal)}</div>
+        <div class="card-header"><span class="card-icon">💼</span><span>Salário Recebido</span></div>
+        <div class="card-value">${formatCurrency(salarioRecebido)}</div>
       </div>
     </div>
 
-    <!-- Filtros e Botão Adicionar -->
     <div class="filter-bar">
       <input type="date" id="filtroDataInicio_${key}" class="form-control" style="max-width:180px" onchange="renderFluxoMes('${page}')">
       <input type="date" id="filtroDataFim_${key}" class="form-control" style="max-width:180px" onchange="renderFluxoMes('${page}')">
@@ -742,19 +719,13 @@ function renderFluxoMes(page) {
       </select>
       <select id="filtroCategoria_${key}" class="form-control" style="max-width:180px" onchange="renderFluxoMes('${page}')">
         <option value="">Todas Categorias</option>
-        <option value="Entrada">Entrada</option>
-        <option value="Saída Geral">Saída Geral</option>
-        <option value="Combustível">Combustível</option>
-        <option value="Dinheiro">Dinheiro</option>
-        <option value="Wander">Wander</option>
-        <option value="Daniel">Daniel</option>
+        ${categoriasUsadas.map(c => `<option value="${c}">${c}</option>`).join('')}
       </select>
       <button class="btn btn-primary" onclick="openFluxoModal('${key}', ${dias})">
         <span>+</span> Adicionar
       </button>
     </div>
 
-    <!-- Tabela Lançamentos -->
     <div class="table-responsive">
       <table class="table" id="tabelaFluxo_${key}">
         <thead>
@@ -767,19 +738,24 @@ function renderFluxoMes(page) {
             <th style="width:120px">Ações</th>
           </tr>
         </thead>
-        <tbody id="fluxoBody_${key}">
-        </tbody>
+        <tbody id="fluxoBody_${key}"></tbody>
       </table>
     </div>
   `;
 
-  // Aplicar filtros
+  // Montar lista e aplicar filtros
+  let filtrados = lancs.map(l => {
+    const mesIdx = mesIndexMap[key];
+    const dataStr = `2026-${String(mesIdx+1).padStart(2,'0')}-${String(l.dia).padStart(2,'0')}`;
+    return { ...l, data: dataStr };
+  });
+
+  filtrados.sort((a,b) => a.dia - b.dia);
+
   const filtroDataInicio = document.getElementById('filtroDataInicio_' + key);
   const filtroDataFim = document.getElementById('filtroDataFim_' + key);
   const filtroTipo = document.getElementById('filtroTipo_' + key);
   const filtroCategoria = document.getElementById('filtroCategoria_' + key);
-
-  let filtrados = [...lancamentos];
 
   if (filtroDataInicio && filtroDataInicio.value) {
     filtrados = filtrados.filter(l => l.data >= filtroDataInicio.value);
@@ -806,14 +782,13 @@ function renderFluxoMes(page) {
         <td>${l.categoria}</td>
         <td class="${l.tipo==='Entrada'?'text-success':'text-danger'}"><strong>${formatCurrency(l.valor)}</strong></td>
         <td>
-          <button class="btn btn-sm btn-outline" onclick="editFluxoLancamento('${key}', ${l.idx}, '${l.tipoKey}', ${dias})" title="Editar">✏️</button>
-          <button class="btn btn-sm btn-danger" onclick="deleteFluxoLancamento('${key}', ${l.idx}, '${l.tipoKey}', '${page}')" title="Excluir">🗑️</button>
+          <button class="btn btn-sm btn-outline" onclick="editFluxoLancamento(${l.id}, '${key}', ${dias})" title="Editar">✏️</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteFluxoLancamento(${l.id}, '${page}')" title="Excluir">🗑️</button>
         </td>
       </tr>
     `).join('');
   }
 
-  // Linha de totais filtrados
   const totalFiltradoEntradas = filtrados.filter(l => l.tipo==='Entrada').reduce((s,l) => s+l.valor, 0);
   const totalFiltradoSaidas = filtrados.filter(l => l.tipo==='Saída').reduce((s,l) => s+l.valor, 0);
   tbody.innerHTML += `
@@ -828,22 +803,9 @@ function renderFluxoMes(page) {
   `;
 }
 
-// ---------- MODAL ADICIONAR LANÇAMENTO ----------
-function openFluxoModal(mesKey, dias, editIdx, editTipoKey) {
-  const isEdit = editIdx !== undefined;
-  const fc = appData.fluxoCaixa[mesKey];
-
-  let valorAtual = 0;
-  let categoriaAtual = 'entradas';
-  let diaAtual = 1;
-
-  if (isEdit && fc) {
-    valorAtual = fc[editTipoKey][editIdx] || 0;
-    categoriaAtual = editTipoKey;
-    diaAtual = editIdx + 1;
-  }
-
-  const mesIdx = mesIndexMap[mesKey];
+// ---------- MODAL FLUXO (Dia → Tipo toggle → Categoria → Valor) ----------
+function openFluxoModal(mesKey, dias, editLanc) {
+  const isEdit = !!editLanc;
   const mesLabel = Object.values(mesConfig).find(c => c.key === mesKey)?.label || mesKey;
 
   const modal = document.getElementById('cadastroModal');
@@ -851,12 +813,21 @@ function openFluxoModal(mesKey, dias, editIdx, editTipoKey) {
   const modalBody = document.getElementById('cadastroModalBody');
   const modalFooter = document.getElementById('cadastroModalFooter');
 
-  modalTitle.textContent = isEdit ? 'Editar Lançamento' : 'Novo Lançamento — ' + mesLabel;
+  modalTitle.textContent = isEdit ? 'Editar Lançamento — ' + mesLabel : 'Novo Lançamento — ' + mesLabel;
 
   let diasOptions = '';
   for (let d = 1; d <= dias; d++) {
-    diasOptions += `<option value="${d}" ${d===diaAtual?'selected':''}>${d}</option>`;
+    diasOptions += `<option value="${d}" ${isEdit && editLanc.dia===d ? 'selected' : ''}>${d}</option>`;
   }
+
+  const tipoAtual = isEdit ? editLanc.tipo : 'Entrada';
+  const catAtual = isEdit ? editLanc.categoria : '';
+  const valorAtual = isEdit ? editLanc.valor : 0;
+
+  // Categorias baseadas no tipo selecionado
+  const catsEntrada = (appData.categoriasFluxo||[]).filter(c => c.tipo === 'Entrada').map(c => c.nome);
+  const catsSaida = (appData.categoriasFluxo||[]).filter(c => c.tipo === 'Saída').map(c => c.nome);
+  const catsUnicas = tipoAtual === 'Entrada' ? [...new Set(catsEntrada)] : [...new Set(catsSaida)];
 
   modalBody.innerHTML = `
     <div class="form-group">
@@ -864,14 +835,18 @@ function openFluxoModal(mesKey, dias, editIdx, editTipoKey) {
       <select id="fluxoDia" class="form-control">${diasOptions}</select>
     </div>
     <div class="form-group">
+      <label>Tipo de Fluxo</label>
+      <div class="tipo-fluxo-group">
+        <button type="button" id="btnTipoEntrada" class="btn-tipo-entrada ${tipoAtual==='Entrada'?'active':''}" onclick="toggleTipoFluxo('Entrada')">Entrada</button>
+        <button type="button" id="btnTipoSaida" class="btn-tipo-saida ${tipoAtual==='Saída'?'active':''}" onclick="toggleTipoFluxo('Saída')">Saída</button>
+      </div>
+      <input type="hidden" id="fluxoTipo" value="${tipoAtual}">
+    </div>
+    <div class="form-group">
       <label>Categoria</label>
       <select id="fluxoCategoria" class="form-control">
-        <option value="entradas" ${categoriaAtual==='entradas'?'selected':''}>Entrada</option>
-        <option value="saidas" ${categoriaAtual==='saidas'?'selected':''}>Saída Geral</option>
-        <option value="combustivel" ${categoriaAtual==='combustivel'?'selected':''}>Combustível</option>
-        <option value="dinheiro" ${categoriaAtual==='dinheiro'?'selected':''}>Dinheiro</option>
-        <option value="wander" ${categoriaAtual==='wander'?'selected':''}>Wander</option>
-        <option value="daniel" ${categoriaAtual==='daniel'?'selected':''}>Daniel</option>
+        <option value="">Selecione...</option>
+        ${catsUnicas.map(c => `<option value="${c}" ${catAtual===c?'selected':''}>${c}</option>`).join('')}
       </select>
     </div>
     <div class="form-group">
@@ -882,17 +857,44 @@ function openFluxoModal(mesKey, dias, editIdx, editTipoKey) {
 
   modalFooter.innerHTML = `
     <button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button>
-    <button class="btn btn-primary" onclick="saveFluxoLancamento('${mesKey}', ${dias}, ${isEdit ? editIdx : -1}, '${isEdit ? editTipoKey : ''}')">Salvar</button>
+    <button class="btn btn-primary" onclick="saveFluxoLancamento('${mesKey}', ${dias}, ${isEdit ? editLanc.id : 0})">Salvar</button>
   `;
 
   modal.style.display = 'flex';
 }
 
-function saveFluxoLancamento(mesKey, dias, editIdx, editTipoKey) {
+function toggleTipoFluxo(tipo) {
+  document.getElementById('fluxoTipo').value = tipo;
+  const btnE = document.getElementById('btnTipoEntrada');
+  const btnS = document.getElementById('btnTipoSaida');
+
+  if (tipo === 'Entrada') {
+    btnE.classList.add('active');
+    btnS.classList.remove('active');
+  } else {
+    btnS.classList.add('active');
+    btnE.classList.remove('active');
+  }
+
+  // Atualizar categorias
+  const catsEntrada = (appData.categoriasFluxo||[]).filter(c => c.tipo === 'Entrada').map(c => c.nome);
+  const catsSaida = (appData.categoriasFluxo||[]).filter(c => c.tipo === 'Saída').map(c => c.nome);
+  const cats = tipo === 'Entrada' ? [...new Set(catsEntrada)] : [...new Set(catsSaida)];
+
+  const sel = document.getElementById('fluxoCategoria');
+  sel.innerHTML = '<option value="">Selecione...</option>' + cats.map(c => `<option value="${c}">${c}</option>`).join('');
+}
+
+function saveFluxoLancamento(mesKey, dias, editId) {
   const dia = parseInt(document.getElementById('fluxoDia').value);
+  const tipo = document.getElementById('fluxoTipo').value;
   const categoria = document.getElementById('fluxoCategoria').value;
   const valor = parseFloat(document.getElementById('fluxoValor').value) || 0;
 
+  if (!categoria) {
+    showToast('Selecione uma categoria', 'error');
+    return;
+  }
   if (valor <= 0) {
     showToast('Informe um valor maior que zero', 'error');
     return;
@@ -902,580 +904,187 @@ function saveFluxoLancamento(mesKey, dias, editIdx, editTipoKey) {
     return;
   }
 
-  initFluxoMes(mesKey, dias);
-  const fc = appData.fluxoCaixa[mesKey];
-  const idx = dia - 1;
-
-  // Se é edição e mudou de categoria ou dia, zerar o antigo
-  if (editIdx >= 0 && editTipoKey) {
-    if (editIdx !== idx || editTipoKey !== categoria) {
-      fc[editTipoKey][editIdx] = 0;
-    }
-  }
-
-  // Se é novo lançamento, somar; se é edição no mesmo dia/categoria, substituir
-  if (editIdx >= 0 && editIdx === idx && editTipoKey === categoria) {
-    fc[categoria][idx] = valor;
-  } else if (editIdx >= 0) {
-    // mudou dia ou categoria
-    fc[categoria][idx] += valor;
-  } else {
-    // novo
-    fc[categoria][idx] += valor;
-  }
-
-  saveData();
-  closeCadastroModal();
-  showToast(editIdx >= 0 ? 'Lançamento atualizado!' : 'Lançamento adicionado!', 'success');
-
-  // Re-renderizar a página do mês
-  const page = mesKey;
-  renderFluxoMes(page);
-}
-
-function editFluxoLancamento(mesKey, idx, tipoKey, dias) {
-  openFluxoModal(mesKey, dias, idx, tipoKey);
-}
-
-function deleteFluxoLancamento(mesKey, idx, tipoKey, page) {
-  if (!confirm('Deseja excluir este lançamento?')) return;
-  const fc = appData.fluxoCaixa[mesKey];
-  if (fc && fc[tipoKey]) {
-    fc[tipoKey][idx] = 0;
-    saveData();
-    showToast('Lançamento excluído!', 'success');
-    renderFluxoMes(page);
-  }
-}
-
-// ==========================================
-// PARTE 5 — COMPRAS, VENDAS, ESTOQUE
-// ==========================================
-
-// ============ COMPRAS ============
-function renderCompras() {
-  const pageEl = document.getElementById('page-compras');
-  if (!pageEl) return;
-
-  const compras = appData.compras || [];
-  const totalGeral = compras.reduce((s,c) => s + (c.quantidade * c.valorUnit), 0);
-  const totalPago = compras.filter(c => c.situacao==='Pago').reduce((s,c) => s + (c.quantidade * c.valorUnit), 0);
-  const totalDevendo = compras.filter(c => c.situacao==='Devendo').reduce((s,c) => s + (c.quantidade * c.valorUnit), 0);
-  const totalGuardado = compras.filter(c => c.situacao==='Guardado').reduce((s,c) => s + (c.quantidade * c.valorUnit), 0);
-  const qtdTotal = compras.length;
-
-  pageEl.innerHTML = `
-    <div class="page-header">
-      <h2>Compras</h2>
-      <button class="btn btn-primary" onclick="openCompraModal()"><span>+</span> Nova Compra</button>
-    </div>
-
-    <div class="dashboard-grid" style="margin-bottom:20px;">
-      <div class="card">
-        <div class="card-header"><span class="card-icon">🛒</span><span>Total Compras</span></div>
-        <div class="card-value">${formatCurrency(totalGeral)}</div>
-        <small>${qtdTotal} registros</small>
-      </div>
-      <div class="card">
-        <div class="card-header"><span class="card-icon">✅</span><span>Pago</span></div>
-        <div class="card-value text-success">${formatCurrency(totalPago)}</div>
-      </div>
-      <div class="card">
-        <div class="card-header"><span class="card-icon">⚠️</span><span>Devendo</span></div>
-        <div class="card-value text-danger">${formatCurrency(totalDevendo)}</div>
-      </div>
-      <div class="card">
-        <div class="card-header"><span class="card-icon">📦</span><span>Guardado</span></div>
-        <div class="card-value text-warning">${formatCurrency(totalGuardado)}</div>
-      </div>
-    </div>
-
-    <div class="filter-bar">
-      <input type="text" id="filtroComprasBusca" class="form-control" placeholder="Buscar produto, fornecedor..." oninput="filtrarCompras()" style="max-width:280px">
-      <input type="date" id="filtroComprasDataIni" class="form-control" style="max-width:170px" onchange="filtrarCompras()">
-      <input type="date" id="filtroComprasDataFim" class="form-control" style="max-width:170px" onchange="filtrarCompras()">
-      <select id="filtroComprasSit" class="form-control" style="max-width:150px" onchange="filtrarCompras()">
-        <option value="">Todas Situações</option>
-        ${(appData.situacaoCompra||[]).map(s => `<option value="${s}">${s}</option>`).join('')}
-      </select>
-      <select id="filtroComprasForn" class="form-control" style="max-width:180px" onchange="filtrarCompras()">
-        <option value="">Todos Fornecedores</option>
-        ${[...new Set(compras.map(c=>c.fornecedor))].sort().map(f => `<option value="${f}">${f}</option>`).join('')}
-      </select>
-    </div>
-
-    <div class="table-responsive">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Data</th>
-            <th>Vencimento</th>
-            <th>Produto</th>
-            <th>Qtd</th>
-            <th>V. Unit</th>
-            <th>Total</th>
-            <th>Fornecedor</th>
-            <th>Pagamento</th>
-            <th>Situação</th>
-            <th>Entrega</th>
-            <th style="width:120px">Ações</th>
-          </tr>
-        </thead>
-        <tbody id="comprasBody"></tbody>
-      </table>
-    </div>
-  `;
-
-  filtrarCompras();
-}
-
-function filtrarCompras() {
-  const busca = (document.getElementById('filtroComprasBusca')?.value || '').toLowerCase();
-  const dataIni = document.getElementById('filtroComprasDataIni')?.value || '';
-  const dataFim = document.getElementById('filtroComprasDataFim')?.value || '';
-  const sit = document.getElementById('filtroComprasSit')?.value || '';
-  const forn = document.getElementById('filtroComprasForn')?.value || '';
-
-  let lista = [...(appData.compras || [])];
-
-  if (busca) {
-    lista = lista.filter(c =>
-      (c.produto||'').toLowerCase().includes(busca) ||
-      (c.fornecedor||'').toLowerCase().includes(busca) ||
-      (c.formaPagamento||'').toLowerCase().includes(busca) ||
-      (c.obs||'').toLowerCase().includes(busca)
-    );
-  }
-  if (dataIni) lista = lista.filter(c => c.data >= dataIni);
-  if (dataFim) lista = lista.filter(c => c.data <= dataFim);
-  if (sit) lista = lista.filter(c => c.situacao === sit);
-  if (forn) lista = lista.filter(c => c.fornecedor === forn);
-
-  lista.sort((a,b) => (b.data||'').localeCompare(a.data||''));
-
-  const tbody = document.getElementById('comprasBody');
-  if (!tbody) return;
-
-  if (lista.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;padding:30px;color:var(--text-muted)">Nenhuma compra encontrada</td></tr>';
-    return;
-  }
-
-  tbody.innerHTML = lista.map(c => {
-    const total = c.quantidade * c.valorUnit;
-    const diasVenc = getDiasEntreHoje(c.vencimento);
-    let badgeSit = 'badge-warning';
-    if (c.situacao === 'Pago') badgeSit = 'badge-success';
-    else if (c.situacao === 'Devendo') badgeSit = 'badge-danger';
-
-    let badgeEntrega = 'badge-warning';
-    if (c.entrega === 'Entregue OK') badgeEntrega = 'badge-success';
-    else if (c.entrega === 'Entregue com Defeito') badgeEntrega = 'badge-danger';
-    else if (c.entrega === 'Não Entregue') badgeEntrega = 'badge-danger';
-
-    return `<tr>
-      <td>${formatDate(c.data)}</td>
-      <td>${formatDate(c.vencimento)} ${c.situacao!=='Pago' && diasVenc <= 3 && diasVenc >= 0 ? '<span class="badge badge-danger" style="font-size:10px;margin-left:4px">VENCE BREVE</span>' : ''}</td>
-      <td><strong>${c.produto}</strong></td>
-      <td>${c.quantidade}</td>
-      <td>${formatCurrency(c.valorUnit)}</td>
-      <td><strong>${formatCurrency(total)}</strong></td>
-      <td>${c.fornecedor}</td>
-      <td>${c.formaPagamento}</td>
-      <td><span class="badge ${badgeSit}">${c.situacao}</span></td>
-      <td><span class="badge ${badgeEntrega}">${c.entrega}</span></td>
-      <td>
-        <button class="btn btn-sm btn-outline" onclick="editCompra(${c.id})" title="Editar">✏️</button>
-        <button class="btn btn-sm btn-danger" onclick="deleteCompra(${c.id})" title="Excluir">🗑️</button>
-      </td>
-    </tr>`;
-  }).join('');
-}
-
-function openCompraModal(compra) {
-  const isEdit = !!compra;
-  const modal = document.getElementById('cadastroModal');
-  const modalTitle = document.getElementById('cadastroModalTitle');
-  const modalBody = document.getElementById('cadastroModalBody');
-  const modalFooter = document.getElementById('cadastroModalFooter');
-
-  modalTitle.textContent = isEdit ? 'Editar Compra' : 'Nova Compra';
-
-  const fornecedores = (appData.fornecedores||[]).map(f => f.nome).sort();
-  const formas = appData.formasPagamento || [];
-  const situacoes = appData.situacaoCompra || [];
-  const entregas = appData.situacaoEntrega || [];
-
-  modalBody.innerHTML = `
-    <div class="form-row">
-      <div class="form-group">
-        <label>Data *</label>
-        <input type="date" id="compraData" class="form-control" value="${isEdit ? compra.data : new Date().toISOString().split('T')[0]}">
-      </div>
-      <div class="form-group">
-        <label>Vencimento</label>
-        <input type="date" id="compraVencimento" class="form-control" value="${isEdit ? compra.vencimento : ''}">
-      </div>
-    </div>
-    <div class="form-group">
-      <label>Produto *</label>
-      <input type="text" id="compraProduto" class="form-control" value="${isEdit ? compra.produto : ''}" placeholder="Nome do produto">
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Quantidade *</label>
-        <input type="number" id="compraQtd" class="form-control" min="1" step="1" value="${isEdit ? compra.quantidade : 1}">
-      </div>
-      <div class="form-group">
-        <label>Valor Unitário *</label>
-        <input type="number" id="compraValorUnit" class="form-control" min="0" step="0.01" value="${isEdit ? compra.valorUnit : ''}">
-      </div>
-    </div>
-    <div class="form-group">
-      <label>Fornecedor *</label>
-      <select id="compraFornecedor" class="form-control">
-        <option value="">Selecione...</option>
-        ${fornecedores.map(f => `<option value="${f}" ${isEdit && compra.fornecedor===f ? 'selected' : ''}>${f}</option>`).join('')}
-      </select>
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Forma de Pagamento</label>
-        <select id="compraForma" class="form-control">
-          <option value="">Selecione...</option>
-          ${formas.map(f => `<option value="${f}" ${isEdit && compra.formaPagamento===f ? 'selected' : ''}>${f}</option>`).join('')}
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Situação</label>
-        <select id="compraSituacao" class="form-control">
-          ${situacoes.map(s => `<option value="${s}" ${isEdit && compra.situacao===s ? 'selected' : ''}>${s}</option>`).join('')}
-        </select>
-      </div>
-    </div>
-    <div class="form-group">
-      <label>Entrega</label>
-      <select id="compraEntrega" class="form-control">
-        ${entregas.map(e => `<option value="${e}" ${isEdit && compra.entrega===e ? 'selected' : ''}>${e}</option>`).join('')}
-      </select>
-    </div>
-    <div class="form-group">
-      <label>Observações</label>
-      <textarea id="compraObs" class="form-control" rows="2">${isEdit ? (compra.obs||'') : ''}</textarea>
-    </div>
-  `;
-
-  modalFooter.innerHTML = `
-    <button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button>
-    <button class="btn btn-primary" onclick="saveCompra(${isEdit ? compra.id : 0})">Salvar</button>
-  `;
-
-  modal.style.display = 'flex';
-}
-
-function saveCompra(editId) {
-  const data = document.getElementById('compraData').value;
-  const vencimento = document.getElementById('compraVencimento').value;
-  const produto = document.getElementById('compraProduto').value.trim();
-  const quantidade = parseInt(document.getElementById('compraQtd').value) || 0;
-  const valorUnit = parseFloat(document.getElementById('compraValorUnit').value) || 0;
-  const fornecedor = document.getElementById('compraFornecedor').value;
-  const formaPagamento = document.getElementById('compraForma').value;
-  const situacao = document.getElementById('compraSituacao').value;
-  const entrega = document.getElementById('compraEntrega').value;
-  const obs = document.getElementById('compraObs').value.trim();
-
-  if (!data || !produto || quantidade <= 0 || valorUnit <= 0 || !fornecedor) {
-    showToast('Preencha os campos obrigatórios (Data, Produto, Qtd, Valor, Fornecedor)', 'error');
-    return;
-  }
-
   if (editId > 0) {
-    const idx = appData.compras.findIndex(c => c.id === editId);
+    const idx = appData.fluxoCaixaLancamentos.findIndex(l => l.id === editId);
     if (idx >= 0) {
-      appData.compras[idx] = { ...appData.compras[idx], data, vencimento, produto, quantidade, valorUnit, fornecedor, formaPagamento, situacao, entrega, obs };
+      appData.fluxoCaixaLancamentos[idx] = { ...appData.fluxoCaixaLancamentos[idx], dia, tipo, categoria, valor };
     }
   } else {
-    appData.compras.push({
-      id: nextId(appData.compras),
-      data, vencimento, produto, quantidade, valorUnit, fornecedor, formaPagamento, situacao, entrega, obs
+    appData.fluxoCaixaLancamentos.push({
+      id: nextId(appData.fluxoCaixaLancamentos),
+      mes: mesKey, dia, tipo, categoria, valor
     });
   }
 
   saveData();
   closeCadastroModal();
-  showToast(editId > 0 ? 'Compra atualizada!' : 'Compra adicionada!', 'success');
-  renderCompras();
+  showToast(editId > 0 ? 'Lançamento atualizado!' : 'Lançamento adicionado!', 'success');
+  renderFluxoMes(mesKey);
 }
 
-function editCompra(id) {
-  const compra = appData.compras.find(c => c.id === id);
-  if (compra) openCompraModal(compra);
+function editFluxoLancamento(id, mesKey, dias) {
+  const lanc = appData.fluxoCaixaLancamentos.find(l => l.id === id);
+  if (lanc) openFluxoModal(mesKey, dias, lanc);
 }
 
-function deleteCompra(id) {
-  if (!confirm('Deseja excluir esta compra?')) return;
-  appData.compras = appData.compras.filter(c => c.id !== id);
+function deleteFluxoLancamento(id, page) {
+  if (!confirm('Deseja excluir este lançamento?')) return;
+  appData.fluxoCaixaLancamentos = appData.fluxoCaixaLancamentos.filter(l => l.id !== id);
   saveData();
-  showToast('Compra excluída!', 'success');
-  renderCompras();
+  showToast('Lançamento excluído!', 'success');
+  renderFluxoMes(page);
 }
 
-// ============ VENDAS ============
-function renderVendas() {
-  const pageEl = document.getElementById('page-vendas');
-  if (!pageEl) return;
+// ==========================================
+// WD MÁQUINAS — script.js — PARTE 4
+// CRUD: Vendas, Estoque, Clientes, Fornecedores,
+// PFornecedores, Boletos, Cheques, Prestações,
+// Projetos, PagClientes, Garantias, Relatórios,
+// Notas, Receitas MEI, Configurações, Backup
+// ==========================================
 
+// ============================================================
+// VENDAS
+// ============================================================
+function renderVendasPage() {
+  const pg = document.getElementById('page-vendas');
   const vendas = appData.vendas || [];
-  const totalGeral = vendas.reduce((s,v) => s + (v.quantidade * v.valorUnit), 0);
-  const totalPago = vendas.filter(v => v.situacao==='Pago').reduce((s,v) => s + (v.quantidade * v.valorUnit), 0);
-  const totalDevendo = vendas.filter(v => v.situacao==='Devendo').reduce((s,v) => s + (v.quantidade * v.valorUnit), 0);
-  const vendasWander = vendas.filter(v => v.vendedor==='Wander').reduce((s,v) => s + (v.quantidade * v.valorUnit), 0);
-  const vendasDaniel = vendas.filter(v => v.vendedor==='Daniel').reduce((s,v) => s + (v.quantidade * v.valorUnit), 0);
+  const totalVendas = vendas.reduce((s, v) => s + (v.quantidade * v.valorUnit), 0);
+  const totalPago = vendas.filter(v => v.situacao === 'Pago').reduce((s, v) => s + (v.quantidade * v.valorUnit), 0);
+  const totalDevendo = totalVendas - totalPago;
 
-  pageEl.innerHTML = `
+  pg.innerHTML = `
     <div class="page-header">
-      <h2>Vendas</h2>
-      <button class="btn btn-primary" onclick="openVendaModal()"><span>+</span> Nova Venda</button>
+      <h2>💰 Vendas</h2>
+      <button class="btn btn-primary" onclick="openVendaModal()">+ Nova Venda</button>
     </div>
-
-    <div class="dashboard-grid" style="margin-bottom:20px;">
-      <div class="card">
-        <div class="card-header"><span class="card-icon">🏷️</span><span>Total Vendas</span></div>
-        <div class="card-value">${formatCurrency(totalGeral)}</div>
-        <small>${vendas.length} registros</small>
-      </div>
-      <div class="card">
-        <div class="card-header"><span class="card-icon">✅</span><span>Recebido</span></div>
-        <div class="card-value text-success">${formatCurrency(totalPago)}</div>
-      </div>
-      <div class="card">
-        <div class="card-header"><span class="card-icon">⚠️</span><span>A Receber</span></div>
-        <div class="card-value text-danger">${formatCurrency(totalDevendo)}</div>
-      </div>
-      <div class="card">
-        <div class="card-header"><span class="card-icon">👤</span><span>Wander</span></div>
-        <div class="card-value">${formatCurrency(vendasWander)}</div>
-      </div>
-      <div class="card">
-        <div class="card-header"><span class="card-icon">👤</span><span>Daniel</span></div>
-        <div class="card-value">${formatCurrency(vendasDaniel)}</div>
-      </div>
+    <div class="dashboard-grid">
+      <div class="card card-accent"><div class="card-header"><span>Total Vendas</span></div><div class="card-value">${formatCurrency(totalVendas)}</div></div>
+      <div class="card"><div class="card-header"><span>Recebido</span></div><div class="card-value text-success">${formatCurrency(totalPago)}</div></div>
+      <div class="card"><div class="card-header"><span>A Receber</span></div><div class="card-value text-danger">${formatCurrency(totalDevendo)}</div></div>
+      <div class="card"><div class="card-header"><span>Qtd Vendas</span></div><div class="card-value">${vendas.length}</div></div>
     </div>
-
     <div class="filter-bar">
-      <input type="text" id="filtroVendasBusca" class="form-control" placeholder="Buscar cliente, produto..." oninput="filtrarVendas()" style="max-width:280px">
-      <input type="date" id="filtroVendasDataIni" class="form-control" style="max-width:170px" onchange="filtrarVendas()">
-      <input type="date" id="filtroVendasDataFim" class="form-control" style="max-width:170px" onchange="filtrarVendas()">
-      <select id="filtroVendasSit" class="form-control" style="max-width:150px" onchange="filtrarVendas()">
-        <option value="">Todas Situações</option>
+      <input type="text" class="form-control" style="max-width:250px" placeholder="Buscar venda..." oninput="filterVendas(this.value)">
+      <select class="form-control" style="max-width:160px" onchange="filterVendasSituacao(this.value)">
+        <option value="">Todas situações</option>
         <option value="Pago">Pago</option>
         <option value="Devendo">Devendo</option>
       </select>
-      <select id="filtroVendasVendedor" class="form-control" style="max-width:150px" onchange="filtrarVendas()">
-        <option value="">Todos Vendedores</option>
-        ${(appData.vendedores||[]).map(v => `<option value="${v}">${v}</option>`).join('')}
-      </select>
     </div>
-
     <div class="table-responsive">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Data</th>
-            <th>Cliente</th>
-            <th>Produto</th>
-            <th>Qtd</th>
-            <th>V. Unit</th>
-            <th>Total</th>
-            <th>Vendedor</th>
-            <th>Pagamento</th>
-            <th>Tipo</th>
-            <th>Situação</th>
-            <th style="width:120px">Ações</th>
-          </tr>
-        </thead>
+      <table class="table" id="vendasTable">
+        <thead><tr>
+          <th>ID</th><th>Data</th><th>Cliente</th><th>Produto</th><th>Qtd</th><th>Valor Unit.</th><th>Total</th><th>Vendedor</th><th>Pagamento</th><th>Situação</th><th>Ações</th>
+        </tr></thead>
         <tbody id="vendasBody"></tbody>
       </table>
-    </div>
-  `;
-
-  filtrarVendas();
+    </div>`;
+  renderVendasTable(vendas);
 }
 
-function filtrarVendas() {
-  const busca = (document.getElementById('filtroVendasBusca')?.value || '').toLowerCase();
-  const dataIni = document.getElementById('filtroVendasDataIni')?.value || '';
-  const dataFim = document.getElementById('filtroVendasDataFim')?.value || '';
-  const sit = document.getElementById('filtroVendasSit')?.value || '';
-  const vendedor = document.getElementById('filtroVendasVendedor')?.value || '';
-
-  let lista = [...(appData.vendas || [])];
-
-  if (busca) {
-    lista = lista.filter(v =>
-      (v.cliente||'').toLowerCase().includes(busca) ||
-      (v.produto||'').toLowerCase().includes(busca) ||
-      (v.vendedor||'').toLowerCase().includes(busca) ||
-      (v.obs||'').toLowerCase().includes(busca)
-    );
-  }
-  if (dataIni) lista = lista.filter(v => v.data >= dataIni);
-  if (dataFim) lista = lista.filter(v => v.data <= dataFim);
-  if (sit) lista = lista.filter(v => v.situacao === sit);
-  if (vendedor) lista = lista.filter(v => v.vendedor === vendedor);
-
-  lista.sort((a,b) => (b.data||'').localeCompare(a.data||''));
-
+function renderVendasTable(vendas) {
   const tbody = document.getElementById('vendasBody');
   if (!tbody) return;
-
-  if (lista.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;padding:30px;color:var(--text-muted)">Nenhuma venda encontrada</td></tr>';
-    return;
-  }
-
-  tbody.innerHTML = lista.map(v => {
-    const total = v.quantidade * v.valorUnit;
-    return `<tr>
+  tbody.innerHTML = vendas.map(v => `
+    <tr>
+      <td>${v.id}</td>
       <td>${formatDate(v.data)}</td>
-      <td><strong>${v.cliente}</strong></td>
+      <td>${v.cliente}</td>
       <td>${v.produto}</td>
       <td>${v.quantidade}</td>
       <td>${formatCurrency(v.valorUnit)}</td>
-      <td><strong>${formatCurrency(total)}</strong></td>
+      <td>${formatCurrency(v.quantidade * v.valorUnit)}</td>
       <td>${v.vendedor}</td>
       <td>${v.formaPagamento}</td>
-      <td><span class="badge badge-info">${v.tipo}</span></td>
-      <td><span class="badge ${v.situacao==='Pago'?'badge-success':'badge-danger'}">${v.situacao}</span></td>
+      <td><span class="badge ${v.situacao === 'Pago' ? 'badge-success' : 'badge-danger'}">${v.situacao}</span></td>
       <td>
-        <button class="btn btn-sm btn-outline" onclick="editVenda(${v.id})" title="Editar">✏️</button>
-        <button class="btn btn-sm btn-danger" onclick="deleteVenda(${v.id})" title="Excluir">🗑️</button>
+        <button class="btn btn-sm btn-outline" onclick="viewVenda(${v.id})">👁️</button>
+        <button class="btn btn-sm btn-primary" onclick="editVenda(${v.id})">✏️</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteVenda(${v.id})">🗑️</button>
       </td>
-    </tr>`;
-  }).join('');
+    </tr>`).join('');
+}
+
+function filterVendas(q) {
+  q = q.toLowerCase();
+  const filtered = (appData.vendas || []).filter(v =>
+    v.cliente.toLowerCase().includes(q) || v.produto.toLowerCase().includes(q) ||
+    (v.vendedor || '').toLowerCase().includes(q) || String(v.id).includes(q)
+  );
+  renderVendasTable(filtered);
+}
+
+function filterVendasSituacao(sit) {
+  const filtered = sit ? (appData.vendas || []).filter(v => v.situacao === sit) : (appData.vendas || []);
+  renderVendasTable(filtered);
 }
 
 function openVendaModal(venda) {
   const isEdit = !!venda;
-  const modal = document.getElementById('cadastroModal');
-  const modalTitle = document.getElementById('cadastroModalTitle');
-  const modalBody = document.getElementById('cadastroModalBody');
-  const modalFooter = document.getElementById('cadastroModalFooter');
+  const clienteOpts = (appData.clientes || []).map(c => `<option value="${c.nome}" ${venda && venda.cliente === c.nome ? 'selected' : ''}>${c.nome}</option>`).join('');
+  const vendedorOpts = (appData.vendedores || []).map(v => `<option value="${v}" ${venda && venda.vendedor === v ? 'selected' : ''}>${v}</option>`).join('');
+  const pgtoOpts = (appData.formasPagamento || []).map(f => `<option value="${f}" ${venda && venda.formaPagamento === f ? 'selected' : ''}>${f}</option>`).join('');
+  const tipoOpts = (appData.tipoVenda || []).map(t => `<option value="${t}" ${venda && venda.tipo === t ? 'selected' : ''}>${t}</option>`).join('');
 
-  modalTitle.textContent = isEdit ? 'Editar Venda' : 'Nova Venda';
-
-  const clientes = (appData.clientes||[]).map(c => c.nome).sort();
-  const vendedores = appData.vendedores || [];
-  const formas = appData.formasPagamento || [];
-  const tipos = appData.tipoVenda || [];
-
-  modalBody.innerHTML = `
+  document.getElementById('cadastroModalTitle').textContent = isEdit ? 'Editar Venda' : 'Nova Venda';
+  document.getElementById('cadastroModalBody').innerHTML = `
     <div class="form-row">
-      <div class="form-group">
-        <label>Data *</label>
-        <input type="date" id="vendaData" class="form-control" value="${isEdit ? venda.data : new Date().toISOString().split('T')[0]}">
-      </div>
-      <div class="form-group">
-        <label>Cliente *</label>
-        <select id="vendaCliente" class="form-control">
-          <option value="">Selecione...</option>
-          ${clientes.map(c => `<option value="${c}" ${isEdit && venda.cliente===c ? 'selected' : ''}>${c}</option>`).join('')}
-        </select>
-      </div>
+      <div class="form-group"><label>Data</label><input type="date" class="form-control" id="vData" value="${venda ? venda.data : new Date().toISOString().split('T')[0]}"></div>
+      <div class="form-group"><label>Cliente</label><select class="form-control" id="vCliente"><option value="">Selecione...</option>${clienteOpts}</select></div>
     </div>
-    <div class="form-group">
-      <label>Produto *</label>
-      <input type="text" id="vendaProduto" class="form-control" value="${isEdit ? venda.produto : ''}" placeholder="Descrição do produto/serviço">
+    <div class="form-group"><label>Produto</label><input type="text" class="form-control" id="vProduto" value="${venda ? venda.produto : ''}"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Quantidade</label><input type="number" class="form-control" id="vQtd" value="${venda ? venda.quantidade : 1}" min="1"></div>
+      <div class="form-group"><label>Valor Unitário</label><input type="number" class="form-control" id="vValorUnit" value="${venda ? venda.valorUnit : ''}" step="0.01"></div>
     </div>
     <div class="form-row">
-      <div class="form-group">
-        <label>Quantidade *</label>
-        <input type="number" id="vendaQtd" class="form-control" min="1" step="1" value="${isEdit ? venda.quantidade : 1}">
-      </div>
-      <div class="form-group">
-        <label>Valor Unitário *</label>
-        <input type="number" id="vendaValorUnit" class="form-control" min="0" step="0.01" value="${isEdit ? venda.valorUnit : ''}">
-      </div>
+      <div class="form-group"><label>Vendedor</label><select class="form-control" id="vVendedor">${vendedorOpts}</select></div>
+      <div class="form-group"><label>Forma Pagamento</label><select class="form-control" id="vPgto">${pgtoOpts}</select></div>
     </div>
     <div class="form-row">
-      <div class="form-group">
-        <label>Vendedor</label>
-        <select id="vendaVendedor" class="form-control">
-          <option value="">Selecione...</option>
-          ${vendedores.map(v => `<option value="${v}" ${isEdit && venda.vendedor===v ? 'selected' : ''}>${v}</option>`).join('')}
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Forma de Pagamento</label>
-        <select id="vendaForma" class="form-control">
-          <option value="">Selecione...</option>
-          ${formas.map(f => `<option value="${f}" ${isEdit && venda.formaPagamento===f ? 'selected' : ''}>${f}</option>`).join('')}
+      <div class="form-group"><label>Tipo</label><select class="form-control" id="vTipo">${tipoOpts}</select></div>
+      <div class="form-group"><label>Situação</label>
+        <select class="form-control" id="vSituacao">
+          <option value="Pago" ${venda && venda.situacao === 'Pago' ? 'selected' : ''}>Pago</option>
+          <option value="Devendo" ${venda && venda.situacao === 'Devendo' ? 'selected' : ''}>Devendo</option>
         </select>
       </div>
     </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Tipo</label>
-        <select id="vendaTipo" class="form-control">
-          ${tipos.map(t => `<option value="${t}" ${isEdit && venda.tipo===t ? 'selected' : ''}>${t}</option>`).join('')}
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Situação</label>
-        <select id="vendaSituacao" class="form-control">
-          <option value="Pago" ${isEdit && venda.situacao==='Pago' ? 'selected' : ''}>Pago</option>
-          <option value="Devendo" ${isEdit && venda.situacao==='Devendo' ? 'selected' : ''}>Devendo</option>
-        </select>
-      </div>
-    </div>
-    <div class="form-group">
-      <label>Observações</label>
-      <textarea id="vendaObs" class="form-control" rows="2">${isEdit ? (venda.obs||'') : ''}</textarea>
-    </div>
-  `;
+    <div class="form-group"><label>Observações</label><textarea class="form-control" id="vObs" rows="2">${venda ? venda.obs || '' : ''}</textarea></div>`;
 
-  modalFooter.innerHTML = `
+  document.getElementById('cadastroModalFooter').innerHTML = `
     <button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button>
-    <button class="btn btn-primary" onclick="saveVenda(${isEdit ? venda.id : 0})">Salvar</button>
-  `;
-
-  modal.style.display = 'flex';
+    <button class="btn btn-primary" onclick="saveVenda(${isEdit ? venda.id : 'null'})">Salvar</button>`;
+  openCadastroModal();
 }
 
-function saveVenda(editId) {
-  const data = document.getElementById('vendaData').value;
-  const cliente = document.getElementById('vendaCliente').value;
-  const produto = document.getElementById('vendaProduto').value.trim();
-  const quantidade = parseInt(document.getElementById('vendaQtd').value) || 0;
-  const valorUnit = parseFloat(document.getElementById('vendaValorUnit').value) || 0;
-  const vendedor = document.getElementById('vendaVendedor').value;
-  const formaPagamento = document.getElementById('vendaForma').value;
-  const tipo = document.getElementById('vendaTipo').value;
-  const situacao = document.getElementById('vendaSituacao').value;
-  const obs = document.getElementById('vendaObs').value.trim();
+function saveVenda(id) {
+  const obj = {
+    data: document.getElementById('vData').value,
+    cliente: document.getElementById('vCliente').value,
+    produto: document.getElementById('vProduto').value,
+    quantidade: parseFloat(document.getElementById('vQtd').value) || 1,
+    valorUnit: parseFloat(document.getElementById('vValorUnit').value) || 0,
+    vendedor: document.getElementById('vVendedor').value,
+    formaPagamento: document.getElementById('vPgto').value,
+    tipo: document.getElementById('vTipo').value,
+    situacao: document.getElementById('vSituacao').value,
+    obs: document.getElementById('vObs').value
+  };
+  if (!obj.data || !obj.cliente || !obj.produto) { showToast('Preencha os campos obrigatórios', 'error'); return; }
 
-  if (!data || !cliente || !produto || quantidade <= 0 || valorUnit <= 0) {
-    showToast('Preencha os campos obrigatórios (Data, Cliente, Produto, Qtd, Valor)', 'error');
-    return;
-  }
-
-  if (editId > 0) {
-    const idx = appData.vendas.findIndex(v => v.id === editId);
-    if (idx >= 0) {
-      appData.vendas[idx] = { ...appData.vendas[idx], data, cliente, produto, quantidade, valorUnit, vendedor, formaPagamento, tipo, situacao, obs };
-    }
+  if (id) {
+    const idx = appData.vendas.findIndex(v => v.id === id);
+    if (idx > -1) { obj.id = id; appData.vendas[idx] = obj; }
   } else {
-    appData.vendas.push({
-      id: nextId(appData.vendas),
-      data, cliente, produto, quantidade, valorUnit, vendedor, formaPagamento, tipo, situacao, obs
-    });
+    obj.id = nextId(appData.vendas);
+    appData.vendas.push(obj);
   }
-
   saveData();
   closeCadastroModal();
-  showToast(editId > 0 ? 'Venda atualizada!' : 'Venda adicionada!', 'success');
-  renderVendas();
+  renderVendasPage();
+  showToast(id ? 'Venda atualizada!' : 'Venda cadastrada!', 'success');
 }
 
 function editVenda(id) {
@@ -1483,2941 +1092,1537 @@ function editVenda(id) {
   if (venda) openVendaModal(venda);
 }
 
+function viewVenda(id) {
+  const v = appData.vendas.find(x => x.id === id);
+  if (!v) return;
+  document.getElementById('viewModalTitle').textContent = `Venda #${v.id}`;
+  document.getElementById('viewModalBody').innerHTML = `
+    <div class="detail-grid">
+      <div class="detail-item"><span class="detail-label">Data</span>${formatDate(v.data)}</div>
+      <div class="detail-item"><span class="detail-label">Cliente</span>${v.cliente}</div>
+      <div class="detail-item"><span class="detail-label">Produto</span>${v.produto}</div>
+      <div class="detail-item"><span class="detail-label">Quantidade</span>${v.quantidade}</div>
+      <div class="detail-item"><span class="detail-label">Valor Unit.</span>${formatCurrency(v.valorUnit)}</div>
+      <div class="detail-item"><span class="detail-label">Total</span>${formatCurrency(v.quantidade * v.valorUnit)}</div>
+      <div class="detail-item"><span class="detail-label">Vendedor</span>${v.vendedor}</div>
+      <div class="detail-item"><span class="detail-label">Forma Pgto</span>${v.formaPagamento}</div>
+      <div class="detail-item"><span class="detail-label">Tipo</span>${v.tipo}</div>
+      <div class="detail-item"><span class="detail-label">Situação</span><span class="badge ${v.situacao === 'Pago' ? 'badge-success' : 'badge-danger'}">${v.situacao}</span></div>
+    </div>
+    ${v.obs ? `<div style="margin-top:12px;padding:10px;background:var(--bg-tertiary);border-radius:var(--radius-sm)"><strong>Obs:</strong> ${v.obs}</div>` : ''}`;
+  openViewModal();
+}
+
 function deleteVenda(id) {
-  if (!confirm('Deseja excluir esta venda?')) return;
+  if (!confirm('Excluir esta venda?')) return;
   appData.vendas = appData.vendas.filter(v => v.id !== id);
   saveData();
+  renderVendasPage();
   showToast('Venda excluída!', 'success');
-  renderVendas();
 }
 
-// ============ ESTOQUE ============
-function renderEstoque() {
-  const pageEl = document.getElementById('page-estoque');
-  if (!pageEl) return;
-
-  // Calcular estoque a partir de compras e vendas
-  const produtosMap = {};
-
-  (appData.compras || []).forEach(c => {
-    const key = c.produto;
-    if (!produtosMap[key]) produtosMap[key] = { produto: key, qtdComprada: 0, valorCompra: 0, qtdVendida: 0, valorVenda: 0 };
-    produtosMap[key].qtdComprada += c.quantidade;
-    produtosMap[key].valorCompra += c.quantidade * c.valorUnit;
-  });
-
-  (appData.vendas || []).forEach(v => {
-    const key = v.produto;
-    if (!produtosMap[key]) produtosMap[key] = { produto: key, qtdComprada: 0, valorCompra: 0, qtdVendida: 0, valorVenda: 0 };
-    produtosMap[key].qtdVendida += v.quantidade;
-    produtosMap[key].valorVenda += v.quantidade * v.valorUnit;
-  });
-
-  let estoqueItems = Object.values(produtosMap).map(p => ({
-    ...p,
-    saldo: p.qtdComprada - p.qtdVendida,
-    lucro: p.valorVenda - p.valorCompra
-  }));
-
-  const totalCompra = estoqueItems.reduce((s,e) => s + e.valorCompra, 0);
-  const totalVenda = estoqueItems.reduce((s,e) => s + e.valorVenda, 0);
-  const lucroTotal = totalVenda - totalCompra;
-  const valorEstoque = estoqueItems.filter(e => e.saldo > 0).reduce((s,e) => {
-    const custoMedio = e.qtdComprada > 0 ? e.valorCompra / e.qtdComprada : 0;
-    return s + (e.saldo * custoMedio);
-  }, 0);
-
-  pageEl.innerHTML = `
+// ============================================================
+// ESTOQUE
+// ============================================================
+function renderEstoquePage() {
+  const pg = document.getElementById('page-estoque');
+  const estoque = appData.estoque || [];
+  pg.innerHTML = `
     <div class="page-header">
-      <h2>Estoque</h2>
+      <h2>📦 Estoque</h2>
+      <button class="btn btn-primary" onclick="openEstoqueModal()">+ Novo Item</button>
     </div>
-
-    <div class="dashboard-grid" style="margin-bottom:20px;">
-      <div class="card">
-        <div class="card-header"><span class="card-icon">🛒</span><span>Total Compras</span></div>
-        <div class="card-value">${formatCurrency(totalCompra)}</div>
-      </div>
-      <div class="card">
-        <div class="card-header"><span class="card-icon">🏷️</span><span>Total Vendas</span></div>
-        <div class="card-value">${formatCurrency(totalVenda)}</div>
-      </div>
-      <div class="card">
-        <div class="card-header"><span class="card-icon">📊</span><span>Lucro</span></div>
-        <div class="card-value ${lucroTotal >= 0 ? 'text-success' : 'text-danger'}">${formatCurrency(lucroTotal)}</div>
-      </div>
-      <div class="card">
-        <div class="card-header"><span class="card-icon">📦</span><span>Valor em Estoque</span></div>
-        <div class="card-value text-warning">${formatCurrency(valorEstoque)}</div>
-      </div>
-    </div>
-
     <div class="filter-bar">
-      <input type="text" id="filtroEstoqueBusca" class="form-control" placeholder="Buscar produto..." oninput="filtrarEstoque()" style="max-width:300px">
-      <select id="filtroEstoqueSaldo" class="form-control" style="max-width:180px" onchange="filtrarEstoque()">
-        <option value="">Todos</option>
-        <option value="positivo">Com Saldo > 0</option>
-        <option value="zerado">Saldo Zerado</option>
-        <option value="negativo">Saldo Negativo</option>
-      </select>
+      <input type="text" class="form-control" style="max-width:250px" placeholder="Buscar produto..." oninput="filterEstoque(this.value)">
     </div>
-
     <div class="table-responsive">
       <table class="table">
-        <thead>
-          <tr>
-            <th>Produto</th>
-            <th>Qtd Comprada</th>
-            <th>Qtd Vendida</th>
-            <th>Saldo</th>
-            <th>Valor Compra</th>
-            <th>Valor Venda</th>
-            <th>Lucro</th>
-          </tr>
-        </thead>
+        <thead><tr><th>ID</th><th>Produto</th><th>Quantidade</th><th>Unidade</th><th>Localização</th><th>Estoque Mín.</th><th>Status</th><th>Ações</th></tr></thead>
         <tbody id="estoqueBody"></tbody>
       </table>
-    </div>
-  `;
-
-  // Guardar referência para filtro
-  window._estoqueItems = estoqueItems;
-  filtrarEstoque();
+    </div>`;
+  renderEstoqueTable(estoque);
 }
 
-function filtrarEstoque() {
-  const busca = (document.getElementById('filtroEstoqueBusca')?.value || '').toLowerCase();
-  const saldoFiltro = document.getElementById('filtroEstoqueSaldo')?.value || '';
-
-  let lista = [...(window._estoqueItems || [])];
-
-  if (busca) {
-    lista = lista.filter(e => e.produto.toLowerCase().includes(busca));
-  }
-  if (saldoFiltro === 'positivo') lista = lista.filter(e => e.saldo > 0);
-  else if (saldoFiltro === 'zerado') lista = lista.filter(e => e.saldo === 0);
-  else if (saldoFiltro === 'negativo') lista = lista.filter(e => e.saldo < 0);
-
-  lista.sort((a,b) => b.saldo - a.saldo);
-
+function renderEstoqueTable(items) {
   const tbody = document.getElementById('estoqueBody');
   if (!tbody) return;
-
-  if (lista.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--text-muted)">Nenhum item encontrado</td></tr>';
-    return;
-  }
-
-  tbody.innerHTML = lista.map(e => {
-    let saldoClass = '';
-    if (e.saldo > 0) saldoClass = 'text-success';
-    else if (e.saldo < 0) saldoClass = 'text-danger';
-    else saldoClass = 'text-muted';
-
-    return `<tr>
-      <td><strong>${e.produto}</strong></td>
-      <td>${e.qtdComprada}</td>
-      <td>${e.qtdVendida}</td>
-      <td class="${saldoClass}"><strong>${e.saldo}</strong></td>
-      <td>${formatCurrency(e.valorCompra)}</td>
-      <td>${formatCurrency(e.valorVenda)}</td>
-      <td class="${e.lucro >= 0 ? 'text-success' : 'text-danger'}"><strong>${formatCurrency(e.lucro)}</strong></td>
-    </tr>`;
-  }).join('');
+  tbody.innerHTML = items.length === 0 ? '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhum item no estoque</td></tr>' :
+    items.map(e => {
+      const status = e.quantidade <= (e.estoqueMin || 0) ? 'badge-danger' : 'badge-success';
+      const statusText = e.quantidade <= (e.estoqueMin || 0) ? 'Baixo' : 'OK';
+      return `<tr>
+        <td>${e.id}</td><td>${e.produto}</td><td>${e.quantidade}</td><td>${e.unidade || 'Unidade'}</td>
+        <td>${e.localizacao || '-'}</td><td>${e.estoqueMin || 0}</td>
+        <td><span class="badge ${status}">${statusText}</span></td>
+        <td>
+          <button class="btn btn-sm btn-primary" onclick="editEstoque(${e.id})">✏️</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteEstoque(${e.id})">🗑️</button>
+        </td>
+      </tr>`;
+    }).join('');
 }
 
-// ==========================================
-// PARTE 6 — CADASTROS (Clientes, Fornecedores, Produtos, P.Fornecedores)
-// ==========================================
+function filterEstoque(q) {
+  q = q.toLowerCase();
+  const filtered = (appData.estoque || []).filter(e => e.produto.toLowerCase().includes(q));
+  renderEstoqueTable(filtered);
+}
 
-// ============ CLIENTES ============
-function renderClientes() {
-  const pageEl = document.getElementById('page-clientes');
-  if (!pageEl) return;
+function openEstoqueModal(item) {
+  const isEdit = !!item;
+  const unidOpts = (appData.tipoUnidade || []).map(u => `<option value="${u}" ${item && item.unidade === u ? 'selected' : ''}>${u}</option>`).join('');
+  document.getElementById('cadastroModalTitle').textContent = isEdit ? 'Editar Item' : 'Novo Item de Estoque';
+  document.getElementById('cadastroModalBody').innerHTML = `
+    <div class="form-group"><label>Produto</label><input type="text" class="form-control" id="eProduto" value="${item ? item.produto : ''}"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Quantidade</label><input type="number" class="form-control" id="eQtd" value="${item ? item.quantidade : 0}" min="0"></div>
+      <div class="form-group"><label>Unidade</label><select class="form-control" id="eUnidade">${unidOpts}</select></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Estoque Mínimo</label><input type="number" class="form-control" id="eMin" value="${item ? item.estoqueMin || 0 : 0}" min="0"></div>
+      <div class="form-group"><label>Localização</label><input type="text" class="form-control" id="eLocal" value="${item ? item.localizacao || '' : ''}"></div>
+    </div>`;
+  document.getElementById('cadastroModalFooter').innerHTML = `
+    <button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button>
+    <button class="btn btn-primary" onclick="saveEstoque(${isEdit ? item.id : 'null'})">Salvar</button>`;
+  openCadastroModal();
+}
 
+function saveEstoque(id) {
+  const obj = {
+    produto: document.getElementById('eProduto').value,
+    quantidade: parseFloat(document.getElementById('eQtd').value) || 0,
+    unidade: document.getElementById('eUnidade').value,
+    estoqueMin: parseFloat(document.getElementById('eMin').value) || 0,
+    localizacao: document.getElementById('eLocal').value
+  };
+  if (!obj.produto) { showToast('Informe o produto', 'error'); return; }
+  if (!appData.estoque) appData.estoque = [];
+  if (id) {
+    const idx = appData.estoque.findIndex(e => e.id === id);
+    if (idx > -1) { obj.id = id; appData.estoque[idx] = obj; }
+  } else {
+    obj.id = nextId(appData.estoque);
+    appData.estoque.push(obj);
+  }
+  saveData();
+  closeCadastroModal();
+  renderEstoquePage();
+  showToast(id ? 'Item atualizado!' : 'Item cadastrado!', 'success');
+}
+
+function editEstoque(id) {
+  const item = (appData.estoque || []).find(e => e.id === id);
+  if (item) openEstoqueModal(item);
+}
+
+function deleteEstoque(id) {
+  if (!confirm('Excluir item do estoque?')) return;
+  appData.estoque = (appData.estoque || []).filter(e => e.id !== id);
+  saveData();
+  renderEstoquePage();
+  showToast('Item excluído!', 'success');
+}
+
+// ============================================================
+// CLIENTES
+// ============================================================
+function renderClientesPage() {
+  const pg = document.getElementById('page-clientes');
   const clientes = appData.clientes || [];
-
-  pageEl.innerHTML = `
+  pg.innerHTML = `
     <div class="page-header">
-      <h2>Clientes</h2>
-      <button class="btn btn-primary" onclick="openClienteModal()"><span>+</span> Novo Cliente</button>
+      <h2>👥 Clientes</h2>
+      <button class="btn btn-primary" onclick="openClienteModal()">+ Novo Cliente</button>
     </div>
-
-    <div class="dashboard-grid" style="margin-bottom:20px;">
-      <div class="card">
-        <div class="card-header"><span class="card-icon">👥</span><span>Total Clientes</span></div>
-        <div class="card-value">${clientes.length}</div>
-      </div>
-    </div>
-
     <div class="filter-bar">
-      <input type="text" id="filtroClientesBusca" class="form-control" placeholder="Buscar nome, cidade, CPF/CNPJ..." oninput="filtrarClientes()" style="max-width:350px">
+      <input type="text" class="form-control" style="max-width:300px" placeholder="Buscar cliente..." oninput="filterClientes(this.value)">
     </div>
-
     <div class="table-responsive">
       <table class="table">
-        <thead>
-          <tr>
-            <th></th>
-            <th>Nome</th>
-            <th>CPF/CNPJ</th>
-            <th>Telefone</th>
-            <th>Cidade</th>
-            <th>Estado</th>
-            <th style="width:150px">Ações</th>
-          </tr>
-        </thead>
+        <thead><tr><th>ID</th><th>Nome</th><th>CPF/CNPJ</th><th>Telefone</th><th>Cidade</th><th>Estado</th><th>Ações</th></tr></thead>
         <tbody id="clientesBody"></tbody>
       </table>
-    </div>
-  `;
-
-  filtrarClientes();
+    </div>`;
+  renderClientesTable(clientes);
 }
 
-function filtrarClientes() {
-  const busca = (document.getElementById('filtroClientesBusca')?.value || '').toLowerCase();
-  let lista = [...(appData.clientes || [])];
-
-  if (busca) {
-    lista = lista.filter(c =>
-      (c.nome||'').toLowerCase().includes(busca) ||
-      (c.cpfCnpj||'').toLowerCase().includes(busca) ||
-      (c.cidade||'').toLowerCase().includes(busca) ||
-      (c.telefone||'').toLowerCase().includes(busca) ||
-      (c.email||'').toLowerCase().includes(busca)
-    );
-  }
-
-  lista.sort((a,b) => (a.nome||'').localeCompare(b.nome||''));
-
+function renderClientesTable(clientes) {
   const tbody = document.getElementById('clientesBody');
   if (!tbody) return;
-
-  if (lista.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--text-muted)">Nenhum cliente encontrado</td></tr>';
-    return;
-  }
-
-  tbody.innerHTML = lista.map(c => {
-    const avatar = c.img
-      ? `<img src="${c.img}" style="width:36px;height:36px;border-radius:50%;object-fit:cover">`
-      : `<div style="width:36px;height:36px;border-radius:50%;background:var(--accent-primary);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:bold;font-size:14px">${(c.nome||'?')[0].toUpperCase()}</div>`;
-
-    return `<tr>
-      <td>${avatar}</td>
-      <td><strong>${c.nome}</strong></td>
-      <td>${c.cpfCnpj || '-'}</td>
-      <td>${c.telefone || '-'}</td>
-      <td>${c.cidade || '-'}</td>
-      <td>${c.estado || '-'}</td>
+  tbody.innerHTML = clientes.length === 0 ? '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhum cliente cadastrado</td></tr>' :
+    clientes.map(c => `<tr>
+      <td>${c.id}</td><td>${c.nome}</td><td>${c.cpfCnpj || '-'}</td><td>${c.telefone || '-'}</td><td>${c.cidade || '-'}</td><td>${c.estado || '-'}</td>
       <td>
-        <button class="btn btn-sm btn-outline" onclick="viewCliente(${c.id})" title="Ver">👁️</button>
-        <button class="btn btn-sm btn-outline" onclick="editCliente(${c.id})" title="Editar">✏️</button>
-        <button class="btn btn-sm btn-danger" onclick="deleteCliente(${c.id})" title="Excluir">🗑️</button>
+        <button class="btn btn-sm btn-outline" onclick="viewCliente(${c.id})">👁️</button>
+        <button class="btn btn-sm btn-primary" onclick="editCliente(${c.id})">✏️</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteCliente(${c.id})">🗑️</button>
       </td>
-    </tr>`;
-  }).join('');
+    </tr>`).join('');
+}
+
+function filterClientes(q) {
+  q = q.toLowerCase();
+  const filtered = (appData.clientes || []).filter(c =>
+    c.nome.toLowerCase().includes(q) || (c.cpfCnpj || '').includes(q) || (c.cidade || '').toLowerCase().includes(q)
+  );
+  renderClientesTable(filtered);
 }
 
 function openClienteModal(cliente) {
   const isEdit = !!cliente;
-  const modal = document.getElementById('cadastroModal');
-  const modalTitle = document.getElementById('cadastroModalTitle');
-  const modalBody = document.getElementById('cadastroModalBody');
-  const modalFooter = document.getElementById('cadastroModalFooter');
-
-  modalTitle.textContent = isEdit ? 'Editar Cliente' : 'Novo Cliente';
-
-  modalBody.innerHTML = `
-    <div class="form-group" style="text-align:center">
-      <div id="clienteImgPreview" style="width:80px;height:80px;border-radius:50%;background:var(--bg-tertiary);margin:0 auto 10px;display:flex;align-items:center;justify-content:center;overflow:hidden">
-        ${isEdit && cliente.img ? `<img src="${cliente.img}" style="width:100%;height:100%;object-fit:cover">` : '<span style="color:var(--text-muted);font-size:24px">👤</span>'}
-      </div>
-      <label class="btn btn-sm btn-outline" style="cursor:pointer">
-        📷 Foto
-        <input type="file" id="clienteImgInput" accept="image/*" onchange="handleCadastroImage('clienteImgInput','clienteImgPreview')" style="display:none">
-      </label>
+  document.getElementById('cadastroModalTitle').textContent = isEdit ? 'Editar Cliente' : 'Novo Cliente';
+  document.getElementById('cadastroModalBody').innerHTML = `
+    <div class="form-group"><label>Nome *</label><input type="text" class="form-control" id="cNome" value="${cliente ? cliente.nome : ''}"></div>
+    <div class="form-row">
+      <div class="form-group"><label>CPF/CNPJ</label><input type="text" class="form-control" id="cDoc" value="${cliente ? cliente.cpfCnpj || '' : ''}"></div>
+      <div class="form-group"><label>Telefone</label><input type="text" class="form-control" id="cTel" value="${cliente ? cliente.telefone || '' : ''}"></div>
     </div>
-    <div class="form-group">
-      <label>Nome *</label>
-      <input type="text" id="clienteNome" class="form-control" value="${isEdit ? cliente.nome : ''}" placeholder="Nome completo">
+    <div class="form-group"><label>Email</label><input type="email" class="form-control" id="cEmail" value="${cliente ? cliente.email || '' : ''}"></div>
+    <div class="form-group"><label>Endereço</label><input type="text" class="form-control" id="cEnd" value="${cliente ? cliente.endereco || '' : ''}"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Cidade</label><input type="text" class="form-control" id="cCidade" value="${cliente ? cliente.cidade || '' : ''}"></div>
+      <div class="form-group"><label>Estado</label><input type="text" class="form-control" id="cEstado" value="${cliente ? cliente.estado || '' : ''}" maxlength="2"></div>
     </div>
     <div class="form-row">
-      <div class="form-group">
-        <label>CPF/CNPJ</label>
-        <input type="text" id="clienteCpfCnpj" class="form-control" value="${isEdit ? (cliente.cpfCnpj||'') : ''}" placeholder="000.000.000-00">
-      </div>
-      <div class="form-group">
-        <label>Telefone</label>
-        <input type="text" id="clienteTelefone" class="form-control" value="${isEdit ? (cliente.telefone||'') : ''}" placeholder="(00) 00000-0000">
-      </div>
+      <div class="form-group"><label>CEP</label><input type="text" class="form-control" id="cCep" value="${cliente ? cliente.cep || '' : ''}"></div>
+      <div class="form-group"><label>Imagem (URL)</label><input type="text" class="form-control" id="cImg" value="${cliente ? cliente.img || '' : ''}"></div>
     </div>
-    <div class="form-group">
-      <label>E-mail</label>
-      <input type="email" id="clienteEmail" class="form-control" value="${isEdit ? (cliente.email||'') : ''}" placeholder="email@exemplo.com">
-    </div>
-    <div class="form-group">
-      <label>Endereço</label>
-      <input type="text" id="clienteEndereco" class="form-control" value="${isEdit ? (cliente.endereco||'') : ''}" placeholder="Rua, número, bairro">
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Cidade</label>
-        <input type="text" id="clienteCidade" class="form-control" value="${isEdit ? (cliente.cidade||'') : ''}">
-      </div>
-      <div class="form-group">
-        <label>Estado</label>
-        <input type="text" id="clienteEstado" class="form-control" value="${isEdit ? (cliente.estado||'') : ''}" maxlength="2" placeholder="MG">
-      </div>
-      <div class="form-group">
-        <label>CEP</label>
-        <input type="text" id="clienteCep" class="form-control" value="${isEdit ? (cliente.cep||'') : ''}" placeholder="00000-000">
-      </div>
-    </div>
-    <div class="form-group">
-      <label>Observações</label>
-      <textarea id="clienteObs" class="form-control" rows="2">${isEdit ? (cliente.obs||'') : ''}</textarea>
-    </div>
-  `;
-
-  // Guardar imagem temporária
-  window._tempCadastroImg = isEdit ? (cliente.img || '') : '';
-
-  modalFooter.innerHTML = `
+    <div class="form-group"><label>Observações</label><textarea class="form-control" id="cObs" rows="2">${cliente ? cliente.obs || '' : ''}</textarea></div>`;
+  document.getElementById('cadastroModalFooter').innerHTML = `
     <button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button>
-    <button class="btn btn-primary" onclick="saveCliente(${isEdit ? cliente.id : 0})">Salvar</button>
-  `;
-
-  modal.style.display = 'flex';
+    <button class="btn btn-primary" onclick="saveCliente(${isEdit ? cliente.id : 'null'})">Salvar</button>`;
+  openCadastroModal();
 }
 
-function handleCadastroImage(inputId, previewId) {
-  const input = document.getElementById(inputId);
-  const preview = document.getElementById(previewId);
-  if (!input || !input.files || !input.files[0]) return;
-
-  const file = input.files[0];
-  if (file.size > 500 * 1024) {
-    showToast('Imagem deve ter no máximo 500 KB', 'error');
-    return;
-  }
-
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    window._tempCadastroImg = e.target.result;
-    preview.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover">`;
+function saveCliente(id) {
+  const obj = {
+    nome: document.getElementById('cNome').value.trim(),
+    cpfCnpj: document.getElementById('cDoc').value,
+    telefone: document.getElementById('cTel').value,
+    email: document.getElementById('cEmail').value,
+    endereco: document.getElementById('cEnd').value,
+    cidade: document.getElementById('cCidade').value,
+    estado: document.getElementById('cEstado').value.toUpperCase(),
+    cep: document.getElementById('cCep').value,
+    img: document.getElementById('cImg').value,
+    obs: document.getElementById('cObs').value
   };
-  reader.readAsDataURL(file);
-}
-
-function saveCliente(editId) {
-  const nome = document.getElementById('clienteNome').value.trim();
-  const cpfCnpj = document.getElementById('clienteCpfCnpj').value.trim();
-  const telefone = document.getElementById('clienteTelefone').value.trim();
-  const email = document.getElementById('clienteEmail').value.trim();
-  const endereco = document.getElementById('clienteEndereco').value.trim();
-  const cidade = document.getElementById('clienteCidade').value.trim();
-  const estado = document.getElementById('clienteEstado').value.trim();
-  const cep = document.getElementById('clienteCep').value.trim();
-  const obs = document.getElementById('clienteObs').value.trim();
-  const img = window._tempCadastroImg || '';
-
-  if (!nome) {
-    showToast('Informe o nome do cliente', 'error');
-    return;
-  }
-
-  if (editId > 0) {
-    const idx = appData.clientes.findIndex(c => c.id === editId);
-    if (idx >= 0) {
-      appData.clientes[idx] = { ...appData.clientes[idx], nome, cpfCnpj, telefone, email, endereco, cidade, estado, cep, obs, img };
-    }
+  if (!obj.nome) { showToast('Informe o nome do cliente', 'error'); return; }
+  if (id) {
+    const idx = appData.clientes.findIndex(c => c.id === id);
+    if (idx > -1) { obj.id = id; appData.clientes[idx] = obj; }
   } else {
-    appData.clientes.push({
-      id: nextId(appData.clientes),
-      nome, cpfCnpj, telefone, email, endereco, cidade, estado, cep, obs, img
-    });
+    obj.id = nextId(appData.clientes);
+    appData.clientes.push(obj);
   }
-
   saveData();
   closeCadastroModal();
-  showToast(editId > 0 ? 'Cliente atualizado!' : 'Cliente adicionado!', 'success');
-  renderClientes();
+  renderClientesPage();
+  showToast(id ? 'Cliente atualizado!' : 'Cliente cadastrado!', 'success');
 }
 
 function editCliente(id) {
-  const cliente = appData.clientes.find(c => c.id === id);
-  if (cliente) openClienteModal(cliente);
-}
-
-function deleteCliente(id) {
-  if (!confirm('Deseja excluir este cliente?')) return;
-  appData.clientes = appData.clientes.filter(c => c.id !== id);
-  saveData();
-  showToast('Cliente excluído!', 'success');
-  renderClientes();
+  const c = appData.clientes.find(x => x.id === id);
+  if (c) openClienteModal(c);
 }
 
 function viewCliente(id) {
-  const c = appData.clientes.find(cl => cl.id === id);
+  const c = appData.clientes.find(x => x.id === id);
   if (!c) return;
-
-  // Calcular vendas do cliente
-  const vendasCliente = (appData.vendas||[]).filter(v => v.cliente === c.nome);
-  const totalVendas = vendasCliente.reduce((s,v) => s + (v.quantidade * v.valorUnit), 0);
-
-  const modal = document.getElementById('viewModal');
-  const modalTitle = document.getElementById('viewModalTitle');
-  const modalBody = document.getElementById('viewModalBody');
-
-  modalTitle.textContent = c.nome;
-  modalBody.innerHTML = `
-    <div style="text-align:center;margin-bottom:16px">
-      ${c.img ? `<img src="${c.img}" style="width:80px;height:80px;border-radius:50%;object-fit:cover">` : `<div style="width:80px;height:80px;border-radius:50%;background:var(--accent-primary);display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:bold;font-size:28px">${(c.nome||'?')[0].toUpperCase()}</div>`}
-    </div>
+  document.getElementById('viewModalTitle').textContent = c.nome;
+  document.getElementById('viewModalBody').innerHTML = `
     <div class="detail-grid">
-      <div class="detail-item"><span class="detail-label">CPF/CNPJ</span><span>${c.cpfCnpj || '-'}</span></div>
-      <div class="detail-item"><span class="detail-label">Telefone</span><span>${c.telefone || '-'}</span></div>
-      <div class="detail-item"><span class="detail-label">E-mail</span><span>${c.email || '-'}</span></div>
-      <div class="detail-item"><span class="detail-label">Endereço</span><span>${c.endereco || '-'}</span></div>
-      <div class="detail-item"><span class="detail-label">Cidade</span><span>${c.cidade || '-'}</span></div>
-      <div class="detail-item"><span class="detail-label">Estado</span><span>${c.estado || '-'}</span></div>
-      <div class="detail-item"><span class="detail-label">CEP</span><span>${c.cep || '-'}</span></div>
-      <div class="detail-item"><span class="detail-label">Total em Vendas</span><span class="text-success"><strong>${formatCurrency(totalVendas)}</strong></span></div>
-      <div class="detail-item"><span class="detail-label">Nº Vendas</span><span>${vendasCliente.length}</span></div>
-      <div class="detail-item"><span class="detail-label">Obs</span><span>${c.obs || '-'}</span></div>
+      <div class="detail-item"><span class="detail-label">CPF/CNPJ</span>${c.cpfCnpj || '-'}</div>
+      <div class="detail-item"><span class="detail-label">Telefone</span>${c.telefone || '-'}</div>
+      <div class="detail-item"><span class="detail-label">Email</span>${c.email || '-'}</div>
+      <div class="detail-item"><span class="detail-label">Endereço</span>${c.endereco || '-'}</div>
+      <div class="detail-item"><span class="detail-label">Cidade</span>${c.cidade || '-'}</div>
+      <div class="detail-item"><span class="detail-label">Estado</span>${c.estado || '-'}</div>
+      <div class="detail-item"><span class="detail-label">CEP</span>${c.cep || '-'}</div>
     </div>
-  `;
-
-  modal.style.display = 'flex';
+    ${c.obs ? `<div style="margin-top:12px;padding:10px;background:var(--bg-tertiary);border-radius:var(--radius-sm)"><strong>Obs:</strong> ${c.obs}</div>` : ''}`;
+  openViewModal();
 }
 
-// ============ FORNECEDORES ============
-function renderFornecedores() {
-  const pageEl = document.getElementById('page-fornecedores');
-  if (!pageEl) return;
+function deleteCliente(id) {
+  if (!confirm('Excluir este cliente?')) return;
+  appData.clientes = appData.clientes.filter(c => c.id !== id);
+  saveData();
+  renderClientesPage();
+  showToast('Cliente excluído!', 'success');
+}
 
+// ============================================================
+// FORNECEDORES
+// ============================================================
+function renderFornecedoresPage() {
+  const pg = document.getElementById('page-fornecedores');
   const fornecedores = appData.fornecedores || [];
-
-  pageEl.innerHTML = `
+  pg.innerHTML = `
     <div class="page-header">
-      <h2>Fornecedores</h2>
-      <button class="btn btn-primary" onclick="openFornecedorModal()"><span>+</span> Novo Fornecedor</button>
+      <h2>🏭 Fornecedores</h2>
+      <button class="btn btn-primary" onclick="openFornecedorModal()">+ Novo Fornecedor</button>
     </div>
-
-    <div class="dashboard-grid" style="margin-bottom:20px;">
-      <div class="card">
-        <div class="card-header"><span class="card-icon">🏭</span><span>Total Fornecedores</span></div>
-        <div class="card-value">${fornecedores.length}</div>
-      </div>
-    </div>
-
     <div class="filter-bar">
-      <input type="text" id="filtroFornBusca" class="form-control" placeholder="Buscar nome, cidade, CNPJ..." oninput="filtrarFornecedores()" style="max-width:350px">
+      <input type="text" class="form-control" style="max-width:300px" placeholder="Buscar fornecedor..." oninput="filterFornecedores(this.value)">
     </div>
-
     <div class="table-responsive">
       <table class="table">
-        <thead>
-          <tr>
-            <th></th>
-            <th>Nome</th>
-            <th>CNPJ</th>
-            <th>Telefone</th>
-            <th>Cidade</th>
-            <th>Estado</th>
-            <th style="width:150px">Ações</th>
-          </tr>
-        </thead>
+        <thead><tr><th>ID</th><th>Nome</th><th>CPF/CNPJ</th><th>Telefone</th><th>Cidade</th><th>Ações</th></tr></thead>
         <tbody id="fornecedoresBody"></tbody>
       </table>
-    </div>
-  `;
-
-  filtrarFornecedores();
+    </div>`;
+  renderFornecedoresTable(fornecedores);
 }
 
-function filtrarFornecedores() {
-  const busca = (document.getElementById('filtroFornBusca')?.value || '').toLowerCase();
-  let lista = [...(appData.fornecedores || [])];
-
-  if (busca) {
-    lista = lista.filter(f =>
-      (f.nome||'').toLowerCase().includes(busca) ||
-      (f.cpfCnpj||'').toLowerCase().includes(busca) ||
-      (f.cidade||'').toLowerCase().includes(busca) ||
-      (f.telefone||'').toLowerCase().includes(busca)
-    );
-  }
-
-  lista.sort((a,b) => (a.nome||'').localeCompare(b.nome||''));
-
+function renderFornecedoresTable(fornecedores) {
   const tbody = document.getElementById('fornecedoresBody');
   if (!tbody) return;
-
-  if (lista.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--text-muted)">Nenhum fornecedor encontrado</td></tr>';
-    return;
-  }
-
-  tbody.innerHTML = lista.map(f => {
-    const avatar = f.img
-      ? `<img src="${f.img}" style="width:36px;height:36px;border-radius:50%;object-fit:cover">`
-      : `<div style="width:36px;height:36px;border-radius:50%;background:var(--accent-secondary);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:bold;font-size:14px">${(f.nome||'?')[0].toUpperCase()}</div>`;
-
-    return `<tr>
-      <td>${avatar}</td>
-      <td><strong>${f.nome}</strong></td>
-      <td>${f.cpfCnpj || '-'}</td>
-      <td>${f.telefone || '-'}</td>
-      <td>${f.cidade || '-'}</td>
-      <td>${f.estado || '-'}</td>
+  tbody.innerHTML = fornecedores.length === 0 ? '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhum fornecedor cadastrado</td></tr>' :
+    fornecedores.map(f => `<tr>
+      <td>${f.id}</td><td>${f.nome}</td><td>${f.cpfCnpj || '-'}</td><td>${f.telefone || '-'}</td><td>${f.cidade || '-'}</td>
       <td>
-        <button class="btn btn-sm btn-outline" onclick="viewFornecedor(${f.id})" title="Ver">👁️</button>
-        <button class="btn btn-sm btn-outline" onclick="editFornecedor(${f.id})" title="Editar">✏️</button>
-        <button class="btn btn-sm btn-danger" onclick="deleteFornecedor(${f.id})" title="Excluir">🗑️</button>
+        <button class="btn btn-sm btn-outline" onclick="viewFornecedor(${f.id})">👁️</button>
+        <button class="btn btn-sm btn-primary" onclick="editFornecedor(${f.id})">✏️</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteFornecedor(${f.id})">🗑️</button>
       </td>
-    </tr>`;
-  }).join('');
+    </tr>`).join('');
 }
 
-function openFornecedorModal(fornecedor) {
-  const isEdit = !!fornecedor;
-  const modal = document.getElementById('cadastroModal');
-  const modalTitle = document.getElementById('cadastroModalTitle');
-  const modalBody = document.getElementById('cadastroModalBody');
-  const modalFooter = document.getElementById('cadastroModalFooter');
+function filterFornecedores(q) {
+  q = q.toLowerCase();
+  const filtered = (appData.fornecedores || []).filter(f =>
+    f.nome.toLowerCase().includes(q) || (f.cpfCnpj || '').includes(q)
+  );
+  renderFornecedoresTable(filtered);
+}
 
-  modalTitle.textContent = isEdit ? 'Editar Fornecedor' : 'Novo Fornecedor';
-
-  modalBody.innerHTML = `
-    <div class="form-group" style="text-align:center">
-      <div id="fornImgPreview" style="width:80px;height:80px;border-radius:50%;background:var(--bg-tertiary);margin:0 auto 10px;display:flex;align-items:center;justify-content:center;overflow:hidden">
-        ${isEdit && fornecedor.img ? `<img src="${fornecedor.img}" style="width:100%;height:100%;object-fit:cover">` : '<span style="color:var(--text-muted);font-size:24px">🏭</span>'}
-      </div>
-      <label class="btn btn-sm btn-outline" style="cursor:pointer">
-        📷 Foto
-        <input type="file" id="fornImgInput" accept="image/*" onchange="handleCadastroImage('fornImgInput','fornImgPreview')" style="display:none">
-      </label>
+function openFornecedorModal(forn) {
+  const isEdit = !!forn;
+  document.getElementById('cadastroModalTitle').textContent = isEdit ? 'Editar Fornecedor' : 'Novo Fornecedor';
+  document.getElementById('cadastroModalBody').innerHTML = `
+    <div class="form-group"><label>Nome *</label><input type="text" class="form-control" id="fNome" value="${forn ? forn.nome : ''}"></div>
+    <div class="form-row">
+      <div class="form-group"><label>CPF/CNPJ</label><input type="text" class="form-control" id="fDoc" value="${forn ? forn.cpfCnpj || '' : ''}"></div>
+      <div class="form-group"><label>Telefone</label><input type="text" class="form-control" id="fTel" value="${forn ? forn.telefone || '' : ''}"></div>
     </div>
-    <div class="form-group">
-      <label>Nome *</label>
-      <input type="text" id="fornNome" class="form-control" value="${isEdit ? fornecedor.nome : ''}" placeholder="Nome/Razão Social">
+    <div class="form-group"><label>Email</label><input type="email" class="form-control" id="fEmail" value="${forn ? forn.email || '' : ''}"></div>
+    <div class="form-group"><label>Endereço</label><input type="text" class="form-control" id="fEnd" value="${forn ? forn.endereco || '' : ''}"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Cidade</label><input type="text" class="form-control" id="fCidade" value="${forn ? forn.cidade || '' : ''}"></div>
+      <div class="form-group"><label>Estado</label><input type="text" class="form-control" id="fEstado" value="${forn ? forn.estado || '' : ''}" maxlength="2"></div>
     </div>
     <div class="form-row">
-      <div class="form-group">
-        <label>CNPJ</label>
-        <input type="text" id="fornCpfCnpj" class="form-control" value="${isEdit ? (fornecedor.cpfCnpj||'') : ''}" placeholder="00.000.000/0001-00">
-      </div>
-      <div class="form-group">
-        <label>Telefone</label>
-        <input type="text" id="fornTelefone" class="form-control" value="${isEdit ? (fornecedor.telefone||'') : ''}" placeholder="(00) 00000-0000">
-      </div>
+      <div class="form-group"><label>CEP</label><input type="text" class="form-control" id="fCep" value="${forn ? forn.cep || '' : ''}"></div>
+      <div class="form-group"><label>Imagem (URL)</label><input type="text" class="form-control" id="fImg" value="${forn ? forn.img || '' : ''}"></div>
     </div>
-    <div class="form-group">
-      <label>E-mail</label>
-      <input type="email" id="fornEmail" class="form-control" value="${isEdit ? (fornecedor.email||'') : ''}" placeholder="contato@empresa.com">
-    </div>
-    <div class="form-group">
-      <label>Endereço</label>
-      <input type="text" id="fornEndereco" class="form-control" value="${isEdit ? (fornecedor.endereco||'') : ''}">
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Cidade</label>
-        <input type="text" id="fornCidade" class="form-control" value="${isEdit ? (fornecedor.cidade||'') : ''}">
-      </div>
-      <div class="form-group">
-        <label>Estado</label>
-        <input type="text" id="fornEstado" class="form-control" value="${isEdit ? (fornecedor.estado||'') : ''}" maxlength="2" placeholder="MG">
-      </div>
-      <div class="form-group">
-        <label>CEP</label>
-        <input type="text" id="fornCep" class="form-control" value="${isEdit ? (fornecedor.cep||'') : ''}" placeholder="00000-000">
-      </div>
-    </div>
-    <div class="form-group">
-      <label>Observações</label>
-      <textarea id="fornObs" class="form-control" rows="2">${isEdit ? (fornecedor.obs||'') : ''}</textarea>
-    </div>
-  `;
-
-  window._tempCadastroImg = isEdit ? (fornecedor.img || '') : '';
-
-  modalFooter.innerHTML = `
+    <div class="form-group"><label>Observações</label><textarea class="form-control" id="fObs" rows="2">${forn ? forn.obs || '' : ''}</textarea></div>`;
+  document.getElementById('cadastroModalFooter').innerHTML = `
     <button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button>
-    <button class="btn btn-primary" onclick="saveFornecedor(${isEdit ? fornecedor.id : 0})">Salvar</button>
-  `;
-
-  modal.style.display = 'flex';
+    <button class="btn btn-primary" onclick="saveFornecedor(${isEdit ? forn.id : 'null'})">Salvar</button>`;
+  openCadastroModal();
 }
 
-function saveFornecedor(editId) {
-  const nome = document.getElementById('fornNome').value.trim();
-  const cpfCnpj = document.getElementById('fornCpfCnpj').value.trim();
-  const telefone = document.getElementById('fornTelefone').value.trim();
-  const email = document.getElementById('fornEmail').value.trim();
-  const endereco = document.getElementById('fornEndereco').value.trim();
-  const cidade = document.getElementById('fornCidade').value.trim();
-  const estado = document.getElementById('fornEstado').value.trim();
-  const cep = document.getElementById('fornCep').value.trim();
-  const obs = document.getElementById('fornObs').value.trim();
-  const img = window._tempCadastroImg || '';
-
-  if (!nome) {
-    showToast('Informe o nome do fornecedor', 'error');
-    return;
-  }
-
-  if (editId > 0) {
-    const idx = appData.fornecedores.findIndex(f => f.id === editId);
-    if (idx >= 0) {
-      appData.fornecedores[idx] = { ...appData.fornecedores[idx], nome, cpfCnpj, telefone, email, endereco, cidade, estado, cep, obs, img };
-    }
+function saveFornecedor(id) {
+  const obj = {
+    nome: document.getElementById('fNome').value.trim(),
+    cpfCnpj: document.getElementById('fDoc').value,
+    telefone: document.getElementById('fTel').value,
+    email: document.getElementById('fEmail').value,
+    endereco: document.getElementById('fEnd').value,
+    cidade: document.getElementById('fCidade').value,
+    estado: document.getElementById('fEstado').value.toUpperCase(),
+    cep: document.getElementById('fCep').value,
+    img: document.getElementById('fImg').value,
+    obs: document.getElementById('fObs').value
+  };
+  if (!obj.nome) { showToast('Informe o nome do fornecedor', 'error'); return; }
+  if (id) {
+    const idx = appData.fornecedores.findIndex(f => f.id === id);
+    if (idx > -1) { obj.id = id; appData.fornecedores[idx] = obj; }
   } else {
-    appData.fornecedores.push({
-      id: nextId(appData.fornecedores),
-      nome, cpfCnpj, telefone, email, endereco, cidade, estado, cep, obs, img
-    });
+    obj.id = nextId(appData.fornecedores);
+    appData.fornecedores.push(obj);
   }
-
   saveData();
   closeCadastroModal();
-  showToast(editId > 0 ? 'Fornecedor atualizado!' : 'Fornecedor adicionado!', 'success');
-  renderFornecedores();
+  renderFornecedoresPage();
+  showToast(id ? 'Fornecedor atualizado!' : 'Fornecedor cadastrado!', 'success');
 }
 
 function editFornecedor(id) {
-  const f = appData.fornecedores.find(f => f.id === id);
+  const f = appData.fornecedores.find(x => x.id === id);
   if (f) openFornecedorModal(f);
 }
 
+function viewFornecedor(id) {
+  const f = appData.fornecedores.find(x => x.id === id);
+  if (!f) return;
+  document.getElementById('viewModalTitle').textContent = f.nome;
+  document.getElementById('viewModalBody').innerHTML = `
+    <div class="detail-grid">
+      <div class="detail-item"><span class="detail-label">CPF/CNPJ</span>${f.cpfCnpj || '-'}</div>
+      <div class="detail-item"><span class="detail-label">Telefone</span>${f.telefone || '-'}</div>
+      <div class="detail-item"><span class="detail-label">Email</span>${f.email || '-'}</div>
+      <div class="detail-item"><span class="detail-label">Endereço</span>${f.endereco || '-'}</div>
+      <div class="detail-item"><span class="detail-label">Cidade</span>${f.cidade || '-'}</div>
+      <div class="detail-item"><span class="detail-label">Estado</span>${f.estado || '-'}</div>
+    </div>
+    ${f.obs ? `<div style="margin-top:12px;padding:10px;background:var(--bg-tertiary);border-radius:var(--radius-sm)"><strong>Obs:</strong> ${f.obs}</div>` : ''}`;
+  openViewModal();
+}
+
 function deleteFornecedor(id) {
-  if (!confirm('Deseja excluir este fornecedor?')) return;
+  if (!confirm('Excluir este fornecedor?')) return;
   appData.fornecedores = appData.fornecedores.filter(f => f.id !== id);
   saveData();
+  renderFornecedoresPage();
   showToast('Fornecedor excluído!', 'success');
-  renderFornecedores();
 }
 
-function viewFornecedor(id) {
-  const f = appData.fornecedores.find(fn => fn.id === id);
-  if (!f) return;
-
-  const comprasForn = (appData.compras||[]).filter(c => c.fornecedor === f.nome);
-  const totalCompras = comprasForn.reduce((s,c) => s + (c.quantidade * c.valorUnit), 0);
-
-  const modal = document.getElementById('viewModal');
-  const modalTitle = document.getElementById('viewModalTitle');
-  const modalBody = document.getElementById('viewModalBody');
-
-  modalTitle.textContent = f.nome;
-  modalBody.innerHTML = `
-    <div style="text-align:center;margin-bottom:16px">
-      ${f.img ? `<img src="${f.img}" style="width:80px;height:80px;border-radius:50%;object-fit:cover">` : `<div style="width:80px;height:80px;border-radius:50%;background:var(--accent-secondary);display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:bold;font-size:28px">${(f.nome||'?')[0].toUpperCase()}</div>`}
-    </div>
-    <div class="detail-grid">
-      <div class="detail-item"><span class="detail-label">CNPJ</span><span>${f.cpfCnpj || '-'}</span></div>
-      <div class="detail-item"><span class="detail-label">Telefone</span><span>${f.telefone || '-'}</span></div>
-      <div class="detail-item"><span class="detail-label">E-mail</span><span>${f.email || '-'}</span></div>
-      <div class="detail-item"><span class="detail-label">Endereço</span><span>${f.endereco || '-'}</span></div>
-      <div class="detail-item"><span class="detail-label">Cidade</span><span>${f.cidade || '-'}</span></div>
-      <div class="detail-item"><span class="detail-label">Estado</span><span>${f.estado || '-'}</span></div>
-      <div class="detail-item"><span class="detail-label">CEP</span><span>${f.cep || '-'}</span></div>
-      <div class="detail-item"><span class="detail-label">Total em Compras</span><span class="text-warning"><strong>${formatCurrency(totalCompras)}</strong></span></div>
-      <div class="detail-item"><span class="detail-label">Nº Compras</span><span>${comprasForn.length}</span></div>
-      <div class="detail-item"><span class="detail-label">Obs</span><span>${f.obs || '-'}</span></div>
-    </div>
-  `;
-
-  modal.style.display = 'flex';
-}
-
-// ============ PRODUTOS ============
-function renderProdutos() {
-  const pageEl = document.getElementById('page-produtos');
-  if (!pageEl) return;
-
+// ============================================================
+// PRODUTOS
+// ============================================================
+function renderProdutosPage() {
+  const pg = document.getElementById('page-produtos');
   const produtos = appData.produtos || [];
-
-  pageEl.innerHTML = `
+  pg.innerHTML = `
     <div class="page-header">
-      <h2>Produtos</h2>
-      <button class="btn btn-primary" onclick="openProdutoModal()"><span>+</span> Novo Produto</button>
+      <h2>🏷️ Produtos</h2>
+      <button class="btn btn-primary" onclick="openProdutoModal()">+ Novo Produto</button>
     </div>
-
-    <div class="dashboard-grid" style="margin-bottom:20px;">
-      <div class="card">
-        <div class="card-header"><span class="card-icon">📦</span><span>Total Produtos</span></div>
-        <div class="card-value">${produtos.length}</div>
-      </div>
-    </div>
-
     <div class="filter-bar">
-      <input type="text" id="filtroProdBusca" class="form-control" placeholder="Buscar produto..." oninput="filtrarProdutos()" style="max-width:350px">
+      <input type="text" class="form-control" style="max-width:300px" placeholder="Buscar produto..." oninput="filterProdutos(this.value)">
     </div>
-
     <div class="table-responsive">
       <table class="table">
-        <thead>
-          <tr>
-            <th></th>
-            <th>Nome</th>
-            <th>Custo</th>
-            <th>Preço Revenda</th>
-            <th>Preço Direto</th>
-            <th>Unidade</th>
-            <th>Margem</th>
-            <th style="width:120px">Ações</th>
-          </tr>
-        </thead>
+        <thead><tr><th>ID</th><th>Nome</th><th>Categoria</th><th>Unidade</th><th>Preço Custo</th><th>Preço Venda</th><th>Ações</th></tr></thead>
         <tbody id="produtosBody"></tbody>
       </table>
-    </div>
-  `;
-
-  filtrarProdutos();
+    </div>`;
+  renderProdutosTable(produtos);
 }
 
-function filtrarProdutos() {
-  const busca = (document.getElementById('filtroProdBusca')?.value || '').toLowerCase();
-  let lista = [...(appData.produtos || [])];
-
-  if (busca) {
-    lista = lista.filter(p => (p.nome||'').toLowerCase().includes(busca));
-  }
-
-  lista.sort((a,b) => (a.nome||'').localeCompare(b.nome||''));
-
+function renderProdutosTable(produtos) {
   const tbody = document.getElementById('produtosBody');
   if (!tbody) return;
-
-  if (lista.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--text-muted)">Nenhum produto cadastrado</td></tr>';
-    return;
-  }
-
-  tbody.innerHTML = lista.map(p => {
-    const margem = p.custo > 0 ? (((p.precoRevenda || p.precoDireto || 0) - p.custo) / p.custo * 100).toFixed(1) : '-';
-    const avatar = p.img
-      ? `<img src="${p.img}" style="width:36px;height:36px;border-radius:8px;object-fit:cover">`
-      : `<div style="width:36px;height:36px;border-radius:8px;background:var(--bg-tertiary);display:flex;align-items:center;justify-content:center;font-size:16px">📦</div>`;
-
-    return `<tr>
-      <td>${avatar}</td>
-      <td><strong>${p.nome}</strong></td>
-      <td>${formatCurrency(p.custo || 0)}</td>
-      <td>${formatCurrency(p.precoRevenda || 0)}</td>
-      <td>${formatCurrency(p.precoDireto || 0)}</td>
-      <td>${p.unidade || '-'}</td>
-      <td class="${Number(margem) > 0 ? 'text-success' : ''}">${margem}%</td>
+  tbody.innerHTML = produtos.length === 0 ? '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhum produto cadastrado</td></tr>' :
+    produtos.map(p => `<tr>
+      <td>${p.id}</td><td>${p.nome}</td><td>${p.categoria || '-'}</td><td>${p.unidade || '-'}</td>
+      <td>${formatCurrency(p.precoCusto || 0)}</td><td>${formatCurrency(p.precoVenda || 0)}</td>
       <td>
-        <button class="btn btn-sm btn-outline" onclick="editProduto(${p.id})" title="Editar">✏️</button>
-        <button class="btn btn-sm btn-danger" onclick="deleteProduto(${p.id})" title="Excluir">🗑️</button>
+        <button class="btn btn-sm btn-primary" onclick="editProduto(${p.id})">✏️</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteProduto(${p.id})">🗑️</button>
       </td>
-    </tr>`;
-  }).join('');
+    </tr>`).join('');
 }
 
-function openProdutoModal(produto) {
-  const isEdit = !!produto;
-  const modal = document.getElementById('cadastroModal');
-  const modalTitle = document.getElementById('cadastroModalTitle');
-  const modalBody = document.getElementById('cadastroModalBody');
-  const modalFooter = document.getElementById('cadastroModalFooter');
+function filterProdutos(q) {
+  q = q.toLowerCase();
+  const filtered = (appData.produtos || []).filter(p => p.nome.toLowerCase().includes(q) || (p.categoria || '').toLowerCase().includes(q));
+  renderProdutosTable(filtered);
+}
 
-  modalTitle.textContent = isEdit ? 'Editar Produto' : 'Novo Produto';
-
-  const unidades = appData.tipoUnidade || [];
-
-  modalBody.innerHTML = `
-    <div class="form-group" style="text-align:center">
-      <div id="prodImgPreview" style="width:80px;height:80px;border-radius:12px;background:var(--bg-tertiary);margin:0 auto 10px;display:flex;align-items:center;justify-content:center;overflow:hidden">
-        ${isEdit && produto.img ? `<img src="${produto.img}" style="width:100%;height:100%;object-fit:cover">` : '<span style="color:var(--text-muted);font-size:24px">📦</span>'}
-      </div>
-      <label class="btn btn-sm btn-outline" style="cursor:pointer">
-        📷 Foto
-        <input type="file" id="prodImgInput" accept="image/*" onchange="handleCadastroImage('prodImgInput','prodImgPreview')" style="display:none">
-      </label>
-    </div>
-    <div class="form-group">
-      <label>Nome *</label>
-      <input type="text" id="prodNome" class="form-control" value="${isEdit ? produto.nome : ''}">
+function openProdutoModal(prod) {
+  const isEdit = !!prod;
+  const unidOpts = (appData.tipoUnidade || []).map(u => `<option value="${u}" ${prod && prod.unidade === u ? 'selected' : ''}>${u}</option>`).join('');
+  document.getElementById('cadastroModalTitle').textContent = isEdit ? 'Editar Produto' : 'Novo Produto';
+  document.getElementById('cadastroModalBody').innerHTML = `
+    <div class="form-group"><label>Nome *</label><input type="text" class="form-control" id="pNome" value="${prod ? prod.nome : ''}"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Categoria</label><input type="text" class="form-control" id="pCat" value="${prod ? prod.categoria || '' : ''}"></div>
+      <div class="form-group"><label>Unidade</label><select class="form-control" id="pUnid">${unidOpts}</select></div>
     </div>
     <div class="form-row">
-      <div class="form-group">
-        <label>Custo</label>
-        <input type="number" id="prodCusto" class="form-control" step="0.01" min="0" value="${isEdit ? (produto.custo||'') : ''}">
-      </div>
-      <div class="form-group">
-        <label>Preço Revenda</label>
-        <input type="number" id="prodPrecoRevenda" class="form-control" step="0.01" min="0" value="${isEdit ? (produto.precoRevenda||'') : ''}">
-      </div>
+      <div class="form-group"><label>Preço Custo</label><input type="number" class="form-control" id="pCusto" value="${prod ? prod.precoCusto || '' : ''}" step="0.01"></div>
+      <div class="form-group"><label>Preço Venda</label><input type="number" class="form-control" id="pVenda" value="${prod ? prod.precoVenda || '' : ''}" step="0.01"></div>
     </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Preço Direto</label>
-        <input type="number" id="prodPrecoDireto" class="form-control" step="0.01" min="0" value="${isEdit ? (produto.precoDireto||'') : ''}">
-      </div>
-      <div class="form-group">
-        <label>Unidade</label>
-        <select id="prodUnidade" class="form-control">
-          <option value="">Selecione...</option>
-          ${unidades.map(u => `<option value="${u}" ${isEdit && produto.unidade===u ? 'selected' : ''}>${u}</option>`).join('')}
-        </select>
-      </div>
-    </div>
-    <div class="form-group">
-      <label>Observações</label>
-      <textarea id="prodObs" class="form-control" rows="2">${isEdit ? (produto.obs||'') : ''}</textarea>
-    </div>
-  `;
-
-  window._tempCadastroImg = isEdit ? (produto.img || '') : '';
-
-  modalFooter.innerHTML = `
+    <div class="form-group"><label>Descrição</label><textarea class="form-control" id="pDesc" rows="2">${prod ? prod.descricao || '' : ''}</textarea></div>`;
+  document.getElementById('cadastroModalFooter').innerHTML = `
     <button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button>
-    <button class="btn btn-primary" onclick="saveProduto(${isEdit ? produto.id : 0})">Salvar</button>
-  `;
-
-  modal.style.display = 'flex';
+    <button class="btn btn-primary" onclick="saveProduto(${isEdit ? prod.id : 'null'})">Salvar</button>`;
+  openCadastroModal();
 }
 
-function saveProduto(editId) {
-  const nome = document.getElementById('prodNome').value.trim();
-  const custo = parseFloat(document.getElementById('prodCusto').value) || 0;
-  const precoRevenda = parseFloat(document.getElementById('prodPrecoRevenda').value) || 0;
-  const precoDireto = parseFloat(document.getElementById('prodPrecoDireto').value) || 0;
-  const unidade = document.getElementById('prodUnidade').value;
-  const obs = document.getElementById('prodObs').value.trim();
-  const img = window._tempCadastroImg || '';
-
-  if (!nome) {
-    showToast('Informe o nome do produto', 'error');
-    return;
-  }
-
-  if (editId > 0) {
-    const idx = appData.produtos.findIndex(p => p.id === editId);
-    if (idx >= 0) {
-      appData.produtos[idx] = { ...appData.produtos[idx], nome, custo, precoRevenda, precoDireto, unidade, obs, img };
-    }
+function saveProduto(id) {
+  const obj = {
+    nome: document.getElementById('pNome').value.trim(),
+    categoria: document.getElementById('pCat').value,
+    unidade: document.getElementById('pUnid').value,
+    precoCusto: parseFloat(document.getElementById('pCusto').value) || 0,
+    precoVenda: parseFloat(document.getElementById('pVenda').value) || 0,
+    descricao: document.getElementById('pDesc').value
+  };
+  if (!obj.nome) { showToast('Informe o nome do produto', 'error'); return; }
+  if (!appData.produtos) appData.produtos = [];
+  if (id) {
+    const idx = appData.produtos.findIndex(p => p.id === id);
+    if (idx > -1) { obj.id = id; appData.produtos[idx] = obj; }
   } else {
-    appData.produtos.push({
-      id: nextId(appData.produtos),
-      nome, custo, precoRevenda, precoDireto, unidade, obs, img
-    });
+    obj.id = nextId(appData.produtos);
+    appData.produtos.push(obj);
   }
-
   saveData();
   closeCadastroModal();
-  showToast(editId > 0 ? 'Produto atualizado!' : 'Produto adicionado!', 'success');
-  renderProdutos();
+  renderProdutosPage();
+  showToast(id ? 'Produto atualizado!' : 'Produto cadastrado!', 'success');
 }
 
 function editProduto(id) {
-  const p = appData.produtos.find(p => p.id === id);
+  const p = (appData.produtos || []).find(x => x.id === id);
   if (p) openProdutoModal(p);
 }
 
 function deleteProduto(id) {
-  if (!confirm('Deseja excluir este produto?')) return;
-  appData.produtos = appData.produtos.filter(p => p.id !== id);
+  if (!confirm('Excluir este produto?')) return;
+  appData.produtos = (appData.produtos || []).filter(p => p.id !== id);
   saveData();
+  renderProdutosPage();
   showToast('Produto excluído!', 'success');
-  renderProdutos();
 }
 
-// ============ PRODUTOS DE FORNECEDORES ============
-function renderPFornecedores() {
-  const pageEl = document.getElementById('page-pfornecedores');
-  if (!pageEl) return;
-
+// ============================================================
+// PRODUTOS DE FORNECEDORES
+// ============================================================
+function renderPFornecedoresPage() {
+  const pg = document.getElementById('page-pfornecedores');
   const pf = appData.pFornecedores || [];
-
-  pageEl.innerHTML = `
+  pg.innerHTML = `
     <div class="page-header">
-      <h2>Produtos dos Fornecedores</h2>
-      <button class="btn btn-primary" onclick="openPFornModal()"><span>+</span> Novo Produto</button>
+      <h2>📋 Produtos de Fornecedores</h2>
+      <button class="btn btn-primary" onclick="openPFornModal()">+ Novo Registro</button>
     </div>
-
-    <div class="dashboard-grid" style="margin-bottom:20px;">
-      <div class="card">
-        <div class="card-header"><span class="card-icon">📋</span><span>Total Produtos</span></div>
-        <div class="card-value">${pf.length}</div>
-      </div>
-    </div>
-
     <div class="filter-bar">
-      <input type="text" id="filtroPFBusca" class="form-control" placeholder="Buscar produto, fornecedor..." oninput="filtrarPFornecedores()" style="max-width:300px">
-      <select id="filtroPFForn" class="form-control" style="max-width:200px" onchange="filtrarPFornecedores()">
-        <option value="">Todos Fornecedores</option>
-        ${(appData.fornecedores||[]).map(f => f.nome).sort().map(n => `<option value="${n}">${n}</option>`).join('')}
-      </select>
+      <input type="text" class="form-control" style="max-width:300px" placeholder="Buscar..." oninput="filterPForn(this.value)">
     </div>
-
     <div class="table-responsive">
       <table class="table">
-        <thead>
-          <tr>
-            <th>Produto</th>
-            <th>Fornecedor</th>
-            <th>Preço</th>
-            <th>Unidade</th>
-            <th>Obs</th>
-            <th style="width:120px">Ações</th>
-          </tr>
-        </thead>
-        <tbody id="pfBody"></tbody>
+        <thead><tr><th>ID</th><th>Fornecedor</th><th>Produto</th><th>Preço</th><th>Obs</th><th>Ações</th></tr></thead>
+        <tbody id="pfornBody"></tbody>
       </table>
-    </div>
-  `;
-
-  filtrarPFornecedores();
+    </div>`;
+  renderPFornTable(pf);
 }
 
-function filtrarPFornecedores() {
-  const busca = (document.getElementById('filtroPFBusca')?.value || '').toLowerCase();
-  const forn = document.getElementById('filtroPFForn')?.value || '';
-
-  let lista = [...(appData.pFornecedores || [])];
-
-  if (busca) {
-    lista = lista.filter(p =>
-      (p.nome||'').toLowerCase().includes(busca) ||
-      (p.fornecedor||'').toLowerCase().includes(busca)
-    );
-  }
-  if (forn) lista = lista.filter(p => p.fornecedor === forn);
-
-  lista.sort((a,b) => (a.nome||'').localeCompare(b.nome||''));
-
-  const tbody = document.getElementById('pfBody');
+function renderPFornTable(items) {
+  const tbody = document.getElementById('pfornBody');
   if (!tbody) return;
-
-  if (lista.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--text-muted)">Nenhum produto de fornecedor cadastrado</td></tr>';
-    return;
-  }
-
-  tbody.innerHTML = lista.map(p => `<tr>
-    <td><strong>${p.nome}</strong></td>
-    <td>${p.fornecedor}</td>
-    <td>${formatCurrency(p.preco || 0)}</td>
-    <td>${p.unidade || '-'}</td>
-    <td>${p.obs || '-'}</td>
-    <td>
-      <button class="btn btn-sm btn-outline" onclick="editPForn(${p.id})" title="Editar">✏️</button>
-      <button class="btn btn-sm btn-danger" onclick="deletePForn(${p.id})" title="Excluir">🗑️</button>
-    </td>
-  </tr>`).join('');
+  tbody.innerHTML = items.length === 0 ? '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhum registro</td></tr>' :
+    items.map(p => `<tr>
+      <td>${p.id}</td><td>${p.fornecedor}</td><td>${p.produto}</td><td>${formatCurrency(p.preco || 0)}</td><td>${p.obs || '-'}</td>
+      <td>
+        <button class="btn btn-sm btn-primary" onclick="editPForn(${p.id})">✏️</button>
+        <button class="btn btn-sm btn-danger" onclick="deletePForn(${p.id})">🗑️</button>
+      </td>
+    </tr>`).join('');
 }
 
-function openPFornModal(pf) {
-  const isEdit = !!pf;
-  const modal = document.getElementById('cadastroModal');
-  const modalTitle = document.getElementById('cadastroModalTitle');
-  const modalBody = document.getElementById('cadastroModalBody');
-  const modalFooter = document.getElementById('cadastroModalFooter');
+function filterPForn(q) {
+  q = q.toLowerCase();
+  const filtered = (appData.pFornecedores || []).filter(p =>
+    p.fornecedor.toLowerCase().includes(q) || p.produto.toLowerCase().includes(q)
+  );
+  renderPFornTable(filtered);
+}
 
-  modalTitle.textContent = isEdit ? 'Editar Produto do Fornecedor' : 'Novo Produto do Fornecedor';
-
-  const fornecedores = (appData.fornecedores||[]).map(f => f.nome).sort();
-  const unidades = appData.tipoUnidade || [];
-
-  modalBody.innerHTML = `
-    <div class="form-group">
-      <label>Nome do Produto *</label>
-      <input type="text" id="pfNome" class="form-control" value="${isEdit ? pf.nome : ''}">
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Fornecedor *</label>
-        <select id="pfFornecedor" class="form-control">
-          <option value="">Selecione...</option>
-          ${fornecedores.map(f => `<option value="${f}" ${isEdit && pf.fornecedor===f ? 'selected' : ''}>${f}</option>`).join('')}
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Preço</label>
-        <input type="number" id="pfPreco" class="form-control" step="0.01" min="0" value="${isEdit ? (pf.preco||'') : ''}">
-      </div>
-    </div>
-    <div class="form-group">
-      <label>Unidade</label>
-      <select id="pfUnidade" class="form-control">
-        <option value="">Selecione...</option>
-        ${unidades.map(u => `<option value="${u}" ${isEdit && pf.unidade===u ? 'selected' : ''}>${u}</option>`).join('')}
-      </select>
-    </div>
-    <div class="form-group">
-      <label>Observações</label>
-      <textarea id="pfObs" class="form-control" rows="2">${isEdit ? (pf.obs||'') : ''}</textarea>
-    </div>
-  `;
-
-  modalFooter.innerHTML = `
+function openPFornModal(item) {
+  const isEdit = !!item;
+  const fornOpts = (appData.fornecedores || []).map(f => `<option value="${f.nome}" ${item && item.fornecedor === f.nome ? 'selected' : ''}>${f.nome}</option>`).join('');
+  document.getElementById('cadastroModalTitle').textContent = isEdit ? 'Editar P. Fornecedor' : 'Novo P. Fornecedor';
+  document.getElementById('cadastroModalBody').innerHTML = `
+    <div class="form-group"><label>Fornecedor</label><select class="form-control" id="pfForn"><option value="">Selecione...</option>${fornOpts}</select></div>
+    <div class="form-group"><label>Produto</label><input type="text" class="form-control" id="pfProd" value="${item ? item.produto : ''}"></div>
+    <div class="form-group"><label>Preço</label><input type="number" class="form-control" id="pfPreco" value="${item ? item.preco || '' : ''}" step="0.01"></div>
+    <div class="form-group"><label>Observações</label><textarea class="form-control" id="pfObs" rows="2">${item ? item.obs || '' : ''}</textarea></div>`;
+  document.getElementById('cadastroModalFooter').innerHTML = `
     <button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button>
-    <button class="btn btn-primary" onclick="savePForn(${isEdit ? pf.id : 0})">Salvar</button>
-  `;
-
-  modal.style.display = 'flex';
+    <button class="btn btn-primary" onclick="savePForn(${isEdit ? item.id : 'null'})">Salvar</button>`;
+  openCadastroModal();
 }
 
-function savePForn(editId) {
-  const nome = document.getElementById('pfNome').value.trim();
-  const fornecedor = document.getElementById('pfFornecedor').value;
-  const preco = parseFloat(document.getElementById('pfPreco').value) || 0;
-  const unidade = document.getElementById('pfUnidade').value;
-  const obs = document.getElementById('pfObs').value.trim();
-
-  if (!nome || !fornecedor) {
-    showToast('Informe o nome e o fornecedor', 'error');
-    return;
-  }
-
-  if (editId > 0) {
-    const idx = appData.pFornecedores.findIndex(p => p.id === editId);
-    if (idx >= 0) {
-      appData.pFornecedores[idx] = { ...appData.pFornecedores[idx], nome, fornecedor, preco, unidade, obs };
-    }
+function savePForn(id) {
+  const obj = {
+    fornecedor: document.getElementById('pfForn').value,
+    produto: document.getElementById('pfProd').value.trim(),
+    preco: parseFloat(document.getElementById('pfPreco').value) || 0,
+    obs: document.getElementById('pfObs').value
+  };
+  if (!obj.fornecedor || !obj.produto) { showToast('Preencha fornecedor e produto', 'error'); return; }
+  if (!appData.pFornecedores) appData.pFornecedores = [];
+  if (id) {
+    const idx = appData.pFornecedores.findIndex(p => p.id === id);
+    if (idx > -1) { obj.id = id; appData.pFornecedores[idx] = obj; }
   } else {
-    appData.pFornecedores.push({
-      id: nextId(appData.pFornecedores),
-      nome, fornecedor, preco, unidade, obs
-    });
+    obj.id = nextId(appData.pFornecedores);
+    appData.pFornecedores.push(obj);
   }
-
   saveData();
   closeCadastroModal();
-  showToast(editId > 0 ? 'Produto atualizado!' : 'Produto adicionado!', 'success');
-  renderPFornecedores();
+  renderPFornecedoresPage();
+  showToast(id ? 'Registro atualizado!' : 'Registro cadastrado!', 'success');
 }
 
 function editPForn(id) {
-  const p = appData.pFornecedores.find(p => p.id === id);
+  const p = (appData.pFornecedores || []).find(x => x.id === id);
   if (p) openPFornModal(p);
 }
 
 function deletePForn(id) {
-  if (!confirm('Deseja excluir este produto do fornecedor?')) return;
-  appData.pFornecedores = appData.pFornecedores.filter(p => p.id !== id);
+  if (!confirm('Excluir este registro?')) return;
+  appData.pFornecedores = (appData.pFornecedores || []).filter(p => p.id !== id);
   saveData();
-  showToast('Produto excluído!', 'success');
-  renderPFornecedores();
+  renderPFornecedoresPage();
+  showToast('Registro excluído!', 'success');
 }
 
-// ==========================================
-// PARTE 7 — BOLETOS, CHEQUES, PRESTAÇÕES, PROJETOS, PAG.CLIENTES, GARANTIAS
-// ==========================================
-
-// ============ BOLETOS ============
-function renderBoletos() {
-  const pageEl = document.getElementById('page-boletos');
-  if (!pageEl) return;
-
+// ============================================================
+// BOLETOS
+// ============================================================
+function renderBoletosPage() {
+  const pg = document.getElementById('page-boletos');
   const boletos = appData.boletos || [];
-  const totalGeral = boletos.reduce((s,b) => s + b.valor, 0);
-  const totalPago = boletos.filter(b => b.situacao==='Pago').reduce((s,b) => s + b.valor, 0);
-  const totalPendente = boletos.filter(b => b.situacao==='Pendente').reduce((s,b) => s + b.valor, 0);
-  const totalVencido = boletos.filter(b => b.situacao==='Vencido').reduce((s,b) => s + b.valor, 0);
-
-  pageEl.innerHTML = `
+  pg.innerHTML = `
     <div class="page-header">
-      <h2>Boletos</h2>
-      <button class="btn btn-primary" onclick="openBoletoModal()"><span>+</span> Novo Boleto</button>
+      <h2>🔖 Boletos</h2>
+      <button class="btn btn-primary" onclick="openBoletoModal()">+ Novo Boleto</button>
     </div>
-
-    <div class="dashboard-grid" style="margin-bottom:20px;">
-      <div class="card">
-        <div class="card-header"><span class="card-icon">📄</span><span>Total Boletos</span></div>
-        <div class="card-value">${formatCurrency(totalGeral)}</div>
-        <small>${boletos.length} registros</small>
-      </div>
-      <div class="card">
-        <div class="card-header"><span class="card-icon">✅</span><span>Pagos</span></div>
-        <div class="card-value text-success">${formatCurrency(totalPago)}</div>
-      </div>
-      <div class="card">
-        <div class="card-header"><span class="card-icon">⏳</span><span>Pendentes</span></div>
-        <div class="card-value text-warning">${formatCurrency(totalPendente)}</div>
-      </div>
-      <div class="card">
-        <div class="card-header"><span class="card-icon">🚨</span><span>Vencidos</span></div>
-        <div class="card-value text-danger">${formatCurrency(totalVencido)}</div>
-      </div>
-    </div>
-
     <div class="filter-bar">
-      <input type="text" id="filtroBoletosBusca" class="form-control" placeholder="Buscar descrição, fornecedor..." oninput="filtrarBoletos()" style="max-width:300px">
-      <select id="filtroBoletosStatus" class="form-control" style="max-width:160px" onchange="filtrarBoletos()">
-        <option value="">Todas Situações</option>
-        ${(appData.situacaoBoleto||['Pago','Pendente','Vencido']).map(s => `<option value="${s}">${s}</option>`).join('')}
+      <input type="text" class="form-control" style="max-width:250px" placeholder="Buscar boleto..." oninput="filterBoletos(this.value)">
+      <select class="form-control" style="max-width:150px" onchange="filterBoletosSit(this.value)">
+        <option value="">Todas situações</option>
+        ${(appData.situacaoBoleto||[]).map(s => `<option value="${s}">${s}</option>`).join('')}
       </select>
-      <input type="date" id="filtroBoletosDataIni" class="form-control" style="max-width:170px" onchange="filtrarBoletos()">
-      <input type="date" id="filtroBoletosDataFim" class="form-control" style="max-width:170px" onchange="filtrarBoletos()">
     </div>
-
     <div class="table-responsive">
       <table class="table">
-        <thead>
-          <tr>
-            <th>Descrição</th>
-            <th>Fornecedor</th>
-            <th>Valor</th>
-            <th>Vencimento</th>
-            <th>Dias</th>
-            <th>Situação</th>
-            <th style="width:120px">Ações</th>
-          </tr>
-        </thead>
+        <thead><tr><th>ID</th><th>Descrição</th><th>Valor</th><th>Vencimento</th><th>Fornecedor</th><th>Situação</th><th>Ações</th></tr></thead>
         <tbody id="boletosBody"></tbody>
       </table>
-    </div>
-  `;
-
-  filtrarBoletos();
+    </div>`;
+  renderBoletosTable(boletos);
 }
 
-function filtrarBoletos() {
-  const busca = (document.getElementById('filtroBoletosBusca')?.value || '').toLowerCase();
-  const status = document.getElementById('filtroBoletosStatus')?.value || '';
-  const dataIni = document.getElementById('filtroBoletosDataIni')?.value || '';
-  const dataFim = document.getElementById('filtroBoletosDataFim')?.value || '';
-
-  let lista = [...(appData.boletos || [])];
-
-  if (busca) {
-    lista = lista.filter(b =>
-      (b.descricao||'').toLowerCase().includes(busca) ||
-      (b.fornecedor||'').toLowerCase().includes(busca)
-    );
-  }
-  if (status) lista = lista.filter(b => b.situacao === status);
-  if (dataIni) lista = lista.filter(b => b.vencimento >= dataIni);
-  if (dataFim) lista = lista.filter(b => b.vencimento <= dataFim);
-
-  lista.sort((a,b) => (a.vencimento||'').localeCompare(b.vencimento||''));
-
+function renderBoletosTable(boletos) {
   const tbody = document.getElementById('boletosBody');
   if (!tbody) return;
+  tbody.innerHTML = boletos.length === 0 ? '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhum boleto</td></tr>' :
+    boletos.map(b => {
+      const badge = b.situacao === 'Pago' ? 'badge-success' : b.situacao === 'Vencido' ? 'badge-danger' : 'badge-warning';
+      return `<tr>
+        <td>${b.id}</td><td>${b.descricao || '-'}</td><td>${formatCurrency(b.valor)}</td><td>${formatDate(b.vencimento)}</td>
+        <td>${b.fornecedor || '-'}</td><td><span class="badge ${badge}">${b.situacao}</span></td>
+        <td>
+          <button class="btn btn-sm btn-primary" onclick="editBoleto(${b.id})">✏️</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteBoleto(${b.id})">🗑️</button>
+        </td>
+      </tr>`;
+    }).join('');
+}
 
-  if (lista.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--text-muted)">Nenhum boleto encontrado</td></tr>';
-    return;
-  }
+function filterBoletos(q) {
+  q = q.toLowerCase();
+  renderBoletosTable((appData.boletos || []).filter(b => (b.descricao || '').toLowerCase().includes(q) || (b.fornecedor || '').toLowerCase().includes(q)));
+}
 
-  tbody.innerHTML = lista.map(b => {
-    const dias = getDiasEntreHoje(b.vencimento);
-    let diasLabel = '';
-    let badgeSit = 'badge-warning';
-
-    if (b.situacao === 'Pago') {
-      badgeSit = 'badge-success';
-      diasLabel = '-';
-    } else if (b.situacao === 'Vencido' || dias < 0) {
-      badgeSit = 'badge-danger';
-      diasLabel = `<span class="text-danger">${Math.abs(dias)}d atrás</span>`;
-    } else if (dias <= 5) {
-      badgeSit = 'badge-warning';
-      diasLabel = `<span class="text-warning">${dias}d</span>`;
-    } else {
-      diasLabel = `${dias}d`;
-    }
-
-    return `<tr>
-      <td><strong>${b.descricao}</strong></td>
-      <td>${b.fornecedor || '-'}</td>
-      <td><strong>${formatCurrency(b.valor)}</strong></td>
-      <td>${formatDate(b.vencimento)}</td>
-      <td>${diasLabel}</td>
-      <td><span class="badge ${badgeSit}">${b.situacao}</span></td>
-      <td>
-        <button class="btn btn-sm btn-outline" onclick="editBoleto(${b.id})" title="Editar">✏️</button>
-        <button class="btn btn-sm btn-danger" onclick="deleteBoleto(${b.id})" title="Excluir">🗑️</button>
-      </td>
-    </tr>`;
-  }).join('');
+function filterBoletosSit(sit) {
+  renderBoletosTable(sit ? (appData.boletos || []).filter(b => b.situacao === sit) : (appData.boletos || []));
 }
 
 function openBoletoModal(boleto) {
   const isEdit = !!boleto;
-  const modal = document.getElementById('cadastroModal');
-  const modalTitle = document.getElementById('cadastroModalTitle');
-  const modalBody = document.getElementById('cadastroModalBody');
-  const modalFooter = document.getElementById('cadastroModalFooter');
-
-  modalTitle.textContent = isEdit ? 'Editar Boleto' : 'Novo Boleto';
-
-  const fornecedores = (appData.fornecedores||[]).map(f => f.nome).sort();
-  const situacoes = appData.situacaoBoleto || ['Pago','Pendente','Vencido'];
-
-  modalBody.innerHTML = `
-    <div class="form-group">
-      <label>Descrição *</label>
-      <input type="text" id="boletoDesc" class="form-control" value="${isEdit ? boleto.descricao : ''}">
+  const fornOpts = (appData.fornecedores || []).map(f => `<option value="${f.nome}" ${boleto && boleto.fornecedor === f.nome ? 'selected' : ''}>${f.nome}</option>`).join('');
+  const sitOpts = (appData.situacaoBoleto || []).map(s => `<option value="${s}" ${boleto && boleto.situacao === s ? 'selected' : ''}>${s}</option>`).join('');
+  document.getElementById('cadastroModalTitle').textContent = isEdit ? 'Editar Boleto' : 'Novo Boleto';
+  document.getElementById('cadastroModalBody').innerHTML = `
+    <div class="form-group"><label>Descrição</label><input type="text" class="form-control" id="bDesc" value="${boleto ? boleto.descricao || '' : ''}"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Valor</label><input type="number" class="form-control" id="bValor" value="${boleto ? boleto.valor : ''}" step="0.01"></div>
+      <div class="form-group"><label>Vencimento</label><input type="date" class="form-control" id="bVenc" value="${boleto ? boleto.vencimento : ''}"></div>
     </div>
     <div class="form-row">
-      <div class="form-group">
-        <label>Fornecedor</label>
-        <select id="boletoForn" class="form-control">
-          <option value="">Selecione...</option>
-          ${fornecedores.map(f => `<option value="${f}" ${isEdit && boleto.fornecedor===f ? 'selected' : ''}>${f}</option>`).join('')}
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Valor *</label>
-        <input type="number" id="boletoValor" class="form-control" step="0.01" min="0" value="${isEdit ? boleto.valor : ''}">
-      </div>
+      <div class="form-group"><label>Fornecedor</label><select class="form-control" id="bForn"><option value="">Selecione...</option>${fornOpts}</select></div>
+      <div class="form-group"><label>Situação</label><select class="form-control" id="bSit">${sitOpts}</select></div>
     </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Vencimento *</label>
-        <input type="date" id="boletoVenc" class="form-control" value="${isEdit ? boleto.vencimento : ''}">
-      </div>
-      <div class="form-group">
-        <label>Situação</label>
-        <select id="boletoSit" class="form-control">
-          ${situacoes.map(s => `<option value="${s}" ${isEdit && boleto.situacao===s ? 'selected' : ''}>${s}</option>`).join('')}
-        </select>
-      </div>
-    </div>
-    <div class="form-group">
-      <label>Observações</label>
-      <textarea id="boletoObs" class="form-control" rows="2">${isEdit ? (boleto.obs||'') : ''}</textarea>
-    </div>
-  `;
-
-  modalFooter.innerHTML = `
+    <div class="form-group"><label>Observações</label><textarea class="form-control" id="bObs" rows="2">${boleto ? boleto.obs || '' : ''}</textarea></div>`;
+  document.getElementById('cadastroModalFooter').innerHTML = `
     <button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button>
-    <button class="btn btn-primary" onclick="saveBoleto(${isEdit ? boleto.id : 0})">Salvar</button>
-  `;
-
-  modal.style.display = 'flex';
+    <button class="btn btn-primary" onclick="saveBoleto(${isEdit ? boleto.id : 'null'})">Salvar</button>`;
+  openCadastroModal();
 }
 
-function saveBoleto(editId) {
-  const descricao = document.getElementById('boletoDesc').value.trim();
-  const fornecedor = document.getElementById('boletoForn').value;
-  const valor = parseFloat(document.getElementById('boletoValor').value) || 0;
-  const vencimento = document.getElementById('boletoVenc').value;
-  const situacao = document.getElementById('boletoSit').value;
-  const obs = document.getElementById('boletoObs').value.trim();
-
-  if (!descricao || valor <= 0 || !vencimento) {
-    showToast('Preencha Descrição, Valor e Vencimento', 'error');
-    return;
-  }
-
-  if (editId > 0) {
-    const idx = appData.boletos.findIndex(b => b.id === editId);
-    if (idx >= 0) {
-      appData.boletos[idx] = { ...appData.boletos[idx], descricao, fornecedor, valor, vencimento, situacao, obs };
-    }
+function saveBoleto(id) {
+  const obj = {
+    descricao: document.getElementById('bDesc').value,
+    valor: parseFloat(document.getElementById('bValor').value) || 0,
+    vencimento: document.getElementById('bVenc').value,
+    fornecedor: document.getElementById('bForn').value,
+    situacao: document.getElementById('bSit').value,
+    obs: document.getElementById('bObs').value
+  };
+  if (!appData.boletos) appData.boletos = [];
+  if (id) {
+    const idx = appData.boletos.findIndex(b => b.id === id);
+    if (idx > -1) { obj.id = id; appData.boletos[idx] = obj; }
   } else {
-    appData.boletos.push({ id: nextId(appData.boletos), descricao, fornecedor, valor, vencimento, situacao, obs });
+    obj.id = nextId(appData.boletos);
+    appData.boletos.push(obj);
   }
-
   saveData();
   closeCadastroModal();
-  showToast(editId > 0 ? 'Boleto atualizado!' : 'Boleto adicionado!', 'success');
-  renderBoletos();
+  renderBoletosPage();
+  showToast(id ? 'Boleto atualizado!' : 'Boleto cadastrado!', 'success');
 }
 
-function editBoleto(id) {
-  const b = appData.boletos.find(b => b.id === id);
-  if (b) openBoletoModal(b);
-}
+function editBoleto(id) { const b = (appData.boletos || []).find(x => x.id === id); if (b) openBoletoModal(b); }
+function deleteBoleto(id) { if (!confirm('Excluir boleto?')) return; appData.boletos = (appData.boletos || []).filter(b => b.id !== id); saveData(); renderBoletosPage(); showToast('Boleto excluído!','success'); }
 
-function deleteBoleto(id) {
-  if (!confirm('Deseja excluir este boleto?')) return;
-  appData.boletos = appData.boletos.filter(b => b.id !== id);
-  saveData();
-  showToast('Boleto excluído!', 'success');
-  renderBoletos();
-}
-
-// ============ CHEQUES ============
-function renderCheques() {
-  const pageEl = document.getElementById('page-cheques');
-  if (!pageEl) return;
-
+// ============================================================
+// CHEQUES
+// ============================================================
+function renderChequesPage() {
+  const pg = document.getElementById('page-cheques');
   const cheques = appData.cheques || [];
-  const totalGeral = cheques.reduce((s,c) => s + (c.valor||0), 0);
-
-  pageEl.innerHTML = `
+  pg.innerHTML = `
     <div class="page-header">
-      <h2>Cheques</h2>
-      <button class="btn btn-primary" onclick="openChequeModal()"><span>+</span> Novo Cheque</button>
+      <h2>📝 Cheques</h2>
+      <button class="btn btn-primary" onclick="openChequeModal()">+ Novo Cheque</button>
     </div>
-
-    <div class="dashboard-grid" style="margin-bottom:20px;">
-      <div class="card">
-        <div class="card-header"><span class="card-icon">📝</span><span>Total Cheques</span></div>
-        <div class="card-value">${formatCurrency(totalGeral)}</div>
-        <small>${cheques.length} registros</small>
-      </div>
-    </div>
-
     <div class="filter-bar">
-      <input type="text" id="filtroChequesBusca" class="form-control" placeholder="Buscar..." oninput="filtrarCheques()" style="max-width:300px">
-      <select id="filtroChequesStatus" class="form-control" style="max-width:170px" onchange="filtrarCheques()">
-        <option value="">Todas Situações</option>
-        ${(appData.situacaoCheque||[]).map(s => `<option value="${s}">${s}</option>`).join('')}
-      </select>
+      <input type="text" class="form-control" style="max-width:250px" placeholder="Buscar cheque..." oninput="filterCheques(this.value)">
     </div>
-
     <div class="table-responsive">
       <table class="table">
-        <thead>
-          <tr>
-            <th>Nº Cheque</th>
-            <th>Emitente</th>
-            <th>Valor</th>
-            <th>Data</th>
-            <th>Bom Para</th>
-            <th>Situação</th>
-            <th style="width:120px">Ações</th>
-          </tr>
-        </thead>
+        <thead><tr><th>ID</th><th>Nº Cheque</th><th>Valor</th><th>Data</th><th>Emitente</th><th>Situação</th><th>Ações</th></tr></thead>
         <tbody id="chequesBody"></tbody>
       </table>
-    </div>
-  `;
-
-  filtrarCheques();
+    </div>`;
+  renderChequesTable(cheques);
 }
 
-function filtrarCheques() {
-  const busca = (document.getElementById('filtroChequesBusca')?.value || '').toLowerCase();
-  const status = document.getElementById('filtroChequesStatus')?.value || '';
-
-  let lista = [...(appData.cheques || [])];
-
-  if (busca) {
-    lista = lista.filter(c =>
-      (c.numero||'').toLowerCase().includes(busca) ||
-      (c.emitente||'').toLowerCase().includes(busca)
-    );
-  }
-  if (status) lista = lista.filter(c => c.situacao === status);
-
+function renderChequesTable(cheques) {
   const tbody = document.getElementById('chequesBody');
   if (!tbody) return;
+  tbody.innerHTML = cheques.length === 0 ? '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhum cheque</td></tr>' :
+    cheques.map(c => {
+      const badge = c.situacao === 'Compensado' ? 'badge-success' : c.situacao === 'Devolvido' ? 'badge-danger' : 'badge-warning';
+      return `<tr>
+        <td>${c.id}</td><td>${c.numero || '-'}</td><td>${formatCurrency(c.valor)}</td><td>${formatDate(c.data)}</td>
+        <td>${c.emitente || '-'}</td><td><span class="badge ${badge}">${c.situacao}</span></td>
+        <td>
+          <button class="btn btn-sm btn-primary" onclick="editCheque(${c.id})">✏️</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteCheque(${c.id})">🗑️</button>
+        </td>
+      </tr>`;
+    }).join('');
+}
 
-  if (lista.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--text-muted)">Nenhum cheque cadastrado</td></tr>';
-    return;
-  }
-
-  tbody.innerHTML = lista.map(c => {
-    let badgeSit = 'badge-warning';
-    if (c.situacao === 'Compensado') badgeSit = 'badge-success';
-    else if (c.situacao === 'Devolvido') badgeSit = 'badge-danger';
-    else if (c.situacao === 'Depositado') badgeSit = 'badge-info';
-    else if (c.situacao === 'Repassado') badgeSit = 'badge-warning';
-
-    return `<tr>
-      <td><strong>${c.numero || '-'}</strong></td>
-      <td>${c.emitente || '-'}</td>
-      <td><strong>${formatCurrency(c.valor)}</strong></td>
-      <td>${formatDate(c.data)}</td>
-      <td>${formatDate(c.bomPara)}</td>
-      <td><span class="badge ${badgeSit}">${c.situacao}</span></td>
-      <td>
-        <button class="btn btn-sm btn-outline" onclick="editCheque(${c.id})" title="Editar">✏️</button>
-        <button class="btn btn-sm btn-danger" onclick="deleteCheque(${c.id})" title="Excluir">🗑️</button>
-      </td>
-    </tr>`;
-  }).join('');
+function filterCheques(q) {
+  q = q.toLowerCase();
+  renderChequesTable((appData.cheques || []).filter(c => (c.numero || '').toLowerCase().includes(q) || (c.emitente || '').toLowerCase().includes(q)));
 }
 
 function openChequeModal(cheque) {
   const isEdit = !!cheque;
-  const modal = document.getElementById('cadastroModal');
-  const modalTitle = document.getElementById('cadastroModalTitle');
-  const modalBody = document.getElementById('cadastroModalBody');
-  const modalFooter = document.getElementById('cadastroModalFooter');
-
-  modalTitle.textContent = isEdit ? 'Editar Cheque' : 'Novo Cheque';
-
-  const situacoes = appData.situacaoCheque || [];
-
-  modalBody.innerHTML = `
+  const sitOpts = (appData.situacaoCheque || []).map(s => `<option value="${s}" ${cheque && cheque.situacao === s ? 'selected' : ''}>${s}</option>`).join('');
+  document.getElementById('cadastroModalTitle').textContent = isEdit ? 'Editar Cheque' : 'Novo Cheque';
+  document.getElementById('cadastroModalBody').innerHTML = `
     <div class="form-row">
-      <div class="form-group">
-        <label>Nº Cheque</label>
-        <input type="text" id="chequeNumero" class="form-control" value="${isEdit ? (cheque.numero||'') : ''}">
-      </div>
-      <div class="form-group">
-        <label>Emitente *</label>
-        <input type="text" id="chequeEmitente" class="form-control" value="${isEdit ? (cheque.emitente||'') : ''}">
-      </div>
+      <div class="form-group"><label>Nº Cheque</label><input type="text" class="form-control" id="chNum" value="${cheque ? cheque.numero || '' : ''}"></div>
+      <div class="form-group"><label>Valor</label><input type="number" class="form-control" id="chValor" value="${cheque ? cheque.valor : ''}" step="0.01"></div>
     </div>
     <div class="form-row">
-      <div class="form-group">
-        <label>Valor *</label>
-        <input type="number" id="chequeValor" class="form-control" step="0.01" min="0" value="${isEdit ? cheque.valor : ''}">
-      </div>
-      <div class="form-group">
-        <label>Situação</label>
-        <select id="chequeSit" class="form-control">
-          ${situacoes.map(s => `<option value="${s}" ${isEdit && cheque.situacao===s ? 'selected' : ''}>${s}</option>`).join('')}
-        </select>
-      </div>
+      <div class="form-group"><label>Data</label><input type="date" class="form-control" id="chData" value="${cheque ? cheque.data : ''}"></div>
+      <div class="form-group"><label>Situação</label><select class="form-control" id="chSit">${sitOpts}</select></div>
     </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Data</label>
-        <input type="date" id="chequeData" class="form-control" value="${isEdit ? (cheque.data||'') : new Date().toISOString().split('T')[0]}">
-      </div>
-      <div class="form-group">
-        <label>Bom Para</label>
-        <input type="date" id="chequeBomPara" class="form-control" value="${isEdit ? (cheque.bomPara||'') : ''}">
-      </div>
-    </div>
-    <div class="form-group">
-      <label>Observações</label>
-      <textarea id="chequeObs" class="form-control" rows="2">${isEdit ? (cheque.obs||'') : ''}</textarea>
-    </div>
-  `;
-
-  modalFooter.innerHTML = `
+    <div class="form-group"><label>Emitente</label><input type="text" class="form-control" id="chEmit" value="${cheque ? cheque.emitente || '' : ''}"></div>
+    <div class="form-group"><label>Observações</label><textarea class="form-control" id="chObs" rows="2">${cheque ? cheque.obs || '' : ''}</textarea></div>`;
+  document.getElementById('cadastroModalFooter').innerHTML = `
     <button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button>
-    <button class="btn btn-primary" onclick="saveCheque(${isEdit ? cheque.id : 0})">Salvar</button>
-  `;
-
-  modal.style.display = 'flex';
+    <button class="btn btn-primary" onclick="saveCheque(${isEdit ? cheque.id : 'null'})">Salvar</button>`;
+  openCadastroModal();
 }
 
-function saveCheque(editId) {
-  const numero = document.getElementById('chequeNumero').value.trim();
-  const emitente = document.getElementById('chequeEmitente').value.trim();
-  const valor = parseFloat(document.getElementById('chequeValor').value) || 0;
-  const situacao = document.getElementById('chequeSit').value;
-  const data = document.getElementById('chequeData').value;
-  const bomPara = document.getElementById('chequeBomPara').value;
-  const obs = document.getElementById('chequeObs').value.trim();
-
-  if (!emitente || valor <= 0) {
-    showToast('Preencha Emitente e Valor', 'error');
-    return;
-  }
-
-  if (editId > 0) {
-    const idx = appData.cheques.findIndex(c => c.id === editId);
-    if (idx >= 0) {
-      appData.cheques[idx] = { ...appData.cheques[idx], numero, emitente, valor, situacao, data, bomPara, obs };
-    }
+function saveCheque(id) {
+  const obj = {
+    numero: document.getElementById('chNum').value,
+    valor: parseFloat(document.getElementById('chValor').value) || 0,
+    data: document.getElementById('chData').value,
+    situacao: document.getElementById('chSit').value,
+    emitente: document.getElementById('chEmit').value,
+    obs: document.getElementById('chObs').value
+  };
+  if (!appData.cheques) appData.cheques = [];
+  if (id) {
+    const idx = appData.cheques.findIndex(c => c.id === id);
+    if (idx > -1) { obj.id = id; appData.cheques[idx] = obj; }
   } else {
-    appData.cheques.push({ id: nextId(appData.cheques), numero, emitente, valor, situacao, data, bomPara, obs });
+    obj.id = nextId(appData.cheques);
+    appData.cheques.push(obj);
   }
-
   saveData();
   closeCadastroModal();
-  showToast(editId > 0 ? 'Cheque atualizado!' : 'Cheque adicionado!', 'success');
-  renderCheques();
+  renderChequesPage();
+  showToast(id ? 'Cheque atualizado!' : 'Cheque cadastrado!', 'success');
 }
 
-function editCheque(id) {
-  const c = appData.cheques.find(c => c.id === id);
-  if (c) openChequeModal(c);
-}
+function editCheque(id) { const c = (appData.cheques || []).find(x => x.id === id); if (c) openChequeModal(c); }
+function deleteCheque(id) { if (!confirm('Excluir cheque?')) return; appData.cheques = (appData.cheques || []).filter(c => c.id !== id); saveData(); renderChequesPage(); showToast('Cheque excluído!','success'); }
 
-function deleteCheque(id) {
-  if (!confirm('Deseja excluir este cheque?')) return;
-  appData.cheques = appData.cheques.filter(c => c.id !== id);
-  saveData();
-  showToast('Cheque excluído!', 'success');
-  renderCheques();
-}
-
-// ============ PRESTAÇÕES ============
-function renderPrestacoes() {
-  const pageEl = document.getElementById('page-prestacoes');
-  if (!pageEl) return;
-
+// ============================================================
+// PRESTAÇÕES
+// ============================================================
+function renderPrestacoesPage() {
+  const pg = document.getElementById('page-prestacoes');
   const prestacoes = appData.prestacoes || [];
-  const totalGeral = prestacoes.reduce((s,p) => s + p.valor, 0);
-  const totalPago = prestacoes.filter(p => p.situacao==='Pago').reduce((s,p) => s + p.valor, 0);
-  const totalPendente = prestacoes.filter(p => p.situacao!=='Pago').reduce((s,p) => s + p.valor, 0);
-
-  pageEl.innerHTML = `
+  pg.innerHTML = `
     <div class="page-header">
-      <h2>Prestações</h2>
-      <button class="btn btn-primary" onclick="openPrestacaoModal()"><span>+</span> Nova Prestação</button>
+      <h2>💳 Prestações</h2>
+      <button class="btn btn-primary" onclick="openPrestacaoModal()">+ Nova Prestação</button>
     </div>
-
-    <div class="dashboard-grid" style="margin-bottom:20px;">
-      <div class="card">
-        <div class="card-header"><span class="card-icon">💳</span><span>Total Prestações</span></div>
-        <div class="card-value">${formatCurrency(totalGeral)}</div>
-        <small>${prestacoes.length} parcelas</small>
-      </div>
-      <div class="card">
-        <div class="card-header"><span class="card-icon">✅</span><span>Pagas</span></div>
-        <div class="card-value text-success">${formatCurrency(totalPago)}</div>
-      </div>
-      <div class="card">
-        <div class="card-header"><span class="card-icon">⏳</span><span>Pendentes</span></div>
-        <div class="card-value text-danger">${formatCurrency(totalPendente)}</div>
-      </div>
-    </div>
-
-    <div class="filter-bar">
-      <input type="text" id="filtroPrestBusca" class="form-control" placeholder="Buscar descrição..." oninput="filtrarPrestacoes()" style="max-width:300px">
-      <select id="filtroPrestStatus" class="form-control" style="max-width:160px" onchange="filtrarPrestacoes()">
-        <option value="">Todas</option>
-        <option value="Pago">Pagas</option>
-        <option value="Pendente">Pendentes</option>
-      </select>
-    </div>
-
     <div class="table-responsive">
       <table class="table">
-        <thead>
-          <tr>
-            <th>Descrição</th>
-            <th>Parcela</th>
-            <th>Valor</th>
-            <th>Vencimento</th>
-            <th>Dias</th>
-            <th>Situação</th>
-            <th style="width:120px">Ações</th>
-          </tr>
-        </thead>
+        <thead><tr><th>ID</th><th>Descrição</th><th>Valor Total</th><th>Parcelas</th><th>Valor Parcela</th><th>Pagas</th><th>Restante</th><th>Situação</th><th>Ações</th></tr></thead>
         <tbody id="prestacoesBody"></tbody>
       </table>
-    </div>
-  `;
-
-  filtrarPrestacoes();
+    </div>`;
+  renderPrestacoesTable(prestacoes);
 }
 
-function filtrarPrestacoes() {
-  const busca = (document.getElementById('filtroPrestBusca')?.value || '').toLowerCase();
-  const status = document.getElementById('filtroPrestStatus')?.value || '';
-
-  let lista = [...(appData.prestacoes || [])];
-
-  if (busca) lista = lista.filter(p => (p.descricao||'').toLowerCase().includes(busca));
-  if (status) lista = lista.filter(p => p.situacao === status);
-
-  lista.sort((a,b) => (a.vencimento||'').localeCompare(b.vencimento||''));
-
+function renderPrestacoesTable(prestacoes) {
   const tbody = document.getElementById('prestacoesBody');
   if (!tbody) return;
-
-  if (lista.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--text-muted)">Nenhuma prestação encontrada</td></tr>';
-    return;
-  }
-
-  tbody.innerHTML = lista.map(p => {
-    const dias = getDiasEntreHoje(p.vencimento);
-    let diasLabel = '-';
-    let badgeSit = 'badge-warning';
-
-    if (p.situacao === 'Pago') {
-      badgeSit = 'badge-success';
-    } else if (dias < 0) {
-      badgeSit = 'badge-danger';
-      diasLabel = `<span class="text-danger">${Math.abs(dias)}d atrás</span>`;
-    } else if (dias <= 5) {
-      diasLabel = `<span class="text-warning">${dias}d</span>`;
-    } else {
-      diasLabel = `${dias}d`;
-    }
-
-    return `<tr>
-      <td><strong>${p.descricao}</strong></td>
-      <td>${p.parcelaAtual}/${p.parcelas}</td>
-      <td><strong>${formatCurrency(p.valor)}</strong></td>
-      <td>${formatDate(p.vencimento)}</td>
-      <td>${p.situacao === 'Pago' ? '-' : diasLabel}</td>
-      <td><span class="badge ${badgeSit}">${p.situacao}</span></td>
-      <td>
-        <button class="btn btn-sm btn-outline" onclick="editPrestacao(${p.id})" title="Editar">✏️</button>
-        <button class="btn btn-sm btn-danger" onclick="deletePrestacao(${p.id})" title="Excluir">🗑️</button>
-      </td>
-    </tr>`;
-  }).join('');
+  tbody.innerHTML = prestacoes.length === 0 ? '<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhuma prestação</td></tr>' :
+    prestacoes.map(p => {
+      const pagas = p.parcelasPagas || 0;
+      const restante = (p.parcelas - pagas) * (p.valorParcela || 0);
+      const sit = pagas >= p.parcelas ? 'Quitado' : 'Em aberto';
+      return `<tr>
+        <td>${p.id}</td><td>${p.descricao}</td><td>${formatCurrency(p.valorTotal)}</td><td>${p.parcelas}</td>
+        <td>${formatCurrency(p.valorParcela || 0)}</td><td>${pagas}/${p.parcelas}</td><td>${formatCurrency(restante)}</td>
+        <td><span class="badge ${sit === 'Quitado' ? 'badge-success' : 'badge-warning'}">${sit}</span></td>
+        <td>
+          <button class="btn btn-sm btn-primary" onclick="editPrestacao(${p.id})">✏️</button>
+          <button class="btn btn-sm btn-danger" onclick="deletePrestacao(${p.id})">🗑️</button>
+        </td>
+      </tr>`;
+    }).join('');
 }
 
 function openPrestacaoModal(prest) {
   const isEdit = !!prest;
-  const modal = document.getElementById('cadastroModal');
-  const modalTitle = document.getElementById('cadastroModalTitle');
-  const modalBody = document.getElementById('cadastroModalBody');
-  const modalFooter = document.getElementById('cadastroModalFooter');
-
-  modalTitle.textContent = isEdit ? 'Editar Prestação' : 'Nova Prestação';
-
-  modalBody.innerHTML = `
-    <div class="form-group">
-      <label>Descrição *</label>
-      <input type="text" id="prestDesc" class="form-control" value="${isEdit ? prest.descricao : ''}">
+  document.getElementById('cadastroModalTitle').textContent = isEdit ? 'Editar Prestação' : 'Nova Prestação';
+  document.getElementById('cadastroModalBody').innerHTML = `
+    <div class="form-group"><label>Descrição</label><input type="text" class="form-control" id="prDesc" value="${prest ? prest.descricao : ''}"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Valor Total</label><input type="number" class="form-control" id="prTotal" value="${prest ? prest.valorTotal : ''}" step="0.01"></div>
+      <div class="form-group"><label>Nº Parcelas</label><input type="number" class="form-control" id="prParc" value="${prest ? prest.parcelas : ''}" min="1"></div>
     </div>
     <div class="form-row">
-      <div class="form-group">
-        <label>Valor *</label>
-        <input type="number" id="prestValor" class="form-control" step="0.01" min="0" value="${isEdit ? prest.valor : ''}">
-      </div>
-      <div class="form-group">
-        <label>Total Parcelas</label>
-        <input type="number" id="prestParcelas" class="form-control" min="1" step="1" value="${isEdit ? prest.parcelas : 1}">
-      </div>
+      <div class="form-group"><label>Valor Parcela</label><input type="number" class="form-control" id="prValorParc" value="${prest ? prest.valorParcela || '' : ''}" step="0.01"></div>
+      <div class="form-group"><label>Parcelas Pagas</label><input type="number" class="form-control" id="prPagas" value="${prest ? prest.parcelasPagas || 0 : 0}" min="0"></div>
     </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Parcela Atual</label>
-        <input type="number" id="prestParcelaAtual" class="form-control" min="1" step="1" value="${isEdit ? prest.parcelaAtual : 1}">
-      </div>
-      <div class="form-group">
-        <label>Vencimento *</label>
-        <input type="date" id="prestVenc" class="form-control" value="${isEdit ? prest.vencimento : ''}">
-      </div>
-    </div>
-    <div class="form-group">
-      <label>Situação</label>
-      <select id="prestSit" class="form-control">
-        <option value="Pendente" ${isEdit && prest.situacao==='Pendente' ? 'selected' : ''}>Pendente</option>
-        <option value="Pago" ${isEdit && prest.situacao==='Pago' ? 'selected' : ''}>Pago</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label>Observações</label>
-      <textarea id="prestObs" class="form-control" rows="2">${isEdit ? (prest.obs||'') : ''}</textarea>
-    </div>
-  `;
-
-  modalFooter.innerHTML = `
+    <div class="form-group"><label>Observações</label><textarea class="form-control" id="prObs" rows="2">${prest ? prest.obs || '' : ''}</textarea></div>`;
+  document.getElementById('cadastroModalFooter').innerHTML = `
     <button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button>
-    <button class="btn btn-primary" onclick="savePrestacao(${isEdit ? prest.id : 0})">Salvar</button>
-  `;
-
-  modal.style.display = 'flex';
+    <button class="btn btn-primary" onclick="savePrestacao(${isEdit ? prest.id : 'null'})">Salvar</button>`;
+  openCadastroModal();
 }
 
-function savePrestacao(editId) {
-  const descricao = document.getElementById('prestDesc').value.trim();
-  const valor = parseFloat(document.getElementById('prestValor').value) || 0;
-  const parcelas = parseInt(document.getElementById('prestParcelas').value) || 1;
-  const parcelaAtual = parseInt(document.getElementById('prestParcelaAtual').value) || 1;
-  const vencimento = document.getElementById('prestVenc').value;
-  const situacao = document.getElementById('prestSit').value;
-  const obs = document.getElementById('prestObs').value.trim();
-
-  if (!descricao || valor <= 0 || !vencimento) {
-    showToast('Preencha Descrição, Valor e Vencimento', 'error');
-    return;
-  }
-
-  if (editId > 0) {
-    const idx = appData.prestacoes.findIndex(p => p.id === editId);
-    if (idx >= 0) {
-      appData.prestacoes[idx] = { ...appData.prestacoes[idx], descricao, valor, parcelas, parcelaAtual, vencimento, situacao, obs };
-    }
+function savePrestacao(id) {
+  const obj = {
+    descricao: document.getElementById('prDesc').value,
+    valorTotal: parseFloat(document.getElementById('prTotal').value) || 0,
+    parcelas: parseInt(document.getElementById('prParc').value) || 1,
+    valorParcela: parseFloat(document.getElementById('prValorParc').value) || 0,
+    parcelasPagas: parseInt(document.getElementById('prPagas').value) || 0,
+    obs: document.getElementById('prObs').value
+  };
+  if (!appData.prestacoes) appData.prestacoes = [];
+  if (id) {
+    const idx = appData.prestacoes.findIndex(p => p.id === id);
+    if (idx > -1) { obj.id = id; appData.prestacoes[idx] = obj; }
   } else {
-    appData.prestacoes.push({ id: nextId(appData.prestacoes), descricao, valor, parcelas, parcelaAtual, vencimento, situacao, obs });
+    obj.id = nextId(appData.prestacoes);
+    appData.prestacoes.push(obj);
   }
-
   saveData();
   closeCadastroModal();
-  showToast(editId > 0 ? 'Prestação atualizada!' : 'Prestação adicionada!', 'success');
-  renderPrestacoes();
+  renderPrestacoesPage();
+  showToast(id ? 'Prestação atualizada!' : 'Prestação cadastrada!', 'success');
 }
 
-function editPrestacao(id) {
-  const p = appData.prestacoes.find(p => p.id === id);
-  if (p) openPrestacaoModal(p);
-}
+function editPrestacao(id) { const p = (appData.prestacoes || []).find(x => x.id === id); if (p) openPrestacaoModal(p); }
+function deletePrestacao(id) { if (!confirm('Excluir prestação?')) return; appData.prestacoes = (appData.prestacoes || []).filter(p => p.id !== id); saveData(); renderPrestacoesPage(); showToast('Prestação excluída!','success'); }
 
-function deletePrestacao(id) {
-  if (!confirm('Deseja excluir esta prestação?')) return;
-  appData.prestacoes = appData.prestacoes.filter(p => p.id !== id);
-  saveData();
-  showToast('Prestação excluída!', 'success');
-  renderPrestacoes();
-}
-
-// ============ PROJETOS ============
-function renderProjetos() {
-  const pageEl = document.getElementById('page-projetos');
-  if (!pageEl) return;
-
+// ============================================================
+// PROJETOS
+// ============================================================
+function renderProjetosPage() {
+  const pg = document.getElementById('page-projetos');
   const projetos = appData.projetos || [];
-  const totalOrcamento = projetos.reduce((s,p) => s + (p.orcamento||0), 0);
-  const totalGasto = projetos.reduce((s,p) => s + (p.gasto||0), 0);
-
-  pageEl.innerHTML = `
+  pg.innerHTML = `
     <div class="page-header">
-      <h2>Projetos</h2>
-      <button class="btn btn-primary" onclick="openProjetoModal()"><span>+</span> Novo Projeto</button>
+      <h2>📐 Projetos</h2>
+      <button class="btn btn-primary" onclick="openProjetoModal()">+ Novo Projeto</button>
     </div>
-
-    <div class="dashboard-grid" style="margin-bottom:20px;">
-      <div class="card">
-        <div class="card-header"><span class="card-icon">📐</span><span>Total Projetos</span></div>
-        <div class="card-value">${projetos.length}</div>
-      </div>
-      <div class="card">
-        <div class="card-header"><span class="card-icon">💰</span><span>Orçamento Total</span></div>
-        <div class="card-value">${formatCurrency(totalOrcamento)}</div>
-      </div>
-      <div class="card">
-        <div class="card-header"><span class="card-icon">📉</span><span>Gasto Total</span></div>
-        <div class="card-value text-danger">${formatCurrency(totalGasto)}</div>
-      </div>
-    </div>
-
     <div class="table-responsive">
       <table class="table">
-        <thead>
-          <tr>
-            <th>Nome</th>
-            <th>Descrição</th>
-            <th>Orçamento</th>
-            <th>Gasto</th>
-            <th>Restante</th>
-            <th>Progresso</th>
-            <th>Situação</th>
-            <th>Início</th>
-            <th>Previsão</th>
-            <th style="width:120px">Ações</th>
-          </tr>
-        </thead>
+        <thead><tr><th>ID</th><th>Nome</th><th>Cliente</th><th>Valor</th><th>Início</th><th>Previsão</th><th>Status</th><th>Ações</th></tr></thead>
         <tbody id="projetosBody"></tbody>
       </table>
-    </div>
-  `;
-
+    </div>`;
   const tbody = document.getElementById('projetosBody');
-  if (projetos.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:30px;color:var(--text-muted)">Nenhum projeto cadastrado</td></tr>';
-    return;
-  }
-
-  tbody.innerHTML = projetos.map(p => {
-    const restante = (p.orcamento||0) - (p.gasto||0);
-    const pct = p.orcamento > 0 ? Math.min(100, (p.gasto / p.orcamento * 100)).toFixed(1) : 0;
-
-    let badgeSit = 'badge-info';
-    if (p.situacao === 'Concluído') badgeSit = 'badge-success';
-    else if (p.situacao === 'Cancelado') badgeSit = 'badge-danger';
-
-    return `<tr>
-      <td><strong>${p.nome}</strong></td>
-      <td>${p.descricao || '-'}</td>
-      <td>${formatCurrency(p.orcamento)}</td>
-      <td class="text-danger">${formatCurrency(p.gasto)}</td>
-      <td class="${restante >= 0 ? 'text-success' : 'text-danger'}">${formatCurrency(restante)}</td>
+  tbody.innerHTML = projetos.length === 0 ? '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhum projeto</td></tr>' :
+    projetos.map(p => `<tr>
+      <td>${p.id}</td><td>${p.nome}</td><td>${p.cliente || '-'}</td><td>${formatCurrency(p.valor || 0)}</td>
+      <td>${formatDate(p.inicio)}</td><td>${formatDate(p.previsao)}</td>
+      <td><span class="badge ${p.status === 'Concluído' ? 'badge-success' : p.status === 'Cancelado' ? 'badge-danger' : 'badge-info'}">${p.status}</span></td>
       <td>
-        <div class="progress-bar" style="width:100px"><div class="progress-fill" style="width:${pct}%"></div></div>
-        <small>${pct}%</small>
+        <button class="btn btn-sm btn-primary" onclick="editProjeto(${p.id})">✏️</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteProjeto(${p.id})">🗑️</button>
       </td>
-      <td><span class="badge ${badgeSit}">${p.situacao}</span></td>
-      <td>${formatDate(p.inicio)}</td>
-      <td>${formatDate(p.previsao)}</td>
-      <td>
-        <button class="btn btn-sm btn-outline" onclick="editProjeto(${p.id})" title="Editar">✏️</button>
-        <button class="btn btn-sm btn-danger" onclick="deleteProjeto(${p.id})" title="Excluir">🗑️</button>
-      </td>
-    </tr>`;
-  }).join('');
+    </tr>`).join('');
 }
 
-function openProjetoModal(projeto) {
-  const isEdit = !!projeto;
-  const modal = document.getElementById('cadastroModal');
-  const modalTitle = document.getElementById('cadastroModalTitle');
-  const modalBody = document.getElementById('cadastroModalBody');
-  const modalFooter = document.getElementById('cadastroModalFooter');
-
-  modalTitle.textContent = isEdit ? 'Editar Projeto' : 'Novo Projeto';
-
-  modalBody.innerHTML = `
-    <div class="form-group">
-      <label>Nome *</label>
-      <input type="text" id="projNome" class="form-control" value="${isEdit ? projeto.nome : ''}">
-    </div>
-    <div class="form-group">
-      <label>Descrição</label>
-      <textarea id="projDesc" class="form-control" rows="2">${isEdit ? (projeto.descricao||'') : ''}</textarea>
+function openProjetoModal(proj) {
+  const isEdit = !!proj;
+  const clienteOpts = (appData.clientes || []).map(c => `<option value="${c.nome}" ${proj && proj.cliente === c.nome ? 'selected' : ''}>${c.nome}</option>`).join('');
+  document.getElementById('cadastroModalTitle').textContent = isEdit ? 'Editar Projeto' : 'Novo Projeto';
+  document.getElementById('cadastroModalBody').innerHTML = `
+    <div class="form-group"><label>Nome</label><input type="text" class="form-control" id="projNome" value="${proj ? proj.nome : ''}"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Cliente</label><select class="form-control" id="projCliente"><option value="">Selecione...</option>${clienteOpts}</select></div>
+      <div class="form-group"><label>Valor</label><input type="number" class="form-control" id="projValor" value="${proj ? proj.valor || '' : ''}" step="0.01"></div>
     </div>
     <div class="form-row">
-      <div class="form-group">
-        <label>Orçamento *</label>
-        <input type="number" id="projOrcamento" class="form-control" step="0.01" min="0" value="${isEdit ? projeto.orcamento : ''}">
-      </div>
-      <div class="form-group">
-        <label>Gasto</label>
-        <input type="number" id="projGasto" class="form-control" step="0.01" min="0" value="${isEdit ? (projeto.gasto||0) : 0}">
-      </div>
+      <div class="form-group"><label>Início</label><input type="date" class="form-control" id="projInicio" value="${proj ? proj.inicio : ''}"></div>
+      <div class="form-group"><label>Previsão</label><input type="date" class="form-control" id="projPrev" value="${proj ? proj.previsao : ''}"></div>
     </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Data Início</label>
-        <input type="date" id="projInicio" class="form-control" value="${isEdit ? (projeto.inicio||'') : new Date().toISOString().split('T')[0]}">
-      </div>
-      <div class="form-group">
-        <label>Previsão Término</label>
-        <input type="date" id="projPrevisao" class="form-control" value="${isEdit ? (projeto.previsao||'') : ''}">
-      </div>
-    </div>
-    <div class="form-group">
-      <label>Situação</label>
-      <select id="projSit" class="form-control">
-        <option value="Em Andamento" ${isEdit && projeto.situacao==='Em Andamento' ? 'selected' : ''}>Em Andamento</option>
-        <option value="Concluído" ${isEdit && projeto.situacao==='Concluído' ? 'selected' : ''}>Concluído</option>
-        <option value="Cancelado" ${isEdit && projeto.situacao==='Cancelado' ? 'selected' : ''}>Cancelado</option>
-        <option value="Pausado" ${isEdit && projeto.situacao==='Pausado' ? 'selected' : ''}>Pausado</option>
+    <div class="form-group"><label>Status</label>
+      <select class="form-control" id="projStatus">
+        <option value="Em andamento" ${proj && proj.status === 'Em andamento' ? 'selected' : ''}>Em andamento</option>
+        <option value="Concluído" ${proj && proj.status === 'Concluído' ? 'selected' : ''}>Concluído</option>
+        <option value="Cancelado" ${proj && proj.status === 'Cancelado' ? 'selected' : ''}>Cancelado</option>
       </select>
     </div>
-    <div class="form-group">
-      <label>Observações</label>
-      <textarea id="projObs" class="form-control" rows="2">${isEdit ? (projeto.obs||'') : ''}</textarea>
-    </div>
-  `;
-
-  modalFooter.innerHTML = `
+    <div class="form-group"><label>Descrição</label><textarea class="form-control" id="projDesc" rows="2">${proj ? proj.descricao || '' : ''}</textarea></div>`;
+  document.getElementById('cadastroModalFooter').innerHTML = `
     <button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button>
-    <button class="btn btn-primary" onclick="saveProjeto(${isEdit ? projeto.id : 0})">Salvar</button>
-  `;
-
-  modal.style.display = 'flex';
+    <button class="btn btn-primary" onclick="saveProjeto(${isEdit ? proj.id : 'null'})">Salvar</button>`;
+  openCadastroModal();
 }
 
-function saveProjeto(editId) {
-  const nome = document.getElementById('projNome').value.trim();
-  const descricao = document.getElementById('projDesc').value.trim();
-  const orcamento = parseFloat(document.getElementById('projOrcamento').value) || 0;
-  const gasto = parseFloat(document.getElementById('projGasto').value) || 0;
-  const inicio = document.getElementById('projInicio').value;
-  const previsao = document.getElementById('projPrevisao').value;
-  const situacao = document.getElementById('projSit').value;
-  const obs = document.getElementById('projObs').value.trim();
-
-  if (!nome || orcamento <= 0) {
-    showToast('Preencha Nome e Orçamento', 'error');
-    return;
-  }
-
-  if (editId > 0) {
-    const idx = appData.projetos.findIndex(p => p.id === editId);
-    if (idx >= 0) {
-      appData.projetos[idx] = { ...appData.projetos[idx], nome, descricao, orcamento, gasto, inicio, previsao, situacao, obs };
-    }
+function saveProjeto(id) {
+  const obj = {
+    nome: document.getElementById('projNome').value,
+    cliente: document.getElementById('projCliente').value,
+    valor: parseFloat(document.getElementById('projValor').value) || 0,
+    inicio: document.getElementById('projInicio').value,
+    previsao: document.getElementById('projPrev').value,
+    status: document.getElementById('projStatus').value,
+    descricao: document.getElementById('projDesc').value
+  };
+  if (!appData.projetos) appData.projetos = [];
+  if (id) {
+    const idx = appData.projetos.findIndex(p => p.id === id);
+    if (idx > -1) { obj.id = id; appData.projetos[idx] = obj; }
   } else {
-    appData.projetos.push({ id: nextId(appData.projetos), nome, descricao, orcamento, gasto, inicio, previsao, situacao, obs });
+    obj.id = nextId(appData.projetos);
+    appData.projetos.push(obj);
   }
-
   saveData();
   closeCadastroModal();
-  showToast(editId > 0 ? 'Projeto atualizado!' : 'Projeto adicionado!', 'success');
-  renderProjetos();
+  renderProjetosPage();
+  showToast(id ? 'Projeto atualizado!' : 'Projeto cadastrado!', 'success');
 }
 
-function editProjeto(id) {
-  const p = appData.projetos.find(p => p.id === id);
-  if (p) openProjetoModal(p);
-}
+function editProjeto(id) { const p = (appData.projetos || []).find(x => x.id === id); if (p) openProjetoModal(p); }
+function deleteProjeto(id) { if (!confirm('Excluir projeto?')) return; appData.projetos = (appData.projetos || []).filter(p => p.id !== id); saveData(); renderProjetosPage(); showToast('Projeto excluído!','success'); }
 
-function deleteProjeto(id) {
-  if (!confirm('Deseja excluir este projeto?')) return;
-  appData.projetos = appData.projetos.filter(p => p.id !== id);
-  saveData();
-  showToast('Projeto excluído!', 'success');
-  renderProjetos();
-}
-
-// ============ PAGAMENTOS CLIENTES ============
-function renderPagClientes() {
-  const pageEl = document.getElementById('page-pagclientes');
-  if (!pageEl) return;
-
+// ============================================================
+// PAGAMENTOS DE CLIENTES
+// ============================================================
+function renderPagClientesPage() {
+  const pg = document.getElementById('page-pagclientes');
   const pags = appData.pagClientes || [];
-  const totalDevido = pags.reduce((s,p) => s + (p.totalDevido||0), 0);
-  const totalPago = pags.reduce((s,p) => s + (p.totalPago||0), 0);
-  const totalRestante = pags.reduce((s,p) => s + (p.restante||0), 0);
-
-  pageEl.innerHTML = `
+  pg.innerHTML = `
     <div class="page-header">
-      <h2>Pagamentos de Clientes</h2>
-      <button class="btn btn-primary" onclick="openPagClienteModal()"><span>+</span> Novo Registro</button>
+      <h2>🤝 Pagamentos de Clientes</h2>
+      <button class="btn btn-primary" onclick="openPagClienteModal()">+ Novo Pagamento</button>
     </div>
-
-    <div class="dashboard-grid" style="margin-bottom:20px;">
-      <div class="card">
-        <div class="card-header"><span class="card-icon">📋</span><span>Total Devido</span></div>
-        <div class="card-value">${formatCurrency(totalDevido)}</div>
-      </div>
-      <div class="card">
-        <div class="card-header"><span class="card-icon">✅</span><span>Total Recebido</span></div>
-        <div class="card-value text-success">${formatCurrency(totalPago)}</div>
-      </div>
-      <div class="card">
-        <div class="card-header"><span class="card-icon">⚠️</span><span>Total Restante</span></div>
-        <div class="card-value text-danger">${formatCurrency(totalRestante)}</div>
-      </div>
-    </div>
-
     <div class="table-responsive">
       <table class="table">
-        <thead>
-          <tr>
-            <th>Cliente</th>
-            <th>Cidade</th>
-            <th>Total Devido</th>
-            <th>Total Pago</th>
-            <th>Restante</th>
-            <th>Progresso</th>
-            <th style="width:120px">Ações</th>
-          </tr>
-        </thead>
+        <thead><tr><th>ID</th><th>Cliente</th><th>Valor</th><th>Data</th><th>Forma Pgto</th><th>Referência</th><th>Ações</th></tr></thead>
         <tbody id="pagClientesBody"></tbody>
       </table>
-    </div>
-  `;
-
+    </div>`;
   const tbody = document.getElementById('pagClientesBody');
-  if (pags.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--text-muted)">Nenhum registro</td></tr>';
-    return;
-  }
-
-  tbody.innerHTML = pags.map(p => {
-    const pct = p.totalDevido > 0 ? (p.totalPago / p.totalDevido * 100).toFixed(1) : 0;
-    return `<tr>
-      <td><strong>${p.cliente}</strong></td>
-      <td>${p.cidade || '-'}</td>
-      <td>${formatCurrency(p.totalDevido)}</td>
-      <td class="text-success">${formatCurrency(p.totalPago)}</td>
-      <td class="text-danger"><strong>${formatCurrency(p.restante)}</strong></td>
+  tbody.innerHTML = pags.length === 0 ? '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhum pagamento</td></tr>' :
+    pags.map(p => `<tr>
+      <td>${p.id}</td><td>${p.cliente}</td><td>${formatCurrency(p.valor)}</td><td>${formatDate(p.data)}</td>
+      <td>${p.formaPagamento || '-'}</td><td>${p.referencia || '-'}</td>
       <td>
-        <div class="progress-bar" style="width:100px"><div class="progress-fill" style="width:${pct}%"></div></div>
-        <small>${pct}%</small>
+        <button class="btn btn-sm btn-primary" onclick="editPagCliente(${p.id})">✏️</button>
+        <button class="btn btn-sm btn-danger" onclick="deletePagCliente(${p.id})">🗑️</button>
       </td>
-      <td>
-        <button class="btn btn-sm btn-outline" onclick="editPagCliente(${p.id})" title="Editar">✏️</button>
-        <button class="btn btn-sm btn-danger" onclick="deletePagCliente(${p.id})" title="Excluir">🗑️</button>
-      </td>
-    </tr>`;
-  }).join('');
+    </tr>`).join('');
 }
 
 function openPagClienteModal(pag) {
   const isEdit = !!pag;
-  const modal = document.getElementById('cadastroModal');
-  const modalTitle = document.getElementById('cadastroModalTitle');
-  const modalBody = document.getElementById('cadastroModalBody');
-  const modalFooter = document.getElementById('cadastroModalFooter');
-
-  modalTitle.textContent = isEdit ? 'Editar Pagamento' : 'Novo Pagamento de Cliente';
-
-  const clientes = (appData.clientes||[]).map(c => c.nome).sort();
-
-  modalBody.innerHTML = `
+  const clienteOpts = (appData.clientes || []).map(c => `<option value="${c.nome}" ${pag && pag.cliente === c.nome ? 'selected' : ''}>${c.nome}</option>`).join('');
+  const pgtoOpts = (appData.formasPagamento || []).map(f => `<option value="${f}" ${pag && pag.formaPagamento === f ? 'selected' : ''}>${f}</option>`).join('');
+  document.getElementById('cadastroModalTitle').textContent = isEdit ? 'Editar Pagamento' : 'Novo Pagamento';
+  document.getElementById('cadastroModalBody').innerHTML = `
     <div class="form-row">
-      <div class="form-group">
-        <label>Cliente *</label>
-        <select id="pagCliente" class="form-control">
-          <option value="">Selecione...</option>
-          ${clientes.map(c => `<option value="${c}" ${isEdit && pag.cliente===c ? 'selected' : ''}>${c}</option>`).join('')}
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Cidade</label>
-        <input type="text" id="pagCidade" class="form-control" value="${isEdit ? (pag.cidade||'') : ''}">
-      </div>
+      <div class="form-group"><label>Cliente</label><select class="form-control" id="pcCliente"><option value="">Selecione...</option>${clienteOpts}</select></div>
+      <div class="form-group"><label>Valor</label><input type="number" class="form-control" id="pcValor" value="${pag ? pag.valor : ''}" step="0.01"></div>
     </div>
     <div class="form-row">
-      <div class="form-group">
-        <label>Total Devido *</label>
-        <input type="number" id="pagDevido" class="form-control" step="0.01" min="0" value="${isEdit ? pag.totalDevido : ''}">
-      </div>
-      <div class="form-group">
-        <label>Total Pago</label>
-        <input type="number" id="pagPago" class="form-control" step="0.01" min="0" value="${isEdit ? pag.totalPago : 0}">
-      </div>
+      <div class="form-group"><label>Data</label><input type="date" class="form-control" id="pcData" value="${pag ? pag.data : new Date().toISOString().split('T')[0]}"></div>
+      <div class="form-group"><label>Forma Pgto</label><select class="form-control" id="pcPgto">${pgtoOpts}</select></div>
     </div>
-    <div class="form-group">
-      <label>Observações</label>
-      <textarea id="pagObs" class="form-control" rows="2">${isEdit ? (pag.obs||'') : ''}</textarea>
-    </div>
-  `;
-
-  modalFooter.innerHTML = `
+    <div class="form-group"><label>Referência</label><input type="text" class="form-control" id="pcRef" value="${pag ? pag.referencia || '' : ''}"></div>
+    <div class="form-group"><label>Observações</label><textarea class="form-control" id="pcObs" rows="2">${pag ? pag.obs || '' : ''}</textarea></div>`;
+  document.getElementById('cadastroModalFooter').innerHTML = `
     <button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button>
-    <button class="btn btn-primary" onclick="savePagCliente(${isEdit ? pag.id : 0})">Salvar</button>
-  `;
-
-  modal.style.display = 'flex';
+    <button class="btn btn-primary" onclick="savePagCliente(${isEdit ? pag.id : 'null'})">Salvar</button>`;
+  openCadastroModal();
 }
 
-function savePagCliente(editId) {
-  const cliente = document.getElementById('pagCliente').value;
-  const cidade = document.getElementById('pagCidade').value.trim();
-  const totalDevido = parseFloat(document.getElementById('pagDevido').value) || 0;
-  const totalPago = parseFloat(document.getElementById('pagPago').value) || 0;
-  const obs = document.getElementById('pagObs').value.trim();
-  const restante = totalDevido - totalPago;
-
-  if (!cliente || totalDevido <= 0) {
-    showToast('Preencha Cliente e Total Devido', 'error');
-    return;
-  }
-
-  if (editId > 0) {
-    const idx = appData.pagClientes.findIndex(p => p.id === editId);
-    if (idx >= 0) {
-      appData.pagClientes[idx] = { ...appData.pagClientes[idx], cliente, cidade, totalDevido, totalPago, restante, obs };
-    }
+function savePagCliente(id) {
+  const obj = {
+    cliente: document.getElementById('pcCliente').value,
+    valor: parseFloat(document.getElementById('pcValor').value) || 0,
+    data: document.getElementById('pcData').value,
+    formaPagamento: document.getElementById('pcPgto').value,
+    referencia: document.getElementById('pcRef').value,
+    obs: document.getElementById('pcObs').value
+  };
+  if (!appData.pagClientes) appData.pagClientes = [];
+  if (id) {
+    const idx = appData.pagClientes.findIndex(p => p.id === id);
+    if (idx > -1) { obj.id = id; appData.pagClientes[idx] = obj; }
   } else {
-    appData.pagClientes.push({ id: nextId(appData.pagClientes), cliente, cidade, totalDevido, totalPago, restante, obs });
+    obj.id = nextId(appData.pagClientes);
+    appData.pagClientes.push(obj);
   }
-
   saveData();
   closeCadastroModal();
-  showToast(editId > 0 ? 'Registro atualizado!' : 'Registro adicionado!', 'success');
-  renderPagClientes();
+  renderPagClientesPage();
+  showToast(id ? 'Pagamento atualizado!' : 'Pagamento cadastrado!', 'success');
 }
 
-function editPagCliente(id) {
-  const p = appData.pagClientes.find(p => p.id === id);
-  if (p) openPagClienteModal(p);
-}
+function editPagCliente(id) { const p = (appData.pagClientes || []).find(x => x.id === id); if (p) openPagClienteModal(p); }
+function deletePagCliente(id) { if (!confirm('Excluir pagamento?')) return; appData.pagClientes = (appData.pagClientes || []).filter(p => p.id !== id); saveData(); renderPagClientesPage(); showToast('Pagamento excluído!','success'); }
 
-function deletePagCliente(id) {
-  if (!confirm('Deseja excluir este registro?')) return;
-  appData.pagClientes = appData.pagClientes.filter(p => p.id !== id);
-  saveData();
-  showToast('Registro excluído!', 'success');
-  renderPagClientes();
-}
-
-// ============ GARANTIAS ============
-function renderGarantias() {
-  const pageEl = document.getElementById('page-garantias');
-  if (!pageEl) return;
-
+// ============================================================
+// GARANTIAS
+// ============================================================
+function renderGarantiasPage() {
+  const pg = document.getElementById('page-garantias');
   const garantias = appData.garantias || [];
-
-  pageEl.innerHTML = `
+  pg.innerHTML = `
     <div class="page-header">
-      <h2>Garantias</h2>
-      <button class="btn btn-primary" onclick="openGarantiaModal()"><span>+</span> Nova Garantia</button>
+      <h2>🛡️ Garantias</h2>
+      <button class="btn btn-primary" onclick="openGarantiaModal()">+ Nova Garantia</button>
     </div>
-
-    <div class="dashboard-grid" style="margin-bottom:20px;">
-      <div class="card">
-        <div class="card-header"><span class="card-icon">🛡️</span><span>Total Garantias</span></div>
-        <div class="card-value">${garantias.length}</div>
-      </div>
-      <div class="card">
-        <div class="card-header"><span class="card-icon">✅</span><span>Ativas</span></div>
-        <div class="card-value text-success">${garantias.filter(g => g.situacao==='Ativa').length}</div>
-      </div>
-      <div class="card">
-        <div class="card-header"><span class="card-icon">⏰</span><span>Expiradas</span></div>
-        <div class="card-value text-warning">${garantias.filter(g => g.situacao==='Expirada').length}</div>
-      </div>
-    </div>
-
     <div class="filter-bar">
-      <input type="text" id="filtroGarantiasBusca" class="form-control" placeholder="Buscar produto, cliente..." oninput="filtrarGarantias()" style="max-width:300px">
-      <select id="filtroGarantiasStatus" class="form-control" style="max-width:160px" onchange="filtrarGarantias()">
-        <option value="">Todas</option>
-        ${(appData.situacaoGarantia||[]).map(s => `<option value="${s}">${s}</option>`).join('')}
-      </select>
+      <input type="text" class="form-control" style="max-width:250px" placeholder="Buscar garantia..." oninput="filterGarantias(this.value)">
     </div>
-
     <div class="table-responsive">
       <table class="table">
-        <thead>
-          <tr>
-            <th>Produto</th>
-            <th>Cliente</th>
-            <th>Início</th>
-            <th>Término</th>
-            <th>Dias Rest.</th>
-            <th>Situação</th>
-            <th style="width:120px">Ações</th>
-          </tr>
-        </thead>
+        <thead><tr><th>ID</th><th>Produto</th><th>Cliente</th><th>Início</th><th>Fim</th><th>Situação</th><th>Ações</th></tr></thead>
         <tbody id="garantiasBody"></tbody>
       </table>
-    </div>
-  `;
-
-  filtrarGarantias();
+    </div>`;
+  renderGarantiasTable(garantias);
 }
 
-function filtrarGarantias() {
-  const busca = (document.getElementById('filtroGarantiasBusca')?.value || '').toLowerCase();
-  const status = document.getElementById('filtroGarantiasStatus')?.value || '';
-
-  let lista = [...(appData.garantias || [])];
-
-  if (busca) {
-    lista = lista.filter(g =>
-      (g.produto||'').toLowerCase().includes(busca) ||
-      (g.cliente||'').toLowerCase().includes(busca)
-    );
-  }
-  if (status) lista = lista.filter(g => g.situacao === status);
-
+function renderGarantiasTable(garantias) {
   const tbody = document.getElementById('garantiasBody');
   if (!tbody) return;
-
-  if (lista.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--text-muted)">Nenhuma garantia cadastrada</td></tr>';
-    return;
-  }
-
-  tbody.innerHTML = lista.map(g => {
-    const diasRest = getDiasEntreHoje(g.termino);
-    let badgeSit = 'badge-success';
-    if (g.situacao === 'Expirada') badgeSit = 'badge-warning';
-    else if (g.situacao === 'Utilizada') badgeSit = 'badge-info';
-
-    return `<tr>
-      <td><strong>${g.produto}</strong></td>
-      <td>${g.cliente || '-'}</td>
-      <td>${formatDate(g.inicio)}</td>
-      <td>${formatDate(g.termino)}</td>
-      <td>${g.situacao === 'Ativa' ? (diasRest > 0 ? diasRest + 'd' : '<span class="text-danger">Expirado</span>') : '-'}</td>
-      <td><span class="badge ${badgeSit}">${g.situacao}</span></td>
-      <td>
-        <button class="btn btn-sm btn-outline" onclick="editGarantia(${g.id})" title="Editar">✏️</button>
-        <button class="btn btn-sm btn-danger" onclick="deleteGarantia(${g.id})" title="Excluir">🗑️</button>
-      </td>
-    </tr>`;
-  }).join('');
+  tbody.innerHTML = garantias.length === 0 ? '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhuma garantia</td></tr>' :
+    garantias.map(g => {
+      const badge = g.situacao === 'Ativa' ? 'badge-success' : g.situacao === 'Expirada' ? 'badge-danger' : 'badge-warning';
+      return `<tr>
+        <td>${g.id}</td><td>${g.produto}</td><td>${g.cliente || '-'}</td><td>${formatDate(g.inicio)}</td><td>${formatDate(g.fim)}</td>
+        <td><span class="badge ${badge}">${g.situacao}</span></td>
+        <td>
+          <button class="btn btn-sm btn-primary" onclick="editGarantia(${g.id})">✏️</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteGarantia(${g.id})">🗑️</button>
+        </td>
+      </tr>`;
+    }).join('');
 }
 
-function openGarantiaModal(garantia) {
-  const isEdit = !!garantia;
-  const modal = document.getElementById('cadastroModal');
-  const modalTitle = document.getElementById('cadastroModalTitle');
-  const modalBody = document.getElementById('cadastroModalBody');
-  const modalFooter = document.getElementById('cadastroModalFooter');
+function filterGarantias(q) {
+  q = q.toLowerCase();
+  renderGarantiasTable((appData.garantias || []).filter(g => g.produto.toLowerCase().includes(q) || (g.cliente || '').toLowerCase().includes(q)));
+}
 
-  modalTitle.textContent = isEdit ? 'Editar Garantia' : 'Nova Garantia';
-
-  const clientes = (appData.clientes||[]).map(c => c.nome).sort();
-  const situacoes = appData.situacaoGarantia || [];
-
-  modalBody.innerHTML = `
-    <div class="form-group">
-      <label>Produto/Serviço *</label>
-      <input type="text" id="garProduto" class="form-control" value="${isEdit ? garantia.produto : ''}">
-    </div>
-    <div class="form-group">
-      <label>Cliente</label>
-      <select id="garCliente" class="form-control">
-        <option value="">Selecione...</option>
-        ${clientes.map(c => `<option value="${c}" ${isEdit && garantia.cliente===c ? 'selected' : ''}>${c}</option>`).join('')}
-      </select>
-    </div>
+function openGarantiaModal(gar) {
+  const isEdit = !!gar;
+  const clienteOpts = (appData.clientes || []).map(c => `<option value="${c.nome}" ${gar && gar.cliente === c.nome ? 'selected' : ''}>${c.nome}</option>`).join('');
+  const sitOpts = (appData.situacaoGarantia || []).map(s => `<option value="${s}" ${gar && gar.situacao === s ? 'selected' : ''}>${s}</option>`).join('');
+  document.getElementById('cadastroModalTitle').textContent = isEdit ? 'Editar Garantia' : 'Nova Garantia';
+  document.getElementById('cadastroModalBody').innerHTML = `
+    <div class="form-group"><label>Produto</label><input type="text" class="form-control" id="garProd" value="${gar ? gar.produto : ''}"></div>
+    <div class="form-group"><label>Cliente</label><select class="form-control" id="garCliente"><option value="">Selecione...</option>${clienteOpts}</select></div>
     <div class="form-row">
-      <div class="form-group">
-        <label>Data Início *</label>
-        <input type="date" id="garInicio" class="form-control" value="${isEdit ? garantia.inicio : new Date().toISOString().split('T')[0]}">
-      </div>
-      <div class="form-group">
-        <label>Data Término *</label>
-        <input type="date" id="garTermino" class="form-control" value="${isEdit ? garantia.termino : ''}">
-      </div>
+      <div class="form-group"><label>Início</label><input type="date" class="form-control" id="garInicio" value="${gar ? gar.inicio : ''}"></div>
+      <div class="form-group"><label>Fim</label><input type="date" class="form-control" id="garFim" value="${gar ? gar.fim : ''}"></div>
     </div>
-    <div class="form-group">
-      <label>Situação</label>
-      <select id="garSit" class="form-control">
-        ${situacoes.map(s => `<option value="${s}" ${isEdit && garantia.situacao===s ? 'selected' : ''}>${s}</option>`).join('')}
-      </select>
-    </div>
-    <div class="form-group">
-      <label>Observações</label>
-      <textarea id="garObs" class="form-control" rows="2">${isEdit ? (garantia.obs||'') : ''}</textarea>
-    </div>
-  `;
-
-  modalFooter.innerHTML = `
+    <div class="form-group"><label>Situação</label><select class="form-control" id="garSit">${sitOpts}</select></div>
+    <div class="form-group"><label>Observações</label><textarea class="form-control" id="garObs" rows="2">${gar ? gar.obs || '' : ''}</textarea></div>`;
+  document.getElementById('cadastroModalFooter').innerHTML = `
     <button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button>
-    <button class="btn btn-primary" onclick="saveGarantia(${isEdit ? garantia.id : 0})">Salvar</button>
-  `;
-
-  modal.style.display = 'flex';
+    <button class="btn btn-primary" onclick="saveGarantia(${isEdit ? gar.id : 'null'})">Salvar</button>`;
+  openCadastroModal();
 }
 
-function saveGarantia(editId) {
-  const produto = document.getElementById('garProduto').value.trim();
-  const cliente = document.getElementById('garCliente').value;
-  const inicio = document.getElementById('garInicio').value;
-  const termino = document.getElementById('garTermino').value;
-  const situacao = document.getElementById('garSit').value;
-  const obs = document.getElementById('garObs').value.trim();
-
-  if (!produto || !inicio || !termino) {
-    showToast('Preencha Produto, Início e Término', 'error');
-    return;
-  }
-
-  if (editId > 0) {
-    const idx = appData.garantias.findIndex(g => g.id === editId);
-    if (idx >= 0) {
-      appData.garantias[idx] = { ...appData.garantias[idx], produto, cliente, inicio, termino, situacao, obs };
-    }
+function saveGarantia(id) {
+  const obj = {
+    produto: document.getElementById('garProd').value,
+    cliente: document.getElementById('garCliente').value,
+    inicio: document.getElementById('garInicio').value,
+    fim: document.getElementById('garFim').value,
+    situacao: document.getElementById('garSit').value,
+    obs: document.getElementById('garObs').value
+  };
+  if (!appData.garantias) appData.garantias = [];
+  if (id) {
+    const idx = appData.garantias.findIndex(g => g.id === id);
+    if (idx > -1) { obj.id = id; appData.garantias[idx] = obj; }
   } else {
-    appData.garantias.push({ id: nextId(appData.garantias), produto, cliente, inicio, termino, situacao, obs });
+    obj.id = nextId(appData.garantias);
+    appData.garantias.push(obj);
   }
-
   saveData();
   closeCadastroModal();
-  showToast(editId > 0 ? 'Garantia atualizada!' : 'Garantia adicionada!', 'success');
-  renderGarantias();
+  renderGarantiasPage();
+  showToast(id ? 'Garantia atualizada!' : 'Garantia cadastrada!', 'success');
 }
 
-function editGarantia(id) {
-  const g = appData.garantias.find(g => g.id === id);
-  if (g) openGarantiaModal(g);
+function editGarantia(id) { const g = (appData.garantias || []).find(x => x.id === id); if (g) openGarantiaModal(g); }
+function deleteGarantia(id) { if (!confirm('Excluir garantia?')) return; appData.garantias = (appData.garantias || []).filter(g => g.id !== id); saveData(); renderGarantiasPage(); showToast('Garantia excluída!','success'); }
+
+// ============================================================
+// RELATÓRIOS
+// ============================================================
+function renderRelatoriosPage() {
+  const pg = document.getElementById('page-relatorios');
+  const compras = appData.compras || [];
+  const vendas = appData.vendas || [];
+  const totalCompras = compras.reduce((s, c) => s + (c.quantidade * c.valorUnit), 0);
+  const totalVendas = vendas.reduce((s, v) => s + (v.quantidade * v.valorUnit), 0);
+  const lucro = totalVendas - totalCompras;
+
+  // Vendas por vendedor
+  const porVendedor = {};
+  vendas.forEach(v => {
+    if (!porVendedor[v.vendedor]) porVendedor[v.vendedor] = 0;
+    porVendedor[v.vendedor] += v.quantidade * v.valorUnit;
+  });
+
+  // Compras por fornecedor (top 5)
+  const porFornecedor = {};
+  compras.forEach(c => {
+    if (!porFornecedor[c.fornecedor]) porFornecedor[c.fornecedor] = 0;
+    porFornecedor[c.fornecedor] += c.quantidade * c.valorUnit;
+  });
+  const topForn = Object.entries(porFornecedor).sort((a, b) => b[1] - a[1]).slice(0, 5);
+
+  pg.innerHTML = `
+    <div class="page-header"><h2>📈 Relatórios</h2></div>
+    <div class="dashboard-grid">
+      <div class="card card-accent"><div class="card-header"><span>Total Compras</span></div><div class="card-value text-danger">${formatCurrency(totalCompras)}</div></div>
+      <div class="card"><div class="card-header"><span>Total Vendas</span></div><div class="card-value text-success">${formatCurrency(totalVendas)}</div></div>
+      <div class="card"><div class="card-header"><span>Lucro Bruto</span></div><div class="card-value ${lucro >= 0 ? 'text-success' : 'text-danger'}">${formatCurrency(lucro)}</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div class="card">
+        <div class="section-title">Vendas por Vendedor</div>
+        ${Object.entries(porVendedor).map(([v, t]) => `
+          <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-color)">
+            <span>${v}</span><strong>${formatCurrency(t)}</strong>
+          </div>`).join('')}
+      </div>
+      <div class="card">
+        <div class="section-title">Top 5 Fornecedores (Compras)</div>
+        ${topForn.map(([f, t]) => `
+          <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-color)">
+            <span>${f}</span><strong>${formatCurrency(t)}</strong>
+          </div>`).join('')}
+      </div>
+    </div>`;
 }
 
-function deleteGarantia(id) {
-  if (!confirm('Deseja excluir esta garantia?')) return;
-  appData.garantias = appData.garantias.filter(g => g.id !== id);
-  saveData();
-  showToast('Garantia excluída!', 'success');
-  renderGarantias();
-}
-
-// ==========================================
-// PARTE 8 — RELATÓRIOS, NOTAS, RECEITAS MEI, CONFIGURAÇÕES, BACKUP, INIT
-// ==========================================
-
-// ============ RELATÓRIOS ============
-function renderRelatorios() {
-  const pageEl = document.getElementById('page-relatorios');
-  if (!pageEl) return;
-
-  const meses = ['janeiro','fevereiro','marco','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
-  const mesesLabel = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-
-  // Dados mensais
-  let relMensal = meses.map((m, i) => {
-    const fc = appData.fluxoCaixa[m];
-    const entradas = fc ? (fc.entradas||[]).reduce((a,b) => a+b, 0) : 0;
-    const saidas = fc ? (fc.saidas||[]).reduce((a,b) => a+b, 0) + (fc.combustivel||[]).reduce((a,b) => a+b, 0) : 0;
-    const comprasMes = (appData.compras||[]).filter(c => {
-      const d = new Date(c.data+'T00:00:00');
-      return d.getMonth() === i && d.getFullYear() === 2026;
-    }).reduce((s,c) => s + (c.quantidade * c.valorUnit), 0);
-    const vendasMes = (appData.vendas||[]).filter(v => {
-      const d = new Date(v.data+'T00:00:00');
-      return d.getMonth() === i && d.getFullYear() === 2026;
-    }).reduce((s,v) => s + (v.quantidade * v.valorUnit), 0);
-
-    return { mes: mesesLabel[i], entradas, saidas, lucro: entradas - saidas, compras: comprasMes, vendas: vendasMes };
-  });
-
-  const totalAnualEntradas = relMensal.reduce((s,r) => s + r.entradas, 0);
-  const totalAnualSaidas = relMensal.reduce((s,r) => s + r.saidas, 0);
-  const totalAnualLucro = totalAnualEntradas - totalAnualSaidas;
-  const totalAnualCompras = relMensal.reduce((s,r) => s + r.compras, 0);
-  const totalAnualVendas = relMensal.reduce((s,r) => s + r.vendas, 0);
-
-  // Ranking fornecedores
-  const fornMap = {};
-  (appData.compras||[]).forEach(c => {
-    if (!fornMap[c.fornecedor]) fornMap[c.fornecedor] = 0;
-    fornMap[c.fornecedor] += c.quantidade * c.valorUnit;
-  });
-  const rankForn = Object.entries(fornMap).sort((a,b) => b[1]-a[1]).slice(0, 10);
-
-  // Ranking clientes
-  const cliMap = {};
-  (appData.vendas||[]).forEach(v => {
-    if (!cliMap[v.cliente]) cliMap[v.cliente] = 0;
-    cliMap[v.cliente] += v.quantidade * v.valorUnit;
-  });
-  const rankCli = Object.entries(cliMap).sort((a,b) => b[1]-a[1]).slice(0, 10);
-
-  // Ranking vendedores
-  const vendMap = {};
-  (appData.vendas||[]).forEach(v => {
-    if (!vendMap[v.vendedor]) vendMap[v.vendedor] = 0;
-    vendMap[v.vendedor] += v.quantidade * v.valorUnit;
-  });
-  const rankVend = Object.entries(vendMap).sort((a,b) => b[1]-a[1]);
-
-  pageEl.innerHTML = `
-    <div class="page-header">
-      <h2>Relatórios</h2>
-    </div>
-
-    <div class="dashboard-grid" style="margin-bottom:20px;">
-      <div class="card">
-        <div class="card-header"><span class="card-icon">📈</span><span>Entradas Anual</span></div>
-        <div class="card-value text-success">${formatCurrency(totalAnualEntradas)}</div>
-      </div>
-      <div class="card">
-        <div class="card-header"><span class="card-icon">📉</span><span>Saídas Anual</span></div>
-        <div class="card-value text-danger">${formatCurrency(totalAnualSaidas)}</div>
-      </div>
-      <div class="card">
-        <div class="card-header"><span class="card-icon">💰</span><span>Lucro Anual</span></div>
-        <div class="card-value ${totalAnualLucro >= 0 ? 'text-success' : 'text-danger'}">${formatCurrency(totalAnualLucro)}</div>
-      </div>
-      <div class="card">
-        <div class="card-header"><span class="card-icon">🛒</span><span>Compras Anual</span></div>
-        <div class="card-value">${formatCurrency(totalAnualCompras)}</div>
-      </div>
-      <div class="card">
-        <div class="card-header"><span class="card-icon">🏷️</span><span>Vendas Anual</span></div>
-        <div class="card-value">${formatCurrency(totalAnualVendas)}</div>
-      </div>
-    </div>
-
-    <div class="section-title">Resumo Mensal</div>
-    <div class="table-responsive" style="margin-bottom:24px;">
-      <table class="table">
-        <thead>
-          <tr><th>Mês</th><th>Entradas</th><th>Saídas</th><th>Lucro</th><th>Compras</th><th>Vendas</th></tr>
-        </thead>
-        <tbody>
-          ${relMensal.map(r => `<tr>
-            <td><strong>${r.mes}</strong></td>
-            <td class="text-success">${formatCurrency(r.entradas)}</td>
-            <td class="text-danger">${formatCurrency(r.saidas)}</td>
-            <td class="${r.lucro >= 0 ? 'text-success' : 'text-danger'}"><strong>${formatCurrency(r.lucro)}</strong></td>
-            <td>${formatCurrency(r.compras)}</td>
-            <td>${formatCurrency(r.vendas)}</td>
-          </tr>`).join('')}
-          <tr style="background:var(--bg-tertiary);font-weight:bold;">
-            <td>TOTAL ANUAL</td>
-            <td class="text-success">${formatCurrency(totalAnualEntradas)}</td>
-            <td class="text-danger">${formatCurrency(totalAnualSaidas)}</td>
-            <td class="${totalAnualLucro >= 0 ? 'text-success' : 'text-danger'}">${formatCurrency(totalAnualLucro)}</td>
-            <td>${formatCurrency(totalAnualCompras)}</td>
-            <td>${formatCurrency(totalAnualVendas)}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;margin-bottom:24px;">
-      <div>
-        <div class="section-title">Top 10 Fornecedores</div>
-        <div class="table-responsive">
-          <table class="table">
-            <thead><tr><th>#</th><th>Fornecedor</th><th>Total</th></tr></thead>
-            <tbody>${rankForn.map((f,i) => `<tr><td>${i+1}</td><td><strong>${f[0]}</strong></td><td>${formatCurrency(f[1])}</td></tr>`).join('')}</tbody>
-          </table>
-        </div>
-      </div>
-      <div>
-        <div class="section-title">Top Clientes</div>
-        <div class="table-responsive">
-          <table class="table">
-            <thead><tr><th>#</th><th>Cliente</th><th>Total</th></tr></thead>
-            <tbody>${rankCli.map((c,i) => `<tr><td>${i+1}</td><td><strong>${c[0]}</strong></td><td>${formatCurrency(c[1])}</td></tr>`).join('')}</tbody>
-          </table>
-        </div>
-      </div>
-      <div>
-        <div class="section-title">Vendedores</div>
-        <div class="table-responsive">
-          <table class="table">
-            <thead><tr><th>#</th><th>Vendedor</th><th>Total</th></tr></thead>
-            <tbody>${rankVend.map((v,i) => `<tr><td>${i+1}</td><td><strong>${v[0]}</strong></td><td>${formatCurrency(v[1])}</td></tr>`).join('')}</tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-// ============ NOTAS DE ENTRADA ============
-function renderNotasEntrada() {
-  const pageEl = document.getElementById('page-notasentrada');
-  if (!pageEl) return;
-
+// ============================================================
+// NOTAS DE ENTRADA
+// ============================================================
+function renderNotasEntradaPage() {
+  const pg = document.getElementById('page-notasentrada');
   const notas = appData.notasEntrada || [];
-  const total = notas.reduce((s,n) => s + (n.valor||0), 0);
-
-  pageEl.innerHTML = `
+  pg.innerHTML = `
     <div class="page-header">
-      <h2>Notas de Entrada</h2>
-      <button class="btn btn-primary" onclick="openNotaEntradaModal()"><span>+</span> Nova Nota</button>
+      <h2>📥 Notas de Entrada</h2>
+      <button class="btn btn-primary" onclick="openNotaEntradaModal()">+ Nova Nota</button>
     </div>
-
-    <div class="dashboard-grid" style="margin-bottom:20px;">
-      <div class="card">
-        <div class="card-header"><span class="card-icon">📥</span><span>Total Notas Entrada</span></div>
-        <div class="card-value">${formatCurrency(total)}</div>
-        <small>${notas.length} notas</small>
-      </div>
-    </div>
-
-    <div class="filter-bar">
-      <input type="text" id="filtroNEBusca" class="form-control" placeholder="Buscar..." oninput="filtrarNotasEntrada()" style="max-width:300px">
-      <input type="date" id="filtroNEDataIni" class="form-control" style="max-width:170px" onchange="filtrarNotasEntrada()">
-      <input type="date" id="filtroNEDataFim" class="form-control" style="max-width:170px" onchange="filtrarNotasEntrada()">
-    </div>
-
     <div class="table-responsive">
       <table class="table">
-        <thead><tr><th>Nº Nota</th><th>Fornecedor</th><th>Data</th><th>Valor</th><th>Obs</th><th style="width:120px">Ações</th></tr></thead>
+        <thead><tr><th>ID</th><th>Nº Nota</th><th>Fornecedor</th><th>Data</th><th>Valor</th><th>Ações</th></tr></thead>
         <tbody id="notasEntradaBody"></tbody>
       </table>
-    </div>
-  `;
-
-  filtrarNotasEntrada();
-}
-
-function filtrarNotasEntrada() {
-  const busca = (document.getElementById('filtroNEBusca')?.value || '').toLowerCase();
-  const dataIni = document.getElementById('filtroNEDataIni')?.value || '';
-  const dataFim = document.getElementById('filtroNEDataFim')?.value || '';
-
-  let lista = [...(appData.notasEntrada || [])];
-  if (busca) lista = lista.filter(n => (n.numero||'').toLowerCase().includes(busca) || (n.fornecedor||'').toLowerCase().includes(busca));
-  if (dataIni) lista = lista.filter(n => n.data >= dataIni);
-  if (dataFim) lista = lista.filter(n => n.data <= dataFim);
-
-  lista.sort((a,b) => (b.data||'').localeCompare(a.data||''));
-
+    </div>`;
   const tbody = document.getElementById('notasEntradaBody');
-  if (!tbody) return;
-
-  if (lista.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--text-muted)">Nenhuma nota de entrada</td></tr>';
-    return;
-  }
-
-  tbody.innerHTML = lista.map(n => `<tr>
-    <td><strong>${n.numero || '-'}</strong></td>
-    <td>${n.fornecedor || '-'}</td>
-    <td>${formatDate(n.data)}</td>
-    <td><strong>${formatCurrency(n.valor)}</strong></td>
-    <td>${n.obs || '-'}</td>
-    <td>
-      <button class="btn btn-sm btn-outline" onclick="editNotaEntrada(${n.id})" title="Editar">✏️</button>
-      <button class="btn btn-sm btn-danger" onclick="deleteNotaEntrada(${n.id})" title="Excluir">🗑️</button>
-    </td>
-  </tr>`).join('');
+  tbody.innerHTML = notas.length === 0 ? '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhuma nota</td></tr>' :
+    notas.map(n => `<tr>
+      <td>${n.id}</td><td>${n.numero || '-'}</td><td>${n.fornecedor || '-'}</td><td>${formatDate(n.data)}</td><td>${formatCurrency(n.valor || 0)}</td>
+      <td>
+        <button class="btn btn-sm btn-primary" onclick="editNotaEntrada(${n.id})">✏️</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteNotaEntrada(${n.id})">🗑️</button>
+      </td>
+    </tr>`).join('');
 }
 
 function openNotaEntradaModal(nota) {
   const isEdit = !!nota;
-  const modal = document.getElementById('cadastroModal');
-  document.getElementById('cadastroModalTitle').textContent = isEdit ? 'Editar Nota de Entrada' : 'Nova Nota de Entrada';
-
-  const fornecedores = (appData.fornecedores||[]).map(f => f.nome).sort();
-
+  const fornOpts = (appData.fornecedores || []).map(f => `<option value="${f.nome}" ${nota && nota.fornecedor === f.nome ? 'selected' : ''}>${f.nome}</option>`).join('');
+  document.getElementById('cadastroModalTitle').textContent = isEdit ? 'Editar Nota Entrada' : 'Nova Nota Entrada';
   document.getElementById('cadastroModalBody').innerHTML = `
     <div class="form-row">
-      <div class="form-group">
-        <label>Nº Nota</label>
-        <input type="text" id="neNumero" class="form-control" value="${isEdit ? (nota.numero||'') : ''}">
-      </div>
-      <div class="form-group">
-        <label>Data *</label>
-        <input type="date" id="neData" class="form-control" value="${isEdit ? nota.data : new Date().toISOString().split('T')[0]}">
-      </div>
+      <div class="form-group"><label>Nº Nota</label><input type="text" class="form-control" id="neNum" value="${nota ? nota.numero || '' : ''}"></div>
+      <div class="form-group"><label>Data</label><input type="date" class="form-control" id="neData" value="${nota ? nota.data : ''}"></div>
     </div>
     <div class="form-row">
-      <div class="form-group">
-        <label>Fornecedor</label>
-        <select id="neFornecedor" class="form-control">
-          <option value="">Selecione...</option>
-          ${fornecedores.map(f => `<option value="${f}" ${isEdit && nota.fornecedor===f ? 'selected' : ''}>${f}</option>`).join('')}
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Valor *</label>
-        <input type="number" id="neValor" class="form-control" step="0.01" min="0" value="${isEdit ? nota.valor : ''}">
-      </div>
+      <div class="form-group"><label>Fornecedor</label><select class="form-control" id="neForn"><option value="">Selecione...</option>${fornOpts}</select></div>
+      <div class="form-group"><label>Valor</label><input type="number" class="form-control" id="neValor" value="${nota ? nota.valor || '' : ''}" step="0.01"></div>
     </div>
-    <div class="form-group">
-      <label>Observações</label>
-      <textarea id="neObs" class="form-control" rows="2">${isEdit ? (nota.obs||'') : ''}</textarea>
-    </div>
-  `;
-
+    <div class="form-group"><label>Observações</label><textarea class="form-control" id="neObs" rows="2">${nota ? nota.obs || '' : ''}</textarea></div>`;
   document.getElementById('cadastroModalFooter').innerHTML = `
     <button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button>
-    <button class="btn btn-primary" onclick="saveNotaEntrada(${isEdit ? nota.id : 0})">Salvar</button>
-  `;
-
-  modal.style.display = 'flex';
+    <button class="btn btn-primary" onclick="saveNotaEntrada(${isEdit ? nota.id : 'null'})">Salvar</button>`;
+  openCadastroModal();
 }
 
-function saveNotaEntrada(editId) {
-  const numero = document.getElementById('neNumero').value.trim();
-  const data = document.getElementById('neData').value;
-  const fornecedor = document.getElementById('neFornecedor').value;
-  const valor = parseFloat(document.getElementById('neValor').value) || 0;
-  const obs = document.getElementById('neObs').value.trim();
-
-  if (!data || valor <= 0) { showToast('Preencha Data e Valor', 'error'); return; }
-
-  if (editId > 0) {
-    const idx = appData.notasEntrada.findIndex(n => n.id === editId);
-    if (idx >= 0) appData.notasEntrada[idx] = { ...appData.notasEntrada[idx], numero, data, fornecedor, valor, obs };
-  } else {
-    appData.notasEntrada.push({ id: nextId(appData.notasEntrada), numero, data, fornecedor, valor, obs });
-  }
-
-  saveData(); closeCadastroModal();
-  showToast(editId > 0 ? 'Nota atualizada!' : 'Nota adicionada!', 'success');
-  renderNotasEntrada();
+function saveNotaEntrada(id) {
+  const obj = { numero: document.getElementById('neNum').value, data: document.getElementById('neData').value, fornecedor: document.getElementById('neForn').value, valor: parseFloat(document.getElementById('neValor').value) || 0, obs: document.getElementById('neObs').value };
+  if (!appData.notasEntrada) appData.notasEntrada = [];
+  if (id) { const idx = appData.notasEntrada.findIndex(n => n.id === id); if (idx > -1) { obj.id = id; appData.notasEntrada[idx] = obj; } }
+  else { obj.id = nextId(appData.notasEntrada); appData.notasEntrada.push(obj); }
+  saveData(); closeCadastroModal(); renderNotasEntradaPage(); showToast(id ? 'Nota atualizada!' : 'Nota cadastrada!', 'success');
 }
 
-function editNotaEntrada(id) { const n = appData.notasEntrada.find(n => n.id === id); if (n) openNotaEntradaModal(n); }
-function deleteNotaEntrada(id) { if (!confirm('Excluir nota?')) return; appData.notasEntrada = appData.notasEntrada.filter(n => n.id !== id); saveData(); showToast('Nota excluída!','success'); renderNotasEntrada(); }
+function editNotaEntrada(id) { const n = (appData.notasEntrada || []).find(x => x.id === id); if (n) openNotaEntradaModal(n); }
+function deleteNotaEntrada(id) { if (!confirm('Excluir nota?')) return; appData.notasEntrada = (appData.notasEntrada || []).filter(n => n.id !== id); saveData(); renderNotasEntradaPage(); showToast('Nota excluída!','success'); }
 
-// ============ NOTAS DE SAÍDA ============
-function renderNotasSaida() {
-  const pageEl = document.getElementById('page-notassaida');
-  if (!pageEl) return;
-
+// ============================================================
+// NOTAS DE SAÍDA
+// ============================================================
+function renderNotasSaidaPage() {
+  const pg = document.getElementById('page-notassaida');
   const notas = appData.notasSaida || [];
-  const total = notas.reduce((s,n) => s + (n.valor||0), 0);
-  const dasn = total * 0.05;
-  const lucro32 = total * 0.32;
-  const inss = total * 0.05;
-  const icms = total * 0.01;
-
-  pageEl.innerHTML = `
+  pg.innerHTML = `
     <div class="page-header">
-      <h2>Notas de Saída</h2>
-      <button class="btn btn-primary" onclick="openNotaSaidaModal()"><span>+</span> Nova Nota</button>
+      <h2>📤 Notas de Saída</h2>
+      <button class="btn btn-primary" onclick="openNotaSaidaModal()">+ Nova Nota</button>
     </div>
-
-    <div class="dashboard-grid" style="margin-bottom:20px;">
-      <div class="card">
-        <div class="card-header"><span class="card-icon">📤</span><span>Total Notas Saída</span></div>
-        <div class="card-value">${formatCurrency(total)}</div>
-        <small>${notas.length} notas</small>
-      </div>
-      <div class="card">
-        <div class="card-header"><span class="card-icon">📊</span><span>DASN-SIMEI (5%)</span></div>
-        <div class="card-value text-warning">${formatCurrency(dasn)}</div>
-      </div>
-      <div class="card">
-        <div class="card-header"><span class="card-icon">💼</span><span>Lucro 32%</span></div>
-        <div class="card-value">${formatCurrency(lucro32)}</div>
-      </div>
-      <div class="card">
-        <div class="card-header"><span class="card-icon">🏛️</span><span>INSS (5%)</span></div>
-        <div class="card-value text-danger">${formatCurrency(inss)}</div>
-      </div>
-    </div>
-
-    <div class="filter-bar">
-      <input type="text" id="filtroNSBusca" class="form-control" placeholder="Buscar..." oninput="filtrarNotasSaida()" style="max-width:300px">
-      <input type="date" id="filtroNSDataIni" class="form-control" style="max-width:170px" onchange="filtrarNotasSaida()">
-      <input type="date" id="filtroNSDataFim" class="form-control" style="max-width:170px" onchange="filtrarNotasSaida()">
-    </div>
-
     <div class="table-responsive">
       <table class="table">
-        <thead><tr><th>Nº Nota</th><th>Cliente</th><th>Data</th><th>Valor</th><th>Obs</th><th style="width:120px">Ações</th></tr></thead>
+        <thead><tr><th>ID</th><th>Nº Nota</th><th>Cliente</th><th>Data</th><th>Valor</th><th>Ações</th></tr></thead>
         <tbody id="notasSaidaBody"></tbody>
       </table>
-    </div>
-  `;
-
-  filtrarNotasSaida();
-}
-
-function filtrarNotasSaida() {
-  const busca = (document.getElementById('filtroNSBusca')?.value || '').toLowerCase();
-  const dataIni = document.getElementById('filtroNSDataIni')?.value || '';
-  const dataFim = document.getElementById('filtroNSDataFim')?.value || '';
-
-  let lista = [...(appData.notasSaida || [])];
-  if (busca) lista = lista.filter(n => (n.numero||'').toLowerCase().includes(busca) || (n.cliente||'').toLowerCase().includes(busca));
-  if (dataIni) lista = lista.filter(n => n.data >= dataIni);
-  if (dataFim) lista = lista.filter(n => n.data <= dataFim);
-
-  lista.sort((a,b) => (b.data||'').localeCompare(a.data||''));
-
+    </div>`;
   const tbody = document.getElementById('notasSaidaBody');
-  if (!tbody) return;
-
-  if (lista.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--text-muted)">Nenhuma nota de saída</td></tr>';
-    return;
-  }
-
-  tbody.innerHTML = lista.map(n => `<tr>
-    <td><strong>${n.numero || '-'}</strong></td>
-    <td>${n.cliente || '-'}</td>
-    <td>${formatDate(n.data)}</td>
-    <td><strong>${formatCurrency(n.valor)}</strong></td>
-    <td>${n.obs || '-'}</td>
-    <td>
-      <button class="btn btn-sm btn-outline" onclick="editNotaSaida(${n.id})" title="Editar">✏️</button>
-      <button class="btn btn-sm btn-danger" onclick="deleteNotaSaida(${n.id})" title="Excluir">🗑️</button>
-    </td>
-  </tr>`).join('');
+  tbody.innerHTML = notas.length === 0 ? '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhuma nota</td></tr>' :
+    notas.map(n => `<tr>
+      <td>${n.id}</td><td>${n.numero || '-'}</td><td>${n.cliente || '-'}</td><td>${formatDate(n.data)}</td><td>${formatCurrency(n.valor || 0)}</td>
+      <td>
+        <button class="btn btn-sm btn-primary" onclick="editNotaSaida(${n.id})">✏️</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteNotaSaida(${n.id})">🗑️</button>
+      </td>
+    </tr>`).join('');
 }
 
 function openNotaSaidaModal(nota) {
   const isEdit = !!nota;
-  const modal = document.getElementById('cadastroModal');
-  document.getElementById('cadastroModalTitle').textContent = isEdit ? 'Editar Nota de Saída' : 'Nova Nota de Saída';
-
-  const clientes = (appData.clientes||[]).map(c => c.nome).sort();
-
+  const clienteOpts = (appData.clientes || []).map(c => `<option value="${c.nome}" ${nota && nota.cliente === c.nome ? 'selected' : ''}>${c.nome}</option>`).join('');
+  document.getElementById('cadastroModalTitle').textContent = isEdit ? 'Editar Nota Saída' : 'Nova Nota Saída';
   document.getElementById('cadastroModalBody').innerHTML = `
     <div class="form-row">
-      <div class="form-group">
-        <label>Nº Nota</label>
-        <input type="text" id="nsNumero" class="form-control" value="${isEdit ? (nota.numero||'') : ''}">
-      </div>
-      <div class="form-group">
-        <label>Data *</label>
-        <input type="date" id="nsData" class="form-control" value="${isEdit ? nota.data : new Date().toISOString().split('T')[0]}">
-      </div>
+      <div class="form-group"><label>Nº Nota</label><input type="text" class="form-control" id="nsNum" value="${nota ? nota.numero || '' : ''}"></div>
+      <div class="form-group"><label>Data</label><input type="date" class="form-control" id="nsData" value="${nota ? nota.data : ''}"></div>
     </div>
     <div class="form-row">
-      <div class="form-group">
-        <label>Cliente</label>
-        <select id="nsCliente" class="form-control">
-          <option value="">Selecione...</option>
-          ${clientes.map(c => `<option value="${c}" ${isEdit && nota.cliente===c ? 'selected' : ''}>${c}</option>`).join('')}
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Valor *</label>
-        <input type="number" id="nsValor" class="form-control" step="0.01" min="0" value="${isEdit ? nota.valor : ''}">
-      </div>
+      <div class="form-group"><label>Cliente</label><select class="form-control" id="nsCliente"><option value="">Selecione...</option>${clienteOpts}</select></div>
+      <div class="form-group"><label>Valor</label><input type="number" class="form-control" id="nsValor" value="${nota ? nota.valor || '' : ''}" step="0.01"></div>
     </div>
-    <div class="form-group">
-      <label>Observações</label>
-      <textarea id="nsObs" class="form-control" rows="2">${isEdit ? (nota.obs||'') : ''}</textarea>
-    </div>
-  `;
-
+    <div class="form-group"><label>Observações</label><textarea class="form-control" id="nsObs" rows="2">${nota ? nota.obs || '' : ''}</textarea></div>`;
   document.getElementById('cadastroModalFooter').innerHTML = `
     <button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button>
-    <button class="btn btn-primary" onclick="saveNotaSaida(${isEdit ? nota.id : 0})">Salvar</button>
-  `;
-
-  modal.style.display = 'flex';
+    <button class="btn btn-primary" onclick="saveNotaSaida(${isEdit ? nota.id : 'null'})">Salvar</button>`;
+  openCadastroModal();
 }
 
-function saveNotaSaida(editId) {
-  const numero = document.getElementById('nsNumero').value.trim();
-  const data = document.getElementById('nsData').value;
-  const cliente = document.getElementById('nsCliente').value;
-  const valor = parseFloat(document.getElementById('nsValor').value) || 0;
-  const obs = document.getElementById('nsObs').value.trim();
-
-  if (!data || valor <= 0) { showToast('Preencha Data e Valor', 'error'); return; }
-
-  if (editId > 0) {
-    const idx = appData.notasSaida.findIndex(n => n.id === editId);
-    if (idx >= 0) appData.notasSaida[idx] = { ...appData.notasSaida[idx], numero, data, cliente, valor, obs };
-  } else {
-    appData.notasSaida.push({ id: nextId(appData.notasSaida), numero, data, cliente, valor, obs });
-  }
-
-  saveData(); closeCadastroModal();
-  showToast(editId > 0 ? 'Nota atualizada!' : 'Nota adicionada!', 'success');
-  renderNotasSaida();
+function saveNotaSaida(id) {
+  const obj = { numero: document.getElementById('nsNum').value, data: document.getElementById('nsData').value, cliente: document.getElementById('nsCliente').value, valor: parseFloat(document.getElementById('nsValor').value) || 0, obs: document.getElementById('nsObs').value };
+  if (!appData.notasSaida) appData.notasSaida = [];
+  if (id) { const idx = appData.notasSaida.findIndex(n => n.id === id); if (idx > -1) { obj.id = id; appData.notasSaida[idx] = obj; } }
+  else { obj.id = nextId(appData.notasSaida); appData.notasSaida.push(obj); }
+  saveData(); closeCadastroModal(); renderNotasSaidaPage(); showToast(id ? 'Nota atualizada!' : 'Nota cadastrada!', 'success');
 }
 
-function editNotaSaida(id) { const n = appData.notasSaida.find(n => n.id === id); if (n) openNotaSaidaModal(n); }
-function deleteNotaSaida(id) { if (!confirm('Excluir nota?')) return; appData.notasSaida = appData.notasSaida.filter(n => n.id !== id); saveData(); showToast('Nota excluída!','success'); renderNotasSaida(); }
+function editNotaSaida(id) { const n = (appData.notasSaida || []).find(x => x.id === id); if (n) openNotaSaidaModal(n); }
+function deleteNotaSaida(id) { if (!confirm('Excluir nota?')) return; appData.notasSaida = (appData.notasSaida || []).filter(n => n.id !== id); saveData(); renderNotasSaidaPage(); showToast('Nota excluída!','success'); }
 
-// ============ RECEITAS MEI ============
-function renderReceitasMei() {
-  const pageEl = document.getElementById('page-receitasmei');
-  if (!pageEl) return;
+// ============================================================
+// RECEITAS MEI
+// ============================================================
+function renderReceitasMeiPage() {
+  const pg = document.getElementById('page-receitasmei');
+  const receitas = appData.receitasMei || [];
+  const totalAnual = receitas.reduce((s, r) => s + (r.valor || 0), 0);
+  const limiteAnual = 81000;
 
-  const mesesLabel = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-
-  // Calcular receitas por mês baseado nas vendas
-  let receitasMensal = mesesLabel.map((mes, i) => {
-    const vendasMes = (appData.vendas||[]).filter(v => {
-      const d = new Date(v.data+'T00:00:00');
-      return d.getMonth() === i && d.getFullYear() === 2026;
-    });
-    const comNota = vendasMes.filter(v => v.tipo === 'Direta').reduce((s,v) => s + (v.quantidade * v.valorUnit), 0);
-    const semNota = vendasMes.filter(v => v.tipo === 'Revenda').reduce((s,v) => s + (v.quantidade * v.valorUnit), 0);
-    const total = comNota + semNota;
-    return { mes, comNota, semNota, total };
-  });
-
-  const totalAnual = receitasMensal.reduce((s,r) => s + r.total, 0);
-  const limiteMei = 81000;
-  const pctLimite = Math.min(100, (totalAnual / limiteMei * 100));
-
-  pageEl.innerHTML = `
+  pg.innerHTML = `
     <div class="page-header">
-      <h2>Receitas MEI — 2026</h2>
+      <h2>📄 Receitas MEI</h2>
+      <button class="btn btn-primary" onclick="openReceitaMeiModal()">+ Nova Receita</button>
     </div>
-
-    <div class="dashboard-grid" style="margin-bottom:20px;">
-      <div class="card">
-        <div class="card-header"><span class="card-icon">💰</span><span>Receita Bruta Anual</span></div>
-        <div class="card-value">${formatCurrency(totalAnual)}</div>
-      </div>
-      <div class="card">
-        <div class="card-header"><span class="card-icon">📊</span><span>Limite MEI</span></div>
-        <div class="card-value">${formatCurrency(limiteMei)}</div>
-        <div class="progress-bar"><div class="progress-fill" style="width:${pctLimite}%;${pctLimite > 80 ? 'background:var(--danger)' : ''}"></div></div>
-        <small>${pctLimite.toFixed(1)}% utilizado</small>
-      </div>
-      <div class="card">
-        <div class="card-header"><span class="card-icon">📋</span><span>DAS Mensal Estimado</span></div>
-        <div class="card-value text-warning">${formatCurrency(71.60)}</div>
-        <small>INSS + ISS/ICMS</small>
+    <div class="dashboard-grid">
+      <div class="card card-accent"><div class="card-header"><span>Faturamento Anual</span></div><div class="card-value">${formatCurrency(totalAnual)}</div></div>
+      <div class="card"><div class="card-header"><span>Limite MEI</span></div><div class="card-value">${formatCurrency(limiteAnual)}</div></div>
+      <div class="card"><div class="card-header"><span>Disponível</span></div><div class="card-value ${(limiteAnual - totalAnual) >= 0 ? 'text-success' : 'text-danger'}">${formatCurrency(limiteAnual - totalAnual)}</div></div>
+      <div class="card"><div class="card-header"><span>% Utilizado</span></div>
+        <div class="card-value">${((totalAnual / limiteAnual) * 100).toFixed(1)}%</div>
+        <div class="progress-bar" style="margin-top:8px"><div class="progress-fill" style="width:${Math.min((totalAnual / limiteAnual) * 100, 100)}%"></div></div>
       </div>
     </div>
-
     <div class="table-responsive">
       <table class="table">
-        <thead>
-          <tr><th>Mês</th><th>Com Nota Fiscal</th><th>Sem Nota Fiscal</th><th>Total Bruto</th></tr>
-        </thead>
-        <tbody>
-          ${receitasMensal.map(r => `<tr>
-            <td><strong>${r.mes}</strong></td>
-            <td>${formatCurrency(r.comNota)}</td>
-            <td>${formatCurrency(r.semNota)}</td>
-            <td><strong>${formatCurrency(r.total)}</strong></td>
-          </tr>`).join('')}
-          <tr style="background:var(--bg-tertiary);font-weight:bold;">
-            <td>TOTAL ANUAL</td>
-            <td>${formatCurrency(receitasMensal.reduce((s,r) => s+r.comNota, 0))}</td>
-            <td>${formatCurrency(receitasMensal.reduce((s,r) => s+r.semNota, 0))}</td>
-            <td>${formatCurrency(totalAnual)}</td>
-          </tr>
-        </tbody>
+        <thead><tr><th>ID</th><th>Mês</th><th>Descrição</th><th>Valor</th><th>Ações</th></tr></thead>
+        <tbody id="receitasMeiBody"></tbody>
       </table>
-    </div>
-  `;
+    </div>`;
+  const tbody = document.getElementById('receitasMeiBody');
+  tbody.innerHTML = receitas.length === 0 ? '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhuma receita</td></tr>' :
+    receitas.map(r => `<tr>
+      <td>${r.id}</td><td>${r.mes || '-'}</td><td>${r.descricao || '-'}</td><td>${formatCurrency(r.valor || 0)}</td>
+      <td>
+        <button class="btn btn-sm btn-primary" onclick="editReceitaMei(${r.id})">✏️</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteReceitaMei(${r.id})">🗑️</button>
+      </td>
+    </tr>`).join('');
 }
 
-// ============ CONFIGURAÇÕES ============
-function renderConfiguracoes() {
-  const pageEl = document.getElementById('page-configuracoes');
-  if (!pageEl) return;
+function openReceitaMeiModal(rec) {
+  const isEdit = !!rec;
+  const meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  const mesOpts = meses.map(m => `<option value="${m}" ${rec && rec.mes === m ? 'selected' : ''}>${m}</option>`).join('');
+  document.getElementById('cadastroModalTitle').textContent = isEdit ? 'Editar Receita MEI' : 'Nova Receita MEI';
+  document.getElementById('cadastroModalBody').innerHTML = `
+    <div class="form-row">
+      <div class="form-group"><label>Mês</label><select class="form-control" id="rmMes">${mesOpts}</select></div>
+      <div class="form-group"><label>Valor</label><input type="number" class="form-control" id="rmValor" value="${rec ? rec.valor || '' : ''}" step="0.01"></div>
+    </div>
+    <div class="form-group"><label>Descrição</label><input type="text" class="form-control" id="rmDesc" value="${rec ? rec.descricao || '' : ''}"></div>`;
+  document.getElementById('cadastroModalFooter').innerHTML = `
+    <button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button>
+    <button class="btn btn-primary" onclick="saveReceitaMei(${isEdit ? rec.id : 'null'})">Salvar</button>`;
+  openCadastroModal();
+}
 
-  const configs = [
-    { key: 'vendedores', label: 'Vendedores' },
-    { key: 'formasPagamento', label: 'Formas de Pagamento' },
-    { key: 'tipoUnidade', label: 'Tipos de Unidade' },
-    { key: 'tipoVenda', label: 'Tipos de Venda' },
-    { key: 'situacaoCompra', label: 'Situação de Compra' },
-    { key: 'situacaoEntrega', label: 'Situação de Entrega' },
-    { key: 'situacaoCheque', label: 'Situação de Cheque' },
-    { key: 'situacaoGarantia', label: 'Situação de Garantia' },
-    { key: 'situacaoBoleto', label: 'Situação de Boleto' }
-  ];
+function saveReceitaMei(id) {
+  const obj = { mes: document.getElementById('rmMes').value, valor: parseFloat(document.getElementById('rmValor').value) || 0, descricao: document.getElementById('rmDesc').value };
+  if (!appData.receitasMei) appData.receitasMei = [];
+  if (id) { const idx = appData.receitasMei.findIndex(r => r.id === id); if (idx > -1) { obj.id = id; appData.receitasMei[idx] = obj; } }
+  else { obj.id = nextId(appData.receitasMei); appData.receitasMei.push(obj); }
+  saveData(); closeCadastroModal(); renderReceitasMeiPage(); showToast(id ? 'Receita atualizada!' : 'Receita cadastrada!', 'success');
+}
 
-  let logoSection = `
-    <div class="card" style="margin-bottom:24px;">
-      <div class="card-header"><span class="card-icon">🖼️</span><span>Logo da Empresa</span></div>
-      <div style="padding:16px;">
-        <p style="color:var(--text-secondary);margin-bottom:12px;">Tamanho recomendado: <strong>260 × 70 px</strong> | Máximo: 500 KB | Formatos: PNG, JPG, SVG</p>
-        <div style="display:flex;align-items:center;gap:16px;">
-          <div id="configLogoPreview" style="width:260px;height:70px;border:2px dashed var(--border-color);border-radius:8px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--bg-tertiary)">
-            ${appData.empresa && appData.empresa.logo ? `<img src="${appData.empresa.logo}" style="max-width:100%;max-height:100%;object-fit:contain">` : '<span style="color:var(--text-muted)">Sem logo</span>'}
-          </div>
-          <div>
-            <label class="btn btn-primary" style="cursor:pointer;margin-right:8px;">
-              📷 Enviar Logo
-              <input type="file" accept="image/*" onchange="handleLogoUpload(event)" style="display:none">
-            </label>
-            ${appData.empresa && appData.empresa.logo ? `<button class="btn btn-danger" onclick="removeLogo()">🗑️ Remover</button>` : ''}
-          </div>
-        </div>
+function editReceitaMei(id) { const r = (appData.receitasMei || []).find(x => x.id === id); if (r) openReceitaMeiModal(r); }
+function deleteReceitaMei(id) { if (!confirm('Excluir receita?')) return; appData.receitasMei = (appData.receitasMei || []).filter(r => r.id !== id); saveData(); renderReceitasMeiPage(); showToast('Receita excluída!','success'); }
+
+// ============================================================
+// CONFIGURAÇÕES (com Categorias de Fluxo)
+// ============================================================
+function renderConfiguracoesPage() {
+  const pg = document.getElementById('page-configuracoes');
+  const cats = appData.categoriasFluxo || [];
+
+  pg.innerHTML = `
+    <div class="page-header"><h2>⚙️ Configurações</h2></div>
+
+    <!-- EMPRESA -->
+    <div class="card" style="margin-bottom:16px">
+      <div class="section-title">Empresa</div>
+      <div class="form-row">
+        <div class="form-group"><label>Nome</label><input type="text" class="form-control" id="cfgNome" value="${appData.empresa.nome}"></div>
+        <div class="form-group"><label>CNPJ</label><input type="text" class="form-control" id="cfgCnpj" value="${appData.empresa.cnpj}"></div>
       </div>
+      <div class="form-group"><label>Logo (URL)</label><input type="text" class="form-control" id="cfgLogo" value="${appData.empresa.logo || ''}"></div>
+      <button class="btn btn-primary" onclick="saveConfigEmpresa()">Salvar Empresa</button>
     </div>
-  `;
 
-  let configsHTML = configs.map(cfg => {
-    const items = appData[cfg.key] || [];
-    return `
-      <div class="card" style="margin-bottom:16px;">
-        <div class="card-header" style="cursor:pointer" onclick="toggleConfigList('${cfg.key}')">
-          <span><strong>${cfg.label}</strong> (${items.length})</span>
-          <span id="configArrow_${cfg.key}">▶</span>
-        </div>
-        <div id="configList_${cfg.key}" style="display:none;padding:12px;">
-          <div style="display:flex;gap:8px;margin-bottom:12px;">
-            <input type="text" id="configInput_${cfg.key}" class="form-control" placeholder="Novo item..." style="flex:1">
-            <button class="btn btn-primary btn-sm" onclick="addConfigItem('${cfg.key}')">+ Adicionar</button>
-          </div>
-          <div id="configItems_${cfg.key}">
-            ${items.map((item, i) => `
-              <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--bg-tertiary);border-radius:6px;margin-bottom:4px;">
-                <span>${item}</span>
-                <button class="btn btn-sm btn-danger" onclick="removeConfigItem('${cfg.key}', ${i})" style="padding:2px 8px;font-size:12px">✕</button>
-              </div>
-            `).join('')}
-          </div>
-        </div>
+    <!-- VENDEDORES -->
+    <div class="card" style="margin-bottom:16px">
+      <div class="section-title">Vendedores</div>
+      <div id="cfgVendedoresList" style="margin-bottom:12px">
+        ${(appData.vendedores || []).map((v, i) => `
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+            <input type="text" class="form-control" value="${v}" onchange="appData.vendedores[${i}]=this.value" style="flex:1">
+            <button class="btn btn-sm btn-danger" onclick="removeVendedor(${i})">🗑️</button>
+          </div>`).join('')}
       </div>
-    `;
-  }).join('');
-
-  pageEl.innerHTML = `
-    <div class="page-header">
-      <h2>Configurações</h2>
+      <button class="btn btn-sm btn-secondary" onclick="addVendedor()">+ Adicionar Vendedor</button>
+      <button class="btn btn-sm btn-primary" style="margin-left:8px" onclick="saveConfigVendedores()">Salvar</button>
     </div>
-    ${logoSection}
-    <div class="section-title">Listas de Configuração</div>
-    ${configsHTML}
+
+    <!-- FORMAS DE PAGAMENTO -->
+    <div class="card" style="margin-bottom:16px">
+      <div class="section-title">Formas de Pagamento</div>
+      <div id="cfgPgtoList" style="margin-bottom:12px">
+        ${(appData.formasPagamento || []).map((f, i) => `
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+            <input type="text" class="form-control" value="${f}" onchange="appData.formasPagamento[${i}]=this.value" style="flex:1">
+            <button class="btn btn-sm btn-danger" onclick="removeFormaPgto(${i})">🗑️</button>
+          </div>`).join('')}
+      </div>
+      <button class="btn btn-sm btn-secondary" onclick="addFormaPgto()">+ Adicionar</button>
+      <button class="btn btn-sm btn-primary" style="margin-left:8px" onclick="saveConfigPgto()">Salvar</button>
+    </div>
+
+    <!-- CATEGORIAS DE FLUXO DE CAIXA -->
+    <div class="card" style="margin-bottom:16px">
+      <div class="section-title">Categorias de Fluxo de Caixa</div>
+      <p style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:12px">
+        Cada categoria é do tipo <strong style="color:var(--success)">Entrada</strong> ou <strong style="color:var(--danger)">Saída</strong>. 
+        Ao criar um lançamento no Fluxo de Caixa, você escolherá o tipo e depois a categoria.
+      </p>
+      <div id="cfgCatFluxoList" style="margin-bottom:12px">
+        ${cats.map((c, i) => `
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+            <input type="text" class="form-control" value="${c.nome}" onchange="appData.categoriasFluxo[${i}].nome=this.value" style="flex:1">
+            <select class="form-control" style="width:120px" onchange="appData.categoriasFluxo[${i}].tipo=this.value">
+              <option value="entrada" ${c.tipo === 'entrada' ? 'selected' : ''}>Entrada</option>
+              <option value="saida" ${c.tipo === 'saida' ? 'selected' : ''}>Saída</option>
+            </select>
+            <button class="btn btn-sm btn-danger" onclick="removeCatFluxo(${i})">🗑️</button>
+          </div>`).join('')}
+      </div>
+      <button class="btn btn-sm btn-secondary" onclick="addCatFluxo()">+ Adicionar Categoria</button>
+      <button class="btn btn-sm btn-primary" style="margin-left:8px" onclick="saveConfigCatFluxo()">Salvar</button>
+    </div>
+
+    <!-- TIPOS DE UNIDADE -->
+    <div class="card" style="margin-bottom:16px">
+      <div class="section-title">Tipos de Unidade</div>
+      <div id="cfgUnidList" style="margin-bottom:12px">
+        ${(appData.tipoUnidade || []).map((u, i) => `
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+            <input type="text" class="form-control" value="${u}" onchange="appData.tipoUnidade[${i}]=this.value" style="flex:1">
+            <button class="btn btn-sm btn-danger" onclick="removeUnidade(${i})">🗑️</button>
+          </div>`).join('')}
+      </div>
+      <button class="btn btn-sm btn-secondary" onclick="addUnidade()">+ Adicionar</button>
+      <button class="btn btn-sm btn-primary" style="margin-left:8px" onclick="saveConfigUnid()">Salvar</button>
+    </div>
   `;
 }
 
-function toggleConfigList(key) {
-  const list = document.getElementById('configList_' + key);
-  const arrow = document.getElementById('configArrow_' + key);
-  if (list.style.display === 'none') {
-    list.style.display = 'block';
-    arrow.textContent = '▼';
-  } else {
-    list.style.display = 'none';
-    arrow.textContent = '▶';
+// --- Config helpers ---
+function saveConfigEmpresa() {
+  appData.empresa.nome = document.getElementById('cfgNome').value;
+  appData.empresa.cnpj = document.getElementById('cfgCnpj').value;
+  appData.empresa.logo = document.getElementById('cfgLogo').value;
+  saveData();
+  // Atualizar sidebar
+  document.querySelector('.sidebar-header h1').textContent = appData.empresa.nome.toUpperCase();
+  document.querySelector('.sidebar-header p').textContent = 'CNPJ: ' + appData.empresa.cnpj;
+  if (appData.empresa.logo) {
+    const logoEl = document.getElementById('sidebarLogo');
+    logoEl.src = appData.empresa.logo;
+    logoEl.style.display = 'block';
   }
+  showToast('Empresa atualizada!', 'success');
 }
 
-function addConfigItem(key) {
-  const input = document.getElementById('configInput_' + key);
-  const val = input.value.trim();
-  if (!val) { showToast('Digite um valor', 'error'); return; }
-  if (!appData[key]) appData[key] = [];
-  if (appData[key].includes(val)) { showToast('Item já existe', 'error'); return; }
-  appData[key].push(val);
+function addVendedor() { appData.vendedores.push(''); renderConfiguracoesPage(); }
+function removeVendedor(i) { appData.vendedores.splice(i, 1); renderConfiguracoesPage(); }
+function saveConfigVendedores() { saveData(); showToast('Vendedores salvos!', 'success'); }
+
+function addFormaPgto() { appData.formasPagamento.push(''); renderConfiguracoesPage(); }
+function removeFormaPgto(i) { appData.formasPagamento.splice(i, 1); renderConfiguracoesPage(); }
+function saveConfigPgto() { saveData(); showToast('Formas de pagamento salvas!', 'success'); }
+
+function addCatFluxo() {
+  if (!appData.categoriasFluxo) appData.categoriasFluxo = [];
+  appData.categoriasFluxo.push({ nome: '', tipo: 'entrada' });
+  renderConfiguracoesPage();
+}
+function removeCatFluxo(i) {
+  appData.categoriasFluxo.splice(i, 1);
+  renderConfiguracoesPage();
+}
+function saveConfigCatFluxo() {
+  // Remove categorias sem nome
+  appData.categoriasFluxo = (appData.categoriasFluxo || []).filter(c => c.nome.trim() !== '');
   saveData();
-  showToast('Item adicionado!', 'success');
-  renderConfiguracoes();
-  // Reabrir a lista
-  setTimeout(() => { toggleConfigList(key); }, 100);
+  showToast('Categorias de fluxo salvas!', 'success');
+  renderConfiguracoesPage();
 }
 
-function removeConfigItem(key, idx) {
-  if (!confirm('Remover este item?')) return;
-  appData[key].splice(idx, 1);
-  saveData();
-  showToast('Item removido!', 'success');
-  renderConfiguracoes();
-  setTimeout(() => { toggleConfigList(key); }, 100);
-}
+function addUnidade() { appData.tipoUnidade.push(''); renderConfiguracoesPage(); }
+function removeUnidade(i) { appData.tipoUnidade.splice(i, 1); renderConfiguracoesPage(); }
+function saveConfigUnid() { saveData(); showToast('Unidades salvas!', 'success'); }
 
-function handleLogoUpload(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  if (file.size > 500 * 1024) {
-    showToast('Imagem deve ter no máximo 500 KB', 'error');
-    return;
-  }
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    if (!appData.empresa) appData.empresa = {};
-    appData.empresa.logo = e.target.result;
-    saveData();
-    updateSidebarLogo();
-    showToast('Logo atualizado!', 'success');
-    renderConfiguracoes();
-  };
-  reader.readAsDataURL(file);
-}
-
-function removeLogo() {
-  if (!confirm('Remover o logo da empresa?')) return;
-  if (appData.empresa) appData.empresa.logo = '';
-  saveData();
-  updateSidebarLogo();
-  showToast('Logo removido!', 'success');
-  renderConfiguracoes();
-}
-
-// ============ BACKUP ============
-function renderBackupInfo() {
-  const pageEl = document.getElementById('page-backup');
-  if (!pageEl) return;
-
-  const dataSize = new Blob([JSON.stringify(appData)]).size;
-  const dataSizeKB = (dataSize / 1024).toFixed(1);
-
-  const counts = {
-    compras: (appData.compras||[]).length,
-    vendas: (appData.vendas||[]).length,
-    clientes: (appData.clientes||[]).length,
-    fornecedores: (appData.fornecedores||[]).length,
-    produtos: (appData.produtos||[]).length,
-    pFornecedores: (appData.pFornecedores||[]).length,
-    boletos: (appData.boletos||[]).length,
-    cheques: (appData.cheques||[]).length,
-    prestacoes: (appData.prestacoes||[]).length,
-    projetos: (appData.projetos||[]).length,
-    pagClientes: (appData.pagClientes||[]).length,
-    garantias: (appData.garantias||[]).length,
-    notasEntrada: (appData.notasEntrada||[]).length,
-    notasSaida: (appData.notasSaida||[]).length
-  };
-
-  const totalRegistros = Object.values(counts).reduce((a,b) => a+b, 0);
-
-  pageEl.innerHTML = `
-    <div class="page-header">
-      <h2>Backup e Restauração</h2>
-    </div>
-
-    <div class="dashboard-grid" style="margin-bottom:24px;">
+// ============================================================
+// BACKUP
+// ============================================================
+function renderBackupPage() {
+  const pg = document.getElementById('page-backup');
+  pg.innerHTML = `
+    <div class="page-header"><h2>💾 Backup</h2></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
       <div class="card">
-        <div class="card-header"><span class="card-icon">📊</span><span>Total Registros</span></div>
-        <div class="card-value">${totalRegistros}</div>
+        <div class="section-title">Exportar Backup</div>
+        <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:16px">Gera um arquivo JSON com todos os dados do sistema.</p>
+        <button class="btn btn-primary" onclick="exportBackup()">📥 Exportar JSON</button>
       </div>
       <div class="card">
-        <div class="card-header"><span class="card-icon">💾</span><span>Tamanho dos Dados</span></div>
-        <div class="card-value">${dataSizeKB} KB</div>
+        <div class="section-title">Importar Backup</div>
+        <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:16px">Importa um arquivo JSON previamente exportado. <strong style="color:var(--danger)">Atenção: substituirá todos os dados atuais.</strong></p>
+        <input type="file" id="backupFileInput" accept=".json" style="display:none" onchange="importBackup(event)">
+        <button class="btn btn-warning" onclick="document.getElementById('backupFileInput').click()">📤 Importar JSON</button>
       </div>
     </div>
-
-    <div class="section-title">Registros por Módulo</div>
-    <div class="table-responsive" style="margin-bottom:24px;">
-      <table class="table">
-        <thead><tr><th>Módulo</th><th>Registros</th></tr></thead>
-        <tbody>
-          ${Object.entries(counts).map(([k,v]) => `<tr><td>${k}</td><td><strong>${v}</strong></td></tr>`).join('')}
-        </tbody>
-      </table>
-    </div>
-
-    <div class="section-title">Ações</div>
-    <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:12px;">
-      <button class="btn btn-primary" onclick="exportBackup()">📥 Exportar Backup (JSON)</button>
-      <label class="btn btn-outline" style="cursor:pointer">
-        📤 Importar Backup
-        <input type="file" accept=".json" onchange="importBackup(event)" style="display:none">
-      </label>
-      <button class="btn btn-warning" onclick="restoreDefaults()">🔄 Restaurar Padrão</button>
-      <button class="btn btn-danger" onclick="clearAllData()">🗑️ Limpar Todos os Dados</button>
-    </div>
-  `;
+    <div class="card" style="margin-top:16px">
+      <div class="section-title">Supabase</div>
+      <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:12px">
+        Seus dados são salvos automaticamente no Supabase. Status da conexão:
+      </p>
+      <div id="supabaseStatus" style="padding:10px;background:var(--bg-tertiary);border-radius:var(--radius-sm);font-size:0.85rem;">
+        Verificando...
+      </div>
+      <div style="margin-top:12px;display:flex;gap:8px">
+        <button class="btn btn-primary" onclick="forceSyncToSupabase()">⬆️ Forçar Upload</button>
+        <button class="btn btn-secondary" onclick="forceLoadFromSupabase()">⬇️ Forçar Download</button>
+      </div>
+    </div>`;
+  checkSupabaseStatus();
 }
 
 function exportBackup() {
-  const data = JSON.stringify(appData, null, 2);
-  const blob = new Blob([data], { type: 'application/json' });
+  const json = JSON.stringify(appData, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
   a.download = `wdmaquinas_backup_${new Date().toISOString().split('T')[0]}.json`;
-  document.body.appendChild(a);
   a.click();
-  document.body.removeChild(a);
   URL.revokeObjectURL(url);
   showToast('Backup exportado!', 'success');
 }
@@ -4425,75 +2630,615 @@ function exportBackup() {
 function importBackup(event) {
   const file = event.target.files[0];
   if (!file) return;
-
+  if (!confirm('Importar backup irá SUBSTITUIR todos os dados atuais. Deseja continuar?')) {
+    event.target.value = '';
+    return;
+  }
   const reader = new FileReader();
   reader.onload = function(e) {
     try {
       const imported = JSON.parse(e.target.result);
-      if (!confirm('Isso substituirá todos os dados atuais. Deseja continuar?')) return;
-      appData = imported;
+      // Merge with defaults to ensure all keys exist
+      const defaults = getDefaultData();
+      appData = { ...defaults, ...imported };
+      // Ensure categoriasFluxo exists
+      if (!appData.categoriasFluxo) appData.categoriasFluxo = defaults.categoriasFluxo;
       saveData();
-      updateSidebarLogo();
       showToast('Backup importado com sucesso!', 'success');
       navigateTo('dashboard');
-    } catch(err) {
-      showToast('Arquivo inválido!', 'error');
+    } catch (err) {
+      showToast('Erro ao importar: arquivo inválido', 'error');
     }
   };
   reader.readAsText(file);
+  event.target.value = '';
 }
 
-function restoreDefaults() {
-  if (!confirm('Restaurar todos os dados para o padrão original? Isso apagará alterações feitas.')) return;
-  appData = getDefaultData();
+async function checkSupabaseStatus() {
+  const statusEl = document.getElementById('supabaseStatus');
+  if (!statusEl) return;
+  try {
+    const { data, error } = await supabase.from('wdmaquinas_data').select('id').limit(1);
+    if (error) throw error;
+    statusEl.innerHTML = `<span style="color:var(--success)">✅ Conectado ao Supabase</span> — Dados sincronizados.`;
+  } catch (err) {
+    statusEl.innerHTML = `<span style="color:var(--danger)">❌ Erro de conexão:</span> ${err.message}`;
+  }
+}
+
+async function forceSyncToSupabase() {
+  try {
+    showToast('Enviando dados ao Supabase...', 'success');
+    await saveData();
+    showToast('Upload concluído!', 'success');
+  } catch (err) {
+    showToast('Erro no upload: ' + err.message, 'error');
+  }
+}
+
+async function forceLoadFromSupabase() {
+  try {
+    showToast('Baixando dados do Supabase...', 'success');
+    await loadData();
+    navigateTo('dashboard');
+    showToast('Download concluído!', 'success');
+  } catch (err) {
+    showToast('Erro no download: ' + err.message, 'error');
+  }
+}
+
+// ==========================================
+// WD MÁQUINAS — script.js — PARTE 5 (FINAL)
+// Navegação, Inicialização, Modal helpers,
+// Compras CRUD, Dashboard
+// ==========================================
+
+// ============================================================
+// COMPRAS
+// ============================================================
+function renderComprasPage() {
+  const pg = document.getElementById('page-compras');
+  const compras = appData.compras || [];
+  const totalCompras = compras.reduce((s, c) => s + (c.quantidade * c.valorUnit), 0);
+  const totalPago = compras.filter(c => c.situacao === 'Pago').reduce((s, c) => s + (c.quantidade * c.valorUnit), 0);
+  const totalDevendo = compras.filter(c => c.situacao === 'Devendo').reduce((s, c) => s + (c.quantidade * c.valorUnit), 0);
+
+  pg.innerHTML = `
+    <div class="page-header">
+      <h2>🛒 Compras</h2>
+      <button class="btn btn-primary" onclick="openCompraModal()">+ Nova Compra</button>
+    </div>
+    <div class="dashboard-grid">
+      <div class="card card-accent"><div class="card-header"><span>Total Compras</span></div><div class="card-value">${formatCurrency(totalCompras)}</div></div>
+      <div class="card"><div class="card-header"><span>Pago</span></div><div class="card-value text-success">${formatCurrency(totalPago)}</div></div>
+      <div class="card"><div class="card-header"><span>Devendo</span></div><div class="card-value text-danger">${formatCurrency(totalDevendo)}</div></div>
+      <div class="card"><div class="card-header"><span>Qtd Compras</span></div><div class="card-value">${compras.length}</div></div>
+    </div>
+    <div class="filter-bar">
+      <input type="text" class="form-control" style="max-width:250px" placeholder="Buscar compra..." oninput="filterCompras(this.value)">
+      <select class="form-control" style="max-width:160px" onchange="filterComprasSit(this.value)">
+        <option value="">Todas situações</option>
+        ${(appData.situacaoCompra||[]).map(s=>`<option value="${s}">${s}</option>`).join('')}
+      </select>
+      <select class="form-control" style="max-width:160px" onchange="filterComprasEntrega(this.value)">
+        <option value="">Todas entregas</option>
+        ${(appData.situacaoEntrega||[]).map(s=>`<option value="${s}">${s}</option>`).join('')}
+      </select>
+    </div>
+    <div class="table-responsive">
+      <table class="table" id="comprasTable">
+        <thead><tr>
+          <th>ID</th><th>Data</th><th>Produto</th><th>Qtd</th><th>Valor Unit.</th><th>Total</th><th>Fornecedor</th><th>Pagamento</th><th>Situação</th><th>Entrega</th><th>Ações</th>
+        </tr></thead>
+        <tbody id="comprasBody"></tbody>
+      </table>
+    </div>`;
+  renderComprasTable(compras);
+}
+
+function renderComprasTable(compras) {
+  const tbody = document.getElementById('comprasBody');
+  if (!tbody) return;
+  tbody.innerHTML = compras.length === 0 ? '<tr><td colspan="11" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhuma compra</td></tr>' :
+    compras.map(c => {
+      const sitBadge = c.situacao === 'Pago' ? 'badge-success' : c.situacao === 'Devendo' ? 'badge-danger' : 'badge-warning';
+      const entBadge = c.entrega === 'Entregue OK' ? 'badge-success' : c.entrega === 'Pendente' ? 'badge-warning' : 'badge-danger';
+      return `<tr>
+        <td>${c.id}</td>
+        <td>${formatDate(c.data)}</td>
+        <td>${c.produto}</td>
+        <td>${c.quantidade}</td>
+        <td>${formatCurrency(c.valorUnit)}</td>
+        <td>${formatCurrency(c.quantidade * c.valorUnit)}</td>
+        <td>${c.fornecedor}</td>
+        <td>${c.formaPagamento}</td>
+        <td><span class="badge ${sitBadge}">${c.situacao}</span></td>
+        <td><span class="badge ${entBadge}">${c.entrega}</span></td>
+        <td>
+          <button class="btn btn-sm btn-outline" onclick="viewCompra(${c.id})">👁️</button>
+          <button class="btn btn-sm btn-primary" onclick="editCompra(${c.id})">✏️</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteCompra(${c.id})">🗑️</button>
+        </td>
+      </tr>`;
+    }).join('');
+}
+
+function filterCompras(q) {
+  q = q.toLowerCase();
+  const filtered = (appData.compras || []).filter(c =>
+    c.produto.toLowerCase().includes(q) || c.fornecedor.toLowerCase().includes(q) || String(c.id).includes(q)
+  );
+  renderComprasTable(filtered);
+}
+
+function filterComprasSit(sit) {
+  renderComprasTable(sit ? (appData.compras || []).filter(c => c.situacao === sit) : (appData.compras || []));
+}
+
+function filterComprasEntrega(ent) {
+  renderComprasTable(ent ? (appData.compras || []).filter(c => c.entrega === ent) : (appData.compras || []));
+}
+
+function openCompraModal(compra) {
+  const isEdit = !!compra;
+  const fornOpts = (appData.fornecedores || []).map(f => `<option value="${f.nome}" ${compra && compra.fornecedor === f.nome ? 'selected' : ''}>${f.nome}</option>`).join('');
+  const pgtoOpts = (appData.formasPagamento || []).map(f => `<option value="${f}" ${compra && compra.formaPagamento === f ? 'selected' : ''}>${f}</option>`).join('');
+  const sitOpts = (appData.situacaoCompra || []).map(s => `<option value="${s}" ${compra && compra.situacao === s ? 'selected' : ''}>${s}</option>`).join('');
+  const entOpts = (appData.situacaoEntrega || []).map(s => `<option value="${s}" ${compra && compra.entrega === s ? 'selected' : ''}>${s}</option>`).join('');
+
+  document.getElementById('cadastroModalTitle').textContent = isEdit ? 'Editar Compra' : 'Nova Compra';
+  document.getElementById('cadastroModalBody').innerHTML = `
+    <div class="form-row">
+      <div class="form-group"><label>Data</label><input type="date" class="form-control" id="cpData" value="${compra ? compra.data : new Date().toISOString().split('T')[0]}"></div>
+      <div class="form-group"><label>Vencimento</label><input type="date" class="form-control" id="cpVenc" value="${compra ? compra.vencimento || '' : ''}"></div>
+    </div>
+    <div class="form-group"><label>Produto *</label><input type="text" class="form-control" id="cpProduto" value="${compra ? compra.produto : ''}"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Quantidade</label><input type="number" class="form-control" id="cpQtd" value="${compra ? compra.quantidade : 1}" min="1"></div>
+      <div class="form-group"><label>Valor Unitário</label><input type="number" class="form-control" id="cpValorUnit" value="${compra ? compra.valorUnit : ''}" step="0.01"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Fornecedor</label><select class="form-control" id="cpForn"><option value="">Selecione...</option>${fornOpts}</select></div>
+      <div class="form-group"><label>Forma Pagamento</label><select class="form-control" id="cpPgto">${pgtoOpts}</select></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Situação</label><select class="form-control" id="cpSit">${sitOpts}</select></div>
+      <div class="form-group"><label>Entrega</label><select class="form-control" id="cpEnt">${entOpts}</select></div>
+    </div>
+    <div class="form-group"><label>Observações</label><textarea class="form-control" id="cpObs" rows="2">${compra ? compra.obs || '' : ''}</textarea></div>`;
+
+  document.getElementById('cadastroModalFooter').innerHTML = `
+    <button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button>
+    <button class="btn btn-primary" onclick="saveCompra(${isEdit ? compra.id : 'null'})">Salvar</button>`;
+  openCadastroModal();
+}
+
+function saveCompra(id) {
+  const obj = {
+    data: document.getElementById('cpData').value,
+    vencimento: document.getElementById('cpVenc').value,
+    produto: document.getElementById('cpProduto').value.trim(),
+    quantidade: parseFloat(document.getElementById('cpQtd').value) || 1,
+    valorUnit: parseFloat(document.getElementById('cpValorUnit').value) || 0,
+    fornecedor: document.getElementById('cpForn').value,
+    formaPagamento: document.getElementById('cpPgto').value,
+    situacao: document.getElementById('cpSit').value,
+    entrega: document.getElementById('cpEnt').value,
+    obs: document.getElementById('cpObs').value
+  };
+  if (!obj.produto) { showToast('Informe o produto', 'error'); return; }
+  if (!appData.compras) appData.compras = [];
+  if (id) {
+    const idx = appData.compras.findIndex(c => c.id === id);
+    if (idx > -1) { obj.id = id; appData.compras[idx] = obj; }
+  } else {
+    obj.id = nextId(appData.compras);
+    appData.compras.push(obj);
+  }
   saveData();
-  updateSidebarLogo();
-  showToast('Dados restaurados ao padrão!', 'success');
-  navigateTo('dashboard');
+  closeCadastroModal();
+  renderComprasPage();
+  showToast(id ? 'Compra atualizada!' : 'Compra cadastrada!', 'success');
 }
 
-function clearAllData() {
-  if (!confirm('ATENÇÃO: Isso apagará TODOS os dados permanentemente! Deseja continuar?')) return;
-  if (!confirm('Tem certeza ABSOLUTA? Esta ação não pode ser desfeita!')) return;
-  localStorage.removeItem('wdmaquinas_data');
-  appData = getDefaultData();
-  // limpar todos os arrays
-  Object.keys(appData).forEach(k => {
-    if (Array.isArray(appData[k])) appData[k] = [];
+function editCompra(id) {
+  const c = (appData.compras || []).find(x => x.id === id);
+  if (c) openCompraModal(c);
+}
+
+function viewCompra(id) {
+  const c = (appData.compras || []).find(x => x.id === id);
+  if (!c) return;
+  document.getElementById('viewModalTitle').textContent = `Compra #${c.id}`;
+  document.getElementById('viewModalBody').innerHTML = `
+    <div class="detail-grid">
+      <div class="detail-item"><span class="detail-label">Data</span>${formatDate(c.data)}</div>
+      <div class="detail-item"><span class="detail-label">Vencimento</span>${formatDate(c.vencimento)}</div>
+      <div class="detail-item"><span class="detail-label">Produto</span>${c.produto}</div>
+      <div class="detail-item"><span class="detail-label">Quantidade</span>${c.quantidade}</div>
+      <div class="detail-item"><span class="detail-label">Valor Unit.</span>${formatCurrency(c.valorUnit)}</div>
+      <div class="detail-item"><span class="detail-label">Total</span>${formatCurrency(c.quantidade * c.valorUnit)}</div>
+      <div class="detail-item"><span class="detail-label">Fornecedor</span>${c.fornecedor}</div>
+      <div class="detail-item"><span class="detail-label">Forma Pgto</span>${c.formaPagamento}</div>
+      <div class="detail-item"><span class="detail-label">Situação</span><span class="badge ${c.situacao === 'Pago' ? 'badge-success' : 'badge-danger'}">${c.situacao}</span></div>
+      <div class="detail-item"><span class="detail-label">Entrega</span><span class="badge ${c.entrega === 'Entregue OK' ? 'badge-success' : 'badge-warning'}">${c.entrega}</span></div>
+    </div>
+    ${c.obs ? `<div style="margin-top:12px;padding:10px;background:var(--bg-tertiary);border-radius:var(--radius-sm)"><strong>Obs:</strong> ${c.obs}</div>` : ''}`;
+  openViewModal();
+}
+
+function deleteCompra(id) {
+  if (!confirm('Excluir esta compra?')) return;
+  appData.compras = (appData.compras || []).filter(c => c.id !== id);
+  saveData();
+  renderComprasPage();
+  showToast('Compra excluída!', 'success');
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+function renderDashboard() {
+  const compras = appData.compras || [];
+  const vendas = appData.vendas || [];
+  const clientes = appData.clientes || [];
+  const fornecedores = appData.fornecedores || [];
+  const boletos = appData.boletos || [];
+  const totalCompras = compras.reduce((s, c) => s + (c.quantidade * c.valorUnit), 0);
+  const totalVendas = vendas.reduce((s, v) => s + (v.quantidade * v.valorUnit), 0);
+  const lucro = totalVendas - totalCompras;
+  const boletosPendentes = boletos.filter(b => b.situacao !== 'Pago').length;
+
+  // Caixa atual acumulado
+  const mesesKeys = ['janeiro','fevereiro','marco','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  let caixaAcumulado = 0;
+  mesesKeys.forEach(mes => {
+    const fc = (appData.fluxoCaixa || {})[mes];
+    if (fc && fc.lancamentos) {
+      fc.lancamentos.forEach(l => {
+        if (l.tipo === 'entrada') caixaAcumulado += (l.valor || 0);
+        else caixaAcumulado -= (l.valor || 0);
+      });
+    }
   });
-  appData.fluxoCaixa = {};
-  saveData();
-  updateSidebarLogo();
-  showToast('Todos os dados foram apagados!', 'success');
-  navigateTo('dashboard');
+
+  const dashEl = document.getElementById('dashboardCards');
+  dashEl.innerHTML = `
+    <div class="dashboard-grid">
+      <div class="card card-accent">
+        <div class="card-header"><span>💰 Caixa Atual</span></div>
+        <div class="card-value ${caixaAcumulado >= 0 ? 'text-success' : 'text-danger'}">${formatCurrency(caixaAcumulado)}</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span>🛒 Total Compras</span></div>
+        <div class="card-value text-danger">${formatCurrency(totalCompras)}</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span>💰 Total Vendas</span></div>
+        <div class="card-value text-success">${formatCurrency(totalVendas)}</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span>📊 Lucro Bruto</span></div>
+        <div class="card-value ${lucro >= 0 ? 'text-success' : 'text-danger'}">${formatCurrency(lucro)}</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span>👥 Clientes</span></div>
+        <div class="card-value">${clientes.length}</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span>🏭 Fornecedores</span></div>
+        <div class="card-value">${fornecedores.length}</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span>🔖 Boletos Pendentes</span></div>
+        <div class="card-value text-warning">${boletosPendentes}</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span>📦 Compras Pendentes</span></div>
+        <div class="card-value text-warning">${compras.filter(c => c.entrega === 'Pendente').length}</div>
+      </div>
+    </div>
+
+    <!-- ÚLTIMAS VENDAS -->
+    <div class="card" style="margin-top:16px">
+      <div class="section-title">Últimas Vendas</div>
+      <div class="table-responsive" style="border:none">
+        <table class="table">
+          <thead><tr><th>Data</th><th>Cliente</th><th>Produto</th><th>Total</th><th>Situação</th></tr></thead>
+          <tbody>
+            ${vendas.slice(-5).reverse().map(v => `<tr>
+              <td>${formatDate(v.data)}</td><td>${v.cliente}</td><td>${v.produto}</td>
+              <td>${formatCurrency(v.quantidade * v.valorUnit)}</td>
+              <td><span class="badge ${v.situacao === 'Pago' ? 'badge-success' : 'badge-danger'}">${v.situacao}</span></td>
+            </tr>`).join('')}
+            ${vendas.length === 0 ? '<tr><td colspan="5" style="text-align:center;color:var(--text-muted)">Nenhuma venda</td></tr>' : ''}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ÚLTIMAS COMPRAS -->
+    <div class="card" style="margin-top:16px">
+      <div class="section-title">Últimas Compras</div>
+      <div class="table-responsive" style="border:none">
+        <table class="table">
+          <thead><tr><th>Data</th><th>Produto</th><th>Fornecedor</th><th>Total</th><th>Situação</th></tr></thead>
+          <tbody>
+            ${compras.slice(-5).reverse().map(c => `<tr>
+              <td>${formatDate(c.data)}</td><td>${c.produto}</td><td>${c.fornecedor}</td>
+              <td>${formatCurrency(c.quantidade * c.valorUnit)}</td>
+              <td><span class="badge ${c.situacao === 'Pago' ? 'badge-success' : 'badge-danger'}">${c.situacao}</span></td>
+            </tr>`).join('')}
+            ${compras.length === 0 ? '<tr><td colspan="5" style="text-align:center;color:var(--text-muted)">Nenhuma compra</td></tr>' : ''}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
 }
 
-// ==========================================
-// INIT
-// ==========================================
-function init() {
-  loadData();
+// ============================================================
+// MODAL HELPERS
+// ============================================================
+function openCadastroModal() {
+  const modal = document.getElementById('cadastroModal');
+  modal.style.display = 'flex';
+  // Prevenir fechar ao arrastar mouse para fora
+  modal.onmousedown = function(e) {
+    // Só fechar se clicar exatamente no overlay (não ao arrastar)
+    if (e.target === modal && e.detail === 1) {
+      // Não fazer nada — modal só fecha com botão Cancelar/Fechar
+    }
+  };
+}
 
-  // Data atual na topbar
-  const dateEl = document.getElementById('currentDate');
-  if (dateEl) {
-    const hoje = new Date();
-    const diasSemana = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
-    const meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-    dateEl.textContent = `${diasSemana[hoje.getDay()]}, ${hoje.getDate()} de ${meses[hoje.getMonth()]} de ${hoje.getFullYear()}`;
+function closeCadastroModal() {
+  document.getElementById('cadastroModal').style.display = 'none';
+}
+
+function openViewModal() {
+  const modal = document.getElementById('viewModal');
+  modal.style.display = 'flex';
+  modal.onmousedown = function(e) {
+    // Não fechar ao clicar fora
+  };
+}
+
+function closeViewModal() {
+  document.getElementById('viewModal').style.display = 'none';
+}
+
+// ============================================================
+// FORMAT HELPERS
+// ============================================================
+function formatCurrency(val) {
+  return 'R$ ' + (val || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function formatDate(d) {
+  if (!d) return '-';
+  const parts = d.split('-');
+  if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
+  return d;
+}
+
+// ============================================================
+// NAVEGAÇÃO
+// ============================================================
+const mesesNav = ['janeiro','fevereiro','marco','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+const mesesNomes = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+const pageTitles = {
+  dashboard: 'Dashboard',
+  janeiro: 'Fluxo de Caixa — Janeiro',
+  fevereiro: 'Fluxo de Caixa — Fevereiro',
+  marco: 'Fluxo de Caixa — Março',
+  abril: 'Fluxo de Caixa — Abril',
+  maio: 'Fluxo de Caixa — Maio',
+  junho: 'Fluxo de Caixa — Junho',
+  julho: 'Fluxo de Caixa — Julho',
+  agosto: 'Fluxo de Caixa — Agosto',
+  setembro: 'Fluxo de Caixa — Setembro',
+  outubro: 'Fluxo de Caixa — Outubro',
+  novembro: 'Fluxo de Caixa — Novembro',
+  dezembro: 'Fluxo de Caixa — Dezembro',
+  compras: 'Compras',
+  vendas: 'Vendas',
+  estoque: 'Estoque',
+  produtos: 'Produtos',
+  clientes: 'Clientes',
+  fornecedores: 'Fornecedores',
+  pfornecedores: 'Produtos de Fornecedores',
+  boletos: 'Boletos',
+  cheques: 'Cheques',
+  prestacoes: 'Prestações',
+  projetos: 'Projetos',
+  pagclientes: 'Pagamentos de Clientes',
+  garantias: 'Garantias',
+  relatorios: 'Relatórios',
+  notasentrada: 'Notas de Entrada',
+  notassaida: 'Notas de Saída',
+  receitasmei: 'Receitas MEI',
+  configuracoes: 'Configurações',
+  backup: 'Backup'
+};
+
+function navigateTo(page) {
+  // Hide all pages
+  document.querySelectorAll('.page-content').forEach(p => p.style.display = 'none');
+
+  // Show target page
+  const target = document.getElementById('page-' + page);
+  if (target) target.style.display = 'block';
+
+  // Update active nav
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const navItems = document.querySelectorAll('.nav-item');
+  navItems.forEach(n => {
+    const onclick = n.getAttribute('onclick') || '';
+    if (onclick.includes(`'${page}'`)) n.classList.add('active');
+  });
+
+  // Update title
+  document.getElementById('pageTitle').textContent = pageTitles[page] || page;
+
+  // Close sidebar on mobile
+  document.getElementById('sidebar').classList.remove('open');
+
+  // Render page content
+  const mesIdx = mesesNav.indexOf(page);
+  if (mesIdx > -1) {
+    renderFluxoMes(page, mesesNomes[mesIdx], mesIdx);
+  } else {
+    switch (page) {
+      case 'dashboard': renderDashboard(); break;
+      case 'compras': renderComprasPage(); break;
+      case 'vendas': renderVendasPage(); break;
+      case 'estoque': renderEstoquePage(); break;
+      case 'produtos': renderProdutosPage(); break;
+      case 'clientes': renderClientesPage(); break;
+      case 'fornecedores': renderFornecedoresPage(); break;
+      case 'pfornecedores': renderPFornecedoresPage(); break;
+      case 'boletos': renderBoletosPage(); break;
+      case 'cheques': renderChequesPage(); break;
+      case 'prestacoes': renderPrestacoesPage(); break;
+      case 'projetos': renderProjetosPage(); break;
+      case 'pagclientes': renderPagClientesPage(); break;
+      case 'garantias': renderGarantiasPage(); break;
+      case 'relatorios': renderRelatoriosPage(); break;
+      case 'notasentrada': renderNotasEntradaPage(); break;
+      case 'notassaida': renderNotasSaidaPage(); break;
+      case 'receitasmei': renderReceitasMeiPage(); break;
+      case 'configuracoes': renderConfiguracoesPage(); break;
+      case 'backup': renderBackupPage(); break;
+    }
+  }
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+function showToast(msg, type) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.className = 'toast ' + (type || 'success');
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+// ============================================================
+// SUPABASE — CONEXÃO + LOAD/SAVE
+// ============================================================
+const SUPABASE_URL = 'https://iwbsmsadctvndhrcjkbw.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_GQpRJ7CFZOFrdmYfsN8rcA_ucfNR2AM';
+
+// Inicialização do Supabase Client
+const supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+
+let appData = {};
+
+async function loadData() {
+  try {
+    if (supabase) {
+      const { data, error } = await supabase
+        .from('wdmaquinas_data')
+        .select('*')
+        .eq('id', 1)
+        .single();
+
+      if (data && data.payload) {
+        appData = typeof data.payload === 'string' ? JSON.parse(data.payload) : data.payload;
+        // Garantir categorias de fluxo
+        if (!appData.categoriasFluxo) {
+          appData.categoriasFluxo = getDefaultData().categoriasFluxo;
+        }
+        console.log('✅ Dados carregados do Supabase');
+        return;
+      }
+    }
+  } catch (err) {
+    console.warn('⚠️ Falha ao carregar do Supabase, tentando localStorage:', err.message);
   }
 
-  // Fechar modais ao clicar fora
-  document.getElementById('cadastroModal')?.addEventListener('click', function(e) {
-    if (e.target === this) closeCadastroModal();
-  });
-  document.getElementById('viewModal')?.addEventListener('click', function(e) {
-    if (e.target === this) closeViewModal();
-  });
+  // Fallback: localStorage
+  try {
+    const local = localStorage.getItem('wdmaquinas_data');
+    if (local) {
+      appData = JSON.parse(local);
+      if (!appData.categoriasFluxo) {
+        appData.categoriasFluxo = getDefaultData().categoriasFluxo;
+      }
+      console.log('✅ Dados carregados do localStorage');
+      return;
+    }
+  } catch (e) {
+    console.warn('⚠️ localStorage falhou');
+  }
 
-  // Renderizar dashboard
-  navigateTo('dashboard');
+  // Fallback: dados padrão
+  appData = getDefaultData();
+  console.log('✅ Dados padrão carregados');
 }
 
-// Iniciar quando DOM pronto
-document.addEventListener('DOMContentLoaded', init);
+async function saveData() {
+  // Salvar no localStorage sempre (backup local)
+  try {
+    localStorage.setItem('wdmaquinas_data', JSON.stringify(appData));
+  } catch (e) {
+    console.warn('localStorage save failed');
+  }
+
+  // Salvar no Supabase
+  if (supabase) {
+    try {
+      const { error } = await supabase
+        .from('wdmaquinas_data')
+        .upsert({
+          id: 1,
+          payload: appData,
+          updated_at: new Date().toISOString()
+        });
+      if (error) throw error;
+      console.log('✅ Dados salvos no Supabase');
+    } catch (err) {
+      console.warn('⚠️ Erro ao salvar no Supabase:', err.message);
+    }
+  }
+}
+
+// ============================================================
+// INICIALIZAÇÃO
+// ============================================================
+async function init() {
+  // Mostrar data atual
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  document.getElementById('currentDate').textContent = dateStr;
+
+  // Carregar dados
+  await loadData();
+
+  // Atualizar sidebar com dados da empresa
+  if (appData.empresa) {
+    document.querySelector('.sidebar-header h1').textContent = appData.empresa.nome.toUpperCase();
+    document.querySelector('.sidebar-header p').textContent = 'CNPJ: ' + appData.empresa.cnpj;
+    if (appData.empresa.logo) {
+      const logoEl = document.getElementById('sidebarLogo');
+      logoEl.src = appData.empresa.logo;
+      logoEl.style.display = 'block';
+    }
+  }
+
+  // Renderizar dashboard
+  renderDashboard();
+}
+
+// Aguardar o Supabase JS carregar e iniciar
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
