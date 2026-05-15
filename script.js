@@ -225,37 +225,63 @@ function closeViewModal() { document.getElementById('viewModal').style.display =
 // │ Deps: SCR-CFG-01 (appData)                                  │
 // └──────────────────────────────────────────────────────────────┘
 function toggleSidebar() {
-  document.getElementById('sidebar').classList.toggle('collapsed');
+  const sb = document.getElementById('sidebar');
+  sb.classList.toggle('collapsed');
+  updateExpandBtn();
 }
 
 function collapseSidebar() {
-  document.getElementById('sidebar').classList.add('collapsed');
+  const sb = document.getElementById('sidebar');
+  sb.classList.toggle('collapsed');
+  updateExpandBtn();
+}
+
+function updateExpandBtn() {
+  const sb = document.getElementById('sidebar');
+  const expandBtn = document.getElementById('expandBtn');
+  const arrow = document.getElementById('collapseArrow');
+  if (sb.classList.contains('collapsed')) {
+    if (expandBtn) expandBtn.style.display = 'inline-flex';
+    if (arrow) arrow.textContent = '»';
+  } else {
+    if (expandBtn) expandBtn.style.display = 'none';
+    if (arrow) arrow.textContent = '«';
+  }
 }
 
 function updateSidebarInfo() {
-  const nameEl = document.getElementById('sidebarEmpresaNome');
-  const cnpjEl = document.getElementById('sidebarEmpresaCnpj');
+  const nameEl = document.getElementById('sidebarNome');
+  const cnpjEl = document.getElementById('sidebarCnpj');
   if (nameEl && appData.empresa) nameEl.textContent = appData.empresa.nome || 'WD Máquinas';
-  if (cnpjEl && appData.empresa) cnpjEl.textContent = appData.empresa.cnpj || '';
+  if (cnpjEl && appData.empresa) cnpjEl.textContent = 'CNPJ: ' + (appData.empresa.cnpj || '');
   const logoEl = document.getElementById('sidebarLogo');
   if (logoEl && appData.empresa && appData.empresa.logo) {
     logoEl.src = appData.empresa.logo;
+    logoEl.style.display = 'block';
   }
 }
 
-// Menu mobile
+// Delegated click events for sidebar
 document.addEventListener('click', function(e) {
-  if (e.target.id === 'menuToggle' || e.target.closest('#menuToggle')) {
-    document.getElementById('sidebar').classList.toggle('active');
-  }
+  // Botão collapse na sidebar
   if (e.target.id === 'sidebarCollapseBtn' || e.target.closest('#sidebarCollapseBtn')) {
-    toggleSidebar();
+    e.preventDefault();
+    e.stopPropagation();
+    collapseSidebar();
+    return;
   }
+  // Botão expand na topbar
   if (e.target.id === 'expandBtn' || e.target.closest('#expandBtn')) {
-    document.documentElement.requestFullscreen && document.documentElement.requestFullscreen();
+    e.preventDefault();
+    e.stopPropagation();
+    const sb = document.getElementById('sidebar');
+    sb.classList.remove('collapsed');
+    updateExpandBtn();
+    return;
   }
 });
 // └──────────────────── FIM SCR-UI-02 ──────────────────────────┘
+
 
 // ┌──────────────────────────────────────────────────────────────┐
 // │ TOKEN: SCR-NAV-01 — NAVEGAÇÃO ENTRE PÁGINAS                 │
@@ -2511,6 +2537,338 @@ function resetAllData() {
   showToast('Todos os dados foram resetados!', 'success');
 }
 // └──────────────────── FIM SCR-SYS-02 ──────────────────────────┘
+
+// ┌──────────────────────────────────────────────────────────────┐
+// │ TOKEN: SCR-SYS-01 — CONFIGURAÇÕES (COMPLETO)                │
+// │ Deps: SCR-CFG-01, SCR-DAT-02, SCR-UI-01, SCR-UTL-02        │
+// └──────────────────────────────────────────────────────────────┘
+function renderConfiguracoesPage() {
+  const pg = document.getElementById('page-configuracoes');
+  if (!pg) return;
+
+  // === VENDEDORES ===
+  const vendedoresHTML = (appData.vendedores || []).map((v, i) => `
+    <div class="cfg-drag-item" draggable="true" data-type="vendedor" data-index="${i}">
+      <span class="cfg-drag-handle" title="Arraste para reordenar">⠿</span>
+      <input type="text" class="form-control cfg-inline-input" value="${v}" onchange="cfgUpdateVendedor(${i}, this.value)">
+      <button class="btn btn-sm btn-danger" onclick="cfgRemoveVendedor(${i})" title="Excluir">✕</button>
+    </div>
+  `).join('');
+
+  // === FORMAS DE PAGAMENTO ===
+  const pgtoHTML = (appData.formasPagamento || []).map((f, i) => `
+    <div class="cfg-drag-item" draggable="true" data-type="formapgto" data-index="${i}">
+      <span class="cfg-drag-handle" title="Arraste para reordenar">⠿</span>
+      <span class="cfg-tag-text">${f}</span>
+      <button class="btn-tag-remove" onclick="cfgRemoveFormaPgto(${i})" title="Excluir">✕</button>
+    </div>
+  `).join('');
+
+  // === CATEGORIAS ENTRADA ===
+  const catsEntrada = (appData.categoriasFluxo || []).filter(c => c.tipo === 'entrada');
+  const catsEntradaHTML = catsEntrada.map((c, i) => {
+    const realIdx = appData.categoriasFluxo.indexOf(c);
+    return `
+    <div class="cfg-drag-item cfg-cat-entrada" draggable="true" data-type="catentrada" data-index="${realIdx}">
+      <span class="cfg-drag-handle" title="Arraste para reordenar">⠿</span>
+      <span class="cfg-cat-badge badge-success">▲ ENTRADA</span>
+      <input type="text" class="form-control cfg-inline-input" value="${c.nome}" onchange="cfgUpdateCategoria(${realIdx}, this.value)">
+      <button class="btn btn-sm btn-danger" onclick="cfgRemoveCategoria(${realIdx})" title="Excluir">✕</button>
+    </div>`;
+  }).join('');
+
+  // === CATEGORIAS SAÍDA ===
+  const catsSaida = (appData.categoriasFluxo || []).filter(c => c.tipo === 'saida');
+  const catsSaidaHTML = catsSaida.map((c, i) => {
+    const realIdx = appData.categoriasFluxo.indexOf(c);
+    return `
+    <div class="cfg-drag-item cfg-cat-saida" draggable="true" data-type="catsaida" data-index="${realIdx}">
+      <span class="cfg-drag-handle" title="Arraste para reordenar">⠿</span>
+      <span class="cfg-cat-badge badge-danger">▼ SAÍDA</span>
+      <input type="text" class="form-control cfg-inline-input" value="${c.nome}" onchange="cfgUpdateCategoria(${realIdx}, this.value)">
+      <button class="btn btn-sm btn-danger" onclick="cfgRemoveCategoria(${realIdx})" title="Excluir">✕</button>
+    </div>`;
+  }).join('');
+
+  pg.innerHTML = `
+    <div class="page-header"><h2>⚙️ Configurações</h2></div>
+
+    <!-- DADOS DA EMPRESA -->
+    <div class="cfg-section">
+      <div class="cfg-section-header">
+        <span class="cfg-section-icon">🏢</span>
+        <h3>Dados da Empresa</h3>
+      </div>
+      <div class="cfg-section-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nome da Empresa</label>
+            <input type="text" class="form-control" id="cfgNome" value="${appData.empresa?.nome || 'WD Máquinas'}" onchange="cfgSaveEmpresa()">
+          </div>
+          <div class="form-group">
+            <label>CNPJ</label>
+            <input type="text" class="form-control" id="cfgCnpj" value="${appData.empresa?.cnpj || ''}" onchange="cfgSaveEmpresa()">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Logo da Empresa</label>
+          <div class="logo-upload-area" onclick="document.getElementById('cfgLogoInput').click()">
+            ${appData.empresa?.logo ? '<img src="' + appData.empresa.logo + '" alt="Logo">' : '<div class="upload-text">📷 Clique para enviar logo</div><div class="upload-hint">PNG, JPG — max 200×80px recomendado</div>'}
+            <input type="file" id="cfgLogoInput" accept="image/*" style="display:none" onchange="cfgUploadLogo(this)">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VENDEDORES -->
+    <div class="cfg-section">
+      <div class="cfg-section-header">
+        <span class="cfg-section-icon">👤</span>
+        <h3>Vendedores</h3>
+      </div>
+      <div class="cfg-section-body">
+        <div class="cfg-drag-list" id="cfgVendedoresList">${vendedoresHTML}</div>
+        <div class="cfg-add-row">
+          <input type="text" class="form-control" id="cfgNovoVendedor" placeholder="Nome do vendedor">
+          <button class="btn btn-primary" onclick="cfgAddVendedor()">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORMAS DE PAGAMENTO -->
+    <div class="cfg-section">
+      <div class="cfg-section-header">
+        <span class="cfg-section-icon">💳</span>
+        <h3>Formas de Pagamento</h3>
+      </div>
+      <div class="cfg-section-body">
+        <div class="cfg-drag-list cfg-tags-list" id="cfgPgtoList">${pgtoHTML}</div>
+        <div class="cfg-add-row">
+          <input type="text" class="form-control" id="cfgNovaPgto" placeholder="Nova forma de pagamento">
+          <button class="btn btn-primary" onclick="cfgAddFormaPgto()">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CATEGORIAS DE FLUXO — ENTRADA -->
+    <div class="cfg-section">
+      <div class="cfg-section-header">
+        <span class="cfg-section-icon" style="color:var(--success)">▲</span>
+        <h3>Categorias de Entrada <span style="font-size:.75rem;color:var(--text-muted)">(Fluxo de Caixa)</span></h3>
+      </div>
+      <div class="cfg-section-body">
+        <div class="cfg-drag-list" id="cfgCatEntradaList">${catsEntradaHTML}</div>
+        <div class="cfg-add-row">
+          <input type="text" class="form-control" id="cfgNovaCatEntrada" placeholder="Nova categoria de entrada">
+          <button class="btn btn-primary" onclick="cfgAddCategoria('entrada')">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CATEGORIAS DE FLUXO — SAÍDA -->
+    <div class="cfg-section">
+      <div class="cfg-section-header">
+        <span class="cfg-section-icon" style="color:var(--danger)">▼</span>
+        <h3>Categorias de Saída <span style="font-size:.75rem;color:var(--text-muted)">(Fluxo de Caixa)</span></h3>
+      </div>
+      <div class="cfg-section-body">
+        <div class="cfg-drag-list" id="cfgCatSaidaList">${catsSaidaHTML}</div>
+        <div class="cfg-add-row">
+          <input type="text" class="form-control" id="cfgNovaCatSaida" placeholder="Nova categoria de saída">
+          <button class="btn btn-primary" onclick="cfgAddCategoria('saida')">+ Adicionar</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Aplicar drag & drop em todas as listas
+  setTimeout(() => {
+    applyMask('cfgCnpj', maskCNPJ);
+    initCfgDragDrop('cfgVendedoresList', 'vendedor');
+    initCfgDragDrop('cfgPgtoList', 'formapgto');
+    initCfgDragDrop('cfgCatEntradaList', 'catentrada');
+    initCfgDragDrop('cfgCatSaidaList', 'catsaida');
+  }, 50);
+}
+
+// ── Drag & Drop Engine ──────────────────────────────────────────
+function initCfgDragDrop(listId, type) {
+  const list = document.getElementById(listId);
+  if (!list) return;
+
+  let dragSrcEl = null;
+
+  list.addEventListener('dragstart', function(e) {
+    const item = e.target.closest('.cfg-drag-item');
+    if (!item) return;
+    dragSrcEl = item;
+    item.classList.add('cfg-dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', item.dataset.index);
+  });
+
+  list.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    const afterEl = getDragAfterElement(list, e.clientY);
+    const dragItem = list.querySelector('.cfg-dragging');
+    if (!dragItem) return;
+    if (afterEl == null) {
+      list.appendChild(dragItem);
+    } else {
+      list.insertBefore(dragItem, afterEl);
+    }
+  });
+
+  list.addEventListener('dragend', function(e) {
+    const item = e.target.closest('.cfg-drag-item');
+    if (item) item.classList.remove('cfg-dragging');
+    // Salvar nova ordem
+    saveCfgDragOrder(listId, type);
+  });
+
+  list.addEventListener('drop', function(e) {
+    e.preventDefault();
+  });
+}
+
+function getDragAfterElement(container, y) {
+  const elements = [...container.querySelectorAll('.cfg-drag-item:not(.cfg-dragging)')];
+  return elements.reduce((closest, child) => {
+    const box = child.getBoundingClientRect();
+    const offset = y - box.top - box.height / 2;
+    if (offset < 0 && offset > closest.offset) {
+      return { offset: offset, element: child };
+    } else {
+      return closest;
+    }
+  }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+
+function saveCfgDragOrder(listId, type) {
+  const list = document.getElementById(listId);
+  if (!list) return;
+  const items = [...list.querySelectorAll('.cfg-drag-item')];
+  const indices = items.map(el => parseInt(el.dataset.index));
+
+  if (type === 'vendedor') {
+    const old = [...appData.vendedores];
+    appData.vendedores = indices.map(i => old[i]);
+    saveData();
+    renderConfiguracoesPage();
+  } else if (type === 'formapgto') {
+    const old = [...appData.formasPagamento];
+    appData.formasPagamento = indices.map(i => old[i]);
+    saveData();
+    renderConfiguracoesPage();
+  } else if (type === 'catentrada' || type === 'catsaida') {
+    // Reordenar dentro do array principal mantendo posições relativas
+    const tipoFiltro = type === 'catentrada' ? 'entrada' : 'saida';
+    const otherCats = appData.categoriasFluxo.filter(c => c.tipo !== tipoFiltro);
+    const thisCats = indices.map(i => appData.categoriasFluxo[i]);
+    // Rebuild: entradas primeiro, saídas depois
+    const entradas = tipoFiltro === 'entrada' ? thisCats : appData.categoriasFluxo.filter(c => c.tipo === 'entrada');
+    const saidas = tipoFiltro === 'saida' ? thisCats : appData.categoriasFluxo.filter(c => c.tipo === 'saida');
+    appData.categoriasFluxo = [...entradas, ...saidas];
+    saveData();
+    renderConfiguracoesPage();
+  }
+  showToast('Ordem atualizada!', 'success');
+}
+
+// ── CRUD Vendedores ─────────────────────────────────────────────
+function cfgAddVendedor() {
+  const input = document.getElementById('cfgNovoVendedor');
+  const nome = (input.value || '').trim();
+  if (!nome) { showToast('Informe o nome', 'error'); return; }
+  if (!appData.vendedores) appData.vendedores = [];
+  if (appData.vendedores.includes(nome)) { showToast('Vendedor já existe', 'error'); return; }
+  appData.vendedores.push(nome);
+  saveData(); renderConfiguracoesPage(); showToast('Vendedor adicionado!', 'success');
+}
+
+function cfgUpdateVendedor(idx, value) {
+  const nome = value.trim();
+  if (!nome) return;
+  appData.vendedores[idx] = nome;
+  saveData(); showToast('Vendedor atualizado!', 'success');
+}
+
+function cfgRemoveVendedor(idx) {
+  if (!confirm('Excluir vendedor "' + appData.vendedores[idx] + '"?')) return;
+  appData.vendedores.splice(idx, 1);
+  saveData(); renderConfiguracoesPage(); showToast('Vendedor excluído!', 'success');
+}
+
+// ── CRUD Formas de Pagamento ────────────────────────────────────
+function cfgAddFormaPgto() {
+  const input = document.getElementById('cfgNovaPgto');
+  const nome = (input.value || '').trim();
+  if (!nome) { showToast('Informe a forma de pagamento', 'error'); return; }
+  if (!appData.formasPagamento) appData.formasPagamento = [];
+  if (appData.formasPagamento.find(f => f.toLowerCase() === nome.toLowerCase())) { showToast('Forma de pagamento já existe', 'error'); return; }
+  appData.formasPagamento.push(nome);
+  saveData(); renderConfiguracoesPage(); showToast('Forma de pagamento adicionada!', 'success');
+}
+
+function cfgRemoveFormaPgto(idx) {
+  if (!confirm('Excluir "' + appData.formasPagamento[idx] + '"?')) return;
+  appData.formasPagamento.splice(idx, 1);
+  saveData(); renderConfiguracoesPage(); showToast('Removida!', 'success');
+}
+
+// ── CRUD Categorias de Fluxo (Entrada/Saída dos meses) ─────────
+function cfgAddCategoria(tipo) {
+  const inputId = tipo === 'entrada' ? 'cfgNovaCatEntrada' : 'cfgNovaCatSaida';
+  const input = document.getElementById(inputId);
+  const nome = (input.value || '').trim();
+  if (!nome) { showToast('Informe o nome da categoria', 'error'); return; }
+  if (!appData.categoriasFluxo) appData.categoriasFluxo = [];
+  const existe = appData.categoriasFluxo.find(c => c.nome.toLowerCase() === nome.toLowerCase() && c.tipo === tipo);
+  if (existe) { showToast('Categoria já existe', 'error'); return; }
+  appData.categoriasFluxo.push({ nome: nome, tipo: tipo });
+  saveData(); renderConfiguracoesPage(); showToast('Categoria adicionada!', 'success');
+}
+
+function cfgUpdateCategoria(idx, value) {
+  const nome = value.trim();
+  if (!nome) return;
+  appData.categoriasFluxo[idx].nome = nome;
+  saveData(); showToast('Categoria atualizada!', 'success');
+}
+
+function cfgRemoveCategoria(idx) {
+  const cat = appData.categoriasFluxo[idx];
+  if (!confirm('Excluir categoria "' + cat.nome + '" (' + (cat.tipo === 'entrada' ? 'Entrada' : 'Saída') + ')?')) return;
+  appData.categoriasFluxo.splice(idx, 1);
+  saveData(); renderConfiguracoesPage(); showToast('Categoria excluída!', 'success');
+}
+
+// ── Empresa ─────────────────────────────────────────────────────
+function cfgSaveEmpresa() {
+  if (!appData.empresa) appData.empresa = {};
+  appData.empresa.nome = (document.getElementById('cfgNome').value || '').trim();
+  appData.empresa.cnpj = (document.getElementById('cfgCnpj').value || '').trim();
+  saveData();
+  updateSidebarInfo();
+  showToast('Dados da empresa salvos!', 'success');
+}
+
+function cfgUploadLogo(input) {
+  if (!input.files || !input.files[0]) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    if (!appData.empresa) appData.empresa = {};
+    appData.empresa.logo = e.target.result;
+    saveData();
+    updateSidebarInfo();
+    renderConfiguracoesPage();
+    showToast('Logo atualizada!', 'success');
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+// └──────────────────── FIM SCR-SYS-01 ──────────────────────────┘
+
 
 // ┌──────────────────────────────────────────────────────────────┐
 // │ TOKEN: SCR-INI-01 — INICIALIZAÇÃO (DOMContentLoaded)        │
