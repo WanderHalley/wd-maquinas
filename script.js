@@ -127,8 +127,8 @@ function getDefaultData() {
     situacaoCheque: ["Compensado","Depositado","Devolvido","Em Mãos","Repassado"],
     situacaoGarantia: ["Ativa","Expirada","Utilizada"],
     situacaoBoleto: ["Pago","Pendente","Vencido"],
-    categoriasFluxo: [
-      { nome: "Salário", tipo: "entrada" },
+       categoriasFluxo: [
+      { nome: "Salário", tipo: "saida" },          // ★ CORRIGIDO: era "entrada", agora é "saida"
       { nome: "Venda", tipo: "entrada" },
       { nome: "Serviço", tipo: "entrada" },
       { nome: "Outros (Entrada)", tipo: "entrada" },
@@ -140,6 +140,7 @@ function getDefaultData() {
       { nome: "Aluguel", tipo: "saida" },
       { nome: "Outros (Saída)", tipo: "saida" }
     ],
+
     clientes: [],
     fornecedores: [],
     produtos: [],
@@ -404,12 +405,22 @@ function renderDashboard() {
 // ┌──────────────────────────────────────────────────────────────┐
 // │ TOKEN: SCR-FLX-01 — FLUXO DE CAIXA MENSAL (RENDERIZAÇÃO)    │
 // │ Deps: SCR-UTL-01, SCR-CFG-01, SCR-FLX-02                    │
+// │ ★ CORRIGIDO: Salário agora é SAÍDA e abate do total entradas│
 // └──────────────────────────────────────────────────────────────┘
 const mesesNomes = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 const mesesKeys = ['janeiro','fevereiro','marco','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
 
 let fluxoFilterText = '';
 let fluxoFilterTipo = '';
+
+function isSalario(lanc) {
+  // Detecta se o lançamento é de salário (Wander ou Daniel)
+  const cat = (lanc.categoria || '').toLowerCase();
+  const desc = (lanc.descricao || '').toLowerCase();
+  return cat.includes('salário') || cat.includes('salario') ||
+         desc.includes('salário (wander)') || desc.includes('salário (daniel)') ||
+         desc.includes('salario (wander)') || desc.includes('salario (daniel)');
+}
 
 function renderFluxoMes(mesIdx) {
   const mesKey = mesesKeys[mesIdx];
@@ -422,24 +433,51 @@ function renderFluxoMes(mesIdx) {
 
   const lancamentos = appData.fluxoCaixa[mesKey];
 
-  // Saldo anterior
+  // Saldo anterior (considera a lógica correta em meses anteriores)
   let saldoAnterior = 0;
   for (let i = 0; i < mesIdx; i++) {
     const mk = mesesKeys[i];
     const lancs = (appData.fluxoCaixa[mk]) || [];
     lancs.forEach(l => {
-      if (l.tipo === 'entrada') saldoAnterior += (l.valor || 0);
-      else saldoAnterior -= (l.valor || 0);
+      if (isSalario(l)) {
+        // Salário SEMPRE subtrai (é saída/pagamento)
+        saldoAnterior -= (l.valor || 0);
+      } else if (l.tipo === 'entrada') {
+        saldoAnterior += (l.valor || 0);
+      } else {
+        saldoAnterior -= (l.valor || 0);
+      }
     });
   }
 
-  const totalEntradas = lancamentos.filter(l => l.tipo === 'entrada').reduce((s, l) => s + (l.valor || 0), 0);
-  const totalSaidas = lancamentos.filter(l => l.tipo === 'saida').reduce((s, l) => s + (l.valor || 0), 0);
+  // Calcular totais do mês atual
+  // Salário: mesmo que o usuário marque como "entrada", se é Salário, 
+  // vai para o card "Salário Recebido" e SUBTRAI das entradas
+
+  let totalEntradas = 0;
+  let totalSaidas = 0;
+  let salarioRecebido = 0;
+  let dinheiroNotas = 0;
+
+  lancamentos.forEach(l => {
+    if (isSalario(l)) {
+      // Salário vai pro card "Salário Recebido" e é tratado como SAÍDA
+      salarioRecebido += (l.valor || 0);
+      totalSaidas += (l.valor || 0);
+    } else if (l.tipo === 'entrada') {
+      totalEntradas += (l.valor || 0);
+      // Dinheiro em Notas soma nas entradas e aparece no card separado
+      if ((l.categoria || '') === 'Dinheiro em Notas') {
+        dinheiroNotas += (l.valor || 0);
+      }
+    } else {
+      // Saída normal
+      totalSaidas += (l.valor || 0);
+    }
+  });
+
   const saldoMes = totalEntradas - totalSaidas;
   const saldoFinal = saldoAnterior + saldoMes;
-
-  const dinheiroNotas = lancamentos.filter(l => l.categoria === 'Dinheiro em Notas').reduce((s, l) => s + (l.valor || 0), 0);
-  const salarioRecebido = lancamentos.filter(l => l.categoria === 'Salário').reduce((s, l) => s + (l.valor || 0), 0);
 
   // Filtros tipo
   const catEntrada = (appData.categoriasFluxo || []).filter(c => c.tipo === 'entrada').map(c => '<option value="entrada:' + c.nome + '">' + c.nome + '</option>').join('');
@@ -448,27 +486,21 @@ function renderFluxoMes(mesIdx) {
   pg.innerHTML = `
     <div class="page-header"><h2>📅 ${mesNome} 2026</h2><button class="btn btn-primary" onclick="openLancamentoModal(${mesIdx})">+ Novo Lançamento</button></div>
     <div class="dashboard-grid">
-      <div class="card"><div class="card-header"><span>Saldo Anterior</span></div><div class="card-value ${saldoAnterior >= 0 ? 'text-success' : 'text-danger'}">${formatCurrency(saldoAnterior)}</div></div>
-      <div class="card"><div class="card-header"><span>Entradas</span></div><div class="card-value text-success">${formatCurrency(totalEntradas)}</div></div>
-      <div class="card"><div class="card-header"><span>Saídas</span></div><div class="card-value text-danger">${formatCurrency(totalSaidas)}</div></div>
-      <div class="card card-accent"><div class="card-header"><span>Saldo Final</span></div><div class="card-value ${saldoFinal >= 0 ? 'text-success' : 'text-danger'}">${formatCurrency(saldoFinal)}</div></div>
+      <div class="card card-accent"><div class="card-header"><span>Caixa Atual</span></div><div class="card-value ${saldoFinal >= 0 ? 'text-success' : 'text-danger'}">${formatCurrency(saldoFinal)}</div></div>
+      <div class="card"><div class="card-header"><span>Total Entradas</span></div><div class="card-value text-success">${formatCurrency(totalEntradas)}</div></div>
+      <div class="card"><div class="card-header"><span>Total Saídas</span></div><div class="card-value text-danger">${formatCurrency(totalSaidas)}</div></div>
       <div class="card"><div class="card-header"><span>Dinheiro em Notas</span></div><div class="card-value">${formatCurrency(dinheiroNotas)}</div></div>
       <div class="card"><div class="card-header"><span>Salário Recebido</span></div><div class="card-value">${formatCurrency(salarioRecebido)}</div></div>
     </div>
     <div class="filter-bar">
-      <input type="text" class="form-control" style="max-width:250px" placeholder="Buscar lançamento..." oninput="fluxoFilterText=this.value.toLowerCase();renderFluxoTable(${mesIdx})">
+      <input type="text" class="form-control" style="max-width:250px" placeholder="Buscar..." oninput="fluxoFilterText=this.value.toLowerCase();renderFluxoTable(${mesIdx})">
       <select class="form-control" style="max-width:200px" onchange="fluxoFilterTipo=this.value;renderFluxoTable(${mesIdx})">
-        <option value="">Todos os tipos</option>
+        <option value="">Todos</option>
         <optgroup label="Entradas">${catEntrada}</optgroup>
         <optgroup label="Saídas">${catSaida}</optgroup>
       </select>
-      <div class="flux-toggle">
-        <button class="btn btn-sm ${fluxoFilterTipo === '' ? 'btn-primary' : 'btn-outline'}" onclick="fluxoFilterTipo='';renderFluxoTable(${mesIdx})">Todos</button>
-        <button class="btn btn-sm ${fluxoFilterTipo === 'entrada' ? 'btn-primary' : 'btn-outline'}" onclick="fluxoFilterTipo='entrada';renderFluxoTable(${mesIdx})">Entradas</button>
-        <button class="btn btn-sm ${fluxoFilterTipo === 'saida' ? 'btn-primary' : 'btn-outline'}" onclick="fluxoFilterTipo='saida';renderFluxoTable(${mesIdx})">Saídas</button>
-      </div>
     </div>
-    <div class="table-responsive"><table class="table"><thead><tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Tipo</th><th>Valor</th><th>Ações</th></tr></thead>
+    <div class="table-responsive"><table class="table"><thead><tr><th>Data</th><th>Tipo</th><th>Categoria</th><th>Descrição</th><th>Valor</th><th>Ações</th></tr></thead>
     <tbody id="fluxoBody"></tbody></table></div>`;
 
   fluxoFilterText = '';
@@ -476,6 +508,7 @@ function renderFluxoMes(mesIdx) {
   renderFluxoTable(mesIdx);
 }
 // └──────────────────── FIM SCR-FLX-01 ──────────────────────────┘
+
 
 // ┌──────────────────────────────────────────────────────────────┐
 // │ TOKEN: SCR-FLX-02 — FLUXO DE CAIXA (CRUD)                   │
