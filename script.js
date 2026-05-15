@@ -405,17 +405,17 @@ function renderFluxoMes(mesIdx) {
       <div class="card"><div class="card-header"><span>Saídas</span></div><div class="card-value text-danger">${formatCurrency(totalSaidas)}</div></div>
       <div class="card card-accent"><div class="card-header"><span>Saldo Final</span></div><div class="card-value ${saldoFinal >= 0 ? 'text-success' : 'text-danger'}">${formatCurrency(saldoFinal)}</div></div>
       <div class="card"><div class="card-header"><span>Dinheiro em Notas</span></div><div class="card-value">${formatCurrency(dinheiroNotas)}</div></div>
-      <div class="card" style="border-left:3px solid var(--danger)">
+        <div class="card" style="border-left:3px solid var(--danger);grid-column:span 2">
         <div class="card-header"><span>Salário Pago Total</span></div>
         <div class="card-value text-danger">${formatCurrency(salarioPagoTotal)}</div>
-        <div style="display:flex;align-items:center;gap:16px;margin-top:8px;padding-top:8px;border-top:1px solid var(--border-color)">
+        <div style="display:flex;align-items:center;gap:24px;margin-top:8px;padding-top:8px;border-top:1px solid var(--border-color);flex-wrap:wrap">
           <div style="display:flex;align-items:center;gap:6px">
-            <span style="font-size:.7rem;color:var(--text-muted);text-transform:uppercase">Wander:</span>
-            <span style="font-size:.95rem;font-weight:700;color:var(--warning)">${formatCurrency(salarioWander)}</span>
+            <span style="font-size:.75rem;color:var(--text-muted);text-transform:uppercase">Wander:</span>
+            <span style="font-size:1rem;font-weight:700;color:var(--warning)">${formatCurrency(salarioWander)}</span>
           </div>
           <div style="display:flex;align-items:center;gap:6px">
-            <span style="font-size:.7rem;color:var(--text-muted);text-transform:uppercase">Daniel:</span>
-            <span style="font-size:.95rem;font-weight:700;color:var(--warning)">${formatCurrency(salarioDaniel)}</span>
+            <span style="font-size:.75rem;color:var(--text-muted);text-transform:uppercase">Daniel:</span>
+            <span style="font-size:1rem;font-weight:700;color:var(--warning)">${formatCurrency(salarioDaniel)}</span>
           </div>
         </div>
       </div>
