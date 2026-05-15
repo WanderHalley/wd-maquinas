@@ -127,8 +127,8 @@ function getDefaultData() {
     situacaoCheque: ["Compensado","Depositado","Devolvido","Em Mãos","Repassado"],
     situacaoGarantia: ["Ativa","Expirada","Utilizada"],
     situacaoBoleto: ["Pago","Pendente","Vencido"],
-       categoriasFluxo: [
-      { nome: "Salário", tipo: "saida" },          // ★ CORRIGIDO: era "entrada", agora é "saida"
+    categoriasFluxo: [
+      { nome: "Salário", tipo: "entrada" },
       { nome: "Venda", tipo: "entrada" },
       { nome: "Serviço", tipo: "entrada" },
       { nome: "Outros (Entrada)", tipo: "entrada" },
@@ -140,7 +140,6 @@ function getDefaultData() {
       { nome: "Aluguel", tipo: "saida" },
       { nome: "Outros (Saída)", tipo: "saida" }
     ],
-
     clientes: [],
     fornecedores: [],
     produtos: [],
