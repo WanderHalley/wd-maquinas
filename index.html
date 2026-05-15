@@ -72,7 +72,7 @@
             </div>
         </nav>
         <!-- BOTÃO RECOLHER SIDEBAR -->
-        <div class="sidebar-collapse-btn" id="sidebarCollapseBtn" onclick="collapseSidebar()">
+        <div class="sidebar-collapse-btn" id="sidebarCollapseBtn" onclick="event.stopPropagation(); collapseSidebar()">
             <span class="collapse-arrow" id="collapseArrow">«</span>
         </div>
     </aside>
