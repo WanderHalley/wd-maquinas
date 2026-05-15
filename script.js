@@ -347,18 +347,22 @@ function renderDashboard() {
   let salarioMensalRows = '';
   let salarioAnualTotal = 0;
   let salarioAnualWander = 0;
+  let salarioAnualDaniel = 0;
 
   meses.forEach((m, i) => {
     const lancamentos = (appData.fluxoCaixa && appData.fluxoCaixa[m]) ? appData.fluxoCaixa[m] : [];
     const salarioLancs = lancamentos.filter(l => (l.categoria || '').toLowerCase().includes('salário') || (l.categoria || '').toLowerCase().includes('salario'));
     const salarioTotal = salarioLancs.reduce((s, l) => s + (l.valor || 0), 0);
     const salarioWander = salarioLancs.filter(l => (l.descricao || '').toLowerCase().includes('wander')).reduce((s, l) => s + (l.valor || 0), 0);
+    const salarioDaniel = salarioLancs.filter(l => (l.descricao || '').toLowerCase().includes('daniel')).reduce((s, l) => s + (l.valor || 0), 0);
     salarioAnualTotal += salarioTotal;
     salarioAnualWander += salarioWander;
+    salarioAnualDaniel += salarioDaniel;
     if (salarioTotal > 0) {
-      salarioMensalRows += '<tr><td>' + mesesLabel[i] + '</td><td>' + formatCurrency(salarioWander) + '</td><td>' + formatCurrency(salarioTotal) + '</td></tr>';
+      salarioMensalRows += '<tr><td>' + mesesLabel[i] + '</td><td>' + formatCurrency(salarioWander) + '</td><td>' + formatCurrency(salarioDaniel) + '</td><td>' + formatCurrency(salarioTotal) + '</td></tr>';
     }
   });
+
 
   // Fluxo mensal resumido
   let fluxoResumo = '';
@@ -485,6 +489,7 @@ function renderFluxoMes(mesIdx) {
 
   // Salário Mensal (Wander) = apenas lançamentos de salário com descrição contendo "Wander"
   const salarioWander = salarioLancs.filter(l => (l.descricao || '').toLowerCase().includes('wander')).reduce((s, l) => s + (l.valor || 0), 0);
+  const salarioDaniel = salarioLancs.filter(l => (l.descricao || '').toLowerCase().includes('daniel')).reduce((s, l) => s + (l.valor || 0), 0);
 
   // Filtros tipo
   const catEntrada = (appData.categoriasFluxo || []).filter(c => c.tipo === 'entrada').map(c => '<option value="entrada:' + c.nome + '">' + c.nome + '</option>').join('');
@@ -498,15 +503,20 @@ function renderFluxoMes(mesIdx) {
       <div class="card"><div class="card-header"><span>Saídas</span></div><div class="card-value text-danger">${formatCurrency(totalSaidas)}</div></div>
       <div class="card card-accent"><div class="card-header"><span>Saldo Final</span></div><div class="card-value ${saldoFinal >= 0 ? 'text-success' : 'text-danger'}">${formatCurrency(saldoFinal)}</div></div>
       <div class="card"><div class="card-header"><span>Dinheiro em Notas</span></div><div class="card-value">${formatCurrency(dinheiroNotas)}</div></div>
-      <div class="card" style="border-left:3px solid var(--danger)">
+           <div class="card" style="border-left:3px solid var(--danger)">
         <div class="card-header"><span>Salário Pago Total</span></div>
         <div class="card-value text-danger">${formatCurrency(salarioPagoTotal)}</div>
-        <div style="display:flex;align-items:center;gap:8px;margin-top:8px;padding-top:8px;border-top:1px solid var(--border-color)">
-          <span style="font-size:.7rem;color:var(--text-muted);text-transform:uppercase">Wander:</span>
-          <span style="font-size:.95rem;font-weight:700;color:var(--warning)">${formatCurrency(salarioWander)}</span>
+        <div style="display:flex;align-items:center;gap:16px;margin-top:8px;padding-top:8px;border-top:1px solid var(--border-color)">
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:.7rem;color:var(--text-muted);text-transform:uppercase">Wander:</span>
+            <span style="font-size:.95rem;font-weight:700;color:var(--warning)">${formatCurrency(salarioWander)}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:.7rem;color:var(--text-muted);text-transform:uppercase">Daniel:</span>
+            <span style="font-size:.95rem;font-weight:700;color:var(--warning)">${formatCurrency(salarioDaniel)}</span>
+          </div>
         </div>
       </div>
-    </div>
     <div class="filter-bar">
       <input type="text" class="form-control" style="max-width:250px" placeholder="Buscar lançamento..." oninput="fluxoFilterText=this.value.toLowerCase();renderFluxoTable(${mesIdx})">
       <select class="form-control" style="max-width:200px" onchange="fluxoFilterTipo=this.value;renderFluxoTable(${mesIdx})">
