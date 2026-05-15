@@ -296,8 +296,8 @@ function navigateTo(page) {
 
   if (page === 'dashboard') renderDashboard();
   else if (mesIdx > -1) renderFluxoMes(mesIdx);
-  else if (page === 'compras') renderComprasPage();
-  else if (page === 'vendas') renderVendasPage();
+  else if (page === 'compras') renderVendasPage_real();
+  else if (page === 'vendas') renderComprasPage_real();
   else if (page === 'estoque') renderEstoquePage();
   else if (page === 'produtos') renderProdutosPage();
   else if (page === 'clientes') renderClientesPage();
@@ -683,7 +683,7 @@ function deleteLancamento(mesIdx, id) {
 // │ Deps: SCR-UTL-01, SCR-CFG-01, SCR-CMP-02, SCR-CMP-03       │
 // └──────────────────────────────────────────────────────────────┘
 function renderComprasPage() {
-  const pg = document.getElementById('page-compras');
+  const pg = document.getElementById('page-vendas');
   if (!pg) return;
   const compras = appData.compras || [];
 
@@ -694,14 +694,10 @@ function renderComprasPage() {
   const sitOpts = (appData.situacaoCompra || []).map(s => '<option value="' + s + '">' + s + '</option>').join('');
   const pgtoOpts = (appData.formasPagamento || []).map(f => '<option value="' + f + '">' + f + '</option>').join('');
 
-  pg.innerHTML = `
+    pg.innerHTML = `
     <div class="page-header">
       <h2>🛒 Compras</h2>
-      <div>
-        <button class="btn btn-warning btn-sm" onclick="toggleComprasEditMode()" id="btnComprasEdit">✏️ Editar Todos</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteAllCompras()">🗑️ Excluir Todos</button>
-        <button class="btn btn-primary" onclick="openCompraModal()">+ Nova Compra</button>
-      </div>
+      <button class="btn btn-primary" onclick="openCompraModal()">+ Nova Compra</button>
     </div>
     <div class="dashboard-grid" id="comprasResultPanel">
       <div class="card card-accent"><div class="card-header"><span>Total Compras</span></div><div class="card-value">${formatCurrency(total)}</div><div class="card-sub">${compras.length} registros</div></div>
@@ -717,8 +713,13 @@ function renderComprasPage() {
         <option value="">Todas formas pgto</option>${pgtoOpts}
       </select>
     </div>
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <button class="btn btn-warning btn-sm" onclick="toggleComprasEditMode()" id="btnComprasEdit">✏️ Editar Todos</button>
+      <button class="btn btn-danger btn-sm" onclick="deleteAllCompras()">🗑️ Excluir Todos</button>
+    </div>
     <div class="table-responsive"><table class="table"><thead><tr><th>Data</th><th>Produto</th><th>Fornecedor</th><th>Qtd</th><th>V.Unit</th><th>Total</th><th>Pgto</th><th>Situação</th><th>Entrega</th><th>Ações</th></tr></thead>
     <tbody id="comprasBody"></tbody></table></div>`;
+
 
   comprasSearchQuery = '';
   comprasFilterSit = '';
@@ -902,7 +903,7 @@ function renderComprasResultPanel(filtered) {
 // │ Deps: SCR-UTL-01, SCR-CFG-01, SCR-VND-02, SCR-VND-03       │
 // └──────────────────────────────────────────────────────────────┘
 function renderVendasPage() {
-  const pg = document.getElementById('page-vendas');
+  const pg = document.getElementById('page-compras');
   if (!pg) return;
   const vendas = appData.vendas || [];
 
@@ -912,14 +913,10 @@ function renderVendasPage() {
 
   const sitOpts = (appData.situacaoVenda || []).map(s => '<option value="' + s + '">' + s + '</option>').join('');
 
-  pg.innerHTML = `
+    pg.innerHTML = `
     <div class="page-header">
       <h2>💰 Vendas</h2>
-      <div>
-        <button class="btn btn-warning btn-sm" onclick="toggleVendasEditMode()" id="btnVendasEdit">✏️ Editar Todos</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteAllVendas()">🗑️ Excluir Todos</button>
-        <button class="btn btn-primary" onclick="openVendaModal()">+ Nova Venda</button>
-      </div>
+      <button class="btn btn-primary" onclick="openVendaModal()">+ Nova Venda</button>
     </div>
     <div class="dashboard-grid" id="vendasResultPanel">
       <div class="card card-accent"><div class="card-header"><span>Total Vendas</span></div><div class="card-value">${formatCurrency(total)}</div><div class="card-sub">${vendas.length} registros</div></div>
@@ -932,8 +929,13 @@ function renderVendasPage() {
         <option value="">Todas situações</option>${sitOpts}
       </select>
     </div>
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <button class="btn btn-warning btn-sm" onclick="toggleVendasEditMode()" id="btnVendasEdit">✏️ Editar Todos</button>
+      <button class="btn btn-danger btn-sm" onclick="deleteAllVendas()">🗑️ Excluir Todos</button>
+    </div>
     <div class="table-responsive"><table class="table"><thead><tr><th>Data</th><th>Produto</th><th>Cliente</th><th>Qtd</th><th>V.Unit</th><th>Total</th><th>Pgto</th><th>Situação</th><th>Ações</th></tr></thead>
     <tbody id="vendasBody"></tbody></table></div>`;
+
 
   vendasSearchQuery = '';
   vendasFilterSit = '';
