@@ -227,26 +227,22 @@ function closeViewModal() { document.getElementById('viewModal').style.display =
 function toggleSidebar() {
   const sb = document.getElementById('sidebar');
   sb.classList.toggle('collapsed');
-  updateExpandBtn();
+  syncExpandBtn();
 }
 
 function collapseSidebar() {
   const sb = document.getElementById('sidebar');
   sb.classList.toggle('collapsed');
-  updateExpandBtn();
+  syncExpandBtn();
 }
 
-function updateExpandBtn() {
+function syncExpandBtn() {
   const sb = document.getElementById('sidebar');
   const expandBtn = document.getElementById('expandBtn');
   const arrow = document.getElementById('collapseArrow');
-  if (sb.classList.contains('collapsed')) {
-    if (expandBtn) expandBtn.style.display = 'inline-flex';
-    if (arrow) arrow.textContent = '»';
-  } else {
-    if (expandBtn) expandBtn.style.display = 'none';
-    if (arrow) arrow.textContent = '«';
-  }
+  const isCollapsed = sb.classList.contains('collapsed');
+  if (expandBtn) expandBtn.style.display = isCollapsed ? 'inline-flex' : 'none';
+  if (arrow) arrow.textContent = isCollapsed ? '»' : '«';
 }
 
 function updateSidebarInfo() {
@@ -260,27 +256,8 @@ function updateSidebarInfo() {
     logoEl.style.display = 'block';
   }
 }
-
-// Delegated click events for sidebar
-document.addEventListener('click', function(e) {
-  // Botão collapse na sidebar
-  if (e.target.id === 'sidebarCollapseBtn' || e.target.closest('#sidebarCollapseBtn')) {
-    e.preventDefault();
-    e.stopPropagation();
-    collapseSidebar();
-    return;
-  }
-  // Botão expand na topbar
-  if (e.target.id === 'expandBtn' || e.target.closest('#expandBtn')) {
-    e.preventDefault();
-    e.stopPropagation();
-    const sb = document.getElementById('sidebar');
-    sb.classList.remove('collapsed');
-    updateExpandBtn();
-    return;
-  }
-});
 // └──────────────────── FIM SCR-UI-02 ──────────────────────────┘
+
 
 
 // ┌──────────────────────────────────────────────────────────────┐
@@ -352,8 +329,6 @@ function renderDashboard() {
   const compras = appData.compras || [];
   const vendas = appData.vendas || [];
   const boletos = appData.boletos || [];
-  const cheques = appData.cheques || [];
-  const prestacoes = appData.prestacoes || [];
 
   const totalCompras = compras.reduce((s, c) => s + ((c.quantidade || 1) * (c.valorUnit || 0)), 0);
   const totalVendas = vendas.reduce((s, v) => s + ((v.quantidade || 1) * (v.valorUnit || 0)), 0);
@@ -364,9 +339,28 @@ function renderDashboard() {
   const boletosPendentes = boletos.filter(b => b.situacao !== 'Pago').reduce((s, b) => s + (b.valor || 0), 0);
   const entregasPendentes = compras.filter(c => c.entrega === 'Pendente' || c.entrega === 'Não Entregue').length;
 
-  // Fluxo mensal resumido
+  // ── Salário Mensal por mês (descrição "Wander" = valor de 1 sócio) ──
   const meses = ['janeiro','fevereiro','marco','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
   const mesesLabel = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
+  // Calcular salário mensal: pega lançamentos com categoria "Salário" e descrição contendo "Wander", soma apenas o Wander (que é igual ao Daniel)
+  let salarioMensalRows = '';
+  let salarioAnualTotal = 0;
+  let salarioAnualWander = 0;
+
+  meses.forEach((m, i) => {
+    const lancamentos = (appData.fluxoCaixa && appData.fluxoCaixa[m]) ? appData.fluxoCaixa[m] : [];
+    const salarioLancs = lancamentos.filter(l => (l.categoria || '').toLowerCase().includes('salário') || (l.categoria || '').toLowerCase().includes('salario'));
+    const salarioTotal = salarioLancs.reduce((s, l) => s + (l.valor || 0), 0);
+    const salarioWander = salarioLancs.filter(l => (l.descricao || '').toLowerCase().includes('wander')).reduce((s, l) => s + (l.valor || 0), 0);
+    salarioAnualTotal += salarioTotal;
+    salarioAnualWander += salarioWander;
+    if (salarioTotal > 0) {
+      salarioMensalRows += '<tr><td>' + mesesLabel[i] + '</td><td>' + formatCurrency(salarioWander) + '</td><td>' + formatCurrency(salarioTotal) + '</td></tr>';
+    }
+  });
+
+  // Fluxo mensal resumido
   let fluxoResumo = '';
   meses.forEach((m, i) => {
     const lancamentos = (appData.fluxoCaixa && appData.fluxoCaixa[m]) ? appData.fluxoCaixa[m] : [];
@@ -411,11 +405,29 @@ function renderDashboard() {
       <div class="card"><div class="card-header"><span>Entregas Pendentes</span></div><div class="card-value text-info">${entregasPendentes}</div></div>
       <div class="card"><div class="card-header"><span>Estoque</span></div><div class="card-value">${(appData.estoque || []).length} itens</div></div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px">
-      <div class="card"><div class="card-header"><span>Fluxo de Caixa Mensal</span></div>
-        <div class="table-responsive"><table class="table"><thead><tr><th>Mês</th><th>Entradas</th><th>Saídas</th><th>Saldo</th></tr></thead><tbody>${fluxoResumo}</tbody></table></div>
+
+    <!-- SALÁRIO MENSAL -->
+    <div class="dashboard-grid" style="margin-bottom:20px">
+      <div class="card" style="border-left:3px solid var(--warning)">
+        <div class="card-header"><span>💰 Salário Mensal (Wander)</span></div>
+        <div class="card-value text-warning">${formatCurrency(salarioAnualWander > 0 ? salarioAnualWander / meses.filter((m) => { const l = (appData.fluxoCaixa && appData.fluxoCaixa[m]) ? appData.fluxoCaixa[m] : []; return l.some(x => ((x.categoria||'').toLowerCase().includes('salário') || (x.categoria||'').toLowerCase().includes('salario')) && (x.descricao||'').toLowerCase().includes('wander')); }).length : 0)}</div>
+        <div class="card-sub" style="color:var(--text-muted);font-size:.7rem;margin-top:4px">Valor por mês (apenas Wander)</div>
+      </div>
+      <div class="card" style="border-left:3px solid var(--danger)">
+        <div class="card-header"><span>💸 Salário Pago Total (Anual)</span></div>
+        <div class="card-value text-danger">${formatCurrency(salarioAnualTotal)}</div>
+        <div class="card-sub" style="color:var(--text-muted);font-size:.7rem;margin-top:4px">Wander + Daniel — todos os meses</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div>
+        <div class="card" style="margin-bottom:16px"><div class="card-header"><span>Fluxo de Caixa Mensal</span></div>
+          <div class="table-responsive"><table class="table"><thead><tr><th>Mês</th><th>Entradas</th><th>Saídas</th><th>Saldo</th></tr></thead><tbody>${fluxoResumo}</tbody></table></div>
+        </div>
       </div>
       <div>
+        ${salarioMensalRows ? '<div class="card" style="margin-bottom:16px"><div class="card-header"><span>💰 Salário por Mês</span></div><div class="table-responsive"><table class="table"><thead><tr><th>Mês</th><th>Wander</th><th>Pago Total</th></tr></thead><tbody>' + salarioMensalRows + '</tbody></table></div></div>' : ''}
         <div class="card" style="margin-bottom:16px"><div class="card-header"><span>Últimas Vendas</span></div>
           <div class="table-responsive"><table class="table"><thead><tr><th>Data</th><th>Produto</th><th>Valor</th><th>Situação</th></tr></thead><tbody>${vendasRows}</tbody></table></div>
         </div>
@@ -426,6 +438,7 @@ function renderDashboard() {
     </div>`;
 }
 // └──────────────────── FIM SCR-DSH-01 ──────────────────────────┘
+
 
 // ┌──────────────────────────────────────────────────────────────┐
 // │ TOKEN: SCR-FLX-01 — FLUXO DE CAIXA MENSAL (RENDERIZAÇÃO)    │
@@ -465,7 +478,13 @@ function renderFluxoMes(mesIdx) {
   const saldoFinal = saldoAnterior + saldoMes;
 
   const dinheiroNotas = lancamentos.filter(l => l.categoria === 'Dinheiro em Notas').reduce((s, l) => s + (l.valor || 0), 0);
-  const salarioRecebido = lancamentos.filter(l => l.categoria === 'Salário').reduce((s, l) => s + (l.valor || 0), 0);
+
+  // Salário Pago Total = todos os lançamentos com categoria "Salário" (independente do tipo entrada/saida)
+  const salarioLancs = lancamentos.filter(l => (l.categoria || '').toLowerCase().includes('salário') || (l.categoria || '').toLowerCase().includes('salario'));
+  const salarioPagoTotal = salarioLancs.reduce((s, l) => s + (l.valor || 0), 0);
+
+  // Salário Mensal (Wander) = apenas lançamentos de salário com descrição contendo "Wander"
+  const salarioWander = salarioLancs.filter(l => (l.descricao || '').toLowerCase().includes('wander')).reduce((s, l) => s + (l.valor || 0), 0);
 
   // Filtros tipo
   const catEntrada = (appData.categoriasFluxo || []).filter(c => c.tipo === 'entrada').map(c => '<option value="entrada:' + c.nome + '">' + c.nome + '</option>').join('');
@@ -479,7 +498,14 @@ function renderFluxoMes(mesIdx) {
       <div class="card"><div class="card-header"><span>Saídas</span></div><div class="card-value text-danger">${formatCurrency(totalSaidas)}</div></div>
       <div class="card card-accent"><div class="card-header"><span>Saldo Final</span></div><div class="card-value ${saldoFinal >= 0 ? 'text-success' : 'text-danger'}">${formatCurrency(saldoFinal)}</div></div>
       <div class="card"><div class="card-header"><span>Dinheiro em Notas</span></div><div class="card-value">${formatCurrency(dinheiroNotas)}</div></div>
-      <div class="card"><div class="card-header"><span>Salário Recebido</span></div><div class="card-value">${formatCurrency(salarioRecebido)}</div></div>
+      <div class="card" style="border-left:3px solid var(--danger)">
+        <div class="card-header"><span>Salário Pago Total</span></div>
+        <div class="card-value text-danger">${formatCurrency(salarioPagoTotal)}</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:8px;padding-top:8px;border-top:1px solid var(--border-color)">
+          <span style="font-size:.7rem;color:var(--text-muted);text-transform:uppercase">Wander:</span>
+          <span style="font-size:.95rem;font-weight:700;color:var(--warning)">${formatCurrency(salarioWander)}</span>
+        </div>
+      </div>
     </div>
     <div class="filter-bar">
       <input type="text" class="form-control" style="max-width:250px" placeholder="Buscar lançamento..." oninput="fluxoFilterText=this.value.toLowerCase();renderFluxoTable(${mesIdx})">
@@ -502,6 +528,7 @@ function renderFluxoMes(mesIdx) {
   renderFluxoTable(mesIdx);
 }
 // └──────────────────── FIM SCR-FLX-01 ──────────────────────────┘
+
 
 // ┌──────────────────────────────────────────────────────────────┐
 // │ TOKEN: SCR-FLX-02 — FLUXO DE CAIXA (CRUD)                   │
