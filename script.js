@@ -1,6 +1,6 @@
 // ╔══════════════════════════════════════════════════════════════╗
 // ║  WD MÁQUINAS — SISTEMA DE FLUXO DE CAIXA 2026              ║
-// ║  script.js — CÓDIGO COMPLETO CORRIGIDO                     ║
+// ║  script.js — CÓDIGO COMPLETO CORRIGIDO v3                  ║
 // ╚══════════════════════════════════════════════════════════════╝
 
 // ── SCR-CFG-01 — CONFIGURAÇÃO GLOBAL ──
@@ -123,7 +123,8 @@ function getDefaultData() {
     boletos: [], cheques: [], prestacoes: [], projetos: [],
     pagClientes: [], garantias: [],
     notasEntrada: [], notasSaida: [], receitasMei: [],
-    fluxoCaixa: {}
+    fluxoCaixa: {},
+    _dataSwapped: false
   };
 }
 
@@ -136,17 +137,40 @@ async function loadData() {
         appData = typeof data.payload === 'string' ? JSON.parse(data.payload) : data.payload;
         ensureDefaults();
         console.log('Dados carregados do Supabase');
+        migrateSwappedData();
         return;
       }
     } catch (e) { console.warn('Supabase load falhou:', e.message); }
   }
   try {
     const local = localStorage.getItem('wdmaquinas_data');
-    if (local) { appData = JSON.parse(local); ensureDefaults(); console.log('Dados carregados do localStorage'); return; }
+    if (local) {
+      appData = JSON.parse(local);
+      ensureDefaults();
+      console.log('Dados carregados do localStorage');
+      migrateSwappedData();
+      return;
+    }
   } catch (e) {}
   appData = getDefaultData();
+  appData._dataSwapped = true; // dados novos já estão corretos
   console.log('Dados padrão carregados');
 }
+
+// ★★★ MIGRAÇÃO: troca compras ↔ vendas UMA VEZ se nunca foi feito ★★★
+function migrateSwappedData() {
+  if (!appData._dataSwapped) {
+    console.log('MIGRAÇÃO: Trocando compras ↔ vendas (dados estavam invertidos)');
+    const tempCompras = appData.compras || [];
+    const tempVendas = appData.vendas || [];
+    appData.compras = tempVendas;
+    appData.vendas = tempCompras;
+    appData._dataSwapped = true;
+    saveData();
+    console.log('MIGRAÇÃO concluída. Compras:', appData.compras.length, 'Vendas:', appData.vendas.length);
+  }
+}
+
 async function saveData() {
   try { localStorage.setItem('wdmaquinas_data', JSON.stringify(appData)); } catch (e) {}
   if (supabaseClient) {
@@ -304,7 +328,7 @@ function renderDashboard() {
     vendasRows = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted)">Nenhuma venda</td></tr>';
   } else {
     ultVendas.forEach(v => {
-      vendasRows += '<tr><td>' + formatDate(v.data) + '</td><td>' + v.produto + '</td><td>' + formatCurrency((v.quantidade || 1) * (v.valorUnit || 0)) + '</td><td><span class="badge ' + (v.situacao === 'Pago' ? 'badge-success' : 'badge-danger') + '">' + v.situacao + '</span></td></tr>';
+      vendasRows += '<tr><td>' + formatDate(v.data) + '</td><td>' + (v.produto || '-') + '</td><td>' + formatCurrency((v.quantidade || 1) * (v.valorUnit || 0)) + '</td><td><span class="badge ' + (v.situacao === 'Pago' ? 'badge-success' : 'badge-danger') + '">' + (v.situacao || '-') + '</span></td></tr>';
     });
   }
 
@@ -314,7 +338,7 @@ function renderDashboard() {
     comprasRows = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted)">Nenhuma compra</td></tr>';
   } else {
     ultCompras.forEach(c => {
-      comprasRows += '<tr><td>' + formatDate(c.data) + '</td><td>' + c.produto + '</td><td>' + formatCurrency((c.quantidade || 1) * (c.valorUnit || 0)) + '</td><td><span class="badge ' + (c.situacao === 'Pago' ? 'badge-success' : c.situacao === 'Devendo' ? 'badge-danger' : 'badge-warning') + '">' + c.situacao + '</span></td></tr>';
+      comprasRows += '<tr><td>' + formatDate(c.data) + '</td><td>' + (c.produto || '-') + '</td><td>' + formatCurrency((c.quantidade || 1) * (c.valorUnit || 0)) + '</td><td><span class="badge ' + (c.situacao === 'Pago' ? 'badge-success' : c.situacao === 'Devendo' ? 'badge-danger' : 'badge-warning') + '">' + (c.situacao || '-') + '</span></td></tr>';
     });
   }
 
@@ -353,7 +377,7 @@ function renderDashboard() {
     </div>`;
 }
 
-// ── SCR-FLX-01 — FLUXO DE CAIXA MENSAL (RENDERIZAÇÃO) ──
+// ── SCR-FLX-01 — FLUXO DE CAIXA MENSAL ──
 const mesesNomes = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 const mesesKeys = ['janeiro','fevereiro','marco','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
 
@@ -383,8 +407,7 @@ function renderFluxoMes(mesIdx) {
 
   const totalEntradas = lancamentos.filter(l => l.tipo === 'entrada').reduce((s, l) => s + (l.valor || 0), 0);
   const totalSaidas = lancamentos.filter(l => l.tipo === 'saida').reduce((s, l) => s + (l.valor || 0), 0);
-  const saldoMes = totalEntradas - totalSaidas;
-  const saldoFinal = saldoAnterior + saldoMes;
+  const saldoFinal = saldoAnterior + totalEntradas - totalSaidas;
 
   const dinheiroNotas = lancamentos.filter(l => l.categoria === 'Dinheiro em Notas').reduce((s, l) => s + (l.valor || 0), 0);
 
@@ -396,7 +419,6 @@ function renderFluxoMes(mesIdx) {
   const catEntrada = (appData.categoriasFluxo || []).filter(c => c.tipo === 'entrada').map(c => '<option value="entrada:' + c.nome + '">' + c.nome + '</option>').join('');
   const catSaida = (appData.categoriasFluxo || []).filter(c => c.tipo === 'saida').map(c => '<option value="saida:' + c.nome + '">' + c.nome + '</option>').join('');
 
-  // ★★★ CORREÇÃO: fechamento correto de todas as divs ★★★
   pg.innerHTML = `
     <div class="page-header"><h2>📅 ${mesNome} 2026</h2><button class="btn btn-primary" onclick="openLancamentoModal(${mesIdx})">+ Novo Lançamento</button></div>
     <div class="dashboard-grid">
@@ -405,7 +427,7 @@ function renderFluxoMes(mesIdx) {
       <div class="card"><div class="card-header"><span>Saídas</span></div><div class="card-value text-danger">${formatCurrency(totalSaidas)}</div></div>
       <div class="card card-accent"><div class="card-header"><span>Saldo Final</span></div><div class="card-value ${saldoFinal >= 0 ? 'text-success' : 'text-danger'}">${formatCurrency(saldoFinal)}</div></div>
       <div class="card"><div class="card-header"><span>Dinheiro em Notas</span></div><div class="card-value">${formatCurrency(dinheiroNotas)}</div></div>
-        <div class="card" style="border-left:3px solid var(--danger);grid-column:span 2">
+      <div class="card" style="border-left:3px solid var(--danger);grid-column:span 2">
         <div class="card-header"><span>Salário Pago Total</span></div>
         <div class="card-value text-danger">${formatCurrency(salarioPagoTotal)}</div>
         <div style="display:flex;align-items:center;gap:24px;margin-top:8px;padding-top:8px;border-top:1px solid var(--border-color);flex-wrap:wrap">
@@ -441,14 +463,12 @@ function renderFluxoMes(mesIdx) {
   renderFluxoTable(mesIdx);
 }
 
-// ── SCR-FLX-02 — FLUXO DE CAIXA (CRUD) ──
+// ── SCR-FLX-02 — FLUXO CRUD ──
 function renderFluxoTable(mesIdx) {
   const mesKey = mesesKeys[mesIdx];
   const tbody = document.getElementById('fluxoBody');
   if (!tbody) return;
-
   let lancamentos = (appData.fluxoCaixa && appData.fluxoCaixa[mesKey]) ? [...appData.fluxoCaixa[mesKey]] : [];
-
   if (fluxoFilterText) {
     lancamentos = lancamentos.filter(l => (l.descricao || '').toLowerCase().includes(fluxoFilterText) || (l.categoria || '').toLowerCase().includes(fluxoFilterText));
   }
@@ -460,24 +480,14 @@ function renderFluxoTable(mesIdx) {
       lancamentos = lancamentos.filter(l => l.tipo === parts[0] && l.categoria === parts[1]);
     }
   }
-
   lancamentos.sort((a, b) => (a.data || '').localeCompare(b.data || ''));
-
   if (lancamentos.length === 0) {
     tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhum lançamento</td></tr>';
     return;
   }
-
   tbody.innerHTML = lancamentos.map(l => {
     const isEntrada = l.tipo === 'entrada';
-    return '<tr>' +
-      '<td>' + formatDate(l.data) + '</td>' +
-      '<td>' + (l.descricao || '-') + '</td>' +
-      '<td>' + (l.categoria || '-') + '</td>' +
-      '<td><span class="badge ' + (isEntrada ? 'badge-success' : 'badge-danger') + '">' + (isEntrada ? 'Entrada' : 'Saída') + '</span></td>' +
-      '<td class="' + (isEntrada ? 'text-success' : 'text-danger') + '">' + formatCurrency(l.valor) + '</td>' +
-      '<td><button class="btn btn-sm btn-primary" onclick="editLancamento(' + mesIdx + ',' + l.id + ')">✏️</button> <button class="btn btn-sm btn-danger" onclick="deleteLancamento(' + mesIdx + ',' + l.id + ')">🗑️</button></td>' +
-      '</tr>';
+    return '<tr><td>' + formatDate(l.data) + '</td><td>' + (l.descricao || '-') + '</td><td>' + (l.categoria || '-') + '</td><td><span class="badge ' + (isEntrada ? 'badge-success' : 'badge-danger') + '">' + (isEntrada ? 'Entrada' : 'Saída') + '</span></td><td class="' + (isEntrada ? 'text-success' : 'text-danger') + '">' + formatCurrency(l.valor) + '</td><td><button class="btn btn-sm btn-primary" onclick="editLancamento(' + mesIdx + ',' + l.id + ')">✏️</button> <button class="btn btn-sm btn-danger" onclick="deleteLancamento(' + mesIdx + ',' + l.id + ')">🗑️</button></td></tr>';
   }).join('');
 }
 
@@ -549,9 +559,7 @@ function saveLancamento(mesIdx, id) {
     obj.id = nextId(appData.fluxoCaixa[mesKey]);
     appData.fluxoCaixa[mesKey].push(obj);
   }
-  saveData();
-  closeCadastroModal();
-  renderFluxoMes(mesIdx);
+  saveData(); closeCadastroModal(); renderFluxoMes(mesIdx);
   showToast(id ? 'Lançamento atualizado!' : 'Lançamento cadastrado!', 'success');
 }
 
@@ -565,12 +573,11 @@ function deleteLancamento(mesIdx, id) {
   if (!confirm('Excluir lançamento?')) return;
   const mesKey = mesesKeys[mesIdx];
   appData.fluxoCaixa[mesKey] = (appData.fluxoCaixa[mesKey] || []).filter(l => l.id !== id);
-  saveData();
-  renderFluxoMes(mesIdx);
+  saveData(); renderFluxoMes(mesIdx);
   showToast('Lançamento excluído!', 'success');
 }
 
-// ── SCR-CMP-01 — COMPRAS (PÁGINA + PAINEL) ──
+// ── SCR-CMP-01 — COMPRAS ──
 function renderComprasPage() {
   const pg = document.getElementById('page-compras');
   if (!pg) return;
@@ -599,24 +606,16 @@ function renderComprasPage() {
     </div>
     <div class="table-responsive"><table class="table"><thead><tr><th>Data</th><th>Produto</th><th>Fornecedor</th><th>Qtd</th><th>V.Unit</th><th>Total</th><th>Pgto</th><th>Situação</th><th>Entrega</th><th>Ações</th></tr></thead>
     <tbody id="comprasBody"></tbody></table></div>`;
-
-  comprasSearchQuery = '';
-  comprasFilterSit = '';
-  comprasFilterPgto = '';
+  comprasSearchQuery = ''; comprasFilterSit = ''; comprasFilterPgto = '';
   renderComprasTable(compras);
 }
 
-// ── SCR-CMP-02 — COMPRAS (CRUD) ──
 function renderComprasTable(compras) {
   const tbody = document.getElementById('comprasBody');
   if (!tbody) return;
-  if (compras.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhuma compra encontrada</td></tr>';
-    return;
-  }
+  if (compras.length === 0) { tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhuma compra encontrada</td></tr>'; return; }
   const sitOpts = (appData.situacaoCompra || []);
   const entOpts = (appData.situacaoEntrega || []);
-
   tbody.innerHTML = compras.map(c => {
     const total = (c.quantidade || 1) * (c.valorUnit || 0);
     const sitSelect = '<select class="form-control" style="min-width:100px;padding:4px 6px;font-size:12px" onchange="changeCompraField(' + c.id + ',\'situacao\',this.value)">' + sitOpts.map(s => '<option value="' + s + '"' + (c.situacao === s ? ' selected' : '') + '>' + s + '</option>').join('') + '</select>';
@@ -624,7 +623,6 @@ function renderComprasTable(compras) {
     const acoes = comprasEditMode
       ? '<button class="btn btn-sm btn-outline" onclick="viewCompra(' + c.id + ')">👁️</button> <button class="btn btn-sm btn-primary" onclick="editCompra(' + c.id + ')">✏️</button> <button class="btn btn-sm btn-danger" onclick="deleteCompra(' + c.id + ')">🗑️</button>'
       : '<button class="btn btn-sm btn-outline" onclick="viewCompra(' + c.id + ')">👁️</button>';
-
     return '<tr><td>' + formatDate(c.data) + '</td><td>' + (c.produto || '-') + '</td><td>' + (c.fornecedor || '-') + '</td><td>' + (c.quantidade || 1) + '</td><td>' + formatCurrency(c.valorUnit) + '</td><td>' + formatCurrency(total) + '</td><td>' + (c.formaPagamento || '-') + '</td><td>' + sitSelect + '</td><td>' + entSelect + '</td><td>' + acoes + '</td></tr>';
   }).join('');
 }
@@ -640,7 +638,6 @@ function openCompraModal(compra) {
   const pgtoOpts = (appData.formasPagamento || []).map(f => '<option value="' + f + '"' + (compra && compra.formaPagamento === f ? ' selected' : '') + '>' + f + '</option>').join('');
   const sitOpts = (appData.situacaoCompra || []).map(s => '<option value="' + s + '"' + (compra && compra.situacao === s ? ' selected' : '') + '>' + s + '</option>').join('');
   const entOpts = (appData.situacaoEntrega || []).map(e => '<option value="' + e + '"' + (compra && compra.entrega === e ? ' selected' : '') + '>' + e + '</option>').join('');
-
   document.getElementById('cadastroModalTitle').textContent = isEdit ? 'Editar Compra' : 'Nova Compra';
   document.getElementById('cadastroModalBody').innerHTML = `
     <div class="form-row"><div class="form-group"><label>Data</label><input type="date" class="form-control" id="cpData" value="${compra ? compra.data : new Date().toISOString().split('T')[0]}"></div><div class="form-group"><label>Vencimento</label><input type="date" class="form-control" id="cpVenc" value="${compra ? compra.vencimento || '' : ''}"></div></div>
@@ -654,27 +651,11 @@ function openCompraModal(compra) {
 }
 
 function saveCompra(id) {
-  const obj = {
-    data: document.getElementById('cpData').value,
-    vencimento: document.getElementById('cpVenc').value,
-    produto: document.getElementById('cpProd').value.trim(),
-    quantidade: parseFloat(document.getElementById('cpQtd').value) || 1,
-    valorUnit: parseFloat(document.getElementById('cpValor').value) || 0,
-    fornecedor: document.getElementById('cpForn').value,
-    formaPagamento: document.getElementById('cpPgto').value,
-    situacao: document.getElementById('cpSit').value,
-    entrega: document.getElementById('cpEnt').value,
-    obs: document.getElementById('cpObs').value
-  };
+  const obj = { data: document.getElementById('cpData').value, vencimento: document.getElementById('cpVenc').value, produto: document.getElementById('cpProd').value.trim(), quantidade: parseFloat(document.getElementById('cpQtd').value) || 1, valorUnit: parseFloat(document.getElementById('cpValor').value) || 0, fornecedor: document.getElementById('cpForn').value, formaPagamento: document.getElementById('cpPgto').value, situacao: document.getElementById('cpSit').value, entrega: document.getElementById('cpEnt').value, obs: document.getElementById('cpObs').value };
   if (!obj.produto) { showToast('Informe o produto', 'error'); return; }
   if (!appData.compras) appData.compras = [];
-  if (id) {
-    const idx = appData.compras.findIndex(c => c.id === id);
-    if (idx > -1) { obj.id = id; appData.compras[idx] = obj; }
-  } else {
-    obj.id = nextId(appData.compras);
-    appData.compras.push(obj);
-  }
+  if (id) { const idx = appData.compras.findIndex(c => c.id === id); if (idx > -1) { obj.id = id; appData.compras[idx] = obj; } }
+  else { obj.id = nextId(appData.compras); appData.compras.push(obj); }
   saveData(); closeCadastroModal(); renderComprasPage(); showToast(id ? 'Compra atualizada!' : 'Compra cadastrada!', 'success');
 }
 
@@ -684,64 +665,34 @@ function viewCompra(id) {
   const c = (appData.compras || []).find(x => x.id === id); if (!c) return;
   const total = (c.quantidade || 1) * (c.valorUnit || 0);
   document.getElementById('viewModalTitle').textContent = 'Detalhes da Compra';
-  document.getElementById('viewModalBody').innerHTML = '<div class="detail-grid">' +
-    '<div class="detail-item"><span class="detail-label">Data</span>' + formatDate(c.data) + '</div><div class="detail-item"><span class="detail-label">Vencimento</span>' + formatDate(c.vencimento) + '</div>' +
-    '<div class="detail-item"><span class="detail-label">Produto</span>' + c.produto + '</div><div class="detail-item"><span class="detail-label">Qtd</span>' + c.quantidade + '</div>' +
-    '<div class="detail-item"><span class="detail-label">V.Unit</span>' + formatCurrency(c.valorUnit) + '</div><div class="detail-item"><span class="detail-label">Total</span>' + formatCurrency(total) + '</div>' +
-    '<div class="detail-item"><span class="detail-label">Fornecedor</span>' + (c.fornecedor || '-') + '</div><div class="detail-item"><span class="detail-label">Pgto</span>' + (c.formaPagamento || '-') + '</div>' +
-    '<div class="detail-item"><span class="detail-label">Situação</span><span class="badge ' + (c.situacao === 'Pago' ? 'badge-success' : 'badge-danger') + '">' + c.situacao + '</span></div>' +
-    '<div class="detail-item"><span class="detail-label">Entrega</span><span class="badge ' + (c.entrega === 'Entregue OK' ? 'badge-success' : 'badge-warning') + '">' + (c.entrega || '-') + '</span></div>' +
-    '</div>' + (c.obs ? '<div style="margin-top:12px;padding:10px;background:var(--bg-tertiary);border-radius:var(--radius-sm)"><strong>Obs:</strong> ' + c.obs + '</div>' : '');
+  document.getElementById('viewModalBody').innerHTML = '<div class="detail-grid"><div class="detail-item"><span class="detail-label">Data</span>' + formatDate(c.data) + '</div><div class="detail-item"><span class="detail-label">Vencimento</span>' + formatDate(c.vencimento) + '</div><div class="detail-item"><span class="detail-label">Produto</span>' + c.produto + '</div><div class="detail-item"><span class="detail-label">Qtd</span>' + c.quantidade + '</div><div class="detail-item"><span class="detail-label">V.Unit</span>' + formatCurrency(c.valorUnit) + '</div><div class="detail-item"><span class="detail-label">Total</span>' + formatCurrency(total) + '</div><div class="detail-item"><span class="detail-label">Fornecedor</span>' + (c.fornecedor || '-') + '</div><div class="detail-item"><span class="detail-label">Pgto</span>' + (c.formaPagamento || '-') + '</div><div class="detail-item"><span class="detail-label">Situação</span><span class="badge ' + (c.situacao === 'Pago' ? 'badge-success' : 'badge-danger') + '">' + c.situacao + '</span></div><div class="detail-item"><span class="detail-label">Entrega</span><span class="badge ' + (c.entrega === 'Entregue OK' ? 'badge-success' : 'badge-warning') + '">' + (c.entrega || '-') + '</span></div></div>' + (c.obs ? '<div style="margin-top:12px;padding:10px;background:var(--bg-tertiary);border-radius:var(--radius-sm)"><strong>Obs:</strong> ' + c.obs + '</div>' : '');
   openViewModal();
 }
 
-function deleteCompra(id) {
-  if (!confirm('Excluir compra?')) return;
-  appData.compras = (appData.compras || []).filter(c => c.id !== id);
-  saveData(); renderComprasPage(); showToast('Compra excluída!', 'success');
-}
+function deleteCompra(id) { if (!confirm('Excluir compra?')) return; appData.compras = (appData.compras || []).filter(c => c.id !== id); saveData(); renderComprasPage(); showToast('Compra excluída!', 'success'); }
 
-// ── SCR-CMP-03 — COMPRAS (FEATURES: EDIT ALL, FILTROS) ──
-function toggleComprasEditMode() {
-  comprasEditMode = !comprasEditMode;
-  const btn = document.getElementById('btnComprasEdit');
-  if (btn) btn.textContent = comprasEditMode ? '✅ Finalizar Edição' : '✏️ Editar Todos';
-  applyComprasFilters();
-}
-function deleteAllCompras() {
-  if (!confirm('Tem certeza que deseja excluir TODAS as compras?')) return;
-  appData.compras = [];
-  saveData(); renderComprasPage(); showToast('Todas as compras foram excluídas!', 'success');
-}
+function toggleComprasEditMode() { comprasEditMode = !comprasEditMode; const btn = document.getElementById('btnComprasEdit'); if (btn) btn.textContent = comprasEditMode ? '✅ Finalizar Edição' : '✏️ Editar Todos'; applyComprasFilters(); }
+function deleteAllCompras() { if (!confirm('Excluir TODAS as compras?')) return; appData.compras = []; saveData(); renderComprasPage(); showToast('Todas excluídas!', 'success'); }
 function onComprasSearch(q) { comprasSearchQuery = q.toLowerCase(); applyComprasFilters(); }
 function onComprasFilterSit(s) { comprasFilterSit = s; applyComprasFilters(); }
 function onComprasFilterPgto(p) { comprasFilterPgto = p; applyComprasFilters(); }
-
 function applyComprasFilters() {
   let filtered = appData.compras || [];
-  if (comprasSearchQuery) {
-    filtered = filtered.filter(c => (c.produto || '').toLowerCase().includes(comprasSearchQuery) || (c.fornecedor || '').toLowerCase().includes(comprasSearchQuery) || (c.obs || '').toLowerCase().includes(comprasSearchQuery));
-  }
+  if (comprasSearchQuery) filtered = filtered.filter(c => (c.produto || '').toLowerCase().includes(comprasSearchQuery) || (c.fornecedor || '').toLowerCase().includes(comprasSearchQuery));
   if (comprasFilterSit) filtered = filtered.filter(c => c.situacao === comprasFilterSit);
   if (comprasFilterPgto) filtered = filtered.filter(c => c.formaPagamento === comprasFilterPgto);
-  renderComprasTable(filtered);
-  renderComprasResultPanel(filtered);
+  renderComprasTable(filtered); renderComprasResultPanel(filtered);
 }
-
 function renderComprasResultPanel(filtered) {
-  const panel = document.getElementById('comprasResultPanel');
-  if (!panel) return;
+  const panel = document.getElementById('comprasResultPanel'); if (!panel) return;
   const all = appData.compras || [];
   const total = filtered.reduce((s, c) => s + ((c.quantidade || 1) * (c.valorUnit || 0)), 0);
   const pago = filtered.filter(c => c.situacao === 'Pago').reduce((s, c) => s + ((c.quantidade || 1) * (c.valorUnit || 0)), 0);
   const devendo = filtered.filter(c => c.situacao === 'Devendo').reduce((s, c) => s + ((c.quantidade || 1) * (c.valorUnit || 0)), 0);
-  panel.innerHTML = `
-    <div class="card card-accent"><div class="card-header"><span>Total Compras</span></div><div class="card-value">${formatCurrency(total)}</div><div class="card-sub">${filtered.length} de ${all.length} registros</div></div>
-    <div class="card"><div class="card-header"><span>Pago</span></div><div class="card-value text-success">${formatCurrency(pago)}</div></div>
-    <div class="card"><div class="card-header"><span>Devendo</span></div><div class="card-value text-danger">${formatCurrency(devendo)}</div></div>`;
+  panel.innerHTML = '<div class="card card-accent"><div class="card-header"><span>Total Compras</span></div><div class="card-value">' + formatCurrency(total) + '</div><div class="card-sub">' + filtered.length + ' de ' + all.length + ' registros</div></div><div class="card"><div class="card-header"><span>Pago</span></div><div class="card-value text-success">' + formatCurrency(pago) + '</div></div><div class="card"><div class="card-header"><span>Devendo</span></div><div class="card-value text-danger">' + formatCurrency(devendo) + '</div></div>';
 }
 
-// ── SCR-VND-01 — VENDAS (PÁGINA + PAINEL) ──
+// ── SCR-VND-01 — VENDAS ──
 function renderVendasPage() {
   const pg = document.getElementById('page-vendas');
   if (!pg) return;
@@ -768,37 +719,25 @@ function renderVendasPage() {
     </div>
     <div class="table-responsive"><table class="table"><thead><tr><th>Data</th><th>Produto</th><th>Cliente</th><th>Vendedor</th><th>Qtd</th><th>V.Unit</th><th>Total</th><th>Pgto</th><th>Situação</th><th>Ações</th></tr></thead>
     <tbody id="vendasBody"></tbody></table></div>`;
-
-  vendasSearchQuery = '';
-  vendasFilterSit = '';
+  vendasSearchQuery = ''; vendasFilterSit = '';
   renderVendasTable(vendas);
 }
 
-// ── SCR-VND-02 — VENDAS (CRUD) ──
 function renderVendasTable(vendas) {
-  const tbody = document.getElementById('vendasBody');
-  if (!tbody) return;
-  if (vendas.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhuma venda encontrada</td></tr>';
-    return;
-  }
+  const tbody = document.getElementById('vendasBody'); if (!tbody) return;
+  if (vendas.length === 0) { tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhuma venda encontrada</td></tr>'; return; }
   const sitOpts = (appData.situacaoVenda || []);
-
   tbody.innerHTML = vendas.map(v => {
     const total = (v.quantidade || 1) * (v.valorUnit || 0);
     const sitSelect = '<select class="form-control" style="min-width:100px;padding:4px 6px;font-size:12px" onchange="changeVendaField(' + v.id + ',\'situacao\',this.value)">' + sitOpts.map(s => '<option value="' + s + '"' + (v.situacao === s ? ' selected' : '') + '>' + s + '</option>').join('') + '</select>';
     const acoes = vendasEditMode
       ? '<button class="btn btn-sm btn-outline" onclick="viewVenda(' + v.id + ')">👁️</button> <button class="btn btn-sm btn-primary" onclick="editVenda(' + v.id + ')">✏️</button> <button class="btn btn-sm btn-danger" onclick="deleteVenda(' + v.id + ')">🗑️</button>'
       : '<button class="btn btn-sm btn-outline" onclick="viewVenda(' + v.id + ')">👁️</button>';
-
     return '<tr><td>' + formatDate(v.data) + '</td><td>' + (v.produto || '-') + '</td><td>' + (v.cliente || '-') + '</td><td>' + (v.vendedor || '-') + '</td><td>' + (v.quantidade || 1) + '</td><td>' + formatCurrency(v.valorUnit) + '</td><td>' + formatCurrency(total) + '</td><td>' + (v.formaPagamento || '-') + '</td><td>' + sitSelect + '</td><td>' + acoes + '</td></tr>';
   }).join('');
 }
 
-function changeVendaField(id, field, value) {
-  const v = (appData.vendas || []).find(x => x.id === id);
-  if (v) { v[field] = value; saveData(); applyVendasFilters(); }
-}
+function changeVendaField(id, field, value) { const v = (appData.vendas || []).find(x => x.id === id); if (v) { v[field] = value; saveData(); applyVendasFilters(); } }
 
 function openVendaModal(venda) {
   const isEdit = !!venda;
@@ -806,7 +745,6 @@ function openVendaModal(venda) {
   const vendOpts = (appData.vendedores || []).map(v => '<option value="' + v + '"' + (venda && venda.vendedor === v ? ' selected' : '') + '>' + v + '</option>').join('');
   const pgtoOpts = (appData.formasPagamento || []).map(f => '<option value="' + f + '"' + (venda && venda.formaPagamento === f ? ' selected' : '') + '>' + f + '</option>').join('');
   const sitOpts = (appData.situacaoVenda || []).map(s => '<option value="' + s + '"' + (venda && venda.situacao === s ? ' selected' : '') + '>' + s + '</option>').join('');
-
   document.getElementById('cadastroModalTitle').textContent = isEdit ? 'Editar Venda' : 'Nova Venda';
   document.getElementById('cadastroModalBody').innerHTML = `
     <div class="form-row"><div class="form-group"><label>Data</label><input type="date" class="form-control" id="vnData" value="${venda ? venda.data : new Date().toISOString().split('T')[0]}"></div><div class="form-group"><label>Vencimento</label><input type="date" class="form-control" id="vnVenc" value="${venda ? venda.vencimento || '' : ''}"></div></div>
@@ -820,27 +758,11 @@ function openVendaModal(venda) {
 }
 
 function saveVenda(id) {
-  const obj = {
-    data: document.getElementById('vnData').value,
-    vencimento: document.getElementById('vnVenc').value,
-    produto: document.getElementById('vnProd').value.trim(),
-    quantidade: parseFloat(document.getElementById('vnQtd').value) || 1,
-    valorUnit: parseFloat(document.getElementById('vnValor').value) || 0,
-    cliente: document.getElementById('vnCli').value,
-    vendedor: document.getElementById('vnVend').value,
-    formaPagamento: document.getElementById('vnPgto').value,
-    situacao: document.getElementById('vnSit').value,
-    obs: document.getElementById('vnObs').value
-  };
+  const obj = { data: document.getElementById('vnData').value, vencimento: document.getElementById('vnVenc').value, produto: document.getElementById('vnProd').value.trim(), quantidade: parseFloat(document.getElementById('vnQtd').value) || 1, valorUnit: parseFloat(document.getElementById('vnValor').value) || 0, cliente: document.getElementById('vnCli').value, vendedor: document.getElementById('vnVend').value, formaPagamento: document.getElementById('vnPgto').value, situacao: document.getElementById('vnSit').value, obs: document.getElementById('vnObs').value };
   if (!obj.produto) { showToast('Informe o produto', 'error'); return; }
   if (!appData.vendas) appData.vendas = [];
-  if (id) {
-    const idx = appData.vendas.findIndex(v => v.id === id);
-    if (idx > -1) { obj.id = id; appData.vendas[idx] = obj; }
-  } else {
-    obj.id = nextId(appData.vendas);
-    appData.vendas.push(obj);
-  }
+  if (id) { const idx = appData.vendas.findIndex(v => v.id === id); if (idx > -1) { obj.id = id; appData.vendas[idx] = obj; } }
+  else { obj.id = nextId(appData.vendas); appData.vendas.push(obj); }
   saveData(); closeCadastroModal(); renderVendasPage(); showToast(id ? 'Venda atualizada!' : 'Venda cadastrada!', 'success');
 }
 
@@ -850,497 +772,171 @@ function viewVenda(id) {
   const v = (appData.vendas || []).find(x => x.id === id); if (!v) return;
   const total = (v.quantidade || 1) * (v.valorUnit || 0);
   document.getElementById('viewModalTitle').textContent = 'Detalhes da Venda';
-  document.getElementById('viewModalBody').innerHTML = '<div class="detail-grid">' +
-    '<div class="detail-item"><span class="detail-label">Data</span>' + formatDate(v.data) + '</div><div class="detail-item"><span class="detail-label">Vencimento</span>' + formatDate(v.vencimento) + '</div>' +
-    '<div class="detail-item"><span class="detail-label">Produto</span>' + v.produto + '</div><div class="detail-item"><span class="detail-label">Qtd</span>' + v.quantidade + '</div>' +
-    '<div class="detail-item"><span class="detail-label">V.Unit</span>' + formatCurrency(v.valorUnit) + '</div><div class="detail-item"><span class="detail-label">Total</span>' + formatCurrency(total) + '</div>' +
-    '<div class="detail-item"><span class="detail-label">Cliente</span>' + (v.cliente || '-') + '</div><div class="detail-item"><span class="detail-label">Vendedor</span>' + (v.vendedor || '-') + '</div>' +
-    '<div class="detail-item"><span class="detail-label">Pgto</span>' + (v.formaPagamento || '-') + '</div>' +
-    '<div class="detail-item"><span class="detail-label">Situação</span><span class="badge ' + (v.situacao === 'Pago' ? 'badge-success' : 'badge-danger') + '">' + v.situacao + '</span></div>' +
-    '</div>' + (v.obs ? '<div style="margin-top:12px;padding:10px;background:var(--bg-tertiary);border-radius:var(--radius-sm)"><strong>Obs:</strong> ' + v.obs + '</div>' : '');
+  document.getElementById('viewModalBody').innerHTML = '<div class="detail-grid"><div class="detail-item"><span class="detail-label">Data</span>' + formatDate(v.data) + '</div><div class="detail-item"><span class="detail-label">Vencimento</span>' + formatDate(v.vencimento) + '</div><div class="detail-item"><span class="detail-label">Produto</span>' + v.produto + '</div><div class="detail-item"><span class="detail-label">Qtd</span>' + v.quantidade + '</div><div class="detail-item"><span class="detail-label">V.Unit</span>' + formatCurrency(v.valorUnit) + '</div><div class="detail-item"><span class="detail-label">Total</span>' + formatCurrency(total) + '</div><div class="detail-item"><span class="detail-label">Cliente</span>' + (v.cliente || '-') + '</div><div class="detail-item"><span class="detail-label">Vendedor</span>' + (v.vendedor || '-') + '</div><div class="detail-item"><span class="detail-label">Pgto</span>' + (v.formaPagamento || '-') + '</div><div class="detail-item"><span class="detail-label">Situação</span><span class="badge ' + (v.situacao === 'Pago' ? 'badge-success' : 'badge-danger') + '">' + v.situacao + '</span></div></div>' + (v.obs ? '<div style="margin-top:12px;padding:10px;background:var(--bg-tertiary);border-radius:var(--radius-sm)"><strong>Obs:</strong> ' + v.obs + '</div>' : '');
   openViewModal();
 }
 
-function deleteVenda(id) {
-  if (!confirm('Excluir venda?')) return;
-  appData.vendas = (appData.vendas || []).filter(v => v.id !== id);
-  saveData(); renderVendasPage(); showToast('Venda excluída!', 'success');
-}
+function deleteVenda(id) { if (!confirm('Excluir venda?')) return; appData.vendas = (appData.vendas || []).filter(v => v.id !== id); saveData(); renderVendasPage(); showToast('Venda excluída!', 'success'); }
 
-// ── SCR-VND-03 — VENDAS (FEATURES: EDIT ALL, FILTROS) ──
-function toggleVendasEditMode() {
-  vendasEditMode = !vendasEditMode;
-  const btn = document.getElementById('btnVendasEdit');
-  if (btn) btn.textContent = vendasEditMode ? '✅ Finalizar Edição' : '✏️ Editar Todos';
-  applyVendasFilters();
-}
-function deleteAllVendas() {
-  if (!confirm('Tem certeza que deseja excluir TODAS as vendas?')) return;
-  appData.vendas = [];
-  saveData(); renderVendasPage(); showToast('Todas as vendas foram excluídas!', 'success');
-}
+function toggleVendasEditMode() { vendasEditMode = !vendasEditMode; const btn = document.getElementById('btnVendasEdit'); if (btn) btn.textContent = vendasEditMode ? '✅ Finalizar Edição' : '✏️ Editar Todos'; applyVendasFilters(); }
+function deleteAllVendas() { if (!confirm('Excluir TODAS as vendas?')) return; appData.vendas = []; saveData(); renderVendasPage(); showToast('Todas excluídas!', 'success'); }
 function onVendasSearch(q) { vendasSearchQuery = q.toLowerCase(); applyVendasFilters(); }
 function onVendasFilterSit(s) { vendasFilterSit = s; applyVendasFilters(); }
-
 function applyVendasFilters() {
   let filtered = appData.vendas || [];
-  if (vendasSearchQuery) {
-    filtered = filtered.filter(v => (v.produto || '').toLowerCase().includes(vendasSearchQuery) || (v.cliente || '').toLowerCase().includes(vendasSearchQuery) || (v.obs || '').toLowerCase().includes(vendasSearchQuery));
-  }
+  if (vendasSearchQuery) filtered = filtered.filter(v => (v.produto || '').toLowerCase().includes(vendasSearchQuery) || (v.cliente || '').toLowerCase().includes(vendasSearchQuery));
   if (vendasFilterSit) filtered = filtered.filter(v => v.situacao === vendasFilterSit);
-  renderVendasTable(filtered);
-  renderVendasResultPanel(filtered);
+  renderVendasTable(filtered); renderVendasResultPanel(filtered);
 }
-
 function renderVendasResultPanel(filtered) {
-  const panel = document.getElementById('vendasResultPanel');
-  if (!panel) return;
+  const panel = document.getElementById('vendasResultPanel'); if (!panel) return;
   const all = appData.vendas || [];
   const total = filtered.reduce((s, v) => s + ((v.quantidade || 1) * (v.valorUnit || 0)), 0);
   const recebido = filtered.filter(v => v.situacao === 'Pago').reduce((s, v) => s + ((v.quantidade || 1) * (v.valorUnit || 0)), 0);
   const devendo = filtered.filter(v => v.situacao === 'Devendo').reduce((s, v) => s + ((v.quantidade || 1) * (v.valorUnit || 0)), 0);
-  panel.innerHTML = `
-    <div class="card card-accent"><div class="card-header"><span>Total Vendas</span></div><div class="card-value">${formatCurrency(total)}</div><div class="card-sub">${filtered.length} de ${all.length} registros</div></div>
-    <div class="card"><div class="card-header"><span>Recebido</span></div><div class="card-value text-success">${formatCurrency(recebido)}</div></div>
-    <div class="card"><div class="card-header"><span>Devendo</span></div><div class="card-value text-danger">${formatCurrency(devendo)}</div></div>`;
+  panel.innerHTML = '<div class="card card-accent"><div class="card-header"><span>Total Vendas</span></div><div class="card-value">' + formatCurrency(total) + '</div><div class="card-sub">' + filtered.length + ' de ' + all.length + ' registros</div></div><div class="card"><div class="card-header"><span>Recebido</span></div><div class="card-value text-success">' + formatCurrency(recebido) + '</div></div><div class="card"><div class="card-header"><span>Devendo</span></div><div class="card-value text-danger">' + formatCurrency(devendo) + '</div></div>';
 }
 
-// ── SCR-EST-01 — ESTOQUE (PÁGINA) ──
+// ── SCR-EST-01 — ESTOQUE ──
 function renderEstoquePage() {
-  const pg = document.getElementById('page-estoque');
-  if (!pg) return;
+  const pg = document.getElementById('page-estoque'); if (!pg) return;
   const estoque = appData.estoque || [];
-  const totalItens = estoque.length;
-  const totalValor = estoque.reduce((s, e) => s + ((e.quantidade || 0) * (e.valorUnit || 0)), 0);
-
   pg.innerHTML = `
     <div class="page-header"><h2>📦 Estoque</h2><button class="btn btn-primary" onclick="openEstoqueModal()">+ Novo Item</button></div>
     <div class="dashboard-grid">
-      <div class="card card-accent"><div class="card-header"><span>Total Itens</span></div><div class="card-value">${totalItens}</div></div>
-      <div class="card"><div class="card-header"><span>Valor Total</span></div><div class="card-value text-success">${formatCurrency(totalValor)}</div></div>
+      <div class="card card-accent"><div class="card-header"><span>Total Itens</span></div><div class="card-value">${estoque.length}</div></div>
+      <div class="card"><div class="card-header"><span>Valor Total</span></div><div class="card-value text-success">${formatCurrency(estoque.reduce((s,e)=>s+((e.quantidade||0)*(e.valorUnit||0)),0))}</div></div>
     </div>
-    <div class="filter-bar">
-      <input type="text" class="form-control" style="max-width:250px" placeholder="Buscar no estoque..." oninput="filterEstoque(this.value)">
-    </div>
-    <div class="table-responsive"><table class="table"><thead><tr><th>Produto</th><th>Unidade</th><th>Qtd</th><th>V.Unit</th><th>Total</th><th>Ações</th></tr></thead>
-    <tbody id="estoqueBody"></tbody></table></div>`;
-
+    <div class="filter-bar"><input type="text" class="form-control" style="max-width:250px" placeholder="Buscar no estoque..." oninput="filterEstoque(this.value)"></div>
+    <div class="table-responsive"><table class="table"><thead><tr><th>Produto</th><th>Unidade</th><th>Qtd</th><th>V.Unit</th><th>Total</th><th>Ações</th></tr></thead><tbody id="estoqueBody"></tbody></table></div>`;
   renderEstoqueTable(estoque);
 }
-
 function renderEstoqueTable(items) {
-  const tbody = document.getElementById('estoqueBody');
-  if (!tbody) return;
-  if (items.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhum item no estoque</td></tr>';
-    return;
-  }
-  tbody.innerHTML = items.map(e => {
-    const total = (e.quantidade || 0) * (e.valorUnit || 0);
-    return '<tr><td>' + (e.produto || '-') + '</td><td>' + (e.unidade || '-') + '</td><td>' + (e.quantidade || 0) + '</td><td>' + formatCurrency(e.valorUnit) + '</td><td>' + formatCurrency(total) + '</td><td><button class="btn btn-sm btn-primary" onclick="editEstoque(' + e.id + ')">✏️</button> <button class="btn btn-sm btn-danger" onclick="deleteEstoque(' + e.id + ')">🗑️</button></td></tr>';
-  }).join('');
+  const tbody = document.getElementById('estoqueBody'); if (!tbody) return;
+  if (items.length === 0) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhum item</td></tr>'; return; }
+  tbody.innerHTML = items.map(e => '<tr><td>' + (e.produto||'-') + '</td><td>' + (e.unidade||'-') + '</td><td>' + (e.quantidade||0) + '</td><td>' + formatCurrency(e.valorUnit) + '</td><td>' + formatCurrency((e.quantidade||0)*(e.valorUnit||0)) + '</td><td><button class="btn btn-sm btn-primary" onclick="editEstoque(' + e.id + ')">✏️</button> <button class="btn btn-sm btn-danger" onclick="deleteEstoque(' + e.id + ')">🗑️</button></td></tr>').join('');
 }
-
-function filterEstoque(q) {
-  q = q.toLowerCase();
-  const filtered = (appData.estoque || []).filter(e => (e.produto || '').toLowerCase().includes(q));
-  renderEstoqueTable(filtered);
-}
-
+function filterEstoque(q) { q=q.toLowerCase(); renderEstoqueTable((appData.estoque||[]).filter(e=>(e.produto||'').toLowerCase().includes(q))); }
 function openEstoqueModal(item) {
   const isEdit = !!item;
-  const unidOpts = (appData.tipoUnidade || []).map(u => '<option value="' + u + '"' + (item && item.unidade === u ? ' selected' : '') + '>' + u + '</option>').join('');
+  const unidOpts = (appData.tipoUnidade||[]).map(u=>'<option value="'+u+'"'+(item&&item.unidade===u?' selected':'')+'>'+u+'</option>').join('');
   document.getElementById('cadastroModalTitle').textContent = isEdit ? 'Editar Item' : 'Novo Item';
-  document.getElementById('cadastroModalBody').innerHTML = `
-    <div class="form-group"><label>Produto *</label><input type="text" class="form-control" id="estProd" value="${item ? item.produto : ''}"></div>
-    <div class="form-row"><div class="form-group"><label>Unidade</label><select class="form-control" id="estUnid">${unidOpts}</select></div><div class="form-group"><label>Qtd</label><input type="number" class="form-control" id="estQtd" value="${item ? item.quantidade : 0}" min="0"></div></div>
-    <div class="form-group"><label>Valor Unit.</label><input type="number" class="form-control" id="estValor" value="${item ? item.valorUnit : ''}" step="0.01"></div>`;
-  document.getElementById('cadastroModalFooter').innerHTML = '<button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button><button class="btn btn-primary" onclick="saveEstoque(' + (isEdit ? item.id : 'null') + ')">Salvar</button>';
+  document.getElementById('cadastroModalBody').innerHTML = '<div class="form-group"><label>Produto *</label><input type="text" class="form-control" id="estProd" value="'+(item?item.produto:'')+'"></div><div class="form-row"><div class="form-group"><label>Unidade</label><select class="form-control" id="estUnid">'+unidOpts+'</select></div><div class="form-group"><label>Qtd</label><input type="number" class="form-control" id="estQtd" value="'+(item?item.quantidade:0)+'" min="0"></div></div><div class="form-group"><label>Valor Unit.</label><input type="number" class="form-control" id="estValor" value="'+(item?item.valorUnit:'')+'" step="0.01"></div>';
+  document.getElementById('cadastroModalFooter').innerHTML = '<button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button><button class="btn btn-primary" onclick="saveEstoque('+(isEdit?item.id:'null')+')">Salvar</button>';
   openCadastroModal();
 }
-
 function saveEstoque(id) {
-  const obj = {
-    produto: document.getElementById('estProd').value.trim(),
-    unidade: document.getElementById('estUnid').value,
-    quantidade: parseFloat(document.getElementById('estQtd').value) || 0,
-    valorUnit: parseFloat(document.getElementById('estValor').value) || 0
-  };
-  if (!obj.produto) { showToast('Informe o produto', 'error'); return; }
+  const obj = { produto: document.getElementById('estProd').value.trim(), unidade: document.getElementById('estUnid').value, quantidade: parseFloat(document.getElementById('estQtd').value)||0, valorUnit: parseFloat(document.getElementById('estValor').value)||0 };
+  if (!obj.produto) { showToast('Informe o produto','error'); return; }
   if (!appData.estoque) appData.estoque = [];
-  if (id) {
-    const idx = appData.estoque.findIndex(e => e.id === id);
-    if (idx > -1) { obj.id = id; appData.estoque[idx] = obj; }
-  } else {
-    obj.id = nextId(appData.estoque);
-    appData.estoque.push(obj);
-  }
-  saveData(); closeCadastroModal(); renderEstoquePage(); showToast(id ? 'Item atualizado!' : 'Item cadastrado!', 'success');
+  if (id) { const idx=appData.estoque.findIndex(e=>e.id===id); if(idx>-1){obj.id=id;appData.estoque[idx]=obj;} } else { obj.id=nextId(appData.estoque); appData.estoque.push(obj); }
+  saveData(); closeCadastroModal(); renderEstoquePage(); showToast(id?'Atualizado!':'Cadastrado!','success');
 }
+function editEstoque(id) { const e=(appData.estoque||[]).find(x=>x.id===id); if(e) openEstoqueModal(e); }
+function deleteEstoque(id) { if(!confirm('Excluir?')) return; appData.estoque=(appData.estoque||[]).filter(e=>e.id!==id); saveData(); renderEstoquePage(); showToast('Excluído!','success'); }
 
-function editEstoque(id) { const e = (appData.estoque || []).find(x => x.id === id); if (e) openEstoqueModal(e); }
-
-function deleteEstoque(id) {
-  if (!confirm('Excluir item do estoque?')) return;
-  appData.estoque = (appData.estoque || []).filter(e => e.id !== id);
-  saveData(); renderEstoquePage(); showToast('Item excluído!', 'success');
-}
-
-// ── MÓDULOS PLACEHOLDER (Produtos, Clientes, Fornecedores, etc.) ──
+// ── MÓDULOS GENÉRICOS ──
 function genericCrudPage(key, titulo, icon, campos) {
-  const pg = document.getElementById('page-' + key);
-  if (!pg) return;
+  const pg = document.getElementById('page-' + key); if (!pg) return;
   const items = appData[key] || [];
-
-  let thRow = campos.map(c => '<th>' + c.label + '</th>').join('') + '<th>Ações</th>';
-  let rows = '';
-  if (items.length === 0) {
-    rows = '<tr><td colspan="' + (campos.length + 1) + '" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhum registro</td></tr>';
-  } else {
-    rows = items.map(item => {
-      let tds = campos.map(c => '<td>' + (item[c.field] || '-') + '</td>').join('');
-      tds += '<td><button class="btn btn-sm btn-primary" onclick="editGeneric(\'' + key + '\',' + item.id + ')">✏️</button> <button class="btn btn-sm btn-danger" onclick="deleteGeneric(\'' + key + '\',' + item.id + ')">🗑️</button></td>';
-      return '<tr>' + tds + '</tr>';
-    }).join('');
-  }
-
-  pg.innerHTML = `
-    <div class="page-header"><h2>${icon} ${titulo}</h2><button class="btn btn-primary" onclick="openGenericModal('${key}')">+ Novo</button></div>
-    <div class="dashboard-grid"><div class="card card-accent"><div class="card-header"><span>Total</span></div><div class="card-value">${items.length}</div></div></div>
-    <div class="table-responsive"><table class="table"><thead><tr>${thRow}</tr></thead><tbody>${rows}</tbody></table></div>`;
+  let thRow = campos.map(c=>'<th>'+c.label+'</th>').join('')+'<th>Ações</th>';
+  let rows = items.length===0 ? '<tr><td colspan="'+(campos.length+1)+'" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhum registro</td></tr>' :
+    items.map(item => '<tr>'+campos.map(c=>'<td>'+(item[c.field]||'-')+'</td>').join('')+'<td><button class="btn btn-sm btn-primary" onclick="editGeneric(\''+key+'\','+item.id+')">✏️</button> <button class="btn btn-sm btn-danger" onclick="deleteGeneric(\''+key+'\','+item.id+')">🗑️</button></td></tr>').join('');
+  pg.innerHTML = '<div class="page-header"><h2>'+icon+' '+titulo+'</h2><button class="btn btn-primary" onclick="openGenericModal(\''+key+'\')">+ Novo</button></div><div class="dashboard-grid"><div class="card card-accent"><div class="card-header"><span>Total</span></div><div class="card-value">'+items.length+'</div></div></div><div class="table-responsive"><table class="table"><thead><tr>'+thRow+'</tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
-
 function openGenericModal(key, item) {
-  const isEdit = !!item;
-  const configs = getGenericConfig(key);
-  let formHtml = configs.campos.map(c => {
-    const val = item ? (item[c.field] || '') : '';
-    if (c.type === 'select') {
-      const opts = (c.options || []).map(o => '<option value="' + o + '"' + (val === o ? ' selected' : '') + '>' + o + '</option>').join('');
-      return '<div class="form-group"><label>' + c.label + '</label><select class="form-control" id="gen_' + c.field + '">' + opts + '</select></div>';
-    }
-    return '<div class="form-group"><label>' + c.label + (c.required ? ' *' : '') + '</label><input type="' + (c.type || 'text') + '" class="form-control" id="gen_' + c.field + '" value="' + val + '" ' + (c.type === 'number' ? 'step="0.01"' : '') + '></div>';
-  }).join('');
-
-  document.getElementById('cadastroModalTitle').textContent = isEdit ? 'Editar ' + configs.titulo : 'Novo ' + configs.titulo;
+  const isEdit=!!item; const configs=getGenericConfig(key);
+  let formHtml=configs.campos.map(c=>{const val=item?(item[c.field]||''):'';if(c.type==='select'){const opts=(c.options||[]).map(o=>'<option value="'+o+'"'+(val===o?' selected':'')+'>'+o+'</option>').join('');return '<div class="form-group"><label>'+c.label+'</label><select class="form-control" id="gen_'+c.field+'">'+opts+'</select></div>';}return '<div class="form-group"><label>'+c.label+(c.required?' *':'')+'</label><input type="'+(c.type||'text')+'" class="form-control" id="gen_'+c.field+'" value="'+val+'" '+(c.type==='number'?'step="0.01"':'')+'>  </div>';}).join('');
+  document.getElementById('cadastroModalTitle').textContent = isEdit?'Editar '+configs.titulo:'Novo '+configs.titulo;
   document.getElementById('cadastroModalBody').innerHTML = formHtml;
-  document.getElementById('cadastroModalFooter').innerHTML = '<button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button><button class="btn btn-primary" onclick="saveGeneric(\'' + key + '\',' + (isEdit ? item.id : 'null') + ')">Salvar</button>';
-  openCadastroModal();
-  if (key === 'clientes' || key === 'fornecedores') applyAllMasks();
+  document.getElementById('cadastroModalFooter').innerHTML = '<button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button><button class="btn btn-primary" onclick="saveGeneric(\''+key+'\','+(isEdit?item.id:'null')+')">Salvar</button>';
+  openCadastroModal(); if(key==='clientes'||key==='fornecedores') applyAllMasks();
 }
-
 function saveGeneric(key, id) {
-  const configs = getGenericConfig(key);
-  const obj = {};
-  let valid = true;
-  configs.campos.forEach(c => {
-    const el = document.getElementById('gen_' + c.field);
-    if (el) {
-      obj[c.field] = c.type === 'number' ? (parseFloat(el.value) || 0) : el.value.trim();
-      if (c.required && !obj[c.field]) valid = false;
-    }
-  });
-  if (!valid) { showToast('Preencha os campos obrigatórios', 'error'); return; }
-  if (!appData[key]) appData[key] = [];
-  if (id) {
-    const idx = appData[key].findIndex(x => x.id === id);
-    if (idx > -1) { obj.id = id; appData[key][idx] = obj; }
-  } else {
-    obj.id = nextId(appData[key]);
-    appData[key].push(obj);
-  }
-  saveData(); closeCadastroModal();
-  navigateTo(key === 'pFornecedores' ? 'pfornecedores' : key);
-  showToast(id ? 'Registro atualizado!' : 'Registro cadastrado!', 'success');
+  const configs=getGenericConfig(key); const obj={}; let valid=true;
+  configs.campos.forEach(c=>{const el=document.getElementById('gen_'+c.field);if(el){obj[c.field]=c.type==='number'?(parseFloat(el.value)||0):el.value.trim();if(c.required&&!obj[c.field]) valid=false;}});
+  if(!valid){showToast('Preencha os campos obrigatórios','error');return;}
+  if(!appData[key]) appData[key]=[];
+  if(id){const idx=appData[key].findIndex(x=>x.id===id);if(idx>-1){obj.id=id;appData[key][idx]=obj;}} else {obj.id=nextId(appData[key]);appData[key].push(obj);}
+  saveData(); closeCadastroModal(); navigateTo(key==='pFornecedores'?'pfornecedores':key==='pagClientes'?'pagclientes':key==='notasEntrada'?'notasentrada':key==='notasSaida'?'notassaida':key==='receitasMei'?'receitasmei':key);
+  showToast(id?'Atualizado!':'Cadastrado!','success');
 }
-
-function editGeneric(key, id) {
-  const item = (appData[key] || []).find(x => x.id === id);
-  if (item) openGenericModal(key, item);
-}
-
-function deleteGeneric(key, id) {
-  if (!confirm('Excluir registro?')) return;
-  appData[key] = (appData[key] || []).filter(x => x.id !== id);
-  saveData();
-  navigateTo(key === 'pFornecedores' ? 'pfornecedores' : key);
-  showToast('Registro excluído!', 'success');
-}
+function editGeneric(key,id){const item=(appData[key]||[]).find(x=>x.id===id);if(item) openGenericModal(key,item);}
+function deleteGeneric(key,id){if(!confirm('Excluir?')) return;appData[key]=(appData[key]||[]).filter(x=>x.id!==id);saveData();navigateTo(key==='pFornecedores'?'pfornecedores':key==='pagClientes'?'pagclientes':key==='notasEntrada'?'notasentrada':key==='notasSaida'?'notassaida':key==='receitasMei'?'receitasmei':key);showToast('Excluído!','success');}
 
 function getGenericConfig(key) {
-  const configs = {
-    'produtos': { titulo: 'Produto', campos: [
-      { field: 'nome', label: 'Nome', required: true },
-      { field: 'descricao', label: 'Descrição' },
-      { field: 'unidade', label: 'Unidade', type: 'select', options: appData.tipoUnidade || [] },
-      { field: 'valorUnit', label: 'Valor Unit.', type: 'number' }
-    ]},
-    'clientes': { titulo: 'Cliente', campos: [
-      { field: 'nome', label: 'Nome', required: true },
-      { field: 'cpfCnpj', label: 'CPF/CNPJ' },
-      { field: 'telefone', label: 'Telefone' },
-      { field: 'celular', label: 'Celular' },
-      { field: 'email', label: 'E-mail' },
-      { field: 'endereco', label: 'Endereço' },
-      { field: 'cidade', label: 'Cidade' },
-      { field: 'estado', label: 'Estado' }
-    ]},
-    'fornecedores': { titulo: 'Fornecedor', campos: [
-      { field: 'nome', label: 'Nome', required: true },
-      { field: 'cpfCnpj', label: 'CPF/CNPJ' },
-      { field: 'telefone', label: 'Telefone' },
-      { field: 'celular', label: 'Celular' },
-      { field: 'email', label: 'E-mail' },
-      { field: 'endereco', label: 'Endereço' },
-      { field: 'cidade', label: 'Cidade' },
-      { field: 'estado', label: 'Estado' }
-    ]},
-    'pFornecedores': { titulo: 'P. Fornecedor', campos: [
-      { field: 'nome', label: 'Nome', required: true },
-      { field: 'fornecedor', label: 'Fornecedor' },
-      { field: 'produto', label: 'Produto' },
-      { field: 'valorUnit', label: 'Valor Unit.', type: 'number' },
-      { field: 'obs', label: 'Obs' }
-    ]},
-    'boletos': { titulo: 'Boleto', campos: [
-      { field: 'descricao', label: 'Descrição', required: true },
-      { field: 'valor', label: 'Valor', type: 'number' },
-      { field: 'vencimento', label: 'Vencimento', type: 'date' },
-      { field: 'situacao', label: 'Situação', type: 'select', options: appData.situacaoBoleto || [] }
-    ]},
-    'cheques': { titulo: 'Cheque', campos: [
-      { field: 'numero', label: 'Número', required: true },
-      { field: 'valor', label: 'Valor', type: 'number' },
-      { field: 'data', label: 'Data', type: 'date' },
-      { field: 'destino', label: 'Destino' },
-      { field: 'situacao', label: 'Situação', type: 'select', options: appData.situacaoCheque || [] }
-    ]},
-    'prestacoes': { titulo: 'Prestação', campos: [
-      { field: 'descricao', label: 'Descrição', required: true },
-      { field: 'valor', label: 'Valor', type: 'number' },
-      { field: 'parcela', label: 'Parcela' },
-      { field: 'vencimento', label: 'Vencimento', type: 'date' },
-      { field: 'situacao', label: 'Situação', type: 'select', options: ['Pago','Pendente','Vencido'] }
-    ]},
-    'projetos': { titulo: 'Projeto', campos: [
-      { field: 'nome', label: 'Nome', required: true },
-      { field: 'cliente', label: 'Cliente' },
-      { field: 'valor', label: 'Valor', type: 'number' },
-      { field: 'inicio', label: 'Início', type: 'date' },
-      { field: 'prazo', label: 'Prazo', type: 'date' },
-      { field: 'situacao', label: 'Situação', type: 'select', options: ['Em Andamento','Concluído','Cancelado','Pausado'] }
-    ]},
-    'pagClientes': { titulo: 'Pag. Cliente', campos: [
-      { field: 'cliente', label: 'Cliente', required: true },
-      { field: 'valor', label: 'Valor', type: 'number' },
-      { field: 'data', label: 'Data', type: 'date' },
-      { field: 'formaPagamento', label: 'Forma Pgto' },
-      { field: 'obs', label: 'Obs' }
-    ]},
-    'garantias': { titulo: 'Garantia', campos: [
-      { field: 'produto', label: 'Produto', required: true },
-      { field: 'cliente', label: 'Cliente' },
-      { field: 'dataCompra', label: 'Data Compra', type: 'date' },
-      { field: 'validade', label: 'Validade', type: 'date' },
-      { field: 'situacao', label: 'Situação', type: 'select', options: appData.situacaoGarantia || [] }
-    ]},
-    'notasEntrada': { titulo: 'Nota Entrada', campos: [
-      { field: 'numero', label: 'Número', required: true },
-      { field: 'fornecedor', label: 'Fornecedor' },
-      { field: 'valor', label: 'Valor', type: 'number' },
-      { field: 'data', label: 'Data', type: 'date' },
-      { field: 'obs', label: 'Obs' }
-    ]},
-    'notasSaida': { titulo: 'Nota Saída', campos: [
-      { field: 'numero', label: 'Número', required: true },
-      { field: 'cliente', label: 'Cliente' },
-      { field: 'valor', label: 'Valor', type: 'number' },
-      { field: 'data', label: 'Data', type: 'date' },
-      { field: 'obs', label: 'Obs' }
-    ]},
-    'receitasMei': { titulo: 'Receita MEI', campos: [
-      { field: 'mes', label: 'Mês', required: true },
-      { field: 'valorBruto', label: 'Valor Bruto', type: 'number' },
-      { field: 'valorLiquido', label: 'Valor Líquido', type: 'number' },
-      { field: 'obs', label: 'Obs' }
-    ]}
+  const c = {
+    'produtos':{titulo:'Produto',campos:[{field:'nome',label:'Nome',required:true},{field:'descricao',label:'Descrição'},{field:'unidade',label:'Unidade',type:'select',options:appData.tipoUnidade||[]},{field:'valorUnit',label:'Valor Unit.',type:'number'}]},
+    'clientes':{titulo:'Cliente',campos:[{field:'nome',label:'Nome',required:true},{field:'cpfCnpj',label:'CPF/CNPJ'},{field:'telefone',label:'Telefone'},{field:'celular',label:'Celular'},{field:'email',label:'E-mail'},{field:'endereco',label:'Endereço'},{field:'cidade',label:'Cidade'},{field:'estado',label:'Estado'}]},
+    'fornecedores':{titulo:'Fornecedor',campos:[{field:'nome',label:'Nome',required:true},{field:'cpfCnpj',label:'CPF/CNPJ'},{field:'telefone',label:'Telefone'},{field:'celular',label:'Celular'},{field:'email',label:'E-mail'},{field:'endereco',label:'Endereço'},{field:'cidade',label:'Cidade'},{field:'estado',label:'Estado'}]},
+    'pFornecedores':{titulo:'P. Fornecedor',campos:[{field:'nome',label:'Nome',required:true},{field:'fornecedor',label:'Fornecedor'},{field:'produto',label:'Produto'},{field:'valorUnit',label:'Valor',type:'number'},{field:'obs',label:'Obs'}]},
+    'boletos':{titulo:'Boleto',campos:[{field:'descricao',label:'Descrição',required:true},{field:'valor',label:'Valor',type:'number'},{field:'vencimento',label:'Vencimento',type:'date'},{field:'situacao',label:'Situação',type:'select',options:appData.situacaoBoleto||[]}]},
+    'cheques':{titulo:'Cheque',campos:[{field:'numero',label:'Número',required:true},{field:'valor',label:'Valor',type:'number'},{field:'data',label:'Data',type:'date'},{field:'destino',label:'Destino'},{field:'situacao',label:'Situação',type:'select',options:appData.situacaoCheque||[]}]},
+    'prestacoes':{titulo:'Prestação',campos:[{field:'descricao',label:'Descrição',required:true},{field:'valor',label:'Valor',type:'number'},{field:'parcela',label:'Parcela'},{field:'vencimento',label:'Vencimento',type:'date'},{field:'situacao',label:'Situação',type:'select',options:['Pago','Pendente','Vencido']}]},
+    'projetos':{titulo:'Projeto',campos:[{field:'nome',label:'Nome',required:true},{field:'cliente',label:'Cliente'},{field:'valor',label:'Valor',type:'number'},{field:'inicio',label:'Início',type:'date'},{field:'prazo',label:'Prazo',type:'date'},{field:'situacao',label:'Situação',type:'select',options:['Em Andamento','Concluído','Cancelado','Pausado']}]},
+    'pagClientes':{titulo:'Pag. Cliente',campos:[{field:'cliente',label:'Cliente',required:true},{field:'valor',label:'Valor',type:'number'},{field:'data',label:'Data',type:'date'},{field:'formaPagamento',label:'Forma Pgto'},{field:'obs',label:'Obs'}]},
+    'garantias':{titulo:'Garantia',campos:[{field:'produto',label:'Produto',required:true},{field:'cliente',label:'Cliente'},{field:'dataCompra',label:'Data Compra',type:'date'},{field:'validade',label:'Validade',type:'date'},{field:'situacao',label:'Situação',type:'select',options:appData.situacaoGarantia||[]}]},
+    'notasEntrada':{titulo:'Nota Entrada',campos:[{field:'numero',label:'Número',required:true},{field:'fornecedor',label:'Fornecedor'},{field:'valor',label:'Valor',type:'number'},{field:'data',label:'Data',type:'date'},{field:'obs',label:'Obs'}]},
+    'notasSaida':{titulo:'Nota Saída',campos:[{field:'numero',label:'Número',required:true},{field:'cliente',label:'Cliente'},{field:'valor',label:'Valor',type:'number'},{field:'data',label:'Data',type:'date'},{field:'obs',label:'Obs'}]},
+    'receitasMei':{titulo:'Receita MEI',campos:[{field:'mes',label:'Mês',required:true},{field:'valorBruto',label:'Valor Bruto',type:'number'},{field:'valorLiquido',label:'Valor Líquido',type:'number'},{field:'obs',label:'Obs'}]}
   };
-  return configs[key] || { titulo: key, campos: [{ field: 'nome', label: 'Nome', required: true }] };
+  return c[key]||{titulo:key,campos:[{field:'nome',label:'Nome',required:true}]};
 }
 
-// Render functions para cada módulo genérico
-function renderProdutosPage() { genericCrudPage('produtos', 'Produtos', '🏷️', [{ field: 'nome', label: 'Nome' }, { field: 'unidade', label: 'Unidade' }, { field: 'valorUnit', label: 'Valor Unit.' }]); }
-function renderClientesPage() { genericCrudPage('clientes', 'Clientes', '👥', [{ field: 'nome', label: 'Nome' }, { field: 'cpfCnpj', label: 'CPF/CNPJ' }, { field: 'telefone', label: 'Telefone' }, { field: 'cidade', label: 'Cidade' }]); }
-function renderFornecedoresPage() { genericCrudPage('fornecedores', 'Fornecedores', '🏭', [{ field: 'nome', label: 'Nome' }, { field: 'cpfCnpj', label: 'CPF/CNPJ' }, { field: 'telefone', label: 'Telefone' }, { field: 'cidade', label: 'Cidade' }]); }
-function renderPFornecedoresPage() { genericCrudPage('pFornecedores', 'P. Fornecedores', '📋', [{ field: 'nome', label: 'Nome' }, { field: 'fornecedor', label: 'Fornecedor' }, { field: 'produto', label: 'Produto' }, { field: 'valorUnit', label: 'Valor' }]); }
-function renderBoletosPage() { genericCrudPage('boletos', 'Boletos', '🔖', [{ field: 'descricao', label: 'Descrição' }, { field: 'valor', label: 'Valor' }, { field: 'vencimento', label: 'Vencimento' }, { field: 'situacao', label: 'Situação' }]); }
-function renderChequesPage() { genericCrudPage('cheques', 'Cheques', '📝', [{ field: 'numero', label: 'Número' }, { field: 'valor', label: 'Valor' }, { field: 'data', label: 'Data' }, { field: 'situacao', label: 'Situação' }]); }
-function renderPrestacoesPage() { genericCrudPage('prestacoes', 'Prestações', '💳', [{ field: 'descricao', label: 'Descrição' }, { field: 'valor', label: 'Valor' }, { field: 'parcela', label: 'Parcela' }, { field: 'situacao', label: 'Situação' }]); }
-function renderProjetosPage() { genericCrudPage('projetos', 'Projetos', '📐', [{ field: 'nome', label: 'Nome' }, { field: 'cliente', label: 'Cliente' }, { field: 'valor', label: 'Valor' }, { field: 'situacao', label: 'Situação' }]); }
-function renderPagClientesPage() { genericCrudPage('pagClientes', 'Pag. Clientes', '🤝', [{ field: 'cliente', label: 'Cliente' }, { field: 'valor', label: 'Valor' }, { field: 'data', label: 'Data' }, { field: 'formaPagamento', label: 'Pgto' }]); }
-function renderGarantiasPage() { genericCrudPage('garantias', 'Garantias', '🛡️', [{ field: 'produto', label: 'Produto' }, { field: 'cliente', label: 'Cliente' }, { field: 'validade', label: 'Validade' }, { field: 'situacao', label: 'Situação' }]); }
-function renderNotasEntradaPage() { genericCrudPage('notasEntrada', 'Notas Entrada', '📥', [{ field: 'numero', label: 'Número' }, { field: 'fornecedor', label: 'Fornecedor' }, { field: 'valor', label: 'Valor' }, { field: 'data', label: 'Data' }]); }
-function renderNotasSaidaPage() { genericCrudPage('notasSaida', 'Notas Saída', '📤', [{ field: 'numero', label: 'Número' }, { field: 'cliente', label: 'Cliente' }, { field: 'valor', label: 'Valor' }, { field: 'data', label: 'Data' }]); }
-function renderReceitasMeiPage() { genericCrudPage('receitasMei', 'Receitas MEI', '📄', [{ field: 'mes', label: 'Mês' }, { field: 'valorBruto', label: 'Valor Bruto' }, { field: 'valorLiquido', label: 'Valor Líquido' }]); }
+function renderProdutosPage(){genericCrudPage('produtos','Produtos','🏷️',[{field:'nome',label:'Nome'},{field:'unidade',label:'Unidade'},{field:'valorUnit',label:'Valor'}]);}
+function renderClientesPage(){genericCrudPage('clientes','Clientes','👥',[{field:'nome',label:'Nome'},{field:'cpfCnpj',label:'CPF/CNPJ'},{field:'telefone',label:'Telefone'},{field:'cidade',label:'Cidade'}]);}
+function renderFornecedoresPage(){genericCrudPage('fornecedores','Fornecedores','🏭',[{field:'nome',label:'Nome'},{field:'cpfCnpj',label:'CPF/CNPJ'},{field:'telefone',label:'Telefone'},{field:'cidade',label:'Cidade'}]);}
+function renderPFornecedoresPage(){genericCrudPage('pFornecedores','P. Fornecedores','📋',[{field:'nome',label:'Nome'},{field:'fornecedor',label:'Fornecedor'},{field:'produto',label:'Produto'},{field:'valorUnit',label:'Valor'}]);}
+function renderBoletosPage(){genericCrudPage('boletos','Boletos','🔖',[{field:'descricao',label:'Descrição'},{field:'valor',label:'Valor'},{field:'vencimento',label:'Vencimento'},{field:'situacao',label:'Situação'}]);}
+function renderChequesPage(){genericCrudPage('cheques','Cheques','📝',[{field:'numero',label:'Número'},{field:'valor',label:'Valor'},{field:'data',label:'Data'},{field:'situacao',label:'Situação'}]);}
+function renderPrestacoesPage(){genericCrudPage('prestacoes','Prestações','💳',[{field:'descricao',label:'Descrição'},{field:'valor',label:'Valor'},{field:'parcela',label:'Parcela'},{field:'situacao',label:'Situação'}]);}
+function renderProjetosPage(){genericCrudPage('projetos','Projetos','📐',[{field:'nome',label:'Nome'},{field:'cliente',label:'Cliente'},{field:'valor',label:'Valor'},{field:'situacao',label:'Situação'}]);}
+function renderPagClientesPage(){genericCrudPage('pagClientes','Pag. Clientes','🤝',[{field:'cliente',label:'Cliente'},{field:'valor',label:'Valor'},{field:'data',label:'Data'},{field:'formaPagamento',label:'Pgto'}]);}
+function renderGarantiasPage(){genericCrudPage('garantias','Garantias','🛡️',[{field:'produto',label:'Produto'},{field:'cliente',label:'Cliente'},{field:'validade',label:'Validade'},{field:'situacao',label:'Situação'}]);}
+function renderNotasEntradaPage(){genericCrudPage('notasEntrada','Notas Entrada','📥',[{field:'numero',label:'Número'},{field:'fornecedor',label:'Fornecedor'},{field:'valor',label:'Valor'},{field:'data',label:'Data'}]);}
+function renderNotasSaidaPage(){genericCrudPage('notasSaida','Notas Saída','📤',[{field:'numero',label:'Número'},{field:'cliente',label:'Cliente'},{field:'valor',label:'Valor'},{field:'data',label:'Data'}]);}
+function renderReceitasMeiPage(){genericCrudPage('receitasMei','Receitas MEI','📄',[{field:'mes',label:'Mês'},{field:'valorBruto',label:'Valor Bruto'},{field:'valorLiquido',label:'Valor Líquido'}]);}
 
-// ── SCR-REL-01 — RELATÓRIOS ──
+// ── RELATÓRIOS ──
 function renderRelatoriosPage() {
-  const pg = document.getElementById('page-relatorios');
-  if (!pg) return;
-  const meses = ['janeiro','fevereiro','marco','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
-  const mesesLabel = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-  let rows = '';
-  let totalEnt = 0, totalSai = 0;
-  meses.forEach((m, i) => {
-    const lancs = (appData.fluxoCaixa && appData.fluxoCaixa[m]) || [];
-    const ent = lancs.filter(l => l.tipo === 'entrada').reduce((s, l) => s + (l.valor || 0), 0);
-    const sai = lancs.filter(l => l.tipo === 'saida').reduce((s, l) => s + (l.valor || 0), 0);
-    totalEnt += ent; totalSai += sai;
-    rows += '<tr><td>' + mesesLabel[i] + '</td><td class="text-success">' + formatCurrency(ent) + '</td><td class="text-danger">' + formatCurrency(sai) + '</td><td class="' + ((ent - sai) >= 0 ? 'text-success' : 'text-danger') + '">' + formatCurrency(ent - sai) + '</td></tr>';
-  });
-  rows += '<tr style="font-weight:700;border-top:2px solid var(--accent-primary)"><td>TOTAL</td><td class="text-success">' + formatCurrency(totalEnt) + '</td><td class="text-danger">' + formatCurrency(totalSai) + '</td><td class="' + ((totalEnt - totalSai) >= 0 ? 'text-success' : 'text-danger') + '">' + formatCurrency(totalEnt - totalSai) + '</td></tr>';
-
-  pg.innerHTML = `
-    <div class="page-header"><h2>📈 Relatórios</h2></div>
-    <div class="card" style="margin-bottom:16px"><div class="card-header"><span>Fluxo de Caixa Anual 2026</span></div>
-      <div class="table-responsive"><table class="table"><thead><tr><th>Mês</th><th>Entradas</th><th>Saídas</th><th>Saldo</th></tr></thead><tbody>${rows}</tbody></table></div>
-    </div>
-    <div class="dashboard-grid">
-      <div class="card"><div class="card-header"><span>Total Compras</span></div><div class="card-value text-danger">${formatCurrency((appData.compras || []).reduce((s, c) => s + ((c.quantidade || 1) * (c.valorUnit || 0)), 0))}</div></div>
-      <div class="card"><div class="card-header"><span>Total Vendas</span></div><div class="card-value text-success">${formatCurrency((appData.vendas || []).reduce((s, v) => s + ((v.quantidade || 1) * (v.valorUnit || 0)), 0))}</div></div>
-    </div>`;
+  const pg=document.getElementById('page-relatorios'); if(!pg) return;
+  const meses=['janeiro','fevereiro','marco','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  const ml=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  let rows='',tE=0,tS=0;
+  meses.forEach((m,i)=>{const l=(appData.fluxoCaixa&&appData.fluxoCaixa[m])||[];const e=l.filter(x=>x.tipo==='entrada').reduce((s,x)=>s+(x.valor||0),0);const s=l.filter(x=>x.tipo==='saida').reduce((s2,x)=>s2+(x.valor||0),0);tE+=e;tS+=s;rows+='<tr><td>'+ml[i]+'</td><td class="text-success">'+formatCurrency(e)+'</td><td class="text-danger">'+formatCurrency(s)+'</td><td class="'+((e-s)>=0?'text-success':'text-danger')+'">'+formatCurrency(e-s)+'</td></tr>';});
+  rows+='<tr style="font-weight:700;border-top:2px solid var(--accent-primary)"><td>TOTAL</td><td class="text-success">'+formatCurrency(tE)+'</td><td class="text-danger">'+formatCurrency(tS)+'</td><td class="'+((tE-tS)>=0?'text-success':'text-danger')+'">'+formatCurrency(tE-tS)+'</td></tr>';
+  pg.innerHTML='<div class="page-header"><h2>📈 Relatórios</h2></div><div class="card" style="margin-bottom:16px"><div class="card-header"><span>Fluxo Anual 2026</span></div><div class="table-responsive"><table class="table"><thead><tr><th>Mês</th><th>Entradas</th><th>Saídas</th><th>Saldo</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
 }
 
-// ── SCR-CFG-01 — CONFIGURAÇÕES ──
+// ── CONFIGURAÇÕES ──
 function renderConfiguracoesPage() {
-  const pg = document.getElementById('page-configuracoes');
-  if (!pg) return;
-  const emp = appData.empresa || {};
-  pg.innerHTML = `
-    <div class="page-header"><h2>⚙️ Configurações</h2></div>
-    <div class="card" style="max-width:600px">
-      <div class="form-group"><label>Nome da Empresa</label><input type="text" class="form-control" id="cfgNome" value="${emp.nome || ''}"></div>
-      <div class="form-group"><label>CNPJ</label><input type="text" class="form-control" id="cfgCnpj" value="${emp.cnpj || ''}"></div>
-      <div class="form-group"><label>Logo (URL da imagem)</label><input type="text" class="form-control" id="cfgLogo" value="${emp.logo || ''}"></div>
-      <button class="btn btn-primary" onclick="saveConfig()">Salvar Configurações</button>
-    </div>`;
+  const pg=document.getElementById('page-configuracoes'); if(!pg) return;
+  const emp=appData.empresa||{};
+  pg.innerHTML='<div class="page-header"><h2>⚙️ Configurações</h2></div><div class="card" style="max-width:600px"><div class="form-group"><label>Nome da Empresa</label><input type="text" class="form-control" id="cfgNome" value="'+(emp.nome||'')+'"></div><div class="form-group"><label>CNPJ</label><input type="text" class="form-control" id="cfgCnpj" value="'+(emp.cnpj||'')+'"></div><div class="form-group"><label>Logo (URL)</label><input type="text" class="form-control" id="cfgLogo" value="'+(emp.logo||'')+'"></div><button class="btn btn-primary" onclick="saveConfig()">Salvar</button></div>';
   applyAllMasks();
 }
+function saveConfig(){if(!appData.empresa)appData.empresa={};appData.empresa.nome=document.getElementById('cfgNome').value.trim();appData.empresa.cnpj=document.getElementById('cfgCnpj').value.trim();appData.empresa.logo=document.getElementById('cfgLogo').value.trim();saveData();updateSidebarInfo();showToast('Salvo!','success');}
 
-function saveConfig() {
-  if (!appData.empresa) appData.empresa = {};
-  appData.empresa.nome = document.getElementById('cfgNome').value.trim();
-  appData.empresa.cnpj = document.getElementById('cfgCnpj').value.trim();
-  appData.empresa.logo = document.getElementById('cfgLogo').value.trim();
-  saveData();
-  updateSidebarInfo();
-  showToast('Configurações salvas!', 'success');
-}
-
-// ── SCR-BKP-01 — BACKUP ──
+// ── BACKUP ──
 function renderBackupPage() {
-  const pg = document.getElementById('page-backup');
-  if (!pg) return;
-  pg.innerHTML = `
-    <div class="page-header"><h2>💾 Backup</h2></div>
-    <div class="dashboard-grid">
-      <div class="card" style="text-align:center;padding:30px">
-        <div style="font-size:2rem;margin-bottom:10px">📥</div>
-        <h3 style="margin-bottom:12px">Exportar Dados</h3>
-        <p style="color:var(--text-secondary);font-size:.85rem;margin-bottom:16px">Baixar todos os dados em JSON</p>
-        <button class="btn btn-primary" onclick="exportBackup()">Exportar Backup</button>
-      </div>
-      <div class="card" style="text-align:center;padding:30px">
-        <div style="font-size:2rem;margin-bottom:10px">📤</div>
-        <h3 style="margin-bottom:12px">Importar Dados</h3>
-        <p style="color:var(--text-secondary);font-size:.85rem;margin-bottom:16px">Restaurar dados de um arquivo JSON</p>
-        <input type="file" id="importFile" accept=".json" style="display:none" onchange="importBackup(event)">
-        <button class="btn btn-warning" onclick="document.getElementById('importFile').click()">Importar Backup</button>
-      </div>
-      <div class="card" style="text-align:center;padding:30px">
-        <div style="font-size:2rem;margin-bottom:10px">🗑️</div>
-        <h3 style="margin-bottom:12px">Limpar Dados</h3>
-        <p style="color:var(--text-secondary);font-size:.85rem;margin-bottom:16px">Apagar TODOS os dados</p>
-        <button class="btn btn-danger" onclick="clearAllData()">Limpar Tudo</button>
-      </div>
-    </div>`;
+  const pg=document.getElementById('page-backup'); if(!pg) return;
+  pg.innerHTML='<div class="page-header"><h2>💾 Backup</h2></div><div class="dashboard-grid"><div class="card" style="text-align:center;padding:30px"><div style="font-size:2rem;margin-bottom:10px">📥</div><h3>Exportar</h3><p style="color:var(--text-secondary);font-size:.85rem;margin:12px 0">Baixar JSON</p><button class="btn btn-primary" onclick="exportBackup()">Exportar</button></div><div class="card" style="text-align:center;padding:30px"><div style="font-size:2rem;margin-bottom:10px">📤</div><h3>Importar</h3><p style="color:var(--text-secondary);font-size:.85rem;margin:12px 0">Restaurar JSON</p><input type="file" id="importFile" accept=".json" style="display:none" onchange="importBackup(event)"><button class="btn btn-warning" onclick="document.getElementById(\'importFile\').click()">Importar</button></div><div class="card" style="text-align:center;padding:30px"><div style="font-size:2rem;margin-bottom:10px">🗑️</div><h3>Limpar</h3><p style="color:var(--text-secondary);font-size:.85rem;margin:12px 0">Apagar TUDO</p><button class="btn btn-danger" onclick="clearAllData()">Limpar</button></div></div>';
 }
-
-function exportBackup() {
-  const json = JSON.stringify(appData, null, 2);
-  const blob = new Blob([json], { type: 'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'wdmaquinas_backup_' + new Date().toISOString().split('T')[0] + '.json';
-  a.click();
-  showToast('Backup exportado!', 'success');
-}
-
-function importBackup(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      const data = JSON.parse(e.target.result);
-      if (!confirm('Isso substituirá TODOS os dados atuais. Continuar?')) return;
-      appData = data;
-      ensureDefaults();
-      saveData();
-      updateSidebarInfo();
-      renderDashboard();
-      navigateTo('dashboard');
-      showToast('Backup importado com sucesso!', 'success');
-    } catch (err) {
-      showToast('Erro ao importar: arquivo inválido', 'error');
-    }
-  };
-  reader.readAsText(file);
-  event.target.value = '';
-}
-
-function clearAllData() {
-  if (!confirm('ATENÇÃO: Isso apagará TODOS os dados permanentemente. Continuar?')) return;
-  if (!confirm('Última chance! Tem certeza?')) return;
-  appData = getDefaultData();
-  saveData();
-  updateSidebarInfo();
-  navigateTo('dashboard');
-  showToast('Todos os dados foram apagados!', 'success');
-}
+function exportBackup(){const j=JSON.stringify(appData,null,2);const b=new Blob([j],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='wdmaquinas_backup_'+new Date().toISOString().split('T')[0]+'.json';a.click();showToast('Exportado!','success');}
+function importBackup(event){const f=event.target.files[0];if(!f)return;const r=new FileReader();r.onload=function(e){try{const d=JSON.parse(e.target.result);if(!confirm('Substituir TODOS os dados?'))return;appData=d;ensureDefaults();appData._dataSwapped=true;saveData();updateSidebarInfo();navigateTo('dashboard');showToast('Importado!','success');}catch(err){showToast('Arquivo inválido','error');}};r.readAsText(f);event.target.value='';}
+function clearAllData(){if(!confirm('APAGAR TUDO?'))return;if(!confirm('Última chance!'))return;appData=getDefaultData();appData._dataSwapped=true;saveData();updateSidebarInfo();navigateTo('dashboard');showToast('Dados apagados!','success');}
 
 // ── SCR-INI-01 — INICIALIZAÇÃO ──
 async function initApp() {
-  try {
-    if (typeof window.supabase !== 'undefined') {
-      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-      console.log('Supabase conectado');
-    }
-  } catch (e) { console.warn('Supabase indisponível:', e.message); }
-
+  try { if(typeof window.supabase!=='undefined'){supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);console.log('Supabase conectado');} } catch(e){console.warn('Supabase indisponível:',e.message);}
   await loadData();
   updateSidebarInfo();
   applyAllMasks();
-
-  // Data atual no topo
-  const dateEl = document.getElementById('currentDate');
-  if (dateEl) {
-    const now = new Date();
-    const dias = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
-    const mesesNms = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-    dateEl.textContent = dias[now.getDay()] + ', ' + now.getDate() + ' de ' + mesesNms[now.getMonth()] + ' de ' + now.getFullYear();
-  }
-
+  const dateEl=document.getElementById('currentDate');
+  if(dateEl){const now=new Date();const dias=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];const ms=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];dateEl.textContent=dias[now.getDay()]+', '+now.getDate()+' de '+ms[now.getMonth()]+' de '+now.getFullYear();}
   renderDashboard();
-  console.log('WD Máquinas iniciado com sucesso!');
+  console.log('WD Máquinas iniciado!');
 }
-
-// Fechar modais ao clicar fora
-document.getElementById('cadastroModal').addEventListener('mousedown', function(e) {
-  if (e.target === this) closeCadastroModal();
-});
-document.getElementById('viewModal').addEventListener('mousedown', function(e) {
-  if (e.target === this) closeViewModal();
-});
-
+document.getElementById('cadastroModal').addEventListener('mousedown',function(e){if(e.target===this)closeCadastroModal();});
+document.getElementById('viewModal').addEventListener('mousedown',function(e){if(e.target===this)closeViewModal();});
 document.addEventListener('DOMContentLoaded', initApp);
