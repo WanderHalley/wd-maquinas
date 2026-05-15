@@ -412,8 +412,20 @@ function renderDashboard() {
 
     <!-- SALÁRIO MENSAL -->
     <div class="dashboard-grid" style="margin-bottom:20px">
-      <div class="card" style="border-left:3px solid var(--warning)">
-        <div class="card-header"><span>💰 Salário Mensal (Wander)</span></div>
+    <div class="card" style="border-left:3px solid var(--warning)">
+        <div class="card-header"><span>💰 Salário Wander (Anual)</span></div>
+        <div class="card-value text-warning">${formatCurrency(salarioAnualWander)}</div>
+      </div>
+      <div class="card" style="border-left:3px solid var(--info)">
+        <div class="card-header"><span>💰 Salário Daniel (Anual)</span></div>
+        <div class="card-value text-info">${formatCurrency(salarioAnualDaniel)}</div>
+      </div>
+      <div class="card" style="border-left:3px solid var(--danger)">
+        <div class="card-header"><span>💸 Salário Pago Total (Anual)</span></div>
+        <div class="card-value text-danger">${formatCurrency(salarioAnualTotal)}</div>
+        <div class="card-sub" style="color:var(--text-muted);font-size:.7rem;margin-top:4px">Wander + Daniel — todos os meses</div>
+      </div>
+
         <div class="card-value text-warning">${formatCurrency(salarioAnualWander > 0 ? salarioAnualWander / meses.filter((m) => { const l = (appData.fluxoCaixa && appData.fluxoCaixa[m]) ? appData.fluxoCaixa[m] : []; return l.some(x => ((x.categoria||'').toLowerCase().includes('salário') || (x.categoria||'').toLowerCase().includes('salario')) && (x.descricao||'').toLowerCase().includes('wander')); }).length : 0)}</div>
         <div class="card-sub" style="color:var(--text-muted);font-size:.7rem;margin-top:4px">Valor por mês (apenas Wander)</div>
       </div>
@@ -431,7 +443,7 @@ function renderDashboard() {
         </div>
       </div>
       <div>
-        ${salarioMensalRows ? '<div class="card" style="margin-bottom:16px"><div class="card-header"><span>💰 Salário por Mês</span></div><div class="table-responsive"><table class="table"><thead><tr><th>Mês</th><th>Wander</th><th>Pago Total</th></tr></thead><tbody>' + salarioMensalRows + '</tbody></table></div></div>' : ''}
+        ${salarioMensalRows ? '<div class="card" style="margin-bottom:16px"><div class="card-header"><span>💰 Salário por Mês</span></div><div class="table-responsive"><table class="table"><thead><tr><th>Mês</th><th>Wander</th><th>Daniel</th><th>Pago Total</th></tr></thead><tbody>' + salarioMensalRows + '</tbody></table></div></div>' : ''}
         <div class="card" style="margin-bottom:16px"><div class="card-header"><span>Últimas Vendas</span></div>
           <div class="table-responsive"><table class="table"><thead><tr><th>Data</th><th>Produto</th><th>Valor</th><th>Situação</th></tr></thead><tbody>${vendasRows}</tbody></table></div>
         </div>
