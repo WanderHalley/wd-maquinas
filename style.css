@@ -643,3 +643,183 @@ body {
     .form-row { grid-template-columns: 1fr; }
     .detail-grid { grid-template-columns: 1fr; }
 }
+/* ==========================================
+   CONFIGURAÇÕES — Layout bonito + Drag & Drop
+   ========================================== */
+
+.cfg-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+    overflow: hidden;
+    transition: var(--transition);
+}
+
+.cfg-section:hover {
+    border-color: rgba(59, 130, 246, 0.3);
+}
+
+.cfg-section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 24px;
+    background: var(--bg-tertiary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.cfg-section-header h3 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.cfg-section-icon {
+    font-size: 1.2rem;
+}
+
+.cfg-section-body {
+    padding: 20px 24px;
+}
+
+/* Drag list */
+.cfg-drag-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+    min-height: 20px;
+}
+
+.cfg-tags-list {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.cfg-drag-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    transition: all 0.2s ease;
+    cursor: grab;
+    user-select: none;
+}
+
+.cfg-tags-list .cfg-drag-item {
+    padding: 6px 12px;
+    border-radius: 20px;
+    background: rgba(59, 130, 246, 0.12);
+    border-color: rgba(59, 130, 246, 0.25);
+}
+
+.cfg-drag-item:hover {
+    border-color: var(--accent-primary);
+    background: var(--bg-hover);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.cfg-drag-item.cfg-dragging {
+    opacity: 0.4;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 20px var(--accent-glow);
+}
+
+.cfg-drag-handle {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    cursor: grab;
+    line-height: 1;
+    flex-shrink: 0;
+    transition: color 0.2s;
+}
+
+.cfg-drag-item:hover .cfg-drag-handle {
+    color: var(--accent-primary);
+}
+
+.cfg-inline-input {
+    flex: 1;
+    background: transparent !important;
+    border: 1px solid transparent !important;
+    padding: 4px 8px !important;
+    font-size: 0.85rem !important;
+    color: var(--text-primary) !important;
+    border-radius: 6px !important;
+    transition: all 0.2s ease;
+}
+
+.cfg-inline-input:focus {
+    background: var(--bg-primary) !important;
+    border-color: var(--accent-primary) !important;
+    box-shadow: 0 0 0 2px var(--accent-glow) !important;
+}
+
+.cfg-tag-text {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--accent-secondary);
+    white-space: nowrap;
+}
+
+.btn-tag-remove {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    cursor: pointer;
+    padding: 0 2px;
+    line-height: 1;
+    transition: color 0.2s;
+    flex-shrink: 0;
+}
+
+.btn-tag-remove:hover {
+    color: var(--danger);
+}
+
+.cfg-cat-badge {
+    font-size: 0.6rem;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.cfg-cat-badge.badge-success {
+    background: rgba(0, 200, 83, 0.15);
+    color: var(--success);
+}
+
+.cfg-cat-badge.badge-danger {
+    background: rgba(255, 23, 68, 0.15);
+    color: var(--danger);
+}
+
+.cfg-cat-entrada {
+    border-left: 3px solid var(--success);
+}
+
+.cfg-cat-saida {
+    border-left: 3px solid var(--danger);
+}
+
+.cfg-add-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.cfg-add-row .form-control {
+    flex: 1;
+    max-width: 350px;
+}
