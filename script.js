@@ -589,7 +589,7 @@ function renderComprasPage() {
       <button class="btn btn-warning btn-sm" onclick="toggleComprasEditMode()" id="btnComprasEdit">✏️ Editar Todos</button>
       <button class="btn btn-danger btn-sm" onclick="deleteAllCompras()">🗑️ Excluir Todos</button>
     </div>
-    <div class="table-responsive"><table class="table"><thead><tr><th>Data</th><th>Produto</th><th>Fornecedor</th><th>Qtd</th><th>V.Unit</th><th>Total</th><th>Pgto</th><th>Situação</th><th>Entrega</th><th>Ações</th></tr></thead>
+    <div class="table-responsive"><table class="table"><thead><tr><th>Data</th><th>Produto</th><th>Fornecedor</th><th>Qtd</th><th>V.Unit</th><th>Total</th><th>Pgto</th><th>Situação</th><th>Ações</th></tr></thead>
     <tbody id="comprasBody"></tbody></table></div>`;
   comprasSearchQuery = ''; comprasFilterSit = ''; comprasFilterPgto = '';
   renderComprasTable(compras);
@@ -598,17 +598,15 @@ function renderComprasPage() {
 function renderComprasTable(compras) {
   const tbody = document.getElementById('comprasBody');
   if (!tbody) return;
-  if (compras.length === 0) { tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhuma compra encontrada</td></tr>'; return; }
+   if (compras.length === 0) { tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhuma compra encontrada</td></tr>'; return; }
   const sitOpts = (appData.situacaoCompra || []);
-  const entOpts = (appData.situacaoEntrega || []);
   tbody.innerHTML = compras.map(c => {
     const total = (c.quantidade || 1) * (c.valorUnit || 0);
     const sitSelect = '<select class="form-control" style="min-width:100px;padding:4px 6px;font-size:12px" onchange="changeCompraField(' + c.id + ',\'situacao\',this.value)">' + sitOpts.map(s => '<option value="' + s + '"' + (c.situacao === s ? ' selected' : '') + '>' + s + '</option>').join('') + '</select>';
-    const entSelect = '<select class="form-control" style="min-width:120px;padding:4px 6px;font-size:12px" onchange="changeCompraField(' + c.id + ',\'entrega\',this.value)">' + entOpts.map(e => '<option value="' + e + '"' + (c.entrega === e ? ' selected' : '') + '>' + e + '</option>').join('') + '</select>';
     const acoes = comprasEditMode
       ? '<button class="btn btn-sm btn-outline" onclick="viewCompra(' + c.id + ')">👁️</button> <button class="btn btn-sm btn-primary" onclick="editCompra(' + c.id + ')">✏️</button> <button class="btn btn-sm btn-danger" onclick="deleteCompra(' + c.id + ')">🗑️</button>'
       : '<button class="btn btn-sm btn-outline" onclick="viewCompra(' + c.id + ')">👁️</button>';
-    return '<tr><td>' + formatDate(c.data) + '</td><td>' + (c.produto || '-') + '</td><td>' + (c.fornecedor || '-') + '</td><td>' + (c.quantidade || 1) + '</td><td>' + formatCurrency(c.valorUnit) + '</td><td>' + formatCurrency(total) + '</td><td>' + (c.formaPagamento || '-') + '</td><td>' + sitSelect + '</td><td>' + entSelect + '</td><td>' + acoes + '</td></tr>';
+    return '<tr><td>' + formatDate(c.data) + '</td><td>' + (c.produto || '-') + '</td><td>' + (c.fornecedor || '-') + '</td><td>' + (c.quantidade || 1) + '</td><td>' + formatCurrency(c.valorUnit) + '</td><td>' + formatCurrency(total) + '</td><td>' + (c.formaPagamento || '-') + '</td><td>' + sitSelect + '</td><td>' + acoes + '</td></tr>';
   }).join('');
 }
 
@@ -622,21 +620,20 @@ function openCompraModal(compra) {
   const fornOpts = (appData.fornecedores || []).map(f => '<option value="' + f.nome + '"' + (compra && compra.fornecedor === f.nome ? ' selected' : '') + '>' + f.nome + '</option>').join('');
   const pgtoOpts = (appData.formasPagamento || []).map(f => '<option value="' + f + '"' + (compra && compra.formaPagamento === f ? ' selected' : '') + '>' + f + '</option>').join('');
   const sitOpts = (appData.situacaoCompra || []).map(s => '<option value="' + s + '"' + (compra && compra.situacao === s ? ' selected' : '') + '>' + s + '</option>').join('');
-  const entOpts = (appData.situacaoEntrega || []).map(e => '<option value="' + e + '"' + (compra && compra.entrega === e ? ' selected' : '') + '>' + e + '</option>').join('');
   document.getElementById('cadastroModalTitle').textContent = isEdit ? 'Editar Compra' : 'Nova Compra';
   document.getElementById('cadastroModalBody').innerHTML = `
     <div class="form-row"><div class="form-group"><label>Data</label><input type="date" class="form-control" id="cpData" value="${compra ? compra.data : new Date().toISOString().split('T')[0]}"></div><div class="form-group"><label>Vencimento</label><input type="date" class="form-control" id="cpVenc" value="${compra ? compra.vencimento || '' : ''}"></div></div>
     <div class="form-group"><label>Produto *</label><input type="text" class="form-control" id="cpProd" value="${compra ? compra.produto : ''}"></div>
     <div class="form-row"><div class="form-group"><label>Qtd</label><input type="number" class="form-control" id="cpQtd" value="${compra ? compra.quantidade : 1}" min="1"></div><div class="form-group"><label>Valor Unit.</label><input type="number" class="form-control" id="cpValor" value="${compra ? compra.valorUnit : ''}" step="0.01"></div></div>
     <div class="form-row"><div class="form-group"><label>Fornecedor</label><select class="form-control" id="cpForn"><option value="">Selecione...</option>${fornOpts}</select></div><div class="form-group"><label>Forma Pgto</label><select class="form-control" id="cpPgto"><option value="">Selecione...</option>${pgtoOpts}</select></div></div>
-    <div class="form-row"><div class="form-group"><label>Situação</label><select class="form-control" id="cpSit">${sitOpts}</select></div><div class="form-group"><label>Entrega</label><select class="form-control" id="cpEnt">${entOpts}</select></div></div>
+    <div class="form-group"><label>Situação</label><select class="form-control" id="cpSit">${sitOpts}</select></div>
     <div class="form-group"><label>Obs</label><textarea class="form-control" id="cpObs" rows="2">${compra ? compra.obs || '' : ''}</textarea></div>`;
   document.getElementById('cadastroModalFooter').innerHTML = '<button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button><button class="btn btn-primary" onclick="saveCompra(' + (isEdit ? compra.id : 'null') + ')">Salvar</button>';
   openCadastroModal();
 }
 
 function saveCompra(id) {
-  const obj = { data: document.getElementById('cpData').value, vencimento: document.getElementById('cpVenc').value, produto: document.getElementById('cpProd').value.trim(), quantidade: parseFloat(document.getElementById('cpQtd').value) || 1, valorUnit: parseFloat(document.getElementById('cpValor').value) || 0, fornecedor: document.getElementById('cpForn').value, formaPagamento: document.getElementById('cpPgto').value, situacao: document.getElementById('cpSit').value, entrega: document.getElementById('cpEnt').value, obs: document.getElementById('cpObs').value };
+  const obj = { data: document.getElementById('vnData').value, vencimento: document.getElementById('vnVenc').value, produto: document.getElementById('vnProd').value.trim(), quantidade: parseFloat(document.getElementById('vnQtd').value) || 1, valorUnit: parseFloat(document.getElementById('vnValor').value) || 0, cliente: document.getElementById('vnCli').value, vendedor: document.getElementById('vnVend').value, formaPagamento: document.getElementById('vnPgto').value, situacao: document.getElementById('vnSit').value, entrega: document.getElementById('vnEnt').value, obs: document.getElementById('vnObs').value };
   if (!obj.produto) { showToast('Informe o produto', 'error'); return; }
   if (!appData.compras) appData.compras = [];
   if (id) { const idx = appData.compras.findIndex(c => c.id === id); if (idx > -1) { obj.id = id; appData.compras[idx] = obj; } }
