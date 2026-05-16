@@ -1,6 +1,6 @@
 // ╔══════════════════════════════════════════════════════════════╗
 // ║  WD MÁQUINAS — SISTEMA DE FLUXO DE CAIXA 2026              ║
-// ║  script.js — CÓDIGO COMPLETO CORRIGIDO v5                  ║
+// ║  script.js — CÓDIGO COMPLETO CORRIGIDO v6                  ║
 // ╚══════════════════════════════════════════════════════════════╝
 
 // ── SCR-CFG-01 — CONFIGURAÇÃO GLOBAL ──
@@ -259,7 +259,12 @@ function navigateTo(page) {
   else if (page === 'backup') renderBackupPage();
 }
 
-// ── SCR-DSH-01 — DASHBOARD ──
+// ══════════════════════════════════════════════════════════════
+// ── SCR-DSH-01 — DASHBOARD (v6) ──
+// REMOVIDO: Salário Wander (Anual), Salário Daniel (Anual),
+//           Compras Pendentes, Vendas Pendentes, Estoque
+// ADICIONADO: Cheques Pendentes com valor somado
+// ══════════════════════════════════════════════════════════════
 function renderDashboard() {
   const pg = document.getElementById('page-dashboard');
   if (!pg) return;
@@ -267,21 +272,24 @@ function renderDashboard() {
   const compras = appData.compras || [];
   const vendas = appData.vendas || [];
   const boletos = appData.boletos || [];
+  const cheques = appData.cheques || [];
 
   const totalCompras = compras.reduce((s, c) => s + ((c.quantidade || 1) * (c.valorUnit || 0)), 0);
   const totalVendas = vendas.reduce((s, v) => s + ((v.quantidade || 1) * (v.valorUnit || 0)), 0);
   const lucro = totalVendas - totalCompras;
 
-  const comprasPendentes = compras.filter(c => c.situacao !== 'Pago').reduce((s, c) => s + ((c.quantidade || 1) * (c.valorUnit || 0)), 0);
-  const vendasPendentes = vendas.filter(v => v.situacao !== 'Pago').reduce((s, v) => s + ((v.quantidade || 1) * (v.valorUnit || 0)), 0);
-  const boletosPendentes = boletos.filter(b => b.situacao !== 'Pago').reduce((s, b) => s + (b.valor || 0), 0);
+  const boletosPendentes = boletos.filter(b => b.situacao !== 'Pago' && b.situacao !== 'Compensado').reduce((s, b) => s + (b.valor || 0), 0);
   const entregasPendentes = vendas.filter(v => v.entrega === 'Pendente' || v.entrega === 'Não Entregue').length;
+
+  // ★ NOVO: Cheques Pendentes (todos que NÃO são "Compensado")
+  const chequesPendentes = cheques.filter(ch => ch.situacao !== 'Compensado').reduce((s, ch) => s + (ch.valor || 0), 0);
+  const chequesPendentesQtd = cheques.filter(ch => ch.situacao !== 'Compensado').length;
 
   const meses = ['janeiro','fevereiro','marco','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
   const mesesLabel = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 
   let salarioMensalRows = '';
-  let salarioAnualTotal = 0, salarioAnualWander = 0, salarioAnualDaniel = 0;
+  let salarioAnualTotal = 0;
 
   meses.forEach((m, i) => {
     const lancamentos = (appData.fluxoCaixa && appData.fluxoCaixa[m]) ? appData.fluxoCaixa[m] : [];
@@ -290,8 +298,6 @@ function renderDashboard() {
     const salarioWander = salarioLancs.filter(l => (l.descricao || '').toLowerCase().includes('wander')).reduce((s, l) => s + (l.valor || 0), 0);
     const salarioDaniel = salarioLancs.filter(l => (l.descricao || '').toLowerCase().includes('daniel')).reduce((s, l) => s + (l.valor || 0), 0);
     salarioAnualTotal += salarioTotal;
-    salarioAnualWander += salarioWander;
-    salarioAnualDaniel += salarioDaniel;
     if (salarioTotal > 0) {
       salarioMensalRows += '<tr><td>' + mesesLabel[i] + '</td><td>' + formatCurrency(salarioWander) + '</td><td>' + formatCurrency(salarioDaniel) + '</td><td>' + formatCurrency(salarioTotal) + '</td></tr>';
     }
@@ -333,16 +339,9 @@ function renderDashboard() {
       <div class="card card-accent"><div class="card-header"><span>Total Compras</span></div><div class="card-value text-danger">${formatCurrency(totalCompras)}</div><div class="card-sub">${compras.length} registros</div></div>
       <div class="card"><div class="card-header"><span>Total Vendas</span></div><div class="card-value text-success">${formatCurrency(totalVendas)}</div><div class="card-sub">${vendas.length} registros</div></div>
       <div class="card"><div class="card-header"><span>Lucro</span></div><div class="card-value ${lucro >= 0 ? 'text-success' : 'text-danger'}">${formatCurrency(lucro)}</div></div>
-      <div class="card"><div class="card-header"><span>Compras Pendentes</span></div><div class="card-value text-warning">${formatCurrency(comprasPendentes)}</div></div>
-      <div class="card"><div class="card-header"><span>Vendas Pendentes</span></div><div class="card-value text-warning">${formatCurrency(vendasPendentes)}</div></div>
       <div class="card"><div class="card-header"><span>Boletos Pendentes</span></div><div class="card-value text-warning">${formatCurrency(boletosPendentes)}</div></div>
       <div class="card"><div class="card-header"><span>Entregas Pendentes</span></div><div class="card-value text-info">${entregasPendentes}</div></div>
-      <div class="card"><div class="card-header"><span>Estoque</span></div><div class="card-value">${(appData.estoque || []).length} itens</div></div>
-    </div>
-    <div class="dashboard-grid" style="margin-bottom:20px">
-      <div class="card" style="border-left:3px solid var(--warning)"><div class="card-header"><span>💰 Salário Wander (Anual)</span></div><div class="card-value text-warning">${formatCurrency(salarioAnualWander)}</div></div>
-      <div class="card" style="border-left:3px solid var(--info)"><div class="card-header"><span>💰 Salário Daniel (Anual)</span></div><div class="card-value text-info">${formatCurrency(salarioAnualDaniel)}</div></div>
-      <div class="card" style="border-left:3px solid var(--danger)"><div class="card-header"><span>💸 Salário Pago Total (Anual)</span></div><div class="card-value text-danger">${formatCurrency(salarioAnualTotal)}</div><div class="card-sub" style="color:var(--text-muted);font-size:.7rem;margin-top:4px">Wander + Daniel — todos os meses</div></div>
+      <div class="card" style="border-left:3px solid var(--warning)"><div class="card-header"><span>📝 Cheques Pendentes</span></div><div class="card-value text-warning">${formatCurrency(chequesPendentes)}</div><div class="card-sub">${chequesPendentesQtd} cheque(s)</div></div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
       <div>
@@ -825,15 +824,149 @@ function saveEstoque(id) {
 function editEstoque(id) { const e=(appData.estoque||[]).find(x=>x.id===id); if(e) openEstoqueModal(e); }
 function deleteEstoque(id) { if(!confirm('Excluir?')) return; appData.estoque=(appData.estoque||[]).filter(e=>e.id!==id); saveData(); renderEstoquePage(); showToast('Excluído!','success'); }
 
-// ── MÓDULOS GENÉRICOS (Produtos, Clientes, Fornecedores, etc.) ──
+// ══════════════════════════════════════════════════════════════
+// ── SCR-PRD-01 — PRODUTOS (COM imagem e referência) v6 ──
+// ══════════════════════════════════════════════════════════════
+function renderProdutosPage() {
+  const pg = document.getElementById('page-produtos'); if (!pg) return;
+  const items = appData.produtos || [];
+  pg.innerHTML = `
+    <div class="page-header"><h2>🏷️ Produtos</h2><button class="btn btn-primary" onclick="openProdutoModal()">+ Novo Produto</button></div>
+    <div class="dashboard-grid">
+      <div class="card card-accent"><div class="card-header"><span>Total Produtos</span></div><div class="card-value">${items.length}</div></div>
+    </div>
+    <div class="filter-bar"><input type="text" class="form-control" style="max-width:250px" placeholder="Buscar produto..." oninput="filterProdutos(this.value)"></div>
+    <div class="table-responsive"><table class="table"><thead><tr><th style="width:70px">Imagem</th><th>Nome</th><th>Referência</th><th>Categoria</th><th>Unidade</th><th>Preço</th><th>Ações</th></tr></thead>
+    <tbody id="produtosBody"></tbody></table></div>`;
+  renderProdutosTable(items);
+}
+function renderProdutosTable(items) {
+  const tbody = document.getElementById('produtosBody'); if (!tbody) return;
+  if (items.length === 0) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhum produto</td></tr>'; return; }
+  tbody.innerHTML = items.map(p => {
+    const img = p.imagem ? '<img src="'+p.imagem+'" style="width:50px;height:50px;object-fit:cover;border-radius:6px;cursor:pointer" onclick="window.open(\''+p.imagem+'\',\'_blank\')" onerror="this.src=\'\';this.alt=\'❌\'">' : '<span style="color:var(--text-muted)">—</span>';
+    return '<tr><td>'+img+'</td><td>'+(p.nome||'-')+'</td><td>'+(p.referencia||'-')+'</td><td>'+(p.categoria||'-')+'</td><td>'+(p.unidade||'-')+'</td><td>'+formatCurrency(p.preco)+'</td><td><button class="btn btn-sm btn-outline" onclick="viewProduto('+p.id+')">👁️</button> <button class="btn btn-sm btn-primary" onclick="editProduto('+p.id+')">✏️</button> <button class="btn btn-sm btn-danger" onclick="deleteProduto('+p.id+')">🗑️</button></td></tr>';
+  }).join('');
+}
+function filterProdutos(q) { q=q.toLowerCase(); renderProdutosTable((appData.produtos||[]).filter(p=>(p.nome||'').toLowerCase().includes(q)||(p.referencia||'').toLowerCase().includes(q)||(p.categoria||'').toLowerCase().includes(q))); }
+
+function openProdutoModal(prod) {
+  const isEdit = !!prod;
+  const unidOpts = (appData.tipoUnidade||[]).map(u=>'<option value="'+u+'"'+(prod&&prod.unidade===u?' selected':'')+'>'+u+'</option>').join('');
+  document.getElementById('cadastroModalTitle').textContent = isEdit ? 'Editar Produto' : 'Novo Produto';
+  document.getElementById('cadastroModalBody').innerHTML = `
+    <div class="form-group"><label>Nome *</label><input type="text" class="form-control" id="prdNome" value="${prod?prod.nome:''}"></div>
+    <div class="form-group"><label>Referência</label><input type="text" class="form-control" id="prdRef" value="${prod?prod.referencia||'':''}"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Categoria</label><input type="text" class="form-control" id="prdCat" value="${prod?prod.categoria||'':''}"></div>
+      <div class="form-group"><label>Unidade</label><select class="form-control" id="prdUnid">${unidOpts}</select></div>
+    </div>
+    <div class="form-group"><label>Preço</label><input type="number" class="form-control" id="prdPreco" value="${prod?prod.preco||'':''}" step="0.01"></div>
+    <div class="form-group"><label>Imagem (URL)</label><input type="text" class="form-control" id="prdImg" value="${prod?prod.imagem||'':''}"></div>
+    <div id="prdImgPreview" style="margin-top:8px">${prod&&prod.imagem?'<img src="'+prod.imagem+'" style="max-width:200px;max-height:150px;border-radius:8px;object-fit:cover">':''}</div>
+    <div class="form-group"><label>Obs</label><textarea class="form-control" id="prdObs" rows="2">${prod?prod.obs||'':''}</textarea></div>`;
+  document.getElementById('cadastroModalFooter').innerHTML = '<button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button><button class="btn btn-primary" onclick="saveProduto('+(isEdit?prod.id:'null')+')">Salvar</button>';
+  openCadastroModal();
+  // Preview ao digitar URL
+  setTimeout(function(){
+    var imgInput = document.getElementById('prdImg');
+    if(imgInput) imgInput.addEventListener('input',function(){
+      var prev = document.getElementById('prdImgPreview');
+      if(prev) prev.innerHTML = imgInput.value ? '<img src="'+imgInput.value+'" style="max-width:200px;max-height:150px;border-radius:8px;object-fit:cover" onerror="this.alt=\'Imagem inválida\'">' : '';
+    });
+  },50);
+}
+function saveProduto(id) {
+  const obj = { nome: document.getElementById('prdNome').value.trim(), referencia: document.getElementById('prdRef').value.trim(), categoria: document.getElementById('prdCat').value.trim(), unidade: document.getElementById('prdUnid').value, preco: parseFloat(document.getElementById('prdPreco').value)||0, imagem: document.getElementById('prdImg').value.trim(), obs: document.getElementById('prdObs').value.trim() };
+  if (!obj.nome) { showToast('Informe o nome do produto','error'); return; }
+  if (!appData.produtos) appData.produtos = [];
+  if (id) { const idx=appData.produtos.findIndex(p=>p.id===id); if(idx>-1){obj.id=id;appData.produtos[idx]=obj;} } else { obj.id=nextId(appData.produtos); appData.produtos.push(obj); }
+  saveData(); closeCadastroModal(); renderProdutosPage(); showToast(id?'Produto atualizado!':'Produto cadastrado!','success');
+}
+function editProduto(id) { const p=(appData.produtos||[]).find(x=>x.id===id); if(p) openProdutoModal(p); }
+function deleteProduto(id) { if(!confirm('Excluir produto?')) return; appData.produtos=(appData.produtos||[]).filter(p=>p.id!==id); saveData(); renderProdutosPage(); showToast('Produto excluído!','success'); }
+function viewProduto(id) {
+  const p = (appData.produtos||[]).find(x=>x.id===id); if(!p) return;
+  document.getElementById('viewModalTitle').textContent = 'Detalhes do Produto';
+  document.getElementById('viewModalBody').innerHTML = '<div style="text-align:center;margin-bottom:16px">'+(p.imagem?'<img src="'+p.imagem+'" style="max-width:300px;max-height:250px;border-radius:10px;object-fit:cover">':'<span style="color:var(--text-muted)">Sem imagem</span>')+'</div><div class="detail-grid"><div class="detail-item"><span class="detail-label">Nome</span>'+(p.nome||'-')+'</div><div class="detail-item"><span class="detail-label">Referência</span>'+(p.referencia||'-')+'</div><div class="detail-item"><span class="detail-label">Categoria</span>'+(p.categoria||'-')+'</div><div class="detail-item"><span class="detail-label">Unidade</span>'+(p.unidade||'-')+'</div><div class="detail-item"><span class="detail-label">Preço</span>'+formatCurrency(p.preco)+'</div></div>'+(p.obs?'<div style="margin-top:12px;padding:10px;background:var(--bg-tertiary);border-radius:var(--radius-sm)"><strong>Obs:</strong> '+p.obs+'</div>':'');
+  openViewModal();
+}
+
+// ══════════════════════════════════════════════════════════════
+// ── SCR-PFN-01 — P. FORNECEDORES (igual a Produtos, COM imagem) v6 ──
+// ══════════════════════════════════════════════════════════════
+function renderPFornecedoresPage() {
+  const pg = document.getElementById('page-pfornecedores'); if (!pg) return;
+  const items = appData.pFornecedores || [];
+  const fornOpts = (appData.fornecedores||[]).map(f=>'<option value="'+f.nome+'">'+f.nome+'</option>').join('');
+  pg.innerHTML = `
+    <div class="page-header"><h2>📋 P. Fornecedores</h2><button class="btn btn-primary" onclick="openPFornModal()">+ Novo Produto</button></div>
+    <div class="dashboard-grid">
+      <div class="card card-accent"><div class="card-header"><span>Total Produtos de Fornecedores</span></div><div class="card-value">${items.length}</div></div>
+    </div>
+    <div class="filter-bar"><input type="text" class="form-control" style="max-width:250px" placeholder="Buscar produto fornecedor..." oninput="filterPForn(this.value)"></div>
+    <div class="table-responsive"><table class="table"><thead><tr><th style="width:70px">Imagem</th><th>Produto</th><th>Referência</th><th>Fornecedor</th><th>Categoria</th><th>Unidade</th><th>Preço</th><th>Ações</th></tr></thead>
+    <tbody id="pfornBody"></tbody></table></div>`;
+  renderPFornTable(items);
+}
+function renderPFornTable(items) {
+  const tbody = document.getElementById('pfornBody'); if (!tbody) return;
+  if (items.length === 0) { tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhum produto de fornecedor</td></tr>'; return; }
+  tbody.innerHTML = items.map(p => {
+    const img = p.imagem ? '<img src="'+p.imagem+'" style="width:50px;height:50px;object-fit:cover;border-radius:6px;cursor:pointer" onclick="window.open(\''+p.imagem+'\',\'_blank\')" onerror="this.src=\'\';this.alt=\'❌\'">' : '<span style="color:var(--text-muted)">—</span>';
+    return '<tr><td>'+img+'</td><td>'+(p.produto||p.nome||'-')+'</td><td>'+(p.referencia||'-')+'</td><td>'+(p.fornecedor||'-')+'</td><td>'+(p.categoria||'-')+'</td><td>'+(p.unidade||'-')+'</td><td>'+formatCurrency(p.preco)+'</td><td><button class="btn btn-sm btn-outline" onclick="viewPForn('+p.id+')">👁️</button> <button class="btn btn-sm btn-primary" onclick="editPForn('+p.id+')">✏️</button> <button class="btn btn-sm btn-danger" onclick="deletePForn('+p.id+')">🗑️</button></td></tr>';
+  }).join('');
+}
+function filterPForn(q) { q=q.toLowerCase(); renderPFornTable((appData.pFornecedores||[]).filter(p=>(p.produto||p.nome||'').toLowerCase().includes(q)||(p.fornecedor||'').toLowerCase().includes(q)||(p.referencia||'').toLowerCase().includes(q))); }
+
+function openPFornModal(prod) {
+  const isEdit = !!prod;
+  const fornOpts = (appData.fornecedores||[]).map(f=>'<option value="'+f.nome+'"'+(prod&&prod.fornecedor===f.nome?' selected':'')+'>'+f.nome+'</option>').join('');
+  const unidOpts = (appData.tipoUnidade||[]).map(u=>'<option value="'+u+'"'+(prod&&prod.unidade===u?' selected':'')+'>'+u+'</option>').join('');
+  document.getElementById('cadastroModalTitle').textContent = isEdit ? 'Editar Produto Fornecedor' : 'Novo Produto Fornecedor';
+  document.getElementById('cadastroModalBody').innerHTML = `
+    <div class="form-group"><label>Produto *</label><input type="text" class="form-control" id="pfProd" value="${prod?prod.produto||prod.nome||'':''}"></div>
+    <div class="form-group"><label>Referência</label><input type="text" class="form-control" id="pfRef" value="${prod?prod.referencia||'':''}"></div>
+    <div class="form-group"><label>Fornecedor *</label><select class="form-control" id="pfForn"><option value="">Selecione...</option>${fornOpts}</select></div>
+    <div class="form-row">
+      <div class="form-group"><label>Categoria</label><input type="text" class="form-control" id="pfCat" value="${prod?prod.categoria||'':''}"></div>
+      <div class="form-group"><label>Unidade</label><select class="form-control" id="pfUnid">${unidOpts}</select></div>
+    </div>
+    <div class="form-group"><label>Preço</label><input type="number" class="form-control" id="pfPreco" value="${prod?prod.preco||'':''}" step="0.01"></div>
+    <div class="form-group"><label>Imagem (URL)</label><input type="text" class="form-control" id="pfImg" value="${prod?prod.imagem||'':''}"></div>
+    <div id="pfImgPreview" style="margin-top:8px">${prod&&prod.imagem?'<img src="'+prod.imagem+'" style="max-width:200px;max-height:150px;border-radius:8px;object-fit:cover">':''}</div>
+    <div class="form-group"><label>Obs</label><textarea class="form-control" id="pfObs" rows="2">${prod?prod.obs||'':''}</textarea></div>`;
+  document.getElementById('cadastroModalFooter').innerHTML = '<button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button><button class="btn btn-primary" onclick="savePForn('+(isEdit?prod.id:'null')+')">Salvar</button>';
+  openCadastroModal();
+  setTimeout(function(){
+    var imgInput = document.getElementById('pfImg');
+    if(imgInput) imgInput.addEventListener('input',function(){
+      var prev = document.getElementById('pfImgPreview');
+      if(prev) prev.innerHTML = imgInput.value ? '<img src="'+imgInput.value+'" style="max-width:200px;max-height:150px;border-radius:8px;object-fit:cover" onerror="this.alt=\'Imagem inválida\'">' : '';
+    });
+  },50);
+}
+function savePForn(id) {
+  const obj = { produto: document.getElementById('pfProd').value.trim(), referencia: document.getElementById('pfRef').value.trim(), fornecedor: document.getElementById('pfForn').value, categoria: document.getElementById('pfCat').value.trim(), unidade: document.getElementById('pfUnid').value, preco: parseFloat(document.getElementById('pfPreco').value)||0, imagem: document.getElementById('pfImg').value.trim(), obs: document.getElementById('pfObs').value.trim() };
+  if (!obj.produto) { showToast('Informe o produto','error'); return; }
+  if (!obj.fornecedor) { showToast('Selecione o fornecedor','error'); return; }
+  if (!appData.pFornecedores) appData.pFornecedores = [];
+  if (id) { const idx=appData.pFornecedores.findIndex(p=>p.id===id); if(idx>-1){obj.id=id;appData.pFornecedores[idx]=obj;} } else { obj.id=nextId(appData.pFornecedores); appData.pFornecedores.push(obj); }
+  saveData(); closeCadastroModal(); renderPFornecedoresPage(); showToast(id?'Atualizado!':'Cadastrado!','success');
+}
+function editPForn(id) { const p=(appData.pFornecedores||[]).find(x=>x.id===id); if(p) openPFornModal(p); }
+function deletePForn(id) { if(!confirm('Excluir?')) return; appData.pFornecedores=(appData.pFornecedores||[]).filter(p=>p.id!==id); saveData(); renderPFornecedoresPage(); showToast('Excluído!','success'); }
+function viewPForn(id) {
+  const p = (appData.pFornecedores||[]).find(x=>x.id===id); if(!p) return;
+  document.getElementById('viewModalTitle').textContent = 'Detalhes — Produto Fornecedor';
+  document.getElementById('viewModalBody').innerHTML = '<div style="text-align:center;margin-bottom:16px">'+(p.imagem?'<img src="'+p.imagem+'" style="max-width:300px;max-height:250px;border-radius:10px;object-fit:cover">':'<span style="color:var(--text-muted)">Sem imagem</span>')+'</div><div class="detail-grid"><div class="detail-item"><span class="detail-label">Produto</span>'+(p.produto||p.nome||'-')+'</div><div class="detail-item"><span class="detail-label">Referência</span>'+(p.referencia||'-')+'</div><div class="detail-item"><span class="detail-label">Fornecedor</span>'+(p.fornecedor||'-')+'</div><div class="detail-item"><span class="detail-label">Categoria</span>'+(p.categoria||'-')+'</div><div class="detail-item"><span class="detail-label">Unidade</span>'+(p.unidade||'-')+'</div><div class="detail-item"><span class="detail-label">Preço</span>'+formatCurrency(p.preco)+'</div></div>'+(p.obs?'<div style="margin-top:12px;padding:10px;background:var(--bg-tertiary);border-radius:var(--radius-sm)"><strong>Obs:</strong> '+p.obs+'</div>':'');
+  openViewModal();
+}
+
+// ── MÓDULOS GENÉRICOS (Clientes, Fornecedores, etc.) ──
+// Produtos e pFornecedores agora têm renderização própria acima
 function getGenericConfig(key) {
   const configs = {
-    produtos: { titulo: 'Produto', campos: [
-      { field:'nome', label:'Nome', type:'text', required:true },
-      { field:'categoria', label:'Categoria', type:'text' },
-      { field:'unidade', label:'Unidade', type:'select', options: appData.tipoUnidade||[] },
-      { field:'preco', label:'Preço', type:'number' }
-    ]},
     clientes: { titulo: 'Cliente', campos: [
       { field:'nome', label:'Nome', type:'text', required:true },
       { field:'cpfCnpj', label:'CPF/CNPJ', type:'text' },
@@ -850,12 +983,6 @@ function getGenericConfig(key) {
       { field:'celular', label:'Celular', type:'text' },
       { field:'email', label:'E-mail', type:'email' },
       { field:'endereco', label:'Endereço', type:'text' },
-      { field:'obs', label:'Obs', type:'text' }
-    ]},
-    pFornecedores: { titulo: 'Produto do Fornecedor', campos: [
-      { field:'fornecedor', label:'Fornecedor', type:'text', required:true },
-      { field:'produto', label:'Produto', type:'text', required:true },
-      { field:'preco', label:'Preço', type:'number' },
       { field:'obs', label:'Obs', type:'text' }
     ]},
     boletos: { titulo: 'Boleto', campos: [
@@ -952,7 +1079,7 @@ function saveGeneric(key, id) {
   if(!appData[key]) appData[key]=[];
   if(id){const idx=appData[key].findIndex(x=>x.id===id);if(idx>-1){obj.id=id;appData[key][idx]=obj;}} else {obj.id=nextId(appData[key]);appData[key].push(obj);}
   saveData(); closeCadastroModal();
-  const pageMap = { pFornecedores:'pfornecedores', pagClientes:'pagclientes', notasEntrada:'notasentrada', notasSaida:'notassaida', receitasMei:'receitasmei' };
+  const pageMap = { pagClientes:'pagclientes', notasEntrada:'notasentrada', notasSaida:'notassaida', receitasMei:'receitasmei' };
   navigateTo(pageMap[key] || key);
   showToast(id?'Atualizado!':'Cadastrado!','success');
 }
@@ -963,16 +1090,15 @@ function deleteGeneric(key,id){
   if(!confirm('Excluir?')) return;
   appData[key]=(appData[key]||[]).filter(x=>x.id!==id);
   saveData();
-  const pageMap = { pFornecedores:'pfornecedores', pagClientes:'pagclientes', notasEntrada:'notasentrada', notasSaida:'notassaida', receitasMei:'receitasmei' };
+  const pageMap = { pagClientes:'pagclientes', notasEntrada:'notasentrada', notasSaida:'notassaida', receitasMei:'receitasmei' };
   navigateTo(pageMap[key] || key);
   showToast('Excluído!','success');
 }
 
 // ── RENDERS DE PÁGINAS GENÉRICAS ──
-function renderProdutosPage() { const c = getGenericConfig('produtos'); genericCrudPage('produtos','Produtos','🏷️',c.campos); }
+// Produtos e pFornecedores agora têm renderização própria (acima)
 function renderClientesPage() { const c = getGenericConfig('clientes'); genericCrudPage('clientes','Clientes','👥',c.campos); }
 function renderFornecedoresPage() { const c = getGenericConfig('fornecedores'); genericCrudPage('fornecedores','Fornecedores','🏭',c.campos); }
-function renderPFornecedoresPage() { const c = getGenericConfig('pFornecedores'); genericCrudPage('pfornecedores','P. Fornecedores','📋',c.campos); }
 function renderBoletosPage() { const c = getGenericConfig('boletos'); genericCrudPage('boletos','Boletos','🔖',c.campos); }
 function renderChequesPage() { const c = getGenericConfig('cheques'); genericCrudPage('cheques','Cheques','📝',c.campos); }
 function renderPrestacoesPage() { const c = getGenericConfig('prestacoes'); genericCrudPage('prestacoes','Prestações','💳',c.campos); }
@@ -1032,72 +1158,53 @@ function renderBackupPage() {
   pg.innerHTML = `
     <div class="page-header"><h2>💾 Backup</h2></div>
     <div class="dashboard-grid" style="max-width:800px">
-      <div class="card">
-        <div class="card-header"><span>Exportar Dados</span></div>
-        <div style="padding:16px"><p style="color:var(--text-muted);margin-bottom:12px">Baixe todos os dados em formato JSON.</p><button class="btn btn-primary" onclick="exportBackup()">📥 Exportar JSON</button></div>
+      <div class="card" style="text-align:center;padding:30px">
+        <h3 style="margin-bottom:12px">Exportar Dados</h3>
+        <p style="color:var(--text-muted);margin-bottom:16px">Baixe um arquivo JSON com todos os dados do sistema</p>
+        <button class="btn btn-primary" onclick="exportBackup()">📥 Exportar JSON</button>
       </div>
-      <div class="card">
-        <div class="card-header"><span>Importar Dados</span></div>
-        <div style="padding:16px"><p style="color:var(--text-muted);margin-bottom:12px">Restaure dados de um arquivo JSON.</p><input type="file" id="importFile" accept=".json" style="margin-bottom:8px"><br><button class="btn btn-warning" onclick="importBackup()">📤 Importar JSON</button></div>
-      </div>
-      <div class="card">
-        <div class="card-header"><span>Limpar Dados</span></div>
-        <div style="padding:16px"><p style="color:var(--text-muted);margin-bottom:12px">Apaga TODOS os dados e restaura os padrões.</p><button class="btn btn-danger" onclick="clearAllData()">🗑️ Limpar Tudo</button></div>
+      <div class="card" style="text-align:center;padding:30px">
+        <h3 style="margin-bottom:12px">Importar Dados</h3>
+        <p style="color:var(--text-muted);margin-bottom:16px">Restaure dados a partir de um arquivo JSON</p>
+        <input type="file" id="importFile" accept=".json" style="display:none" onchange="importBackup(event)">
+        <button class="btn btn-warning" onclick="document.getElementById('importFile').click()">📤 Importar JSON</button>
       </div>
     </div>`;
 }
 function exportBackup() {
-  const blob = new Blob([JSON.stringify(appData, null, 2)], {type:'application/json'});
+  const blob = new Blob([JSON.stringify(appData, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a'); a.href = url; a.download = 'wdmaquinas_backup_' + new Date().toISOString().split('T')[0] + '.json'; a.click();
-  URL.revokeObjectURL(url); showToast('Backup exportado!','success');
+  URL.revokeObjectURL(url);
+  showToast('Backup exportado!', 'success');
 }
-function importBackup() {
-  const file = document.getElementById('importFile').files[0];
-  if (!file) { showToast('Selecione um arquivo','error'); return; }
+function importBackup(event) {
+  const file = event.target.files[0]; if (!file) return;
   const reader = new FileReader();
   reader.onload = function(e) {
     try {
       const data = JSON.parse(e.target.result);
-      appData = data; ensureDefaults(); saveData(); updateSidebarInfo(); renderDashboard(); navigateTo('dashboard');
-      showToast('Dados importados com sucesso!','success');
-    } catch(err) { showToast('Arquivo inválido','error'); }
+      if (!confirm('Isso substituirá TODOS os dados atuais. Continuar?')) return;
+      appData = data; ensureDefaults(); saveData(); updateSidebarInfo();
+      navigateTo('dashboard');
+      showToast('Backup importado com sucesso!', 'success');
+    } catch (err) { showToast('Arquivo inválido!', 'error'); }
   };
   reader.readAsText(file);
 }
-function clearAllData() {
-  if (!confirm('ATENÇÃO: Isso apagará TODOS os dados. Deseja continuar?')) return;
-  if (!confirm('Tem certeza? Esta ação é irreversível!')) return;
-  appData = getDefaultData();
-  saveData(); updateSidebarInfo(); navigateTo('dashboard');
-  showToast('Dados limpos!','success');
-}
 
-// ── INICIALIZAÇÃO ──
+// ── INIT ──
 async function initApp() {
   try {
-    if (typeof supabase !== 'undefined' && supabase.createClient) {
-      supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-      console.log('Supabase conectado');
+    if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      console.log('Supabase client criado');
     }
   } catch (e) { console.warn('Supabase não disponível:', e.message); }
-
   await loadData();
   updateSidebarInfo();
   renderDashboard();
-
   const dateEl = document.getElementById('currentDate');
-  if (dateEl) {
-    const hoje = new Date();
-    const dias = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
-    const meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-    dateEl.textContent = dias[hoje.getDay()] + ', ' + hoje.getDate() + ' de ' + meses[hoje.getMonth()] + ' de ' + hoje.getFullYear();
-  }
-
-  document.getElementById('cadastroModal').addEventListener('mousedown', function(e) { if (e.target === this) closeCadastroModal(); });
-  document.getElementById('viewModal').addEventListener('mousedown', function(e) { if (e.target === this) closeViewModal(); });
-
-  console.log('WD Máquinas v5 — Sistema inicializado!');
+  if (dateEl) dateEl.textContent = new Date().toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 }
-
 document.addEventListener('DOMContentLoaded', initApp);
