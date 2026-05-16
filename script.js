@@ -1,6 +1,6 @@
 // ╔══════════════════════════════════════════════════════════════╗
 // ║  WD MÁQUINAS — SISTEMA DE FLUXO DE CAIXA 2026              ║
-// ║  script.js — CÓDIGO COMPLETO CORRIGIDO v4                  ║
+// ║  script.js — CÓDIGO COMPLETO CORRIGIDO v5                  ║
 // ╚══════════════════════════════════════════════════════════════╝
 
 // ── SCR-CFG-01 — CONFIGURAÇÃO GLOBAL ──
@@ -275,7 +275,7 @@ function renderDashboard() {
   const comprasPendentes = compras.filter(c => c.situacao !== 'Pago').reduce((s, c) => s + ((c.quantidade || 1) * (c.valorUnit || 0)), 0);
   const vendasPendentes = vendas.filter(v => v.situacao !== 'Pago').reduce((s, v) => s + ((v.quantidade || 1) * (v.valorUnit || 0)), 0);
   const boletosPendentes = boletos.filter(b => b.situacao !== 'Pago').reduce((s, b) => s + (b.valor || 0), 0);
-  const entregasPendentes = compras.filter(c => c.entrega === 'Pendente' || c.entrega === 'Não Entregue').length;
+  const entregasPendentes = vendas.filter(v => v.entrega === 'Pendente' || v.entrega === 'Não Entregue').length;
 
   const meses = ['janeiro','fevereiro','marco','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
   const mesesLabel = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
@@ -562,7 +562,9 @@ function deleteLancamento(mesIdx, id) {
   showToast('Lançamento excluído!', 'success');
 }
 
-// ── SCR-CMP-01 — COMPRAS ──
+// ══════════════════════════════════════════════════════════════
+// ── SCR-CMP-01 — COMPRAS (SEM coluna Entrega) ──
+// ══════════════════════════════════════════════════════════════
 function renderComprasPage() {
   const pg = document.getElementById('page-compras');
   if (!pg) return;
@@ -598,7 +600,7 @@ function renderComprasPage() {
 function renderComprasTable(compras) {
   const tbody = document.getElementById('comprasBody');
   if (!tbody) return;
-   if (compras.length === 0) { tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhuma compra encontrada</td></tr>'; return; }
+  if (compras.length === 0) { tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhuma compra encontrada</td></tr>'; return; }
   const sitOpts = (appData.situacaoCompra || []);
   tbody.innerHTML = compras.map(c => {
     const total = (c.quantidade || 1) * (c.valorUnit || 0);
@@ -633,7 +635,7 @@ function openCompraModal(compra) {
 }
 
 function saveCompra(id) {
-  const obj = { data: document.getElementById('vnData').value, vencimento: document.getElementById('vnVenc').value, produto: document.getElementById('vnProd').value.trim(), quantidade: parseFloat(document.getElementById('vnQtd').value) || 1, valorUnit: parseFloat(document.getElementById('vnValor').value) || 0, cliente: document.getElementById('vnCli').value, vendedor: document.getElementById('vnVend').value, formaPagamento: document.getElementById('vnPgto').value, situacao: document.getElementById('vnSit').value, entrega: document.getElementById('vnEnt').value, obs: document.getElementById('vnObs').value };
+  const obj = { data: document.getElementById('cpData').value, vencimento: document.getElementById('cpVenc').value, produto: document.getElementById('cpProd').value.trim(), quantidade: parseFloat(document.getElementById('cpQtd').value) || 1, valorUnit: parseFloat(document.getElementById('cpValor').value) || 0, fornecedor: document.getElementById('cpForn').value, formaPagamento: document.getElementById('cpPgto').value, situacao: document.getElementById('cpSit').value, obs: document.getElementById('cpObs').value };
   if (!obj.produto) { showToast('Informe o produto', 'error'); return; }
   if (!appData.compras) appData.compras = [];
   if (id) { const idx = appData.compras.findIndex(c => c.id === id); if (idx > -1) { obj.id = id; appData.compras[idx] = obj; } }
@@ -647,7 +649,7 @@ function viewCompra(id) {
   const c = (appData.compras || []).find(x => x.id === id); if (!c) return;
   const total = (c.quantidade || 1) * (c.valorUnit || 0);
   document.getElementById('viewModalTitle').textContent = 'Detalhes da Compra';
-  document.getElementById('viewModalBody').innerHTML = '<div class="detail-grid"><div class="detail-item"><span class="detail-label">Data</span>' + formatDate(c.data) + '</div><div class="detail-item"><span class="detail-label">Vencimento</span>' + formatDate(c.vencimento) + '</div><div class="detail-item"><span class="detail-label">Produto</span>' + c.produto + '</div><div class="detail-item"><span class="detail-label">Qtd</span>' + c.quantidade + '</div><div class="detail-item"><span class="detail-label">V.Unit</span>' + formatCurrency(c.valorUnit) + '</div><div class="detail-item"><span class="detail-label">Total</span>' + formatCurrency(total) + '</div><div class="detail-item"><span class="detail-label">Fornecedor</span>' + (c.fornecedor || '-') + '</div><div class="detail-item"><span class="detail-label">Pgto</span>' + (c.formaPagamento || '-') + '</div><div class="detail-item"><span class="detail-label">Situação</span><span class="badge ' + (c.situacao === 'Pago' ? 'badge-success' : 'badge-danger') + '">' + c.situacao + '</span></div><div class="detail-item"><span class="detail-label">Entrega</span><span class="badge ' + (c.entrega === 'Entregue OK' ? 'badge-success' : 'badge-warning') + '">' + (c.entrega || '-') + '</span></div></div>' + (c.obs ? '<div style="margin-top:12px;padding:10px;background:var(--bg-tertiary);border-radius:var(--radius-sm)"><strong>Obs:</strong> ' + c.obs + '</div>' : '');
+  document.getElementById('viewModalBody').innerHTML = '<div class="detail-grid"><div class="detail-item"><span class="detail-label">Data</span>' + formatDate(c.data) + '</div><div class="detail-item"><span class="detail-label">Vencimento</span>' + formatDate(c.vencimento) + '</div><div class="detail-item"><span class="detail-label">Produto</span>' + c.produto + '</div><div class="detail-item"><span class="detail-label">Qtd</span>' + c.quantidade + '</div><div class="detail-item"><span class="detail-label">V.Unit</span>' + formatCurrency(c.valorUnit) + '</div><div class="detail-item"><span class="detail-label">Total</span>' + formatCurrency(total) + '</div><div class="detail-item"><span class="detail-label">Fornecedor</span>' + (c.fornecedor || '-') + '</div><div class="detail-item"><span class="detail-label">Pgto</span>' + (c.formaPagamento || '-') + '</div><div class="detail-item"><span class="detail-label">Situação</span><span class="badge ' + (c.situacao === 'Pago' ? 'badge-success' : 'badge-danger') + '">' + c.situacao + '</span></div></div>' + (c.obs ? '<div style="margin-top:12px;padding:10px;background:var(--bg-tertiary);border-radius:var(--radius-sm)"><strong>Obs:</strong> ' + c.obs + '</div>' : '');
   openViewModal();
 }
 
@@ -674,7 +676,9 @@ function renderComprasResultPanel(filtered) {
   panel.innerHTML = '<div class="card card-accent"><div class="card-header"><span>Total Compras</span></div><div class="card-value">' + formatCurrency(total) + '</div><div class="card-sub">' + filtered.length + ' de ' + all.length + ' registros</div></div><div class="card"><div class="card-header"><span>Pago</span></div><div class="card-value text-success">' + formatCurrency(pago) + '</div></div><div class="card"><div class="card-header"><span>Devendo</span></div><div class="card-value text-danger">' + formatCurrency(devendo) + '</div></div>';
 }
 
-// ── SCR-VND-01 — VENDAS ──
+// ══════════════════════════════════════════════════════════════
+// ── SCR-VND-01 — VENDAS (COM coluna Entrega) ──
+// ══════════════════════════════════════════════════════════════
 function renderVendasPage() {
   const pg = document.getElementById('page-vendas');
   if (!pg) return;
@@ -699,7 +703,7 @@ function renderVendasPage() {
       <button class="btn btn-warning btn-sm" onclick="toggleVendasEditMode()" id="btnVendasEdit">✏️ Editar Todos</button>
       <button class="btn btn-danger btn-sm" onclick="deleteAllVendas()">🗑️ Excluir Todos</button>
     </div>
-    <div class="table-responsive"><table class="table"><thead><tr><th>Data</th><th>Produto</th><th>Cliente</th><th>Vendedor</th><th>Qtd</th><th>V.Unit</th><th>Total</th><th>Pgto</th><th>Situação</th><th>Ações</th></tr></thead>
+    <div class="table-responsive"><table class="table"><thead><tr><th>Data</th><th>Produto</th><th>Cliente</th><th>Vendedor</th><th>Qtd</th><th>V.Unit</th><th>Total</th><th>Pgto</th><th>Situação</th><th>Entrega</th><th>Ações</th></tr></thead>
     <tbody id="vendasBody"></tbody></table></div>`;
   vendasSearchQuery = ''; vendasFilterSit = '';
   renderVendasTable(vendas);
@@ -707,15 +711,17 @@ function renderVendasPage() {
 
 function renderVendasTable(vendas) {
   const tbody = document.getElementById('vendasBody'); if (!tbody) return;
-  if (vendas.length === 0) { tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhuma venda encontrada</td></tr>'; return; }
+  if (vendas.length === 0) { tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhuma venda encontrada</td></tr>'; return; }
   const sitOpts = (appData.situacaoVenda || []);
+  const entOpts = (appData.situacaoEntrega || []);
   tbody.innerHTML = vendas.map(v => {
     const total = (v.quantidade || 1) * (v.valorUnit || 0);
     const sitSelect = '<select class="form-control" style="min-width:100px;padding:4px 6px;font-size:12px" onchange="changeVendaField(' + v.id + ',\'situacao\',this.value)">' + sitOpts.map(s => '<option value="' + s + '"' + (v.situacao === s ? ' selected' : '') + '>' + s + '</option>').join('') + '</select>';
+    const entSelect = '<select class="form-control" style="min-width:120px;padding:4px 6px;font-size:12px" onchange="changeVendaField(' + v.id + ',\'entrega\',this.value)">' + entOpts.map(e => '<option value="' + e + '"' + (v.entrega === e ? ' selected' : '') + '>' + e + '</option>').join('') + '</select>';
     const acoes = vendasEditMode
       ? '<button class="btn btn-sm btn-outline" onclick="viewVenda(' + v.id + ')">👁️</button> <button class="btn btn-sm btn-primary" onclick="editVenda(' + v.id + ')">✏️</button> <button class="btn btn-sm btn-danger" onclick="deleteVenda(' + v.id + ')">🗑️</button>'
       : '<button class="btn btn-sm btn-outline" onclick="viewVenda(' + v.id + ')">👁️</button>';
-    return '<tr><td>' + formatDate(v.data) + '</td><td>' + (v.produto || '-') + '</td><td>' + (v.cliente || '-') + '</td><td>' + (v.vendedor || '-') + '</td><td>' + (v.quantidade || 1) + '</td><td>' + formatCurrency(v.valorUnit) + '</td><td>' + formatCurrency(total) + '</td><td>' + (v.formaPagamento || '-') + '</td><td>' + sitSelect + '</td><td>' + acoes + '</td></tr>';
+    return '<tr><td>' + formatDate(v.data) + '</td><td>' + (v.produto || '-') + '</td><td>' + (v.cliente || '-') + '</td><td>' + (v.vendedor || '-') + '</td><td>' + (v.quantidade || 1) + '</td><td>' + formatCurrency(v.valorUnit) + '</td><td>' + formatCurrency(total) + '</td><td>' + (v.formaPagamento || '-') + '</td><td>' + sitSelect + '</td><td>' + entSelect + '</td><td>' + acoes + '</td></tr>';
   }).join('');
 }
 
@@ -727,6 +733,7 @@ function openVendaModal(venda) {
   const vendOpts = (appData.vendedores || []).map(v => '<option value="' + v + '"' + (venda && venda.vendedor === v ? ' selected' : '') + '>' + v + '</option>').join('');
   const pgtoOpts = (appData.formasPagamento || []).map(f => '<option value="' + f + '"' + (venda && venda.formaPagamento === f ? ' selected' : '') + '>' + f + '</option>').join('');
   const sitOpts = (appData.situacaoVenda || []).map(s => '<option value="' + s + '"' + (venda && venda.situacao === s ? ' selected' : '') + '>' + s + '</option>').join('');
+  const entOpts = (appData.situacaoEntrega || []).map(e => '<option value="' + e + '"' + (venda && venda.entrega === e ? ' selected' : '') + '>' + e + '</option>').join('');
   document.getElementById('cadastroModalTitle').textContent = isEdit ? 'Editar Venda' : 'Nova Venda';
   document.getElementById('cadastroModalBody').innerHTML = `
     <div class="form-row"><div class="form-group"><label>Data</label><input type="date" class="form-control" id="vnData" value="${venda ? venda.data : new Date().toISOString().split('T')[0]}"></div><div class="form-group"><label>Vencimento</label><input type="date" class="form-control" id="vnVenc" value="${venda ? venda.vencimento || '' : ''}"></div></div>
@@ -734,13 +741,14 @@ function openVendaModal(venda) {
     <div class="form-row"><div class="form-group"><label>Qtd</label><input type="number" class="form-control" id="vnQtd" value="${venda ? venda.quantidade : 1}" min="1"></div><div class="form-group"><label>Valor Unit.</label><input type="number" class="form-control" id="vnValor" value="${venda ? venda.valorUnit : ''}" step="0.01"></div></div>
     <div class="form-row"><div class="form-group"><label>Cliente</label><select class="form-control" id="vnCli"><option value="">Selecione...</option>${cliOpts}</select></div><div class="form-group"><label>Vendedor</label><select class="form-control" id="vnVend"><option value="">Selecione...</option>${vendOpts}</select></div></div>
     <div class="form-row"><div class="form-group"><label>Forma Pgto</label><select class="form-control" id="vnPgto"><option value="">Selecione...</option>${pgtoOpts}</select></div><div class="form-group"><label>Situação</label><select class="form-control" id="vnSit">${sitOpts}</select></div></div>
+    <div class="form-group"><label>Entrega</label><select class="form-control" id="vnEnt">${entOpts}</select></div>
     <div class="form-group"><label>Obs</label><textarea class="form-control" id="vnObs" rows="2">${venda ? venda.obs || '' : ''}</textarea></div>`;
   document.getElementById('cadastroModalFooter').innerHTML = '<button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button><button class="btn btn-primary" onclick="saveVenda(' + (isEdit ? venda.id : 'null') + ')">Salvar</button>';
   openCadastroModal();
 }
 
 function saveVenda(id) {
-  const obj = { data: document.getElementById('vnData').value, vencimento: document.getElementById('vnVenc').value, produto: document.getElementById('vnProd').value.trim(), quantidade: parseFloat(document.getElementById('vnQtd').value) || 1, valorUnit: parseFloat(document.getElementById('vnValor').value) || 0, cliente: document.getElementById('vnCli').value, vendedor: document.getElementById('vnVend').value, formaPagamento: document.getElementById('vnPgto').value, situacao: document.getElementById('vnSit').value, obs: document.getElementById('vnObs').value };
+  const obj = { data: document.getElementById('vnData').value, vencimento: document.getElementById('vnVenc').value, produto: document.getElementById('vnProd').value.trim(), quantidade: parseFloat(document.getElementById('vnQtd').value) || 1, valorUnit: parseFloat(document.getElementById('vnValor').value) || 0, cliente: document.getElementById('vnCli').value, vendedor: document.getElementById('vnVend').value, formaPagamento: document.getElementById('vnPgto').value, situacao: document.getElementById('vnSit').value, entrega: document.getElementById('vnEnt').value, obs: document.getElementById('vnObs').value };
   if (!obj.produto) { showToast('Informe o produto', 'error'); return; }
   if (!appData.vendas) appData.vendas = [];
   if (id) { const idx = appData.vendas.findIndex(v => v.id === id); if (idx > -1) { obj.id = id; appData.vendas[idx] = obj; } }
@@ -754,7 +762,7 @@ function viewVenda(id) {
   const v = (appData.vendas || []).find(x => x.id === id); if (!v) return;
   const total = (v.quantidade || 1) * (v.valorUnit || 0);
   document.getElementById('viewModalTitle').textContent = 'Detalhes da Venda';
-  document.getElementById('viewModalBody').innerHTML = '<div class="detail-grid"><div class="detail-item"><span class="detail-label">Data</span>' + formatDate(v.data) + '</div><div class="detail-item"><span class="detail-label">Vencimento</span>' + formatDate(v.vencimento) + '</div><div class="detail-item"><span class="detail-label">Produto</span>' + v.produto + '</div><div class="detail-item"><span class="detail-label">Qtd</span>' + v.quantidade + '</div><div class="detail-item"><span class="detail-label">V.Unit</span>' + formatCurrency(v.valorUnit) + '</div><div class="detail-item"><span class="detail-label">Total</span>' + formatCurrency(total) + '</div><div class="detail-item"><span class="detail-label">Cliente</span>' + (v.cliente || '-') + '</div><div class="detail-item"><span class="detail-label">Vendedor</span>' + (v.vendedor || '-') + '</div><div class="detail-item"><span class="detail-label">Pgto</span>' + (v.formaPagamento || '-') + '</div><div class="detail-item"><span class="detail-label">Situação</span><span class="badge ' + (v.situacao === 'Pago' ? 'badge-success' : 'badge-danger') + '">' + v.situacao + '</span></div></div>' + (v.obs ? '<div style="margin-top:12px;padding:10px;background:var(--bg-tertiary);border-radius:var(--radius-sm)"><strong>Obs:</strong> ' + v.obs + '</div>' : '');
+  document.getElementById('viewModalBody').innerHTML = '<div class="detail-grid"><div class="detail-item"><span class="detail-label">Data</span>' + formatDate(v.data) + '</div><div class="detail-item"><span class="detail-label">Vencimento</span>' + formatDate(v.vencimento) + '</div><div class="detail-item"><span class="detail-label">Produto</span>' + v.produto + '</div><div class="detail-item"><span class="detail-label">Qtd</span>' + v.quantidade + '</div><div class="detail-item"><span class="detail-label">V.Unit</span>' + formatCurrency(v.valorUnit) + '</div><div class="detail-item"><span class="detail-label">Total</span>' + formatCurrency(total) + '</div><div class="detail-item"><span class="detail-label">Cliente</span>' + (v.cliente || '-') + '</div><div class="detail-item"><span class="detail-label">Vendedor</span>' + (v.vendedor || '-') + '</div><div class="detail-item"><span class="detail-label">Pgto</span>' + (v.formaPagamento || '-') + '</div><div class="detail-item"><span class="detail-label">Situação</span><span class="badge ' + (v.situacao === 'Pago' ? 'badge-success' : 'badge-danger') + '">' + v.situacao + '</span></div><div class="detail-item"><span class="detail-label">Entrega</span><span class="badge ' + (v.entrega === 'Entregue OK' ? 'badge-success' : 'badge-warning') + '">' + (v.entrega || '-') + '</span></div></div>' + (v.obs ? '<div style="margin-top:12px;padding:10px;background:var(--bg-tertiary);border-radius:var(--radius-sm)"><strong>Obs:</strong> ' + v.obs + '</div>' : '');
   openViewModal();
 }
 
@@ -944,7 +952,6 @@ function saveGeneric(key, id) {
   if(!appData[key]) appData[key]=[];
   if(id){const idx=appData[key].findIndex(x=>x.id===id);if(idx>-1){obj.id=id;appData[key][idx]=obj;}} else {obj.id=nextId(appData[key]);appData[key].push(obj);}
   saveData(); closeCadastroModal();
-  // Re-navegar para a página correta
   const pageMap = { pFornecedores:'pfornecedores', pagClientes:'pagclientes', notasEntrada:'notasentrada', notasSaida:'notassaida', receitasMei:'receitasmei' };
   navigateTo(pageMap[key] || key);
   showToast(id?'Atualizado!':'Cadastrado!','success');
@@ -1079,7 +1086,6 @@ async function initApp() {
   updateSidebarInfo();
   renderDashboard();
 
-  // Data atual no topbar
   const dateEl = document.getElementById('currentDate');
   if (dateEl) {
     const hoje = new Date();
@@ -1088,12 +1094,10 @@ async function initApp() {
     dateEl.textContent = dias[hoje.getDay()] + ', ' + hoje.getDate() + ' de ' + meses[hoje.getMonth()] + ' de ' + hoje.getFullYear();
   }
 
-  // Fechar modais ao clicar fora
   document.getElementById('cadastroModal').addEventListener('mousedown', function(e) { if (e.target === this) closeCadastroModal(); });
   document.getElementById('viewModal').addEventListener('mousedown', function(e) { if (e.target === this) closeViewModal(); });
 
-  console.log('WD Máquinas v4 — Sistema inicializado!');
+  console.log('WD Máquinas v5 — Sistema inicializado!');
 }
 
-// Iniciar
 document.addEventListener('DOMContentLoaded', initApp);
