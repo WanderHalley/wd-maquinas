@@ -1,6 +1,6 @@
 // ╔══════════════════════════════════════════════════════════════╗
 // ║  WD MÁQUINAS — SISTEMA DE FLUXO DE CAIXA 2026              ║
-// ║  script.js — CÓDIGO COMPLETO CORRIGIDO v3                  ║
+// ║  script.js — CÓDIGO COMPLETO CORRIGIDO v4                  ║
 // ╚══════════════════════════════════════════════════════════════╝
 
 // ── SCR-CFG-01 — CONFIGURAÇÃO GLOBAL ──
@@ -88,6 +88,9 @@ function applyAllMasks() {
     applyMask('fnCnpj', maskCNPJ);
     applyMask('fnCpfCnpj', maskCPFouCNPJ);
     applyMask('cfgCnpj', maskCNPJ);
+    applyMask('gen_cpfCnpj', maskCPFouCNPJ);
+    applyMask('gen_telefone', maskTelefone);
+    applyMask('gen_celular', maskTelefone);
   }, 100);
 }
 
@@ -123,8 +126,7 @@ function getDefaultData() {
     boletos: [], cheques: [], prestacoes: [], projetos: [],
     pagClientes: [], garantias: [],
     notasEntrada: [], notasSaida: [], receitasMei: [],
-    fluxoCaixa: {},
-    _dataSwapped: false
+    fluxoCaixa: {}
   };
 }
 
@@ -137,7 +139,6 @@ async function loadData() {
         appData = typeof data.payload === 'string' ? JSON.parse(data.payload) : data.payload;
         ensureDefaults();
         console.log('Dados carregados do Supabase');
-        migrateSwappedData();
         return;
       }
     } catch (e) { console.warn('Supabase load falhou:', e.message); }
@@ -148,27 +149,11 @@ async function loadData() {
       appData = JSON.parse(local);
       ensureDefaults();
       console.log('Dados carregados do localStorage');
-      migrateSwappedData();
       return;
     }
   } catch (e) {}
   appData = getDefaultData();
-  appData._dataSwapped = true; // dados novos já estão corretos
   console.log('Dados padrão carregados');
-}
-
-// ★★★ MIGRAÇÃO: troca compras ↔ vendas UMA VEZ se nunca foi feito ★★★
-function migrateSwappedData() {
-  if (!appData._dataSwapped) {
-    console.log('MIGRAÇÃO: Trocando compras ↔ vendas (dados estavam invertidos)');
-    const tempCompras = appData.compras || [];
-    const tempVendas = appData.vendas || [];
-    appData.compras = tempVendas;
-    appData.vendas = tempCompras;
-    appData._dataSwapped = true;
-    saveData();
-    console.log('MIGRAÇÃO concluída. Compras:', appData.compras.length, 'Vendas:', appData.vendas.length);
-  }
 }
 
 async function saveData() {
@@ -835,15 +820,117 @@ function saveEstoque(id) {
 function editEstoque(id) { const e=(appData.estoque||[]).find(x=>x.id===id); if(e) openEstoqueModal(e); }
 function deleteEstoque(id) { if(!confirm('Excluir?')) return; appData.estoque=(appData.estoque||[]).filter(e=>e.id!==id); saveData(); renderEstoquePage(); showToast('Excluído!','success'); }
 
-// ── MÓDULOS GENÉRICOS ──
+// ── MÓDULOS GENÉRICOS (Produtos, Clientes, Fornecedores, etc.) ──
+function getGenericConfig(key) {
+  const configs = {
+    produtos: { titulo: 'Produto', campos: [
+      { field:'nome', label:'Nome', type:'text', required:true },
+      { field:'categoria', label:'Categoria', type:'text' },
+      { field:'unidade', label:'Unidade', type:'select', options: appData.tipoUnidade||[] },
+      { field:'preco', label:'Preço', type:'number' }
+    ]},
+    clientes: { titulo: 'Cliente', campos: [
+      { field:'nome', label:'Nome', type:'text', required:true },
+      { field:'cpfCnpj', label:'CPF/CNPJ', type:'text' },
+      { field:'telefone', label:'Telefone', type:'text' },
+      { field:'celular', label:'Celular', type:'text' },
+      { field:'email', label:'E-mail', type:'email' },
+      { field:'endereco', label:'Endereço', type:'text' },
+      { field:'obs', label:'Obs', type:'text' }
+    ]},
+    fornecedores: { titulo: 'Fornecedor', campos: [
+      { field:'nome', label:'Nome', type:'text', required:true },
+      { field:'cpfCnpj', label:'CPF/CNPJ', type:'text' },
+      { field:'telefone', label:'Telefone', type:'text' },
+      { field:'celular', label:'Celular', type:'text' },
+      { field:'email', label:'E-mail', type:'email' },
+      { field:'endereco', label:'Endereço', type:'text' },
+      { field:'obs', label:'Obs', type:'text' }
+    ]},
+    pFornecedores: { titulo: 'Produto do Fornecedor', campos: [
+      { field:'fornecedor', label:'Fornecedor', type:'text', required:true },
+      { field:'produto', label:'Produto', type:'text', required:true },
+      { field:'preco', label:'Preço', type:'number' },
+      { field:'obs', label:'Obs', type:'text' }
+    ]},
+    boletos: { titulo: 'Boleto', campos: [
+      { field:'descricao', label:'Descrição', type:'text', required:true },
+      { field:'valor', label:'Valor', type:'number' },
+      { field:'vencimento', label:'Vencimento', type:'date' },
+      { field:'situacao', label:'Situação', type:'select', options: appData.situacaoBoleto||[] },
+      { field:'obs', label:'Obs', type:'text' }
+    ]},
+    cheques: { titulo: 'Cheque', campos: [
+      { field:'descricao', label:'Descrição', type:'text', required:true },
+      { field:'valor', label:'Valor', type:'number' },
+      { field:'data', label:'Data', type:'date' },
+      { field:'situacao', label:'Situação', type:'select', options: appData.situacaoCheque||[] },
+      { field:'obs', label:'Obs', type:'text' }
+    ]},
+    prestacoes: { titulo: 'Prestação', campos: [
+      { field:'descricao', label:'Descrição', type:'text', required:true },
+      { field:'valor', label:'Valor', type:'number' },
+      { field:'vencimento', label:'Vencimento', type:'date' },
+      { field:'situacao', label:'Situação', type:'select', options:['Pago','Pendente','Vencido'] },
+      { field:'obs', label:'Obs', type:'text' }
+    ]},
+    projetos: { titulo: 'Projeto', campos: [
+      { field:'nome', label:'Nome', type:'text', required:true },
+      { field:'cliente', label:'Cliente', type:'text' },
+      { field:'valor', label:'Valor', type:'number' },
+      { field:'dataInicio', label:'Data Início', type:'date' },
+      { field:'dataFim', label:'Data Fim', type:'date' },
+      { field:'situacao', label:'Situação', type:'select', options:['Em Andamento','Concluído','Cancelado'] },
+      { field:'obs', label:'Obs', type:'text' }
+    ]},
+    pagClientes: { titulo: 'Pagamento de Cliente', campos: [
+      { field:'cliente', label:'Cliente', type:'text', required:true },
+      { field:'valor', label:'Valor', type:'number' },
+      { field:'data', label:'Data', type:'date' },
+      { field:'formaPagamento', label:'Forma Pgto', type:'select', options: appData.formasPagamento||[] },
+      { field:'obs', label:'Obs', type:'text' }
+    ]},
+    garantias: { titulo: 'Garantia', campos: [
+      { field:'produto', label:'Produto', type:'text', required:true },
+      { field:'cliente', label:'Cliente', type:'text' },
+      { field:'dataInicio', label:'Data Início', type:'date' },
+      { field:'dataFim', label:'Data Fim', type:'date' },
+      { field:'situacao', label:'Situação', type:'select', options: appData.situacaoGarantia||[] },
+      { field:'obs', label:'Obs', type:'text' }
+    ]},
+    notasEntrada: { titulo: 'Nota de Entrada', campos: [
+      { field:'numero', label:'Número', type:'text', required:true },
+      { field:'fornecedor', label:'Fornecedor', type:'text' },
+      { field:'valor', label:'Valor', type:'number' },
+      { field:'data', label:'Data', type:'date' },
+      { field:'obs', label:'Obs', type:'text' }
+    ]},
+    notasSaida: { titulo: 'Nota de Saída', campos: [
+      { field:'numero', label:'Número', type:'text', required:true },
+      { field:'cliente', label:'Cliente', type:'text' },
+      { field:'valor', label:'Valor', type:'number' },
+      { field:'data', label:'Data', type:'date' },
+      { field:'obs', label:'Obs', type:'text' }
+    ]},
+    receitasMei: { titulo: 'Receita MEI', campos: [
+      { field:'descricao', label:'Descrição', type:'text', required:true },
+      { field:'valor', label:'Valor', type:'number' },
+      { field:'data', label:'Data', type:'date' },
+      { field:'obs', label:'Obs', type:'text' }
+    ]}
+  };
+  return configs[key] || { titulo: key, campos: [] };
+}
+
 function genericCrudPage(key, titulo, icon, campos) {
   const pg = document.getElementById('page-' + key); if (!pg) return;
   const items = appData[key] || [];
   let thRow = campos.map(c=>'<th>'+c.label+'</th>').join('')+'<th>Ações</th>';
   let rows = items.length===0 ? '<tr><td colspan="'+(campos.length+1)+'" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhum registro</td></tr>' :
-    items.map(item => '<tr>'+campos.map(c=>'<td>'+(item[c.field]||'-')+'</td>').join('')+'<td><button class="btn btn-sm btn-primary" onclick="editGeneric(\''+key+'\','+item.id+')">✏️</button> <button class="btn btn-sm btn-danger" onclick="deleteGeneric(\''+key+'\','+item.id+')">🗑️</button></td></tr>').join('');
+    items.map(item => '<tr>'+campos.map(c=>'<td>'+(c.type==='number'&&item[c.field]?formatCurrency(item[c.field]):c.type==='date'?formatDate(item[c.field]):(item[c.field]||'-'))+'</td>').join('')+'<td><button class="btn btn-sm btn-primary" onclick="editGeneric(\''+key+'\','+item.id+')">✏️</button> <button class="btn btn-sm btn-danger" onclick="deleteGeneric(\''+key+'\','+item.id+')">🗑️</button></td></tr>').join('');
   pg.innerHTML = '<div class="page-header"><h2>'+icon+' '+titulo+'</h2><button class="btn btn-primary" onclick="openGenericModal(\''+key+'\')">+ Novo</button></div><div class="dashboard-grid"><div class="card card-accent"><div class="card-header"><span>Total</span></div><div class="card-value">'+items.length+'</div></div></div><div class="table-responsive"><table class="table"><thead><tr>'+thRow+'</tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
+
 function openGenericModal(key, item) {
   const isEdit=!!item; const configs=getGenericConfig(key);
   let formHtml=configs.campos.map(c=>{const val=item?(item[c.field]||''):'';if(c.type==='select'){const opts=(c.options||[]).map(o=>'<option value="'+o+'"'+(val===o?' selected':'')+'>'+o+'</option>').join('');return '<div class="form-group"><label>'+c.label+'</label><select class="form-control" id="gen_'+c.field+'">'+opts+'</select></div>';}return '<div class="form-group"><label>'+c.label+(c.required?' *':'')+'</label><input type="'+(c.type||'text')+'" class="form-control" id="gen_'+c.field+'" value="'+val+'" '+(c.type==='number'?'step="0.01"':'')+'>  </div>';}).join('');
@@ -852,91 +939,164 @@ function openGenericModal(key, item) {
   document.getElementById('cadastroModalFooter').innerHTML = '<button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button><button class="btn btn-primary" onclick="saveGeneric(\''+key+'\','+(isEdit?item.id:'null')+')">Salvar</button>';
   openCadastroModal(); if(key==='clientes'||key==='fornecedores') applyAllMasks();
 }
+
 function saveGeneric(key, id) {
   const configs=getGenericConfig(key); const obj={}; let valid=true;
   configs.campos.forEach(c=>{const el=document.getElementById('gen_'+c.field);if(el){obj[c.field]=c.type==='number'?(parseFloat(el.value)||0):el.value.trim();if(c.required&&!obj[c.field]) valid=false;}});
   if(!valid){showToast('Preencha os campos obrigatórios','error');return;}
   if(!appData[key]) appData[key]=[];
   if(id){const idx=appData[key].findIndex(x=>x.id===id);if(idx>-1){obj.id=id;appData[key][idx]=obj;}} else {obj.id=nextId(appData[key]);appData[key].push(obj);}
-  saveData(); closeCadastroModal(); navigateTo(key==='pFornecedores'?'pfornecedores':key==='pagClientes'?'pagclientes':key==='notasEntrada'?'notasentrada':key==='notasSaida'?'notassaida':key==='receitasMei'?'receitasmei':key);
+  saveData(); closeCadastroModal();
+  // Re-navegar para a página correta
+  const pageMap = { pFornecedores:'pfornecedores', pagClientes:'pagclientes', notasEntrada:'notasentrada', notasSaida:'notassaida', receitasMei:'receitasmei' };
+  navigateTo(pageMap[key] || key);
   showToast(id?'Atualizado!':'Cadastrado!','success');
 }
-function editGeneric(key,id){const item=(appData[key]||[]).find(x=>x.id===id);if(item) openGenericModal(key,item);}
-function deleteGeneric(key,id){if(!confirm('Excluir?')) return;appData[key]=(appData[key]||[]).filter(x=>x.id!==id);saveData();navigateTo(key==='pFornecedores'?'pfornecedores':key==='pagClientes'?'pagclientes':key==='notasEntrada'?'notasentrada':key==='notasSaida'?'notassaida':key==='receitasMei'?'receitasmei':key);showToast('Excluído!','success');}
 
-function getGenericConfig(key) {
-  const c = {
-    'produtos':{titulo:'Produto',campos:[{field:'nome',label:'Nome',required:true},{field:'descricao',label:'Descrição'},{field:'unidade',label:'Unidade',type:'select',options:appData.tipoUnidade||[]},{field:'valorUnit',label:'Valor Unit.',type:'number'}]},
-    'clientes':{titulo:'Cliente',campos:[{field:'nome',label:'Nome',required:true},{field:'cpfCnpj',label:'CPF/CNPJ'},{field:'telefone',label:'Telefone'},{field:'celular',label:'Celular'},{field:'email',label:'E-mail'},{field:'endereco',label:'Endereço'},{field:'cidade',label:'Cidade'},{field:'estado',label:'Estado'}]},
-    'fornecedores':{titulo:'Fornecedor',campos:[{field:'nome',label:'Nome',required:true},{field:'cpfCnpj',label:'CPF/CNPJ'},{field:'telefone',label:'Telefone'},{field:'celular',label:'Celular'},{field:'email',label:'E-mail'},{field:'endereco',label:'Endereço'},{field:'cidade',label:'Cidade'},{field:'estado',label:'Estado'}]},
-    'pFornecedores':{titulo:'P. Fornecedor',campos:[{field:'nome',label:'Nome',required:true},{field:'fornecedor',label:'Fornecedor'},{field:'produto',label:'Produto'},{field:'valorUnit',label:'Valor',type:'number'},{field:'obs',label:'Obs'}]},
-    'boletos':{titulo:'Boleto',campos:[{field:'descricao',label:'Descrição',required:true},{field:'valor',label:'Valor',type:'number'},{field:'vencimento',label:'Vencimento',type:'date'},{field:'situacao',label:'Situação',type:'select',options:appData.situacaoBoleto||[]}]},
-    'cheques':{titulo:'Cheque',campos:[{field:'numero',label:'Número',required:true},{field:'valor',label:'Valor',type:'number'},{field:'data',label:'Data',type:'date'},{field:'destino',label:'Destino'},{field:'situacao',label:'Situação',type:'select',options:appData.situacaoCheque||[]}]},
-    'prestacoes':{titulo:'Prestação',campos:[{field:'descricao',label:'Descrição',required:true},{field:'valor',label:'Valor',type:'number'},{field:'parcela',label:'Parcela'},{field:'vencimento',label:'Vencimento',type:'date'},{field:'situacao',label:'Situação',type:'select',options:['Pago','Pendente','Vencido']}]},
-    'projetos':{titulo:'Projeto',campos:[{field:'nome',label:'Nome',required:true},{field:'cliente',label:'Cliente'},{field:'valor',label:'Valor',type:'number'},{field:'inicio',label:'Início',type:'date'},{field:'prazo',label:'Prazo',type:'date'},{field:'situacao',label:'Situação',type:'select',options:['Em Andamento','Concluído','Cancelado','Pausado']}]},
-    'pagClientes':{titulo:'Pag. Cliente',campos:[{field:'cliente',label:'Cliente',required:true},{field:'valor',label:'Valor',type:'number'},{field:'data',label:'Data',type:'date'},{field:'formaPagamento',label:'Forma Pgto'},{field:'obs',label:'Obs'}]},
-    'garantias':{titulo:'Garantia',campos:[{field:'produto',label:'Produto',required:true},{field:'cliente',label:'Cliente'},{field:'dataCompra',label:'Data Compra',type:'date'},{field:'validade',label:'Validade',type:'date'},{field:'situacao',label:'Situação',type:'select',options:appData.situacaoGarantia||[]}]},
-    'notasEntrada':{titulo:'Nota Entrada',campos:[{field:'numero',label:'Número',required:true},{field:'fornecedor',label:'Fornecedor'},{field:'valor',label:'Valor',type:'number'},{field:'data',label:'Data',type:'date'},{field:'obs',label:'Obs'}]},
-    'notasSaida':{titulo:'Nota Saída',campos:[{field:'numero',label:'Número',required:true},{field:'cliente',label:'Cliente'},{field:'valor',label:'Valor',type:'number'},{field:'data',label:'Data',type:'date'},{field:'obs',label:'Obs'}]},
-    'receitasMei':{titulo:'Receita MEI',campos:[{field:'mes',label:'Mês',required:true},{field:'valorBruto',label:'Valor Bruto',type:'number'},{field:'valorLiquido',label:'Valor Líquido',type:'number'},{field:'obs',label:'Obs'}]}
-  };
-  return c[key]||{titulo:key,campos:[{field:'nome',label:'Nome',required:true}]};
+function editGeneric(key,id){const item=(appData[key]||[]).find(x=>x.id===id);if(item) openGenericModal(key,item);}
+
+function deleteGeneric(key,id){
+  if(!confirm('Excluir?')) return;
+  appData[key]=(appData[key]||[]).filter(x=>x.id!==id);
+  saveData();
+  const pageMap = { pFornecedores:'pfornecedores', pagClientes:'pagclientes', notasEntrada:'notasentrada', notasSaida:'notassaida', receitasMei:'receitasmei' };
+  navigateTo(pageMap[key] || key);
+  showToast('Excluído!','success');
 }
 
-function renderProdutosPage(){genericCrudPage('produtos','Produtos','🏷️',[{field:'nome',label:'Nome'},{field:'unidade',label:'Unidade'},{field:'valorUnit',label:'Valor'}]);}
-function renderClientesPage(){genericCrudPage('clientes','Clientes','👥',[{field:'nome',label:'Nome'},{field:'cpfCnpj',label:'CPF/CNPJ'},{field:'telefone',label:'Telefone'},{field:'cidade',label:'Cidade'}]);}
-function renderFornecedoresPage(){genericCrudPage('fornecedores','Fornecedores','🏭',[{field:'nome',label:'Nome'},{field:'cpfCnpj',label:'CPF/CNPJ'},{field:'telefone',label:'Telefone'},{field:'cidade',label:'Cidade'}]);}
-function renderPFornecedoresPage(){genericCrudPage('pFornecedores','P. Fornecedores','📋',[{field:'nome',label:'Nome'},{field:'fornecedor',label:'Fornecedor'},{field:'produto',label:'Produto'},{field:'valorUnit',label:'Valor'}]);}
-function renderBoletosPage(){genericCrudPage('boletos','Boletos','🔖',[{field:'descricao',label:'Descrição'},{field:'valor',label:'Valor'},{field:'vencimento',label:'Vencimento'},{field:'situacao',label:'Situação'}]);}
-function renderChequesPage(){genericCrudPage('cheques','Cheques','📝',[{field:'numero',label:'Número'},{field:'valor',label:'Valor'},{field:'data',label:'Data'},{field:'situacao',label:'Situação'}]);}
-function renderPrestacoesPage(){genericCrudPage('prestacoes','Prestações','💳',[{field:'descricao',label:'Descrição'},{field:'valor',label:'Valor'},{field:'parcela',label:'Parcela'},{field:'situacao',label:'Situação'}]);}
-function renderProjetosPage(){genericCrudPage('projetos','Projetos','📐',[{field:'nome',label:'Nome'},{field:'cliente',label:'Cliente'},{field:'valor',label:'Valor'},{field:'situacao',label:'Situação'}]);}
-function renderPagClientesPage(){genericCrudPage('pagClientes','Pag. Clientes','🤝',[{field:'cliente',label:'Cliente'},{field:'valor',label:'Valor'},{field:'data',label:'Data'},{field:'formaPagamento',label:'Pgto'}]);}
-function renderGarantiasPage(){genericCrudPage('garantias','Garantias','🛡️',[{field:'produto',label:'Produto'},{field:'cliente',label:'Cliente'},{field:'validade',label:'Validade'},{field:'situacao',label:'Situação'}]);}
-function renderNotasEntradaPage(){genericCrudPage('notasEntrada','Notas Entrada','📥',[{field:'numero',label:'Número'},{field:'fornecedor',label:'Fornecedor'},{field:'valor',label:'Valor'},{field:'data',label:'Data'}]);}
-function renderNotasSaidaPage(){genericCrudPage('notasSaida','Notas Saída','📤',[{field:'numero',label:'Número'},{field:'cliente',label:'Cliente'},{field:'valor',label:'Valor'},{field:'data',label:'Data'}]);}
-function renderReceitasMeiPage(){genericCrudPage('receitasMei','Receitas MEI','📄',[{field:'mes',label:'Mês'},{field:'valorBruto',label:'Valor Bruto'},{field:'valorLiquido',label:'Valor Líquido'}]);}
+// ── RENDERS DE PÁGINAS GENÉRICAS ──
+function renderProdutosPage() { const c = getGenericConfig('produtos'); genericCrudPage('produtos','Produtos','🏷️',c.campos); }
+function renderClientesPage() { const c = getGenericConfig('clientes'); genericCrudPage('clientes','Clientes','👥',c.campos); }
+function renderFornecedoresPage() { const c = getGenericConfig('fornecedores'); genericCrudPage('fornecedores','Fornecedores','🏭',c.campos); }
+function renderPFornecedoresPage() { const c = getGenericConfig('pFornecedores'); genericCrudPage('pfornecedores','P. Fornecedores','📋',c.campos); }
+function renderBoletosPage() { const c = getGenericConfig('boletos'); genericCrudPage('boletos','Boletos','🔖',c.campos); }
+function renderChequesPage() { const c = getGenericConfig('cheques'); genericCrudPage('cheques','Cheques','📝',c.campos); }
+function renderPrestacoesPage() { const c = getGenericConfig('prestacoes'); genericCrudPage('prestacoes','Prestações','💳',c.campos); }
+function renderProjetosPage() { const c = getGenericConfig('projetos'); genericCrudPage('projetos','Projetos','📐',c.campos); }
+function renderPagClientesPage() { const c = getGenericConfig('pagClientes'); genericCrudPage('pagclientes','Pag. Clientes','🤝',c.campos); }
+function renderGarantiasPage() { const c = getGenericConfig('garantias'); genericCrudPage('garantias','Garantias','🛡️',c.campos); }
+function renderNotasEntradaPage() { const c = getGenericConfig('notasEntrada'); genericCrudPage('notasentrada','Notas Entrada','📥',c.campos); }
+function renderNotasSaidaPage() { const c = getGenericConfig('notasSaida'); genericCrudPage('notassaida','Notas Saída','📤',c.campos); }
+function renderReceitasMeiPage() { const c = getGenericConfig('receitasMei'); genericCrudPage('receitasmei','Receitas MEI','📄',c.campos); }
 
 // ── RELATÓRIOS ──
 function renderRelatoriosPage() {
-  const pg=document.getElementById('page-relatorios'); if(!pg) return;
-  const meses=['janeiro','fevereiro','marco','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
-  const ml=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-  let rows='',tE=0,tS=0;
-  meses.forEach((m,i)=>{const l=(appData.fluxoCaixa&&appData.fluxoCaixa[m])||[];const e=l.filter(x=>x.tipo==='entrada').reduce((s,x)=>s+(x.valor||0),0);const s=l.filter(x=>x.tipo==='saida').reduce((s2,x)=>s2+(x.valor||0),0);tE+=e;tS+=s;rows+='<tr><td>'+ml[i]+'</td><td class="text-success">'+formatCurrency(e)+'</td><td class="text-danger">'+formatCurrency(s)+'</td><td class="'+((e-s)>=0?'text-success':'text-danger')+'">'+formatCurrency(e-s)+'</td></tr>';});
-  rows+='<tr style="font-weight:700;border-top:2px solid var(--accent-primary)"><td>TOTAL</td><td class="text-success">'+formatCurrency(tE)+'</td><td class="text-danger">'+formatCurrency(tS)+'</td><td class="'+((tE-tS)>=0?'text-success':'text-danger')+'">'+formatCurrency(tE-tS)+'</td></tr>';
-  pg.innerHTML='<div class="page-header"><h2>📈 Relatórios</h2></div><div class="card" style="margin-bottom:16px"><div class="card-header"><span>Fluxo Anual 2026</span></div><div class="table-responsive"><table class="table"><thead><tr><th>Mês</th><th>Entradas</th><th>Saídas</th><th>Saldo</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+  const pg = document.getElementById('page-relatorios'); if (!pg) return;
+  const compras = appData.compras || [];
+  const vendas = appData.vendas || [];
+  const totalCompras = compras.reduce((s,c)=>s+((c.quantidade||1)*(c.valorUnit||0)),0);
+  const totalVendas = vendas.reduce((s,v)=>s+((v.quantidade||1)*(v.valorUnit||0)),0);
+  const lucro = totalVendas - totalCompras;
+
+  pg.innerHTML = `
+    <div class="page-header"><h2>📈 Relatórios</h2></div>
+    <div class="dashboard-grid">
+      <div class="card"><div class="card-header"><span>Total Compras</span></div><div class="card-value text-danger">${formatCurrency(totalCompras)}</div><div class="card-sub">${compras.length} registros</div></div>
+      <div class="card"><div class="card-header"><span>Total Vendas</span></div><div class="card-value text-success">${formatCurrency(totalVendas)}</div><div class="card-sub">${vendas.length} registros</div></div>
+      <div class="card"><div class="card-header"><span>Lucro</span></div><div class="card-value ${lucro>=0?'text-success':'text-danger'}">${formatCurrency(lucro)}</div></div>
+      <div class="card"><div class="card-header"><span>Estoque</span></div><div class="card-value">${(appData.estoque||[]).length} itens</div></div>
+      <div class="card"><div class="card-header"><span>Clientes</span></div><div class="card-value">${(appData.clientes||[]).length}</div></div>
+      <div class="card"><div class="card-header"><span>Fornecedores</span></div><div class="card-value">${(appData.fornecedores||[]).length}</div></div>
+    </div>`;
 }
 
 // ── CONFIGURAÇÕES ──
 function renderConfiguracoesPage() {
-  const pg=document.getElementById('page-configuracoes'); if(!pg) return;
-  const emp=appData.empresa||{};
-  pg.innerHTML='<div class="page-header"><h2>⚙️ Configurações</h2></div><div class="card" style="max-width:600px"><div class="form-group"><label>Nome da Empresa</label><input type="text" class="form-control" id="cfgNome" value="'+(emp.nome||'')+'"></div><div class="form-group"><label>CNPJ</label><input type="text" class="form-control" id="cfgCnpj" value="'+(emp.cnpj||'')+'"></div><div class="form-group"><label>Logo (URL)</label><input type="text" class="form-control" id="cfgLogo" value="'+(emp.logo||'')+'"></div><button class="btn btn-primary" onclick="saveConfig()">Salvar</button></div>';
+  const pg = document.getElementById('page-configuracoes'); if (!pg) return;
+  const emp = appData.empresa || {};
+  pg.innerHTML = `
+    <div class="page-header"><h2>⚙️ Configurações</h2></div>
+    <div class="card" style="max-width:600px">
+      <div class="card-header"><span>Dados da Empresa</span></div>
+      <div style="padding:16px">
+        <div class="form-group"><label>Nome da Empresa</label><input type="text" class="form-control" id="cfgNome" value="${emp.nome||''}"></div>
+        <div class="form-group"><label>CNPJ</label><input type="text" class="form-control" id="cfgCnpj" value="${emp.cnpj||''}"></div>
+        <div class="form-group"><label>Logo (URL)</label><input type="text" class="form-control" id="cfgLogo" value="${emp.logo||''}"></div>
+        <button class="btn btn-primary" onclick="saveConfiguracoes()">Salvar</button>
+      </div>
+    </div>`;
   applyAllMasks();
 }
-function saveConfig(){if(!appData.empresa)appData.empresa={};appData.empresa.nome=document.getElementById('cfgNome').value.trim();appData.empresa.cnpj=document.getElementById('cfgCnpj').value.trim();appData.empresa.logo=document.getElementById('cfgLogo').value.trim();saveData();updateSidebarInfo();showToast('Salvo!','success');}
+function saveConfiguracoes() {
+  appData.empresa = { nome: document.getElementById('cfgNome').value.trim(), cnpj: document.getElementById('cfgCnpj').value.trim(), logo: document.getElementById('cfgLogo').value.trim() };
+  saveData(); updateSidebarInfo(); showToast('Configurações salvas!','success');
+}
 
 // ── BACKUP ──
 function renderBackupPage() {
-  const pg=document.getElementById('page-backup'); if(!pg) return;
-  pg.innerHTML='<div class="page-header"><h2>💾 Backup</h2></div><div class="dashboard-grid"><div class="card" style="text-align:center;padding:30px"><div style="font-size:2rem;margin-bottom:10px">📥</div><h3>Exportar</h3><p style="color:var(--text-secondary);font-size:.85rem;margin:12px 0">Baixar JSON</p><button class="btn btn-primary" onclick="exportBackup()">Exportar</button></div><div class="card" style="text-align:center;padding:30px"><div style="font-size:2rem;margin-bottom:10px">📤</div><h3>Importar</h3><p style="color:var(--text-secondary);font-size:.85rem;margin:12px 0">Restaurar JSON</p><input type="file" id="importFile" accept=".json" style="display:none" onchange="importBackup(event)"><button class="btn btn-warning" onclick="document.getElementById(\'importFile\').click()">Importar</button></div><div class="card" style="text-align:center;padding:30px"><div style="font-size:2rem;margin-bottom:10px">🗑️</div><h3>Limpar</h3><p style="color:var(--text-secondary);font-size:.85rem;margin:12px 0">Apagar TUDO</p><button class="btn btn-danger" onclick="clearAllData()">Limpar</button></div></div>';
+  const pg = document.getElementById('page-backup'); if (!pg) return;
+  pg.innerHTML = `
+    <div class="page-header"><h2>💾 Backup</h2></div>
+    <div class="dashboard-grid" style="max-width:800px">
+      <div class="card">
+        <div class="card-header"><span>Exportar Dados</span></div>
+        <div style="padding:16px"><p style="color:var(--text-muted);margin-bottom:12px">Baixe todos os dados em formato JSON.</p><button class="btn btn-primary" onclick="exportBackup()">📥 Exportar JSON</button></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span>Importar Dados</span></div>
+        <div style="padding:16px"><p style="color:var(--text-muted);margin-bottom:12px">Restaure dados de um arquivo JSON.</p><input type="file" id="importFile" accept=".json" style="margin-bottom:8px"><br><button class="btn btn-warning" onclick="importBackup()">📤 Importar JSON</button></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span>Limpar Dados</span></div>
+        <div style="padding:16px"><p style="color:var(--text-muted);margin-bottom:12px">Apaga TODOS os dados e restaura os padrões.</p><button class="btn btn-danger" onclick="clearAllData()">🗑️ Limpar Tudo</button></div>
+      </div>
+    </div>`;
 }
-function exportBackup(){const j=JSON.stringify(appData,null,2);const b=new Blob([j],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='wdmaquinas_backup_'+new Date().toISOString().split('T')[0]+'.json';a.click();showToast('Exportado!','success');}
-function importBackup(event){const f=event.target.files[0];if(!f)return;const r=new FileReader();r.onload=function(e){try{const d=JSON.parse(e.target.result);if(!confirm('Substituir TODOS os dados?'))return;appData=d;ensureDefaults();appData._dataSwapped=true;saveData();updateSidebarInfo();navigateTo('dashboard');showToast('Importado!','success');}catch(err){showToast('Arquivo inválido','error');}};r.readAsText(f);event.target.value='';}
-function clearAllData(){if(!confirm('APAGAR TUDO?'))return;if(!confirm('Última chance!'))return;appData=getDefaultData();appData._dataSwapped=true;saveData();updateSidebarInfo();navigateTo('dashboard');showToast('Dados apagados!','success');}
+function exportBackup() {
+  const blob = new Blob([JSON.stringify(appData, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'wdmaquinas_backup_' + new Date().toISOString().split('T')[0] + '.json'; a.click();
+  URL.revokeObjectURL(url); showToast('Backup exportado!','success');
+}
+function importBackup() {
+  const file = document.getElementById('importFile').files[0];
+  if (!file) { showToast('Selecione um arquivo','error'); return; }
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      appData = data; ensureDefaults(); saveData(); updateSidebarInfo(); renderDashboard(); navigateTo('dashboard');
+      showToast('Dados importados com sucesso!','success');
+    } catch(err) { showToast('Arquivo inválido','error'); }
+  };
+  reader.readAsText(file);
+}
+function clearAllData() {
+  if (!confirm('ATENÇÃO: Isso apagará TODOS os dados. Deseja continuar?')) return;
+  if (!confirm('Tem certeza? Esta ação é irreversível!')) return;
+  appData = getDefaultData();
+  saveData(); updateSidebarInfo(); navigateTo('dashboard');
+  showToast('Dados limpos!','success');
+}
 
-// ── SCR-INI-01 — INICIALIZAÇÃO ──
+// ── INICIALIZAÇÃO ──
 async function initApp() {
-  try { if(typeof window.supabase!=='undefined'){supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);console.log('Supabase conectado');} } catch(e){console.warn('Supabase indisponível:',e.message);}
+  try {
+    if (typeof supabase !== 'undefined' && supabase.createClient) {
+      supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      console.log('Supabase conectado');
+    }
+  } catch (e) { console.warn('Supabase não disponível:', e.message); }
+
   await loadData();
   updateSidebarInfo();
-  applyAllMasks();
-  const dateEl=document.getElementById('currentDate');
-  if(dateEl){const now=new Date();const dias=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];const ms=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];dateEl.textContent=dias[now.getDay()]+', '+now.getDate()+' de '+ms[now.getMonth()]+' de '+now.getFullYear();}
   renderDashboard();
-  console.log('WD Máquinas iniciado!');
+
+  // Data atual no topbar
+  const dateEl = document.getElementById('currentDate');
+  if (dateEl) {
+    const hoje = new Date();
+    const dias = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+    const meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+    dateEl.textContent = dias[hoje.getDay()] + ', ' + hoje.getDate() + ' de ' + meses[hoje.getMonth()] + ' de ' + hoje.getFullYear();
+  }
+
+  // Fechar modais ao clicar fora
+  document.getElementById('cadastroModal').addEventListener('mousedown', function(e) { if (e.target === this) closeCadastroModal(); });
+  document.getElementById('viewModal').addEventListener('mousedown', function(e) { if (e.target === this) closeViewModal(); });
+
+  console.log('WD Máquinas v4 — Sistema inicializado!');
 }
-document.getElementById('cadastroModal').addEventListener('mousedown',function(e){if(e.target===this)closeCadastroModal();});
-document.getElementById('viewModal').addEventListener('mousedown',function(e){if(e.target===this)closeViewModal();});
+
+// Iniciar
 document.addEventListener('DOMContentLoaded', initApp);
