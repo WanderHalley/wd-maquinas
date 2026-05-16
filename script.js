@@ -1,6 +1,6 @@
 // ╔══════════════════════════════════════════════════════════════╗
 // ║  WD MÁQUINAS — SISTEMA DE FLUXO DE CAIXA 2026              ║
-// ║  script.js — CÓDIGO COMPLETO CORRIGIDO v6                  ║
+// ║  script.js — CÓDIGO COMPLETO CORRIGIDO v7                  ║
 // ╚══════════════════════════════════════════════════════════════╝
 
 // ── SCR-CFG-01 — CONFIGURAÇÃO GLOBAL ──
@@ -92,6 +92,32 @@ function applyAllMasks() {
     applyMask('gen_telefone', maskTelefone);
     applyMask('gen_celular', maskTelefone);
   }, 100);
+}
+
+// ── SCR-UTL-03 — UPLOAD DE IMAGEM (converte para base64) ──
+function handleImageUpload(inputId, previewId) {
+  var input = document.getElementById(inputId);
+  if (!input) return;
+  input.addEventListener('change', function() {
+    var file = input.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      showToast('Selecione um arquivo de imagem (JPG, PNG, WEBP)', 'error');
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      showToast('Imagem muito grande! Máximo 2 MB.', 'error');
+      return;
+    }
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var prev = document.getElementById(previewId);
+      if (prev) prev.innerHTML = '<img src="' + e.target.result + '" style="max-width:200px;max-height:150px;border-radius:8px;object-fit:cover">';
+      // Guarda o base64 num data attribute do input
+      input.setAttribute('data-base64', e.target.result);
+    };
+    reader.readAsDataURL(file);
+  });
 }
 
 // ── SCR-DAT-01 — DADOS PADRÃO ──
@@ -260,10 +286,7 @@ function navigateTo(page) {
 }
 
 // ══════════════════════════════════════════════════════════════
-// ── SCR-DSH-01 — DASHBOARD (v6) ──
-// REMOVIDO: Salário Wander (Anual), Salário Daniel (Anual),
-//           Compras Pendentes, Vendas Pendentes, Estoque
-// ADICIONADO: Cheques Pendentes com valor somado
+// ── SCR-DSH-01 — DASHBOARD (v7) ──
 // ══════════════════════════════════════════════════════════════
 function renderDashboard() {
   const pg = document.getElementById('page-dashboard');
@@ -281,7 +304,6 @@ function renderDashboard() {
   const boletosPendentes = boletos.filter(b => b.situacao !== 'Pago' && b.situacao !== 'Compensado').reduce((s, b) => s + (b.valor || 0), 0);
   const entregasPendentes = vendas.filter(v => v.entrega === 'Pendente' || v.entrega === 'Não Entregue').length;
 
-  // ★ NOVO: Cheques Pendentes (todos que NÃO são "Compensado")
   const chequesPendentes = cheques.filter(ch => ch.situacao !== 'Compensado').reduce((s, ch) => s + (ch.valor || 0), 0);
   const chequesPendentesQtd = cheques.filter(ch => ch.situacao !== 'Compensado').length;
 
@@ -289,7 +311,6 @@ function renderDashboard() {
   const mesesLabel = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 
   let salarioMensalRows = '';
-  let salarioAnualTotal = 0;
 
   meses.forEach((m, i) => {
     const lancamentos = (appData.fluxoCaixa && appData.fluxoCaixa[m]) ? appData.fluxoCaixa[m] : [];
@@ -297,7 +318,6 @@ function renderDashboard() {
     const salarioTotal = salarioLancs.reduce((s, l) => s + (l.valor || 0), 0);
     const salarioWander = salarioLancs.filter(l => (l.descricao || '').toLowerCase().includes('wander')).reduce((s, l) => s + (l.valor || 0), 0);
     const salarioDaniel = salarioLancs.filter(l => (l.descricao || '').toLowerCase().includes('daniel')).reduce((s, l) => s + (l.valor || 0), 0);
-    salarioAnualTotal += salarioTotal;
     if (salarioTotal > 0) {
       salarioMensalRows += '<tr><td>' + mesesLabel[i] + '</td><td>' + formatCurrency(salarioWander) + '</td><td>' + formatCurrency(salarioDaniel) + '</td><td>' + formatCurrency(salarioTotal) + '</td></tr>';
     }
@@ -825,7 +845,8 @@ function editEstoque(id) { const e=(appData.estoque||[]).find(x=>x.id===id); if(
 function deleteEstoque(id) { if(!confirm('Excluir?')) return; appData.estoque=(appData.estoque||[]).filter(e=>e.id!==id); saveData(); renderEstoquePage(); showToast('Excluído!','success'); }
 
 // ══════════════════════════════════════════════════════════════
-// ── SCR-PRD-01 — PRODUTOS (COM imagem e referência) v6 ──
+// ── SCR-PRD-01 — PRODUTOS (COM upload de imagem) v7 ──
+// SEM campo "referência" — imagem carregada do computador
 // ══════════════════════════════════════════════════════════════
 function renderProdutosPage() {
   const pg = document.getElementById('page-produtos'); if (!pg) return;
@@ -836,19 +857,19 @@ function renderProdutosPage() {
       <div class="card card-accent"><div class="card-header"><span>Total Produtos</span></div><div class="card-value">${items.length}</div></div>
     </div>
     <div class="filter-bar"><input type="text" class="form-control" style="max-width:250px" placeholder="Buscar produto..." oninput="filterProdutos(this.value)"></div>
-    <div class="table-responsive"><table class="table"><thead><tr><th style="width:70px">Imagem</th><th>Nome</th><th>Referência</th><th>Categoria</th><th>Unidade</th><th>Preço</th><th>Ações</th></tr></thead>
+    <div class="table-responsive"><table class="table"><thead><tr><th style="width:70px">Imagem</th><th>Nome</th><th>Categoria</th><th>Unidade</th><th>Preço</th><th>Ações</th></tr></thead>
     <tbody id="produtosBody"></tbody></table></div>`;
   renderProdutosTable(items);
 }
 function renderProdutosTable(items) {
   const tbody = document.getElementById('produtosBody'); if (!tbody) return;
-  if (items.length === 0) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhum produto</td></tr>'; return; }
+  if (items.length === 0) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhum produto</td></tr>'; return; }
   tbody.innerHTML = items.map(p => {
-    const img = p.imagem ? '<img src="'+p.imagem+'" style="width:50px;height:50px;object-fit:cover;border-radius:6px;cursor:pointer" onclick="window.open(\''+p.imagem+'\',\'_blank\')" onerror="this.src=\'\';this.alt=\'❌\'">' : '<span style="color:var(--text-muted)">—</span>';
-    return '<tr><td>'+img+'</td><td>'+(p.nome||'-')+'</td><td>'+(p.referencia||'-')+'</td><td>'+(p.categoria||'-')+'</td><td>'+(p.unidade||'-')+'</td><td>'+formatCurrency(p.preco)+'</td><td><button class="btn btn-sm btn-outline" onclick="viewProduto('+p.id+')">👁️</button> <button class="btn btn-sm btn-primary" onclick="editProduto('+p.id+')">✏️</button> <button class="btn btn-sm btn-danger" onclick="deleteProduto('+p.id+')">🗑️</button></td></tr>';
+    const img = p.imagem ? '<img src="'+p.imagem+'" style="width:50px;height:50px;object-fit:cover;border-radius:6px;cursor:pointer" onclick="window.open(\''+p.imagem+'\',\'_blank\')" onerror="this.style.display=\'none\'">' : '<span style="color:var(--text-muted)">—</span>';
+    return '<tr><td>'+img+'</td><td>'+(p.nome||'-')+'</td><td>'+(p.categoria||'-')+'</td><td>'+(p.unidade||'-')+'</td><td>'+formatCurrency(p.preco)+'</td><td><button class="btn btn-sm btn-outline" onclick="viewProduto('+p.id+')">👁️</button> <button class="btn btn-sm btn-primary" onclick="editProduto('+p.id+')">✏️</button> <button class="btn btn-sm btn-danger" onclick="deleteProduto('+p.id+')">🗑️</button></td></tr>';
   }).join('');
 }
-function filterProdutos(q) { q=q.toLowerCase(); renderProdutosTable((appData.produtos||[]).filter(p=>(p.nome||'').toLowerCase().includes(q)||(p.referencia||'').toLowerCase().includes(q)||(p.categoria||'').toLowerCase().includes(q))); }
+function filterProdutos(q) { q=q.toLowerCase(); renderProdutosTable((appData.produtos||[]).filter(p=>(p.nome||'').toLowerCase().includes(q)||(p.categoria||'').toLowerCase().includes(q))); }
 
 function openProdutoModal(prod) {
   const isEdit = !!prod;
@@ -856,28 +877,34 @@ function openProdutoModal(prod) {
   document.getElementById('cadastroModalTitle').textContent = isEdit ? 'Editar Produto' : 'Novo Produto';
   document.getElementById('cadastroModalBody').innerHTML = `
     <div class="form-group"><label>Nome *</label><input type="text" class="form-control" id="prdNome" value="${prod?prod.nome:''}"></div>
-    <div class="form-group"><label>Referência</label><input type="text" class="form-control" id="prdRef" value="${prod?prod.referencia||'':''}"></div>
     <div class="form-row">
       <div class="form-group"><label>Categoria</label><input type="text" class="form-control" id="prdCat" value="${prod?prod.categoria||'':''}"></div>
       <div class="form-group"><label>Unidade</label><select class="form-control" id="prdUnid">${unidOpts}</select></div>
     </div>
     <div class="form-group"><label>Preço</label><input type="number" class="form-control" id="prdPreco" value="${prod?prod.preco||'':''}" step="0.01"></div>
-    <div class="form-group"><label>Imagem (URL)</label><input type="text" class="form-control" id="prdImg" value="${prod?prod.imagem||'':''}"></div>
-    <div id="prdImgPreview" style="margin-top:8px">${prod&&prod.imagem?'<img src="'+prod.imagem+'" style="max-width:200px;max-height:150px;border-radius:8px;object-fit:cover">':''}</div>
+    <div class="form-group">
+      <label>Imagem do Produto</label>
+      <div style="background:var(--bg-tertiary);border:2px dashed var(--border-color);border-radius:8px;padding:16px;text-align:center;margin-top:4px">
+        <input type="file" id="prdImgFile" accept="image/jpeg,image/png,image/webp" style="display:none">
+        <button type="button" class="btn btn-outline" onclick="document.getElementById('prdImgFile').click()" style="margin-bottom:8px">📁 Carregar Imagem do Computador</button>
+        <p style="font-size:.75rem;color:var(--text-muted);margin:4px 0 0 0">Tamanho ideal: <strong>500 x 500 px</strong> (quadrada) — Formatos: JPG, PNG ou WEBP — Máx: 2 MB</p>
+      </div>
+      <div id="prdImgPreview" style="margin-top:10px;text-align:center">${prod&&prod.imagem?'<img src="'+prod.imagem+'" style="max-width:200px;max-height:150px;border-radius:8px;object-fit:cover"><br><button type="button" class="btn btn-sm btn-danger" style="margin-top:6px" onclick="document.getElementById(\'prdImgPreview\').innerHTML=\'\';document.getElementById(\'prdImgFile\').setAttribute(\'data-base64\',\'REMOVER\')">🗑️ Remover Imagem</button>':''}</div>
+    </div>
     <div class="form-group"><label>Obs</label><textarea class="form-control" id="prdObs" rows="2">${prod?prod.obs||'':''}</textarea></div>`;
   document.getElementById('cadastroModalFooter').innerHTML = '<button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button><button class="btn btn-primary" onclick="saveProduto('+(isEdit?prod.id:'null')+')">Salvar</button>';
   openCadastroModal();
-  // Preview ao digitar URL
-  setTimeout(function(){
-    var imgInput = document.getElementById('prdImg');
-    if(imgInput) imgInput.addEventListener('input',function(){
-      var prev = document.getElementById('prdImgPreview');
-      if(prev) prev.innerHTML = imgInput.value ? '<img src="'+imgInput.value+'" style="max-width:200px;max-height:150px;border-radius:8px;object-fit:cover" onerror="this.alt=\'Imagem inválida\'">' : '';
-    });
-  },50);
+  setTimeout(function(){ handleImageUpload('prdImgFile','prdImgPreview'); },50);
 }
 function saveProduto(id) {
-  const obj = { nome: document.getElementById('prdNome').value.trim(), referencia: document.getElementById('prdRef').value.trim(), categoria: document.getElementById('prdCat').value.trim(), unidade: document.getElementById('prdUnid').value, preco: parseFloat(document.getElementById('prdPreco').value)||0, imagem: document.getElementById('prdImg').value.trim(), obs: document.getElementById('prdObs').value.trim() };
+  const imgInput = document.getElementById('prdImgFile');
+  const base64 = imgInput ? imgInput.getAttribute('data-base64') : null;
+  let imagem = '';
+  if (base64 === 'REMOVER') { imagem = ''; }
+  else if (base64) { imagem = base64; }
+  else if (id) { const existing = (appData.produtos||[]).find(p=>p.id===id); imagem = existing ? existing.imagem || '' : ''; }
+
+  const obj = { nome: document.getElementById('prdNome').value.trim(), categoria: document.getElementById('prdCat').value.trim(), unidade: document.getElementById('prdUnid').value, preco: parseFloat(document.getElementById('prdPreco').value)||0, imagem: imagem, obs: document.getElementById('prdObs').value.trim() };
   if (!obj.nome) { showToast('Informe o nome do produto','error'); return; }
   if (!appData.produtos) appData.produtos = [];
   if (id) { const idx=appData.produtos.findIndex(p=>p.id===id); if(idx>-1){obj.id=id;appData.produtos[idx]=obj;} } else { obj.id=nextId(appData.produtos); appData.produtos.push(obj); }
@@ -888,36 +915,36 @@ function deleteProduto(id) { if(!confirm('Excluir produto?')) return; appData.pr
 function viewProduto(id) {
   const p = (appData.produtos||[]).find(x=>x.id===id); if(!p) return;
   document.getElementById('viewModalTitle').textContent = 'Detalhes do Produto';
-  document.getElementById('viewModalBody').innerHTML = '<div style="text-align:center;margin-bottom:16px">'+(p.imagem?'<img src="'+p.imagem+'" style="max-width:300px;max-height:250px;border-radius:10px;object-fit:cover">':'<span style="color:var(--text-muted)">Sem imagem</span>')+'</div><div class="detail-grid"><div class="detail-item"><span class="detail-label">Nome</span>'+(p.nome||'-')+'</div><div class="detail-item"><span class="detail-label">Referência</span>'+(p.referencia||'-')+'</div><div class="detail-item"><span class="detail-label">Categoria</span>'+(p.categoria||'-')+'</div><div class="detail-item"><span class="detail-label">Unidade</span>'+(p.unidade||'-')+'</div><div class="detail-item"><span class="detail-label">Preço</span>'+formatCurrency(p.preco)+'</div></div>'+(p.obs?'<div style="margin-top:12px;padding:10px;background:var(--bg-tertiary);border-radius:var(--radius-sm)"><strong>Obs:</strong> '+p.obs+'</div>':'');
+  document.getElementById('viewModalBody').innerHTML = '<div style="text-align:center;margin-bottom:16px">'+(p.imagem?'<img src="'+p.imagem+'" style="max-width:300px;max-height:250px;border-radius:10px;object-fit:cover">':'<span style="color:var(--text-muted)">Sem imagem</span>')+'</div><div class="detail-grid"><div class="detail-item"><span class="detail-label">Nome</span>'+(p.nome||'-')+'</div><div class="detail-item"><span class="detail-label">Categoria</span>'+(p.categoria||'-')+'</div><div class="detail-item"><span class="detail-label">Unidade</span>'+(p.unidade||'-')+'</div><div class="detail-item"><span class="detail-label">Preço</span>'+formatCurrency(p.preco)+'</div></div>'+(p.obs?'<div style="margin-top:12px;padding:10px;background:var(--bg-tertiary);border-radius:var(--radius-sm)"><strong>Obs:</strong> '+p.obs+'</div>':'');
   openViewModal();
 }
 
 // ══════════════════════════════════════════════════════════════
-// ── SCR-PFN-01 — P. FORNECEDORES (igual a Produtos, COM imagem) v6 ──
+// ── SCR-PFN-01 — P. FORNECEDORES (igual Produtos, COM upload imagem) v7 ──
+// SEM campo "referência" — imagem carregada do computador
 // ══════════════════════════════════════════════════════════════
 function renderPFornecedoresPage() {
   const pg = document.getElementById('page-pfornecedores'); if (!pg) return;
   const items = appData.pFornecedores || [];
-  const fornOpts = (appData.fornecedores||[]).map(f=>'<option value="'+f.nome+'">'+f.nome+'</option>').join('');
   pg.innerHTML = `
     <div class="page-header"><h2>📋 P. Fornecedores</h2><button class="btn btn-primary" onclick="openPFornModal()">+ Novo Produto</button></div>
     <div class="dashboard-grid">
       <div class="card card-accent"><div class="card-header"><span>Total Produtos de Fornecedores</span></div><div class="card-value">${items.length}</div></div>
     </div>
     <div class="filter-bar"><input type="text" class="form-control" style="max-width:250px" placeholder="Buscar produto fornecedor..." oninput="filterPForn(this.value)"></div>
-    <div class="table-responsive"><table class="table"><thead><tr><th style="width:70px">Imagem</th><th>Produto</th><th>Referência</th><th>Fornecedor</th><th>Categoria</th><th>Unidade</th><th>Preço</th><th>Ações</th></tr></thead>
+    <div class="table-responsive"><table class="table"><thead><tr><th style="width:70px">Imagem</th><th>Produto</th><th>Fornecedor</th><th>Categoria</th><th>Unidade</th><th>Preço</th><th>Ações</th></tr></thead>
     <tbody id="pfornBody"></tbody></table></div>`;
   renderPFornTable(items);
 }
 function renderPFornTable(items) {
   const tbody = document.getElementById('pfornBody'); if (!tbody) return;
-  if (items.length === 0) { tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhum produto de fornecedor</td></tr>'; return; }
+  if (items.length === 0) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhum produto de fornecedor</td></tr>'; return; }
   tbody.innerHTML = items.map(p => {
-    const img = p.imagem ? '<img src="'+p.imagem+'" style="width:50px;height:50px;object-fit:cover;border-radius:6px;cursor:pointer" onclick="window.open(\''+p.imagem+'\',\'_blank\')" onerror="this.src=\'\';this.alt=\'❌\'">' : '<span style="color:var(--text-muted)">—</span>';
-    return '<tr><td>'+img+'</td><td>'+(p.produto||p.nome||'-')+'</td><td>'+(p.referencia||'-')+'</td><td>'+(p.fornecedor||'-')+'</td><td>'+(p.categoria||'-')+'</td><td>'+(p.unidade||'-')+'</td><td>'+formatCurrency(p.preco)+'</td><td><button class="btn btn-sm btn-outline" onclick="viewPForn('+p.id+')">👁️</button> <button class="btn btn-sm btn-primary" onclick="editPForn('+p.id+')">✏️</button> <button class="btn btn-sm btn-danger" onclick="deletePForn('+p.id+')">🗑️</button></td></tr>';
+    const img = p.imagem ? '<img src="'+p.imagem+'" style="width:50px;height:50px;object-fit:cover;border-radius:6px;cursor:pointer" onclick="window.open(\''+p.imagem+'\',\'_blank\')" onerror="this.style.display=\'none\'">' : '<span style="color:var(--text-muted)">—</span>';
+    return '<tr><td>'+img+'</td><td>'+(p.produto||p.nome||'-')+'</td><td>'+(p.fornecedor||'-')+'</td><td>'+(p.categoria||'-')+'</td><td>'+(p.unidade||'-')+'</td><td>'+formatCurrency(p.preco)+'</td><td><button class="btn btn-sm btn-outline" onclick="viewPForn('+p.id+')">👁️</button> <button class="btn btn-sm btn-primary" onclick="editPForn('+p.id+')">✏️</button> <button class="btn btn-sm btn-danger" onclick="deletePForn('+p.id+')">🗑️</button></td></tr>';
   }).join('');
 }
-function filterPForn(q) { q=q.toLowerCase(); renderPFornTable((appData.pFornecedores||[]).filter(p=>(p.produto||p.nome||'').toLowerCase().includes(q)||(p.fornecedor||'').toLowerCase().includes(q)||(p.referencia||'').toLowerCase().includes(q))); }
+function filterPForn(q) { q=q.toLowerCase(); renderPFornTable((appData.pFornecedores||[]).filter(p=>(p.produto||p.nome||'').toLowerCase().includes(q)||(p.fornecedor||'').toLowerCase().includes(q))); }
 
 function openPFornModal(prod) {
   const isEdit = !!prod;
@@ -926,28 +953,35 @@ function openPFornModal(prod) {
   document.getElementById('cadastroModalTitle').textContent = isEdit ? 'Editar Produto Fornecedor' : 'Novo Produto Fornecedor';
   document.getElementById('cadastroModalBody').innerHTML = `
     <div class="form-group"><label>Produto *</label><input type="text" class="form-control" id="pfProd" value="${prod?prod.produto||prod.nome||'':''}"></div>
-    <div class="form-group"><label>Referência</label><input type="text" class="form-control" id="pfRef" value="${prod?prod.referencia||'':''}"></div>
     <div class="form-group"><label>Fornecedor *</label><select class="form-control" id="pfForn"><option value="">Selecione...</option>${fornOpts}</select></div>
     <div class="form-row">
       <div class="form-group"><label>Categoria</label><input type="text" class="form-control" id="pfCat" value="${prod?prod.categoria||'':''}"></div>
       <div class="form-group"><label>Unidade</label><select class="form-control" id="pfUnid">${unidOpts}</select></div>
     </div>
     <div class="form-group"><label>Preço</label><input type="number" class="form-control" id="pfPreco" value="${prod?prod.preco||'':''}" step="0.01"></div>
-    <div class="form-group"><label>Imagem (URL)</label><input type="text" class="form-control" id="pfImg" value="${prod?prod.imagem||'':''}"></div>
-    <div id="pfImgPreview" style="margin-top:8px">${prod&&prod.imagem?'<img src="'+prod.imagem+'" style="max-width:200px;max-height:150px;border-radius:8px;object-fit:cover">':''}</div>
+    <div class="form-group">
+      <label>Imagem do Produto</label>
+      <div style="background:var(--bg-tertiary);border:2px dashed var(--border-color);border-radius:8px;padding:16px;text-align:center;margin-top:4px">
+        <input type="file" id="pfImgFile" accept="image/jpeg,image/png,image/webp" style="display:none">
+        <button type="button" class="btn btn-outline" onclick="document.getElementById('pfImgFile').click()" style="margin-bottom:8px">📁 Carregar Imagem do Computador</button>
+        <p style="font-size:.75rem;color:var(--text-muted);margin:4px 0 0 0">Tamanho ideal: <strong>500 x 500 px</strong> (quadrada) — Formatos: JPG, PNG ou WEBP — Máx: 2 MB</p>
+      </div>
+      <div id="pfImgPreview" style="margin-top:10px;text-align:center">${prod&&prod.imagem?'<img src="'+prod.imagem+'" style="max-width:200px;max-height:150px;border-radius:8px;object-fit:cover"><br><button type="button" class="btn btn-sm btn-danger" style="margin-top:6px" onclick="document.getElementById(\'pfImgPreview\').innerHTML=\'\';document.getElementById(\'pfImgFile\').setAttribute(\'data-base64\',\'REMOVER\')">🗑️ Remover Imagem</button>':''}</div>
+    </div>
     <div class="form-group"><label>Obs</label><textarea class="form-control" id="pfObs" rows="2">${prod?prod.obs||'':''}</textarea></div>`;
   document.getElementById('cadastroModalFooter').innerHTML = '<button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button><button class="btn btn-primary" onclick="savePForn('+(isEdit?prod.id:'null')+')">Salvar</button>';
   openCadastroModal();
-  setTimeout(function(){
-    var imgInput = document.getElementById('pfImg');
-    if(imgInput) imgInput.addEventListener('input',function(){
-      var prev = document.getElementById('pfImgPreview');
-      if(prev) prev.innerHTML = imgInput.value ? '<img src="'+imgInput.value+'" style="max-width:200px;max-height:150px;border-radius:8px;object-fit:cover" onerror="this.alt=\'Imagem inválida\'">' : '';
-    });
-  },50);
+  setTimeout(function(){ handleImageUpload('pfImgFile','pfImgPreview'); },50);
 }
 function savePForn(id) {
-  const obj = { produto: document.getElementById('pfProd').value.trim(), referencia: document.getElementById('pfRef').value.trim(), fornecedor: document.getElementById('pfForn').value, categoria: document.getElementById('pfCat').value.trim(), unidade: document.getElementById('pfUnid').value, preco: parseFloat(document.getElementById('pfPreco').value)||0, imagem: document.getElementById('pfImg').value.trim(), obs: document.getElementById('pfObs').value.trim() };
+  const imgInput = document.getElementById('pfImgFile');
+  const base64 = imgInput ? imgInput.getAttribute('data-base64') : null;
+  let imagem = '';
+  if (base64 === 'REMOVER') { imagem = ''; }
+  else if (base64) { imagem = base64; }
+  else if (id) { const existing = (appData.pFornecedores||[]).find(p=>p.id===id); imagem = existing ? existing.imagem || '' : ''; }
+
+  const obj = { produto: document.getElementById('pfProd').value.trim(), fornecedor: document.getElementById('pfForn').value, categoria: document.getElementById('pfCat').value.trim(), unidade: document.getElementById('pfUnid').value, preco: parseFloat(document.getElementById('pfPreco').value)||0, imagem: imagem, obs: document.getElementById('pfObs').value.trim() };
   if (!obj.produto) { showToast('Informe o produto','error'); return; }
   if (!obj.fornecedor) { showToast('Selecione o fornecedor','error'); return; }
   if (!appData.pFornecedores) appData.pFornecedores = [];
@@ -959,12 +993,11 @@ function deletePForn(id) { if(!confirm('Excluir?')) return; appData.pFornecedore
 function viewPForn(id) {
   const p = (appData.pFornecedores||[]).find(x=>x.id===id); if(!p) return;
   document.getElementById('viewModalTitle').textContent = 'Detalhes — Produto Fornecedor';
-  document.getElementById('viewModalBody').innerHTML = '<div style="text-align:center;margin-bottom:16px">'+(p.imagem?'<img src="'+p.imagem+'" style="max-width:300px;max-height:250px;border-radius:10px;object-fit:cover">':'<span style="color:var(--text-muted)">Sem imagem</span>')+'</div><div class="detail-grid"><div class="detail-item"><span class="detail-label">Produto</span>'+(p.produto||p.nome||'-')+'</div><div class="detail-item"><span class="detail-label">Referência</span>'+(p.referencia||'-')+'</div><div class="detail-item"><span class="detail-label">Fornecedor</span>'+(p.fornecedor||'-')+'</div><div class="detail-item"><span class="detail-label">Categoria</span>'+(p.categoria||'-')+'</div><div class="detail-item"><span class="detail-label">Unidade</span>'+(p.unidade||'-')+'</div><div class="detail-item"><span class="detail-label">Preço</span>'+formatCurrency(p.preco)+'</div></div>'+(p.obs?'<div style="margin-top:12px;padding:10px;background:var(--bg-tertiary);border-radius:var(--radius-sm)"><strong>Obs:</strong> '+p.obs+'</div>':'');
+  document.getElementById('viewModalBody').innerHTML = '<div style="text-align:center;margin-bottom:16px">'+(p.imagem?'<img src="'+p.imagem+'" style="max-width:300px;max-height:250px;border-radius:10px;object-fit:cover">':'<span style="color:var(--text-muted)">Sem imagem</span>')+'</div><div class="detail-grid"><div class="detail-item"><span class="detail-label">Produto</span>'+(p.produto||p.nome||'-')+'</div><div class="detail-item"><span class="detail-label">Fornecedor</span>'+(p.fornecedor||'-')+'</div><div class="detail-item"><span class="detail-label">Categoria</span>'+(p.categoria||'-')+'</div><div class="detail-item"><span class="detail-label">Unidade</span>'+(p.unidade||'-')+'</div><div class="detail-item"><span class="detail-label">Preço</span>'+formatCurrency(p.preco)+'</div></div>'+(p.obs?'<div style="margin-top:12px;padding:10px;background:var(--bg-tertiary);border-radius:var(--radius-sm)"><strong>Obs:</strong> '+p.obs+'</div>':'');
   openViewModal();
 }
 
 // ── MÓDULOS GENÉRICOS (Clientes, Fornecedores, etc.) ──
-// Produtos e pFornecedores agora têm renderização própria acima
 function getGenericConfig(key) {
   const configs = {
     clientes: { titulo: 'Cliente', campos: [
@@ -1060,7 +1093,8 @@ function genericCrudPage(key, titulo, icon, campos) {
   let thRow = campos.map(c=>'<th>'+c.label+'</th>').join('')+'<th>Ações</th>';
   let rows = items.length===0 ? '<tr><td colspan="'+(campos.length+1)+'" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhum registro</td></tr>' :
     items.map(item => '<tr>'+campos.map(c=>'<td>'+(c.type==='number'&&item[c.field]?formatCurrency(item[c.field]):c.type==='date'?formatDate(item[c.field]):(item[c.field]||'-'))+'</td>').join('')+'<td><button class="btn btn-sm btn-primary" onclick="editGeneric(\''+key+'\','+item.id+')">✏️</button> <button class="btn btn-sm btn-danger" onclick="deleteGeneric(\''+key+'\','+item.id+')">🗑️</button></td></tr>').join('');
-  pg.innerHTML = '<div class="page-header"><h2>'+icon+' '+titulo+'</h2><button class="btn btn-primary" onclick="openGenericModal(\''+key+'\')">+ Novo</button></div><div class="dashboard-grid"><div class="card card-accent"><div class="card-header"><span>Total</span></div><div class="card-value">'+items.length+'</div></div></div><div class="table-responsive"><table class="table"><thead><tr>'+thRow+'</tr></thead><tbody>'+rows+'</tbody></table></div>';
+  pg.innerHTML = '<div class="page-header"><h2>'+icon+' '+titulo+'</h2><button class="btn btn-primary" onclick="openGenericModal(\''+key+'\')">+ Novo</button></div><div class="dashboard-grid"><div class="card card-accent"><div class="card-header"><span>Total</span></div><div class="card-value">'+items.length+'</div></div></div><div class="table-responsive"><table class="table"><thead><tr>'+thRow+'</tr></thead
+><tbody>'+rows+'</tbody></table></div>';
 }
 
 function openGenericModal(key, item) {
@@ -1096,7 +1130,6 @@ function deleteGeneric(key,id){
 }
 
 // ── RENDERS DE PÁGINAS GENÉRICAS ──
-// Produtos e pFornecedores agora têm renderização própria (acima)
 function renderClientesPage() { const c = getGenericConfig('clientes'); genericCrudPage('clientes','Clientes','👥',c.campos); }
 function renderFornecedoresPage() { const c = getGenericConfig('fornecedores'); genericCrudPage('fornecedores','Fornecedores','🏭',c.campos); }
 function renderBoletosPage() { const c = getGenericConfig('boletos'); genericCrudPage('boletos','Boletos','🔖',c.campos); }
