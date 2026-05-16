@@ -1093,8 +1093,7 @@ function genericCrudPage(key, titulo, icon, campos) {
   let thRow = campos.map(c=>'<th>'+c.label+'</th>').join('')+'<th>Ações</th>';
   let rows = items.length===0 ? '<tr><td colspan="'+(campos.length+1)+'" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhum registro</td></tr>' :
     items.map(item => '<tr>'+campos.map(c=>'<td>'+(c.type==='number'&&item[c.field]?formatCurrency(item[c.field]):c.type==='date'?formatDate(item[c.field]):(item[c.field]||'-'))+'</td>').join('')+'<td><button class="btn btn-sm btn-primary" onclick="editGeneric(\''+key+'\','+item.id+')">✏️</button> <button class="btn btn-sm btn-danger" onclick="deleteGeneric(\''+key+'\','+item.id+')">🗑️</button></td></tr>').join('');
-  pg.innerHTML = '<div class="page-header"><h2>'+icon+' '+titulo+'</h2><button class="btn btn-primary" onclick="openGenericModal(\''+key+'\')">+ Novo</button></div><div class="dashboard-grid"><div class="card card-accent"><div class="card-header"><span>Total</span></div><div class="card-value">'+items.length+'</div></div></div><div class="table-responsive"><table class="table"><thead><tr>'+thRow+'</tr></thead
-><tbody>'+rows+'</tbody></table></div>';
+  pg.innerHTML = '<div class="page-header"><h2>'+icon+' '+titulo+'</h2><button class="btn btn-primary" onclick="openGenericModal(\''+key+'\')">+ Novo</button></div><div class="dashboard-grid"><div class="card card-accent"><div class="card-header"><span>Total</span></div><div class="card-value">'+items.length+'</div></div></div><div class="table-responsive"><table class="table"><thead><tr>'+thRow+'</tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
 
 function openGenericModal(key, item) {
