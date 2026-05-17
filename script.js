@@ -973,7 +973,7 @@ function filtrarPorAnoMes(arr){
 }
 
 // ══════════════════════════════════════════════════════════════
-// ── CONFIGURAÇÕES (com drag & drop em todas as seções) ──
+// ── CONFIGURAÇÕES (drag & drop empilhado em todas as seções) ──
 // ══════════════════════════════════════════════════════════════
 function renderConfiguracoesPage(){
   var pg=document.getElementById('page-configuracoes');if(!pg)return;
@@ -1012,7 +1012,7 @@ function renderConfiguracoesPage(){
       '</div>'+
     '</div>';
 
-  // ─ Função genérica para seção drag & drop com input editável ─
+  // ─ Função genérica: drag & drop empilhado (igual Vendedores) ─
   function buildDragSection(icon,title,key,placeholder){
     var items='';
     (appData[key]||[]).forEach(function(v,i){
@@ -1034,41 +1034,19 @@ function renderConfiguracoesPage(){
     '</div>';
   }
 
-  // ─ Função genérica para seção drag & drop com tags (sem input editável) ─
-  function buildTagSection(icon,title,key,placeholder){
-    var items='';
-    (appData[key]||[]).forEach(function(v,i){
-      items+='<div class="cfg-drag-item" draggable="true" data-cfg-list="'+key+'" data-cfg-idx="'+i+'">'+
-        '<span class="cfg-drag-handle">⠿</span>'+
-        '<span class="cfg-tag-text">'+v+'</span>'+
-        '<button class="btn-tag-remove" onclick="removeCfgItem(\''+key+'\','+i+')">✕</button>'+
-      '</div>';
-    });
-    return '<div class="cfg-section">'+
-      '<div class="cfg-section-header"><span class="cfg-section-icon">'+icon+'</span><h3>'+title+'</h3></div>'+
-      '<div class="cfg-section-body">'+
-        '<div class="cfg-drag-list cfg-tags-list" id="cfgList_'+key+'">'+items+'</div>'+
-        '<div class="cfg-add-row">'+
-          '<input class="form-control" id="cfgAdd_'+key+'" placeholder="'+placeholder+'" onkeydown="if(event.key===\'Enter\')addCfgItem(\''+key+'\')">'+
-          '<button class="btn btn-primary btn-sm" onclick="addCfgItem(\''+key+'\')">+ Adicionar</button>'+
-        '</div>'+
-      '</div>'+
-    '</div>';
-  }
-
   var vendedoresHtml=buildDragSection('👤','Vendedores','vendedores','Novo vendedor...');
-  var formasPgtoHtml=buildTagSection('💳','Formas de Pagamento (Compras)','formasPagamento','Nova forma de pagamento...');
-  var formasPgtoVendasHtml=buildTagSection('💳','Formas de Pagamento (Vendas)','formasPagamentoVendas','Nova forma de pagamento vendas...');
-  var tipoUnidadeHtml=buildTagSection('📏','Tipos de Unidade','tipoUnidade','Nova unidade...');
-  var tipoVendaHtml=buildTagSection('🏷️','Tipos de Venda','tipoVenda','Novo tipo de venda...');
-  var sitCompraHtml=buildTagSection('📋','Situação (Compras)','situacaoCompra','Nova situação...');
-  var sitVendaHtml=buildTagSection('📋','Situação (Vendas)','situacaoVenda','Nova situação...');
-  var sitEntregaHtml=buildTagSection('🚚','Situação de Entrega','situacaoEntrega','Nova situação...');
-  var sitChequeHtml=buildTagSection('📝','Situação (Cheques)','situacaoCheque','Nova situação...');
-  var sitGarantiaHtml=buildTagSection('🛡️','Situação (Garantias)','situacaoGarantia','Nova situação...');
-  var sitBoletoHtml=buildTagSection('🔖','Situação (Boletos)','situacaoBoleto','Nova situação...');
+  var formasPgtoHtml=buildDragSection('💳','Formas de Pagamento (Compras)','formasPagamento','Nova forma de pagamento...');
+  var formasPgtoVendasHtml=buildDragSection('💳','Formas de Pagamento (Vendas)','formasPagamentoVendas','Nova forma de pagamento vendas...');
+  var tipoUnidadeHtml=buildDragSection('📏','Tipos de Unidade','tipoUnidade','Nova unidade...');
+  var tipoVendaHtml=buildDragSection('🏷️','Tipos de Venda','tipoVenda','Novo tipo de venda...');
+  var sitCompraHtml=buildDragSection('📋','Situação (Compras)','situacaoCompra','Nova situação...');
+  var sitVendaHtml=buildDragSection('📋','Situação (Vendas)','situacaoVenda','Nova situação...');
+  var sitEntregaHtml=buildDragSection('🚚','Situação de Entrega','situacaoEntrega','Nova situação...');
+  var sitChequeHtml=buildDragSection('📝','Situação (Cheques)','situacaoCheque','Nova situação...');
+  var sitGarantiaHtml=buildDragSection('🛡️','Situação (Garantias)','situacaoGarantia','Nova situação...');
+  var sitBoletoHtml=buildDragSection('🔖','Situação (Boletos)','situacaoBoleto','Nova situação...');
 
-  // ─ Categorias do Fluxo de Caixa (drag & drop especial com tipo) ─
+  // ─ Categorias do Fluxo de Caixa (empilhado com badge de tipo) ─
   var catItems='';
   (appData.categoriasFluxo||[]).forEach(function(c,i){
     var isEntrada=c.tipo==='entrada';
@@ -1101,111 +1079,6 @@ function renderConfiguracoesPage(){
   handleImageUpload('cfgLogoInput','cfgLogoPreview');
   handleImageUpload('cfgAssInput','cfgAssPreview');
   applyMask('cfgCnpj',maskCNPJ);
-}
-
-function saveCfgEmpresa(){
-  appData.empresa.nome=document.getElementById('cfgNome').value;
-  appData.empresa.cnpj=document.getElementById('cfgCnpj').value;
-  appData.empresa.empreendedor=document.getElementById('cfgEmpreendedor').value;
-  appData.empresa.cidade=document.getElementById('cfgCidade').value;
-  var logoInput=document.getElementById('cfgLogoInput');
-  if(logoInput&&logoInput.getAttribute('data-base64')) appData.empresa.logo=logoInput.getAttribute('data-base64');
-  var assInput=document.getElementById('cfgAssInput');
-  if(assInput&&assInput.getAttribute('data-base64')) appData.empresa.assinatura=assInput.getAttribute('data-base64');
-  updateSidebarInfo();saveData();
-  showToast('Dados da empresa salvos!','success');
-}
-
-function addCfgItem(key){
-  var input=document.getElementById('cfgAdd_'+key);
-  if(!input||!input.value.trim())return;
-  if(!appData[key]) appData[key]=[];
-  appData[key].push(input.value.trim());
-  saveData();renderConfiguracoesPage();
-  showToast('Item adicionado!','success');
-}
-
-function removeCfgItem(key,idx){
-  if(!appData[key])return;
-  appData[key].splice(idx,1);
-  saveData();renderConfiguracoesPage();
-  showToast('Item removido','success');
-}
-
-function updateCfgItem(key,idx,val){
-  if(!appData[key])return;
-  appData[key][idx]=val;saveData();
-}
-
-function addCfgCat(){
-  var nome=document.getElementById('cfgAdd_catNome');
-  var tipo=document.getElementById('cfgAdd_catTipo');
-  if(!nome||!nome.value.trim())return;
-  if(!appData.categoriasFluxo) appData.categoriasFluxo=[];
-  appData.categoriasFluxo.push({nome:nome.value.trim(),tipo:tipo.value});
-  saveData();renderConfiguracoesPage();
-  showToast('Categoria adicionada!','success');
-}
-
-function removeCfgCat(idx){
-  if(!appData.categoriasFluxo)return;
-  appData.categoriasFluxo.splice(idx,1);
-  saveData();renderConfiguracoesPage();
-  showToast('Categoria removida','success');
-}
-
-function updateCfgCatNome(idx,val){
-  if(!appData.categoriasFluxo||!appData.categoriasFluxo[idx])return;
-  appData.categoriasFluxo[idx].nome=val;saveData();
-}
-
-function initCfgDragDrop(){
-  var lists=document.querySelectorAll('.cfg-drag-list');
-  lists.forEach(function(list){
-    var items=list.querySelectorAll('.cfg-drag-item[draggable="true"]');
-    items.forEach(function(item){
-      item.addEventListener('dragstart',function(e){
-        item.classList.add('cfg-dragging');
-        e.dataTransfer.effectAllowed='move';
-        e.dataTransfer.setData('text/plain',item.getAttribute('data-cfg-idx'));
-      });
-      item.addEventListener('dragend',function(){item.classList.remove('cfg-dragging');});
-    });
-    list.addEventListener('dragover',function(e){
-      e.preventDefault();
-      var afterElement=getDragAfterElement(list,e.clientY);
-      var dragging=list.querySelector('.cfg-dragging');
-      if(!dragging)return;
-      if(afterElement==null){list.appendChild(dragging);}
-      else{list.insertBefore(dragging,afterElement);}
-    });
-    list.addEventListener('drop',function(e){
-      e.preventDefault();
-      var listKey=list.id.replace('cfgList_','');
-      var newOrder=[];
-      list.querySelectorAll('.cfg-drag-item').forEach(function(el){
-        var idx=parseInt(el.getAttribute('data-cfg-idx'));
-        if(!isNaN(idx)){
-          if(listKey==='categoriasFluxo') newOrder.push(appData.categoriasFluxo[idx]);
-          else newOrder.push(appData[listKey][idx]);
-        }
-      });
-      if(listKey==='categoriasFluxo') appData.categoriasFluxo=newOrder;
-      else appData[listKey]=newOrder;
-      saveData();renderConfiguracoesPage();
-    });
-  });
-}
-
-function getDragAfterElement(container,y){
-  var elements=Array.from(container.querySelectorAll('.cfg-drag-item:not(.cfg-dragging)'));
-  var closest={offset:Number.NEGATIVE_INFINITY,element:null};
-  elements.forEach(function(child){
-    var box=child.getBoundingClientRect();
-    var offset=y-box.top-box.height/2;
-    if(offset<0&&offset>closest.offset) closest={offset:offset,element:child};
-  });
-  return closest.element;
 }
 
 // ══════════════════════════════════════════════════════════════
