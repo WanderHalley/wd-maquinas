@@ -529,123 +529,329 @@ function deleteNotaSaida(id){if(!confirm('Excluir nota?'))return;appData.notasSa
 function filterNotasSaida(q){var list=appData.notasSaida||[];if(q)list=list.filter(function(n){return(n.numero||'').toLowerCase().includes(q.toLowerCase())||(n.cliente||'').toLowerCase().includes(q.toLowerCase());});renderNotasSaidaTable(list);}
 
 // ══════════════════════════════════════════════════════════════
-// ── RECEITAS MEI — FORMATO OFICIAL ──
+// ── RECEITAS MEI ──
 // ══════════════════════════════════════════════════════════════
 function renderReceitasMeiPage(){
   var pg=document.getElementById('page-receitasmei');if(!pg)return;
-  var ano=new Date().getFullYear();
-  var mesAtual=new Date().getMonth();
-  var mNomes=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-  var mesOpts='<option value="todos">Todos (Resumo Anual)</option>';
-  mNomes.forEach(function(n,i){mesOpts+='<option value="'+i+'"'+(i===mesAtual?' selected':'')+'>'+n+'</option>';});
-  var vendas=appData.vendas||[];var notas=appData.notasSaida||[];
-  function getVM(m){return vendas.filter(function(v){if(!v.data)return false;var d=new Date(v.data+'T00:00:00');return d.getMonth()===m&&d.getFullYear()===ano;});}
-  function tB(arr){return arr.reduce(function(s,v){return s+((v.quantidade||1)*(v.valorUnit||0));},0);}
-  function getNM(m){return notas.filter(function(n){if(!n.data)return false;var d=new Date(n.data+'T00:00:00');return d.getMonth()===m&&d.getFullYear()===ano;});}
-  function tN(arr){return arr.reduce(function(s,n){return s+(n.valor||0);},0);}
-  var mBruto=tB(getVM(mesAtual));var mCN=tN(getNM(mesAtual));var mSN=mBruto-mCN;
-  var aBruto=0;var aCN=0;for(var i=0;i<12;i++){aBruto+=tB(getVM(i));aCN+=tN(getNM(i));}var aSN=aBruto-aCN;
+  var meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  var mesesKey=['janeiro','fevereiro','marco','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+
+  // Selector
+  var selOpts='<option value="">Selecione o mês</option>';
+  selOpts+='<option value="todos">📊 Todos (Resumo Anual)</option>';
+  meses.forEach(function(m,i){ selOpts+='<option value="'+mesesKey[i]+'">'+m+'</option>'; });
+
+  var selectedMei=pg.getAttribute('data-mei-mes')||'';
+
   pg.innerHTML=
-    '<div class="page-header"><h2>📄 Receitas MEI</h2><div style="display:flex;gap:8px;align-items:center"><select class="form-control" id="meiMesSelect" style="min-width:180px" onchange="onMeiMesChange()">'+mesOpts+'</select><button class="btn btn-primary" onclick="imprimirReceitaMei()">🖨️ Imprimir</button></div></div>'+
-    '<div class="dashboard-grid"><div class="card"><div class="card-header"><span>💵 Sem Nota (Mês)</span></div><div class="card-value" id="meiSemNotaMes">'+formatCurrency(mSN)+'</div></div><div class="card"><div class="card-header"><span>📄 Com Nota (Mês)</span></div><div class="card-value" id="meiComNotaMes">'+formatCurrency(mCN)+'</div></div><div class="card"><div class="card-header"><span>💵 Sem Nota (Anual)</span></div><div class="card-value" id="meiSemNotaAnual">'+formatCurrency(aSN)+'</div></div><div class="card"><div class="card-header"><span>📄 Com Nota (Anual)</span></div><div class="card-value" id="meiComNotaAnual">'+formatCurrency(aCN)+'</div></div></div>'+
-    '<div id="meiReportArea" style="margin-top:16px"></div>';
-  onMeiMesChange();
+    '<div class="page-header"><h2>📄 Receitas MEI</h2></div>'+
+    '<div style="margin-bottom:20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">'+
+      '<select class="form-control" id="meiMesSelect" onchange="changeMeiMes(this.value)" style="max-width:300px">'+selOpts+'</select>'+
+      '<button class="btn btn-primary" onclick="printMeiPage()">🖨️ Imprimir</button>'+
+    '</div>'+
+    '<div id="meiContent"></div>';
+
+  var sel=document.getElementById('meiMesSelect');
+  if(sel&&selectedMei){sel.value=selectedMei;changeMeiMes(selectedMei);}
 }
-function onMeiMesChange(){
-  var sel=document.getElementById('meiMesSelect');if(!sel)return;var val=sel.value;
-  var ano=new Date().getFullYear();var mNomes=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-  var vendas=appData.vendas||[];var notas=appData.notasSaida||[];var empresa=appData.empresa||{};
-  function getVM(m){return vendas.filter(function(v){if(!v.data)return false;var d=new Date(v.data+'T00:00:00');return d.getMonth()===m&&d.getFullYear()===ano;});}
-  function tB(arr){return arr.reduce(function(s,v){return s+((v.quantidade||1)*(v.valorUnit||0));},0);}
-  function getNM(m){return notas.filter(function(n){if(!n.data)return false;var d=new Date(n.data+'T00:00:00');return d.getMonth()===m&&d.getFullYear()===ano;});}
-  function tN(arr){return arr.reduce(function(s,n){return s+(n.valor||0);},0);}
-  function fc(v){return'R$ '+(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
-  if(val!=='todos'){var mi=parseInt(val);var b=tB(getVM(mi));var cn=tN(getNM(mi));var sn=b-cn;var e1=document.getElementById('meiSemNotaMes');if(e1)e1.textContent=fc(sn);var e2=document.getElementById('meiComNotaMes');if(e2)e2.textContent=fc(cn);}
-  var area=document.getElementById('meiReportArea');if(!area)return;
-  if(val==='todos'){
-    // Resumo Anual
-    var rows='';var tAB=0;var tACN=0;var tASN=0;
-    for(var i=0;i<12;i++){var b2=tB(getVM(i));var cn2=tN(getNM(i));var sn2=b2-cn2;tAB+=b2;tACN+=cn2;tASN+=sn2;rows+='<tr><td>'+mNomes[i]+'</td><td style="text-align:right">'+fc(sn2)+'</td><td style="text-align:right">'+fc(cn2)+'</td><td style="text-align:right;font-weight:600">'+fc(b2)+'</td></tr>';}
-    rows+='<tr style="background:#f0f0f0;font-weight:700"><td>TOTAL ANUAL</td><td style="text-align:right">'+fc(tASN)+'</td><td style="text-align:right">'+fc(tACN)+'</td><td style="text-align:right">'+fc(tAB)+'</td></tr>';
-    var lim=81000;var pct=tAB>0?((tAB/lim)*100).toFixed(1):'0.0';var rest=lim-tAB;var stLim=tAB>lim?'<span style="color:#e53e3e;font-weight:700">ULTRAPASSOU O LIMITE!</span>':'<span style="color:#38a169;font-weight:600">Dentro do limite</span>';
-    area.innerHTML='<div class="card" style="padding:20px"><h3 style="margin-bottom:16px;color:var(--primary)">📊 Resumo Anual '+ano+'</h3><div class="table-responsive"><table class="table" style="margin:0"><thead><tr><th>Mês</th><th style="text-align:right">Sem Nota</th><th style="text-align:right">Com Nota</th><th style="text-align:right">Total Bruto</th></tr></thead><tbody>'+rows+'</tbody></table></div><div style="margin-top:20px;padding:16px;background:#f8f9fa;border-radius:8px;border:1px solid #dee2e6"><h4 style="margin-bottom:12px">📋 Controle do Limite MEI</h4><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px"><div><strong>Limite Anual:</strong><br>'+fc(lim)+'</div><div><strong>Receita Bruta:</strong><br>'+fc(tAB)+'</div><div><strong>Restante:</strong><br>'+fc(rest>0?rest:0)+'</div></div><div style="margin-top:8px"><strong>Utilizado:</strong> '+pct+'% — '+stLim+'</div></div><div style="margin-top:20px;padding:16px;background:#edf2f7;border-radius:8px;border:2px solid #4299e1"><h4 style="margin-bottom:12px;color:#2b6cb0">📝 DASN-SIMEI (Declaração Anual)</h4><table style="width:100%;font-size:14px"><tr style="border-bottom:1px solid #cbd5e0"><td style="padding:8px;font-weight:600">Receita Bruta Total '+ano+':</td><td style="padding:8px;text-align:right;font-weight:700;color:#2b6cb0">'+fc(tAB)+'</td></tr><tr style="border-bottom:1px solid #cbd5e0"><td style="padding:8px;font-weight:600">Receita Comércio/Indústria:</td><td style="padding:8px;text-align:right;font-weight:700">'+fc(tAB)+'</td></tr><tr style="border-bottom:1px solid #cbd5e0"><td style="padding:8px;font-weight:600">Receita Serviços:</td><td style="padding:8px;text-align:right;font-weight:700">'+fc(0)+'</td></tr><tr><td style="padding:8px;font-weight:600">Empregado:</td><td style="padding:8px;text-align:right;font-weight:700">Não</td></tr></table></div><div style="margin-top:20px;padding:16px;background:#fefcbf;border-radius:8px;border:2px solid #d69e2e"><h4 style="margin-bottom:12px;color:#975a16">🏛️ IRPF — Rendimentos Isentos</h4><table style="width:100%;font-size:14px"><tr style="border-bottom:1px solid #d69e2e"><td style="padding:8px;font-weight:600">Receita Bruta Anual:</td><td style="padding:8px;text-align:right;font-weight:700">'+fc(tAB)+'</td></tr><tr style="border-bottom:1px solid #d69e2e"><td style="padding:8px;font-weight:600">Parcela Isenta (8% Comércio):</td><td style="padding:8px;text-align:right;font-weight:700;color:#38a169">'+fc(tAB*0.08)+'</td></tr><tr><td style="padding:8px;font-weight:600">Parcela Isenta (32% Serviços):</td><td style="padding:8px;text-align:right;font-weight:700;color:#38a169">'+fc(0)+'</td></tr></table><p style="margin-top:8px;font-size:12px;color:#975a16"><strong>Nota:</strong> 8% comércio é isento. Restante menos despesas é tributável. Consulte seu contador.</p></div></div>';
-  } else {
-    // Relatório mensal formato oficial
-    var mi=parseInt(val);var vMes=getVM(mi);var brutoMes=tB(vMes);var comNotaMes=tN(getNM(mi));var semNotaMes=brutoMes-comNotaMes;
-    var cnpjNum=empresa.cnpj?empresa.cnpj.replace(/\D/g,''):'';
-    var mesNome=mNomes[mi].toUpperCase();
-    var bd='border:1px solid #333;padding:6px 10px;';
-    area.innerHTML=
-      '<div class="card" style="padding:20px;font-family:Arial,sans-serif;font-size:13px;color:#000">'+
-        '<table style="width:100%;border-collapse:collapse;border:2px solid #333"><tbody>'+
-          '<tr><td colspan="2" style="'+bd+'text-align:center;font-weight:bold;font-size:14px;background:#e8e8e8">RELATÓRIO MENSAL DAS RECEITAS BRUTAS</td></tr>'+
-          '<tr><td style="'+bd+'width:30%">CNPJ:</td><td style="'+bd+'">'+(empresa.cnpj||'')+'</td></tr>'+
-          '<tr><td style="'+bd+'">Empreendedor individual:</td><td style="'+bd+'">'+cnpjNum+' '+(empresa.empreendedor||'')+'</td></tr>'+
-          '<tr><td style="'+bd+'">Período de apuração:</td><td style="'+bd+'">'+mesNome+' DE '+ano+'</td></tr>'+
-          '<tr><td colspan="2" style="'+bd+'font-weight:bold;background:#e8e8e8">RECEITA BRUTA MENSAL – REVENDA DE MERCADORIAS (COMÉRCIO)</td></tr>'+
-          '<tr><td style="'+bd+'">I – Revenda de mercadorias com dispensa de emissão de documento fiscal</td><td style="'+bd+'text-align:right;font-weight:600">'+fc(semNotaMes)+'</td></tr>'+
-          '<tr><td style="'+bd+'">II – Revenda de mercadorias com documento fiscal emitido</td><td style="'+bd+'text-align:right;font-weight:600">'+fc(comNotaMes)+'</td></tr>'+
-          '<tr><td style="'+bd+'">III – Total das receitas com revenda de mercadorias (I + II)</td><td style="'+bd+'text-align:right;font-weight:600">'+fc(brutoMes)+'</td></tr>'+
-          '<tr><td colspan="2" style="'+bd+'font-weight:bold;background:#e8e8e8">RECEITA BRUTA MENSAL – VENDA DE PRODUTOS INDUSTRIALIZADOS (INDÚSTRIA)</td></tr>'+
-          '<tr><td style="'+bd+'">IV – Venda de produtos industrializados com dispensa de emissão de documento fiscal</td><td style="'+bd+'text-align:right;font-weight:600">'+fc(0)+'</td></tr>'+
-          '<tr><td style="'+bd+'">V – Venda de produtos industrializados com documento fiscal emitido</td><td style="'+bd+'text-align:right;font-weight:600">'+fc(0)+'</td></tr>'+
-          '<tr><td style="'+bd+'">VI – Total das receitas com venda de produtos industrializados (IV + V)</td><td style="'+bd+'text-align:right;font-weight:600">'+fc(0)+'</td></tr>'+
-          '<tr><td colspan="2" style="'+bd+'font-weight:bold;background:#e8e8e8">RECEITA BRUTA MENSAL – PRESTAÇÃO DE SERVIÇOS</td></tr>'+
-          '<tr><td style="'+bd+'">VII – Receita com prestação de serviços com dispensa de emissão de documento fiscal</td><td style="'+bd+'text-align:right;font-weight:600">'+fc(0)+'</td></tr>'+
-          '<tr><td style="'+bd+'">VIII – Receita com prestação de serviços com documento fiscal emitido</td><td style="'+bd+'text-align:right;font-weight:600">'+fc(0)+'</td></tr>'+
-          '<tr><td style="'+bd+'">IX – Total das receitas com prestação de serviços (VII + VIII)</td><td style="'+bd+'text-align:right;font-weight:600">'+fc(0)+'</td></tr>'+
-          '<tr><td style="'+bd+'font-weight:bold">X - Total geral das receitas brutas no mês (III + VI + IX)</td><td style="'+bd+'text-align:right;font-weight:bold;font-size:16px">'+fc(brutoMes)+'</td></tr>'+
-          '<tr><td style="'+bd+'">LOCAL E DATA:<br><br>'+(empresa.cidade||'')+' - 01 de '+mNomes[mi]+' de '+ano+'</td><td style="'+bd+'">ASSINATURA DO EMPRESÁRIO:<br><br>'+(empresa.assinatura?'<img src="'+empresa.assinatura+'" style="max-height:40px">':empresa.empreendedor||'')+'</td></tr>'+
-          '<tr><td colspan="2" style="'+bd+'font-size:10px">ENCONTRAM-SE ANEXADOS E ESTE RELATÓRIO:<br>- Os documentos fiscais comprobatórios das entradas de mercadorias e serviços tomados referentes ao período;<br>- As notas fiscais relativas às operações ou prestações realizadas eventualmente emitidas.</td></tr>'+
-        '</tbody></table>'+
-      '</div>';
+
+function changeMeiMes(val){
+  var pg=document.getElementById('page-receitasmei');
+  if(pg) pg.setAttribute('data-mei-mes',val);
+  var container=document.getElementById('meiContent');if(!container)return;
+  if(!val){container.innerHTML='<p style="color:var(--text-muted)">Selecione um mês ou "Todos" para ver o resumo anual.</p>';return;}
+  if(val==='todos'){renderMeiAnual(container);return;}
+  renderMeiMensal(container,val);
+}
+
+function renderMeiMensal(container,mesKey){
+  var meses=['janeiro','fevereiro','marco','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  var mesesNome=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  var mi=meses.indexOf(mesKey);
+  var mesNome=mi>-1?mesesNome[mi]:mesKey;
+  var mesNum=mi+1;
+  var ano=new Date().getFullYear();
+
+  // Coletar receitas do mês a partir de vendas
+  var vendas=(appData.vendas||[]).filter(function(v){
+    if(!v.data) return false;
+    var p=v.data.split('-');
+    return parseInt(p[1])===mesNum && parseInt(p[0])===ano;
+  });
+
+  // Receitas manuais do fluxo (entradas)
+  var lancs=(appData.fluxoCaixa&&appData.fluxoCaixa[mesKey])?appData.fluxoCaixa[mesKey]:[];
+  var entradas=lancs.filter(function(l){return l.tipo==='entrada';});
+
+  // Montar linhas - formato oficial MEI (colunas: I a X)
+  // I-Nº Ordem, II-Data, III-Operação, IV-Valor Revenda, V-Valor Industria,
+  // VI-Valor Prestação Serviço, VII-Valor Comissão, VIII-Valor Outras, IX-Total, X-Obs
+
+  var linhas=[];var ordem=1;
+
+  vendas.forEach(function(v){
+    var total=(v.quantidade||1)*(v.valorUnit||0);
+    var tipoV=(v.tipoVenda||'Direta').toLowerCase();
+    var isRevenda=tipoV.includes('revenda');
+    linhas.push({
+      ordem:ordem++,
+      data:formatDate(v.data),
+      operacao:(v.produto||'Venda')+(v.cliente?' - '+v.cliente:''),
+      revenda:isRevenda?total:0,
+      industria:0,
+      servico:0,
+      comissao:0,
+      outras:!isRevenda?total:0,
+      total:total,
+      obs:(v.formaPagamento||'')
+    });
+  });
+
+  entradas.forEach(function(l){
+    var cat=(l.categoria||'').toLowerCase();
+    var isServico=cat.includes('serviço')||cat.includes('servico');
+    linhas.push({
+      ordem:ordem++,
+      data:l.data?formatDate(l.data):'-',
+      operacao:l.descricao||(l.categoria||'Entrada'),
+      revenda:0,
+      industria:0,
+      servico:isServico?(l.valor||0):0,
+      comissao:0,
+      outras:!isServico?(l.valor||0):0,
+      total:l.valor||0,
+      obs:(l.categoria||'')
+    });
+  });
+
+  // Preencher até pelo menos 20 linhas
+  while(linhas.length<20){
+    linhas.push({ordem:ordem++,data:'',operacao:'',revenda:0,industria:0,servico:0,comissao:0,outras:0,total:0,obs:''});
   }
+
+  // Totais
+  var totRevenda=0,totIndustria=0,totServico=0,totComissao=0,totOutras=0,totGeral=0;
+  linhas.forEach(function(l){totRevenda+=l.revenda;totIndustria+=l.industria;totServico+=l.servico;totComissao+=l.comissao;totOutras+=l.outras;totGeral+=l.total;});
+
+  var rows='';
+  linhas.forEach(function(l){
+    rows+='<tr>'+
+      '<td style="text-align:center">'+l.ordem+'</td>'+
+      '<td style="text-align:center">'+l.data+'</td>'+
+      '<td>'+l.operacao+'</td>'+
+      '<td style="text-align:right">'+(l.revenda?formatCurrency(l.revenda):'')+'</td>'+
+      '<td style="text-align:right">'+(l.industria?formatCurrency(l.industria):'')+'</td>'+
+      '<td style="text-align:right">'+(l.servico?formatCurrency(l.servico):'')+'</td>'+
+      '<td style="text-align:right">'+(l.comissao?formatCurrency(l.comissao):'')+'</td>'+
+      '<td style="text-align:right">'+(l.outras?formatCurrency(l.outras):'')+'</td>'+
+      '<td style="text-align:right;font-weight:600">'+(l.total?formatCurrency(l.total):'')+'</td>'+
+      '<td>'+l.obs+'</td>'+
+    '</tr>';
+  });
+
+  var empresa=appData.empresa||{};
+
+  container.innerHTML=
+    '<div id="meiPrintArea" style="background:#fff;color:#000;padding:24px;border-radius:8px;border:1px solid #ccc">'+
+      '<div style="text-align:center;margin-bottom:12px">'+
+        '<h3 style="color:#000;margin:0;font-size:14px">RELATÓRIO MENSAL DAS RECEITAS BRUTAS — MEI</h3>'+
+        '<p style="color:#333;margin:4px 0;font-size:11px">CNPJ: '+(empresa.cnpj||'')+'</p>'+
+        '<p style="color:#333;margin:2px 0;font-size:11px">Empreendedor(a): '+(empresa.empreendedor||empresa.nome||'')+'</p>'+
+        '<p style="color:#333;margin:2px 0;font-size:11px">Período de Apuração: '+mesNome+'/'+ano+'</p>'+
+      '</div>'+
+      '<table style="width:100%;border-collapse:collapse;font-size:9px;color:#000">'+
+        '<thead>'+
+          '<tr style="background:#e8e8e8">'+
+            '<th style="border:1px solid #999;padding:4px;text-align:center;color:#000;font-size:8px">I<br>Nº</th>'+
+            '<th style="border:1px solid #999;padding:4px;text-align:center;color:#000;font-size:8px">II<br>Data</th>'+
+            '<th style="border:1px solid #999;padding:4px;text-align:center;color:#000;font-size:8px">III<br>Operação (Nota/Recibo)</th>'+
+            '<th style="border:1px solid #999;padding:4px;text-align:center;color:#000;font-size:8px">IV<br>Receita Bruta<br>Revenda Mercadorias</th>'+
+            '<th style="border:1px solid #999;padding:4px;text-align:center;color:#000;font-size:8px">V<br>Receita Bruta<br>Venda Ind/Art</th>'+
+            '<th style="border:1px solid #999;padding:4px;text-align:center;color:#000;font-size:8px">VI<br>Receita Bruta<br>Prest. Serviços</th>'+
+            '<th style="border:1px solid #999;padding:4px;text-align:center;color:#000;font-size:8px">VII<br>Receita Bruta<br>Comissão Agente</th>'+
+            '<th style="border:1px solid #999;padding:4px;text-align:center;color:#000;font-size:8px">VIII<br>Receita Bruta<br>Outras</th>'+
+            '<th style="border:1px solid #999;padding:4px;text-align:center;color:#000;font-size:8px">IX<br>Total<br>(IV+V+VI+VII+VIII)</th>'+
+            '<th style="border:1px solid #999;padding:4px;text-align:center;color:#000;font-size:8px">X<br>Obs</th>'+
+          '</tr>'+
+        '</thead>'+
+        '<tbody>'+rows+'</tbody>'+
+        '<tfoot>'+
+          '<tr style="background:#e8e8e8;font-weight:700">'+
+            '<td colspan="3" style="border:1px solid #999;padding:4px;text-align:right;color:#000">TOTAIS:</td>'+
+            '<td style="border:1px solid #999;padding:4px;text-align:right;color:#000">'+(totRevenda?formatCurrency(totRevenda):'')+'</td>'+
+            '<td style="border:1px solid #999;padding:4px;text-align:right;color:#000">'+(totIndustria?formatCurrency(totIndustria):'')+'</td>'+
+            '<td style="border:1px solid #999;padding:4px;text-align:right;color:#000">'+(totServico?formatCurrency(totServico):'')+'</td>'+
+            '<td style="border:1px solid #999;padding:4px;text-align:right;color:#000">'+(totComissao?formatCurrency(totComissao):'')+'</td>'+
+            '<td style="border:1px solid #999;padding:4px;text-align:right;color:#000">'+(totOutras?formatCurrency(totOutras):'')+'</td>'+
+            '<td style="border:1px solid #999;padding:4px;text-align:right;color:#000">'+formatCurrency(totGeral)+'</td>'+
+            '<td style="border:1px solid #999;padding:4px;color:#000"></td>'+
+          '</tr>'+
+        '</tfoot>'+
+      '</table>'+
+      '<div style="margin-top:16px;display:flex;justify-content:space-between;font-size:10px;color:#000">'+
+        '<div>Local e Data: '+(empresa.cidade||'_____________')+', ____/____/'+ano+'</div>'+
+        '<div style="text-align:center;border-top:1px solid #000;padding-top:4px;min-width:200px">'+(empresa.empreendedor||empresa.nome||'Assinatura do Empreendedor')+'</div>'+
+      '</div>'+
+    '</div>';
+
+  // Estilo inline para as linhas da tabela
+  var tds=container.querySelectorAll('#meiPrintArea table tbody td');
+  tds.forEach(function(td){
+    td.style.border='1px solid #ccc';
+    td.style.padding='3px 4px';
+    td.style.color='#000';
+  });
 }
-function imprimirReceitaMei(){
-  var sel=document.getElementById('meiMesSelect');var val=sel?sel.value:'0';
-  var ano=new Date().getFullYear();var mNomes=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-  var vendas=appData.vendas||[];var notas=appData.notasSaida||[];var empresa=appData.empresa||{};
-  function getVM(m){return vendas.filter(function(v){if(!v.data)return false;var d=new Date(v.data+'T00:00:00');return d.getMonth()===m&&d.getFullYear()===ano;});}
-  function tB(arr){return arr.reduce(function(s,v){return s+((v.quantidade||1)*(v.valorUnit||0));},0);}
-  function getNM(m){return notas.filter(function(n){if(!n.data)return false;var d=new Date(n.data+'T00:00:00');return d.getMonth()===m&&d.getFullYear()===ano;});}
-  function tN(arr){return arr.reduce(function(s,n){return s+(n.valor||0);},0);}
-  function fc(v){return'R$ '+(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
-  var cnpjNum=empresa.cnpj?empresa.cnpj.replace(/\D/g,''):'';
-  var conteudo='';var bd='border:1px solid #333;padding:4px 8px;';
-  if(val==='todos'){
-    var rows='';var tAB=0;var tACN=0;
-    for(var i=0;i<12;i++){var b=tB(getVM(i));var cn=tN(getNM(i));var sn=b-cn;tAB+=b;tACN+=cn;rows+='<tr><td style="'+bd+'">'+mNomes[i]+'</td><td style="'+bd+'text-align:right">'+fc(sn)+'</td><td style="'+bd+'text-align:right">'+fc(cn)+'</td><td style="'+bd+'text-align:right;font-weight:bold">'+fc(b)+'</td></tr>';}
-    rows+='<tr style="background:#ddd;font-weight:bold"><td style="'+bd+'">TOTAL</td><td style="'+bd+'text-align:right">'+fc(tAB-tACN)+'</td><td style="'+bd+'text-align:right">'+fc(tACN)+'</td><td style="'+bd+'text-align:right">'+fc(tAB)+'</td></tr>';
-    conteudo='<h2 style="text-align:center;font-size:14px;margin-bottom:4px">RELATÓRIO ANUAL DE RECEITAS BRUTAS — MEI</h2><p style="text-align:center;font-size:10px;margin:0 0 8px">'+empresa.nome+' — CNPJ: '+empresa.cnpj+' — '+empresa.empreendedor+'<br>Ano-calendário: '+ano+'</p><table style="width:100%;border-collapse:collapse;font-size:10px"><thead><tr style="background:#ccc"><th style="'+bd+'text-align:left">Mês</th><th style="'+bd+'text-align:right">Sem Nota</th><th style="'+bd+'text-align:right">Com Nota</th><th style="'+bd+'text-align:right">Total Bruto</th></tr></thead><tbody>'+rows+'</tbody></table><div style="margin-top:10px;padding:6px;border:1px solid #333;font-size:10px"><strong>DASN-SIMEI:</strong> Receita Bruta Total: '+fc(tAB)+' | Comércio: '+fc(tAB)+' | Serviços: '+fc(0)+' | Empregado: Não</div><div style="margin-top:6px;padding:6px;border:1px solid #333;font-size:10px"><strong>IRPF:</strong> Parcela Isenta (8% Comércio): '+fc(tAB*0.08)+'</div><div style="margin-top:10px;text-align:center;font-size:10px">'+(empresa.cidade||'')+', ___/___/'+ano+'<br><br><br>___________________________________________<br>'+empresa.empreendedor+'</div>';
-  } else {
-    var mi=parseInt(val);var brutoMes=tB(getVM(mi));var comNotaMes=tN(getNM(mi));var semNotaMes=brutoMes-comNotaMes;var mesNome=mNomes[mi].toUpperCase();
-    conteudo=
-      '<table style="width:100%;border-collapse:collapse;font-size:11px;border:2px solid #333"><tbody>'+
-        '<tr><td colspan="2" style="'+bd+'text-align:center;font-weight:bold;font-size:12px;background:#ddd">RELATÓRIO MENSAL DAS RECEITAS BRUTAS</td></tr>'+
-        '<tr><td style="'+bd+'width:55%">CNPJ:</td><td style="'+bd+'">'+(empresa.cnpj||'')+'</td></tr>'+
-        '<tr><td style="'+bd+'">Empreendedor individual:</td><td style="'+bd+'">'+cnpjNum+' '+(empresa.empreendedor||'')+'</td></tr>'+
-        '<tr><td style="'+bd+'">Período de apuração:</td><td style="'+bd+'">'+mesNome+' DE '+ano+'</td></tr>'+
-        '<tr><td colspan="2" style="'+bd+'font-weight:bold;background:#ddd">RECEITA BRUTA MENSAL – REVENDA DE MERCADORIAS (COMÉRCIO)</td></tr>'+
-        '<tr><td style="'+bd+'">I – Revenda de mercadorias com dispensa de emissão de documento fiscal</td><td style="'+bd+'text-align:right">'+fc(semNotaMes)+'</td></tr>'+
-        '<tr><td style="'+bd+'">II – Revenda de mercadorias com documento fiscal emitido</td><td style="'+bd+'text-align:right">'+fc(comNotaMes)+'</td></tr>'+
-        '<tr><td style="'+bd+'">III – Total das receitas com revenda de mercadorias (I + II)</td><td style="'+bd+'text-align:right">'+fc(brutoMes)+'</td></tr>'+
-        '<tr><td colspan="2" style="'+bd+'font-weight:bold;background:#ddd">RECEITA BRUTA MENSAL – VENDA DE PRODUTOS INDUSTRIALIZADOS (INDÚSTRIA)</td></tr>'+
-        '<tr><td style="'+bd+'">IV – Venda de produtos industrializados com dispensa de emissão de documento fiscal</td><td style="'+bd+'text-align:right">'+fc(0)+'</td></tr>'+
-        '<tr><td style="'+bd+'">V – Venda de produtos industrializados com documento fiscal emitido</td><td style="'+bd+'text-align:right">'+fc(0)+'</td></tr>'+
-        '<tr><td style="'+bd+'">VI – Total das receitas com venda de produtos industrializados (IV + V)</td><td style="'+bd+'text-align:right">'+fc(0)+'</td></tr>'+
-        '<tr><td colspan="2" style="'+bd+'font-weight:bold;background:#ddd">RECEITA BRUTA MENSAL – PRESTAÇÃO DE SERVIÇOS</td></tr>'+
-        '<tr><td style="'+bd+'">VII – Receita com prestação de serviços com dispensa de emissão de documento fiscal</td><td style="'+bd+'text-align:right">'+fc(0)+'</td></tr>'+
-        '<tr><td style="'+bd+'">VIII – Receita com prestação de serviços com documento fiscal emitido</td><td style="'+bd+'text-align:right">'+fc(0)+'</td></tr>'+
-        '<tr><td style="'+bd+'">IX – Total das receitas com prestação de serviços (VII + VIII)</td><td style="'+bd+'text-align:right">'+fc(0)+'</td></tr>'+
-        '<tr><td style="'+bd+'font-weight:bold">X - Total geral das receitas brutas no mês (III + VI + IX)</td><td style="'+bd+'text-align:right;font-weight:bold;font-size:14px">'+fc(brutoMes)+'</td></tr>'+
-        '<tr><td style="'+bd+'">LOCAL E DATA:<br>'+(empresa.cidade||'')+' - 01 de '+mNomes[mi]+' de '+ano+'</td><td style="'+bd+'">ASSINATURA DO EMPRESÁRIO:<br>'+(empresa.assinatura?'<img src="'+empresa.assinatura+'" style="max-height:35px">':empresa.empreendedor||'')+'</td></tr>'+
-        '<tr><td colspan="2" style="'+bd+'font-size:9px">ENCONTRAM-SE ANEXADOS E ESTE RELATÓRIO:<br>- Os documentos fiscais comprobatórios das entradas de mercadorias e serviços tomados referentes ao período;<br>- As notas fiscais relativas às operações ou prestações realizadas eventualmente emitidas.</td></tr>'+
-      '</tbody></table>';
-  }
-  var w=window.open('','_blank','width=800,height=600');
-  w.document.write('<!DOCTYPE html><html><head><title>Receitas MEI</title><style>@page{size:A4;margin:15mm 12mm}body{font-family:Arial,sans-serif;font-size:11px;color:#000;margin:0;padding:10px}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body>'+conteudo+'</body></html>');
-  w.document.close();setTimeout(function(){w.print();},300);
+
+function renderMeiAnual(container){
+  var ano=new Date().getFullYear();
+  var meses=['janeiro','fevereiro','marco','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  var mesesNome=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+  var dados=[];
+  var totalAnualRevenda=0,totalAnualIndustria=0,totalAnualServico=0,totalAnualComissao=0,totalAnualOutras=0,totalAnualGeral=0;
+
+  meses.forEach(function(mesKey,mi){
+    var mesNum=mi+1;
+    var vendas=(appData.vendas||[]).filter(function(v){
+      if(!v.data) return false;
+      var p=v.data.split('-');
+      return parseInt(p[1])===mesNum && parseInt(p[0])===ano;
+    });
+    var lancs=(appData.fluxoCaixa&&appData.fluxoCaixa[mesKey])?appData.fluxoCaixa[mesKey]:[];
+    var entradas=lancs.filter(function(l){return l.tipo==='entrada';});
+
+    var revenda=0,industria=0,servico=0,comissao=0,outras=0;
+
+    vendas.forEach(function(v){
+      var total=(v.quantidade||1)*(v.valorUnit||0);
+      var tipoV=(v.tipoVenda||'Direta').toLowerCase();
+      if(tipoV.includes('revenda')) revenda+=total;
+      else outras+=total;
+    });
+
+    entradas.forEach(function(l){
+      var cat=(l.categoria||'').toLowerCase();
+      if(cat.includes('serviço')||cat.includes('servico')) servico+=(l.valor||0);
+      else outras+=(l.valor||0);
+    });
+
+    var totalMes=revenda+industria+servico+comissao+outras;
+    totalAnualRevenda+=revenda;totalAnualIndustria+=industria;totalAnualServico+=servico;totalAnualComissao+=comissao;totalAnualOutras+=outras;totalAnualGeral+=totalMes;
+
+    dados.push({mes:mesesNome[mi],revenda:revenda,industria:industria,servico:servico,comissao:comissao,outras:outras,total:totalMes});
+  });
+
+  var rows='';
+  dados.forEach(function(d){
+    rows+='<tr>'+
+      '<td style="border:1px solid #999;padding:6px 8px;color:#000;font-weight:600">'+d.mes+'</td>'+
+      '<td style="border:1px solid #999;padding:6px 8px;text-align:right;color:#000">'+(d.revenda?formatCurrency(d.revenda):'-')+'</td>'+
+      '<td style="border:1px solid #999;padding:6px 8px;text-align:right;color:#000">'+(d.industria?formatCurrency(d.industria):'-')+'</td>'+
+      '<td style="border:1px solid #999;padding:6px 8px;text-align:right;color:#000">'+(d.servico?formatCurrency(d.servico):'-')+'</td>'+
+      '<td style="border:1px solid #999;padding:6px 8px;text-align:right;color:#000">'+(d.comissao?formatCurrency(d.comissao):'-')+'</td>'+
+      '<td style="border:1px solid #999;padding:6px 8px;text-align:right;color:#000">'+(d.outras?formatCurrency(d.outras):'-')+'</td>'+
+      '<td style="border:1px solid #999;padding:6px 8px;text-align:right;color:#000;font-weight:700">'+formatCurrency(d.total)+'</td>'+
+    '</tr>';
+  });
+
+  // Limite MEI 2026
+  var limiteMei=81000;
+  var percentual=totalAnualGeral>0?((totalAnualGeral/limiteMei)*100).toFixed(1):0;
+  var restante=limiteMei-totalAnualGeral;
+  var situacaoMei=totalAnualGeral>limiteMei?
+    '<span style="color:#c00;font-weight:700">⚠️ ULTRAPASSOU O LIMITE MEI!</span>':
+    '<span style="color:#080;font-weight:700">✅ Dentro do limite MEI</span>';
+
+  var empresa=appData.empresa||{};
+
+  container.innerHTML=
+    '<div id="meiPrintArea" style="background:#fff;color:#000;padding:24px;border-radius:8px;border:1px solid #ccc">'+
+      '<div style="text-align:center;margin-bottom:16px">'+
+        '<h3 style="color:#000;margin:0;font-size:16px">RESUMO ANUAL DAS RECEITAS BRUTAS — MEI</h3>'+
+        '<p style="color:#333;margin:4px 0;font-size:12px">CNPJ: '+(empresa.cnpj||'')+'</p>'+
+        '<p style="color:#333;margin:2px 0;font-size:12px">Empreendedor(a): '+(empresa.empreendedor||empresa.nome||'')+'</p>'+
+        '<p style="color:#333;margin:2px 0;font-size:12px">Ano-calendário: '+ano+'</p>'+
+      '</div>'+
+
+      '<table style="width:100%;border-collapse:collapse;font-size:11px;color:#000;margin-bottom:20px">'+
+        '<thead>'+
+          '<tr style="background:#e8e8e8">'+
+            '<th style="border:1px solid #999;padding:8px;text-align:center;color:#000">Mês</th>'+
+            '<th style="border:1px solid #999;padding:8px;text-align:center;color:#000">Revenda<br>Mercadorias</th>'+
+            '<th style="border:1px solid #999;padding:8px;text-align:center;color:#000">Venda<br>Ind/Art</th>'+
+            '<th style="border:1px solid #999;padding:8px;text-align:center;color:#000">Prestação<br>Serviços</th>'+
+            '<th style="border:1px solid #999;padding:8px;text-align:center;color:#000">Comissão<br>Agente</th>'+
+            '<th style="border:1px solid #999;padding:8px;text-align:center;color:#000">Outras<br>Receitas</th>'+
+            '<th style="border:1px solid #999;padding:8px;text-align:center;color:#000">Total</th>'+
+          '</tr>'+
+        '</thead>'+
+        '<tbody>'+rows+'</tbody>'+
+        '<tfoot>'+
+          '<tr style="background:#e8e8e8;font-weight:700">'+
+            '<td style="border:1px solid #999;padding:8px;text-align:right;color:#000">TOTAL ANUAL:</td>'+
+            '<td style="border:1px solid #999;padding:8px;text-align:right;color:#000">'+formatCurrency(totalAnualRevenda)+'</td>'+
+            '<td style="border:1px solid #999;padding:8px;text-align:right;color:#000">'+formatCurrency(totalAnualIndustria)+'</td>'+
+            '<td style="border:1px solid #999;padding:8px;text-align:right;color:#000">'+formatCurrency(totalAnualServico)+'</td>'+
+            '<td style="border:1px solid #999;padding:8px;text-align:right;color:#000">'+formatCurrency(totalAnualComissao)+'</td>'+
+            '<td style="border:1px solid #999;padding:8px;text-align:right;color:#000">'+formatCurrency(totalAnualOutras)+'</td>'+
+            '<td style="border:1px solid #999;padding:8px;text-align:right;color:#000;font-size:13px">'+formatCurrency(totalAnualGeral)+'</td>'+
+          '</tr>'+
+        '</tfoot>'+
+      '</table>'+
+
+      '<div style="background:#f5f5f5;border:1px solid #ccc;border-radius:8px;padding:16px;margin-bottom:16px">'+
+        '<h4 style="color:#000;margin:0 0 10px 0;font-size:13px">📊 Situação MEI — Ano '+ano+'</h4>'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;font-size:12px">'+
+          '<div><strong style="color:#555">Receita Bruta Total:</strong><br><span style="font-size:16px;font-weight:700;color:#000">'+formatCurrency(totalAnualGeral)+'</span></div>'+
+          '<div><strong style="color:#555">Limite MEI Anual:</strong><br><span style="font-size:16px;font-weight:700;color:#000">'+formatCurrency(limiteMei)+'</span></div>'+
+          '<div><strong style="color:#555">Restante disponível:</strong><br><span style="font-size:16px;font-weight:700;color:'+(restante>=0?'#080':'#c00')+'">'+formatCurrency(restante)+'</span></div>'+
+        '</div>'+
+        '<div style="margin-top:8px">'+
+          '<div style="background:#ddd;border-radius:4px;height:12px;overflow:hidden"><div style="background:'+(parseFloat(percentual)>100?'#c00':'#3B82F6')+';height:100%;width:'+Math.min(parseFloat(percentual),100)+'%;border-radius:4px"></div></div>'+
+          '<div style="text-align:center;margin-top:4px;font-size:11px;color:#333">'+percentual+'% utilizado</div>'+
+        '</div>'+
+        '<div style="text-align:center;margin-top:8px">'+situacaoMei+'</div>'+
+      '</div>'+
+
+      '<div style="background:#f5f5f5;border:1px solid #ccc;border-radius:8px;padding:16px;margin-bottom:16px">'+
+        '<h4 style="color:#000;margin:0 0 10px 0;font-size:13px">📋 Dados para Declaração Anual (DASN-SIMEI) e Imposto de Renda</h4>'+
+        '<table style="width:100%;border-collapse:collapse;font-size:12px;color:#000">'+
+          '<tr><td style="border:1px solid #ccc;padding:8px;background:#e8e8e8;font-weight:700;width:55%">Receita Bruta Total Anual (Comércio/Revenda)</td><td style="border:1px solid #ccc;padding:8px;font-weight:600">'+formatCurrency(totalAnualRevenda)+'</td></tr>'+
+          '<tr><td style="border:1px solid #ccc;padding:8px;background:#e8e8e8;font-weight:700">Receita Bruta Total Anual (Indústria/Artesanato)</td><td style="border:1px solid #ccc;padding:8px;font-weight:600">'+formatCurrency(totalAnualIndustria)+'</td></tr>'+
+          '<tr><td style="border:1px solid #ccc;padding:8px;background:#e8e8e8;font-weight:700">Receita Bruta Total Anual (Prestação de Serviços)</td><td style="border:1px solid #ccc;padding:8px;font-weight:600">'+formatCurrency(totalAnualServico)+'</td></tr>'+
+          '<tr><td style="border:1px solid #ccc;padding:8px;background:#e8e8e8;font-weight:700">Receita Bruta Total (Todas as Atividades)</td><td style="border:1px solid #ccc;padding:8px;font-weight:700;font-size:14px;color:#000">'+formatCurrency(totalAnualGeral)+'</td></tr>'+
+          '<tr><td style="border:1px solid #ccc;padding:8px;background:#e8e8e8;font-weight:700">Contratou empregado(a) no período?</td><td style="border:1px solid #ccc;padding:8px">( ) Sim &nbsp;&nbsp; ( ) Não</td></tr>'+
+        '</table>'+
+      '</div>'+
+
+      '<div style="background:#fffbe6;border:1px solid #e8d44d;border-radius:8px;padding:12px;margin-bottom:16px;font-size:11px;color:#333">'+
+        '<strong style="color:#8B6914">📌 Parcela Isenta do IRPF (para copiar na declaração):</strong><br><br>'+
+        '• Comércio/Revenda: 8% x '+formatCurrency(totalAnualRevenda)+' = <strong>'+formatCurrency(totalAnualRevenda*0.08)+'</strong> (parcela isenta)<br>'+
+        '• Indústria: 8% x '+formatCurrency(totalAnualIndustria)+' = <strong>'+formatCurrency(totalAnualIndustria*0.08)+'</strong> (parcela isenta)<br>'+
+        '• Serviços: 32% x '+formatCurrency(totalAnualServico)+' = <strong>'+formatCurrency(totalAnualServico*0.32)+'</strong> (parcela isenta)<br>'+
+        '• <strong>Total Parcela Isenta: '+formatCurrency((totalAnualRevenda*0.08)+(totalAnualIndustria*0.08)+(totalAnualServico*0.32))+'</strong><br><br>'+
+        '<em>Preencha este valor no campo "Rendimentos Isentos e Não Tributáveis" da sua declaração de IRPF.</em>'+
+      '</div>'+
+
+      '<div style="margin-top:16px;display:flex;justify-content:space-between;font-size:10px;color:#000">'+
+        '<div>Local e Data: '+(empresa.cidade||'_____________')+', ____/____/'+ano+'</div>'+
+        '<div style="text-align:center;border-top:1px solid #000;padding-top:4px;min-width:200px">'+(empresa.empreendedor||empresa.nome||'Assinatura do Empreendedor')+'</div>'+
+      '</div>'+
+    '</div>';
 }
+
+function printMeiPage(){
+  var area=document.getElementById('meiPrintArea');
+  if(!area){showToast('Selecione um mês ou "Todos" primeiro','error');return;}
+  var win=window.open('','','width=900,height=700');
+  win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Receitas MEI</title>'+
+    '<style>@page{size:A4 portrait;margin:10mm}body{font-family:Arial,sans-serif;margin:0;padding:0;color:#000;background:#fff}table{page-break-inside:auto}tr{page-break-inside:avoid;page-break-after:auto}</style>'+
+    '</head><body>'+area.innerHTML+'</body></html>');
+  win.document.close();
+  setTimeout(function(){win.print();},500);
+}
+
 
 // ══════════════════════════════════════════════════════════════
 // ── RELATÓRIOS ──
@@ -723,8 +929,253 @@ function renderRelatoriosPage(){
 // ══════════════════════════════════════════════════════════════
 // ── CONFIGURAÇÕES ──
 // ══════════════════════════════════════════════════════════════
-function renderConfiguracoesPage(){var pg=document.getElementById('page-configuracoes');if(!pg)return;var emp=appData.empresa||{};pg.innerHTML='<div class="page-header"><h2>⚙️ Configurações</h2></div><div class="card" style="padding:20px;max-width:700px"><h3 style="margin-bottom:16px">Dados da Empresa</h3><div class="form-group"><label>Nome da Empresa</label><input type="text" class="form-control" id="cfgNome" value="'+(emp.nome||'')+'"></div><div class="form-row"><div class="form-group"><label>CNPJ</label><input type="text" class="form-control" id="cfgCnpj" value="'+(emp.cnpj||'')+'"></div><div class="form-group"><label>Empreendedor</label><input type="text" class="form-control" id="cfgEmpreendedor" value="'+(emp.empreendedor||'')+'"></div></div><div class="form-group"><label>Cidade</label><input type="text" class="form-control" id="cfgCidade" value="'+(emp.cidade||'')+'"></div><div class="form-row"><div class="form-group"><label>Logo</label><input type="file" class="form-control" id="cfgLogoInput" accept="image/*"><div id="cfgLogoPreview">'+(emp.logo?'<img src="'+emp.logo+'" style="max-width:150px;max-height:80px;border-radius:4px;margin-top:6px">':'')+'</div></div><div class="form-group"><label>Assinatura</label><input type="file" class="form-control" id="cfgAssInput" accept="image/*"><div id="cfgAssPreview">'+(emp.assinatura?'<img src="'+emp.assinatura+'" style="max-width:150px;max-height:80px;border-radius:4px;margin-top:6px">':'')+'</div></div></div><button class="btn btn-primary" onclick="saveConfiguracoes()" style="margin-top:12px">Salvar Configurações</button></div>';setTimeout(function(){handleImageUpload('cfgLogoInput','cfgLogoPreview');handleImageUpload('cfgAssInput','cfgAssPreview');applyAllMasks();},50);}
-function saveConfiguracoes(){appData.empresa.nome=document.getElementById('cfgNome').value.trim();appData.empresa.cnpj=document.getElementById('cfgCnpj').value;appData.empresa.empreendedor=document.getElementById('cfgEmpreendedor').value.trim();appData.empresa.cidade=document.getElementById('cfgCidade').value.trim();var logoEl=document.getElementById('cfgLogoInput');var logoB64=logoEl?logoEl.getAttribute('data-base64')||'':'';if(logoB64)appData.empresa.logo=logoB64;var assEl=document.getElementById('cfgAssInput');var assB64=assEl?assEl.getAttribute('data-base64')||'':'';if(assB64)appData.empresa.assinatura=assB64;saveData();updateSidebarInfo();showToast('Configurações salvas!','success');}
+function renderConfiguracoesPage(){
+  var pg=document.getElementById('page-configuracoes');if(!pg)return;
+  var emp=appData.empresa||{};
+
+  // ─ Empresa ─
+  var empresaHtml=
+    '<div class="cfg-section">'+
+      '<div class="cfg-section-header"><span class="cfg-section-icon">🏢</span><h3>Dados da Empresa</h3></div>'+
+      '<div class="cfg-section-body">'+
+        '<div class="form-row">'+
+          '<div class="form-group"><label>Nome da Empresa</label><input class="form-control" id="cfgNome" value="'+(emp.nome||'')+'"></div>'+
+          '<div class="form-group"><label>CNPJ</label><input class="form-control" id="cfgCnpj" value="'+(emp.cnpj||'')+'"></div>'+
+        '</div>'+
+        '<div class="form-row">'+
+          '<div class="form-group"><label>Empreendedor</label><input class="form-control" id="cfgEmpreendedor" value="'+(emp.empreendedor||'')+'"></div>'+
+          '<div class="form-group"><label>Cidade / UF</label><input class="form-control" id="cfgCidade" value="'+(emp.cidade||'')+'"></div>'+
+        '</div>'+
+        '<div class="form-row">'+
+          '<div class="form-group"><label>Logo</label>'+
+            '<div class="logo-upload-area" onclick="document.getElementById(\'cfgLogoInput\').click()">'+
+              (emp.logo?'<img src="'+emp.logo+'" style="max-width:200px;max-height:80px;object-fit:contain">':'<div class="upload-text">Clique para enviar a logo</div>')+
+              '<div class="upload-hint">JPG, PNG ou WEBP — máx 2 MB</div>'+
+              '<input type="file" id="cfgLogoInput" accept="image/*" style="display:none">'+
+            '</div>'+
+          '</div>'+
+          '<div class="form-group"><label>Assinatura (imagem)</label>'+
+            '<div class="logo-upload-area" onclick="document.getElementById(\'cfgAssInput\').click()">'+
+              (emp.assinatura?'<img src="'+emp.assinatura+'" style="max-width:200px;max-height:80px;object-fit:contain">':'<div class="upload-text">Clique para enviar</div>')+
+              '<div class="upload-hint">JPG, PNG ou WEBP — máx 2 MB</div>'+
+              '<input type="file" id="cfgAssInput" accept="image/*" style="display:none">'+
+            '</div>'+
+          '</div>'+
+        '</div>'+
+        '<div style="margin-top:12px"><button class="btn btn-primary" onclick="saveCfgEmpresa()">💾 Salvar Dados da Empresa</button></div>'+
+      '</div>'+
+    '</div>';
+
+  // ─ Vendedores ─
+  var vendedoresItems='';
+  (appData.vendedores||[]).forEach(function(v,i){
+    vendedoresItems+='<div class="cfg-drag-item" draggable="true" data-cfg-list="vendedores" data-cfg-idx="'+i+'">'+
+      '<span class="cfg-drag-handle">⠿</span>'+
+      '<input class="cfg-inline-input form-control" value="'+v+'" onchange="updateCfgItem(\'vendedores\','+i+',this.value)">'+
+      '<button class="btn-tag-remove" onclick="removeCfgItem(\'vendedores\','+i+')">✕</button>'+
+    '</div>';
+  });
+
+  var vendedoresHtml=
+    '<div class="cfg-section">'+
+      '<div class="cfg-section-header"><span class="cfg-section-icon">👤</span><h3>Vendedores</h3></div>'+
+      '<div class="cfg-section-body">'+
+        '<div class="cfg-drag-list" id="cfgList_vendedores">'+vendedoresItems+'</div>'+
+        '<div class="cfg-add-row">'+
+          '<input class="form-control" id="cfgAdd_vendedores" placeholder="Novo vendedor...">'+
+          '<button class="btn btn-primary btn-sm" onclick="addCfgItem(\'vendedores\')">+ Adicionar</button>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+
+  // ─ Helper genérico para listas de tags ─
+  function buildTagSection(icon,title,key,placeholder){
+    var items='';
+    (appData[key]||[]).forEach(function(v,i){
+      items+='<div class="cfg-drag-item" draggable="true" data-cfg-list="'+key+'" data-cfg-idx="'+i+'">'+
+        '<span class="cfg-tag-text">'+v+'</span>'+
+        '<button class="btn-tag-remove" onclick="removeCfgItem(\''+key+'\','+i+')">✕</button>'+
+      '</div>';
+    });
+    return '<div class="cfg-section">'+
+      '<div class="cfg-section-header"><span class="cfg-section-icon">'+icon+'</span><h3>'+title+'</h3></div>'+
+      '<div class="cfg-section-body">'+
+        '<div class="cfg-drag-list cfg-tags-list" id="cfgList_'+key+'">'+items+'</div>'+
+        '<div class="cfg-add-row">'+
+          '<input class="form-control" id="cfgAdd_'+key+'" placeholder="'+placeholder+'">'+
+          '<button class="btn btn-primary btn-sm" onclick="addCfgItem(\''+key+'\')">+ Adicionar</button>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  }
+
+  var formasPgtoHtml=buildTagSection('💳','Formas de Pagamento (Compras)','formasPagamento','Nova forma de pagamento...');
+  var formasPgtoVendasHtml=buildTagSection('💳','Formas de Pagamento (Vendas)','formasPagamentoVendas','Nova forma de pagamento vendas...');
+  var tipoUnidadeHtml=buildTagSection('📏','Tipos de Unidade','tipoUnidade','Nova unidade...');
+  var tipoVendaHtml=buildTagSection('🏷️','Tipos de Venda','tipoVenda','Novo tipo de venda...');
+  var sitCompraHtml=buildTagSection('📋','Situação (Compras)','situacaoCompra','Nova situação...');
+  var sitVendaHtml=buildTagSection('📋','Situação (Vendas)','situacaoVenda','Nova situação...');
+  var sitEntregaHtml=buildTagSection('🚚','Situação de Entrega','situacaoEntrega','Nova situação...');
+  var sitChequeHtml=buildTagSection('📝','Situação (Cheques)','situacaoCheque','Nova situação...');
+  var sitGarantiaHtml=buildTagSection('🛡️','Situação (Garantias)','situacaoGarantia','Nova situação...');
+  var sitBoletoHtml=buildTagSection('🔖','Situação (Boletos)','situacaoBoleto','Nova situação...');
+
+  // ─ Categorias do Fluxo de Caixa ─
+  var catItems='';
+  (appData.categoriasFluxo||[]).forEach(function(c,i){
+    var isEntrada=c.tipo==='entrada';
+    catItems+='<div class="cfg-drag-item '+(isEntrada?'cfg-cat-entrada':'cfg-cat-saida')+'" draggable="true" data-cfg-list="categoriasFluxo" data-cfg-idx="'+i+'">'+
+      '<span class="cfg-drag-handle">⠿</span>'+
+      '<input class="cfg-inline-input form-control" value="'+c.nome+'" onchange="updateCfgCatNome('+i+',this.value)">'+
+      '<span class="cfg-cat-badge '+(isEntrada?'badge-success':'badge-danger')+'">'+(isEntrada?'Entrada':'Saída')+'</span>'+
+      '<button class="btn-tag-remove" onclick="removeCfgCat('+i+')">✕</button>'+
+    '</div>';
+  });
+
+  var categoriasHtml=
+    '<div class="cfg-section">'+
+      '<div class="cfg-section-header"><span class="cfg-section-icon">📊</span><h3>Categorias do Fluxo de Caixa</h3></div>'+
+      '<div class="cfg-section-body">'+
+        '<div class="cfg-drag-list" id="cfgList_categoriasFluxo">'+catItems+'</div>'+
+        '<div class="cfg-add-row">'+
+          '<input class="form-control" id="cfgAdd_catNome" placeholder="Nome da categoria...">'+
+          '<select class="form-control" id="cfgAdd_catTipo" style="max-width:150px"><option value="entrada">Entrada</option><option value="saida">Saída</option></select>'+
+          '<button class="btn btn-primary btn-sm" onclick="addCfgCat()">+ Adicionar</button>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+
+  pg.innerHTML=
+    '<div class="page-header"><h2>⚙️ Configurações</h2></div>'+
+    empresaHtml+vendedoresHtml+formasPgtoHtml+formasPgtoVendasHtml+tipoUnidadeHtml+tipoVendaHtml+
+    sitCompraHtml+sitVendaHtml+sitEntregaHtml+sitChequeHtml+sitGarantiaHtml+sitBoletoHtml+categoriasHtml;
+
+  // Drag and drop
+  setTimeout(function(){initCfgDragDrop();},100);
+
+  // Image uploads
+  handleImageUpload('cfgLogoInput','cfgLogoPreview');
+  handleImageUpload('cfgAssInput','cfgAssPreview');
+  applyMask('cfgCnpj',maskCNPJ);
+}
+
+function saveCfgEmpresa(){
+  appData.empresa.nome=document.getElementById('cfgNome').value;
+  appData.empresa.cnpj=document.getElementById('cfgCnpj').value;
+  appData.empresa.empreendedor=document.getElementById('cfgEmpreendedor').value;
+  appData.empresa.cidade=document.getElementById('cfgCidade').value;
+  var logoInput=document.getElementById('cfgLogoInput');
+  if(logoInput&&logoInput.getAttribute('data-base64')) appData.empresa.logo=logoInput.getAttribute('data-base64');
+  var assInput=document.getElementById('cfgAssInput');
+  if(assInput&&assInput.getAttribute('data-base64')) appData.empresa.assinatura=assInput.getAttribute('data-base64');
+  updateSidebarInfo();
+  saveData();
+  showToast('Dados da empresa salvos!','success');
+}
+
+function addCfgItem(key){
+  var input=document.getElementById('cfgAdd_'+key);
+  if(!input||!input.value.trim())return;
+  if(!appData[key]) appData[key]=[];
+  appData[key].push(input.value.trim());
+  saveData();
+  renderConfiguracoesPage();
+  showToast('Item adicionado!','success');
+}
+
+function removeCfgItem(key,idx){
+  if(!appData[key])return;
+  appData[key].splice(idx,1);
+  saveData();
+  renderConfiguracoesPage();
+  showToast('Item removido','success');
+}
+
+function updateCfgItem(key,idx,val){
+  if(!appData[key])return;
+  appData[key][idx]=val;
+  saveData();
+}
+
+function addCfgCat(){
+  var nome=document.getElementById('cfgAdd_catNome');
+  var tipo=document.getElementById('cfgAdd_catTipo');
+  if(!nome||!nome.value.trim())return;
+  if(!appData.categoriasFluxo) appData.categoriasFluxo=[];
+  appData.categoriasFluxo.push({nome:nome.value.trim(),tipo:tipo.value});
+  saveData();
+  renderConfiguracoesPage();
+  showToast('Categoria adicionada!','success');
+}
+
+function removeCfgCat(idx){
+  if(!appData.categoriasFluxo)return;
+  appData.categoriasFluxo.splice(idx,1);
+  saveData();
+  renderConfiguracoesPage();
+  showToast('Categoria removida','success');
+}
+
+function updateCfgCatNome(idx,val){
+  if(!appData.categoriasFluxo||!appData.categoriasFluxo[idx])return;
+  appData.categoriasFluxo[idx].nome=val;
+  saveData();
+}
+
+function initCfgDragDrop(){
+  var lists=document.querySelectorAll('.cfg-drag-list');
+  lists.forEach(function(list){
+    var items=list.querySelectorAll('.cfg-drag-item[draggable="true"]');
+    items.forEach(function(item){
+      item.addEventListener('dragstart',function(e){
+        item.classList.add('cfg-dragging');
+        e.dataTransfer.effectAllowed='move';
+        e.dataTransfer.setData('text/plain',item.getAttribute('data-cfg-idx'));
+      });
+      item.addEventListener('dragend',function(){
+        item.classList.remove('cfg-dragging');
+      });
+    });
+    list.addEventListener('dragover',function(e){
+      e.preventDefault();
+      var afterElement=getDragAfterElement(list,e.clientY);
+      var dragging=list.querySelector('.cfg-dragging');
+      if(!dragging)return;
+      if(afterElement==null){list.appendChild(dragging);}
+      else{list.insertBefore(dragging,afterElement);}
+    });
+    list.addEventListener('drop',function(e){
+      e.preventDefault();
+      var listKey=list.id.replace('cfgList_','');
+      var newOrder=[];
+      list.querySelectorAll('.cfg-drag-item').forEach(function(el){
+        var idx=parseInt(el.getAttribute('data-cfg-idx'));
+        if(!isNaN(idx)){
+          if(listKey==='categoriasFluxo'){
+            newOrder.push(appData.categoriasFluxo[idx]);
+          } else {
+            newOrder.push(appData[listKey][idx]);
+          }
+        }
+      });
+      if(listKey==='categoriasFluxo'){appData.categoriasFluxo=newOrder;}
+      else{appData[listKey]=newOrder;}
+      saveData();
+      renderConfiguracoesPage();
+    });
+  });
+}
+
+function getDragAfterElement(container,y){
+  var elements=Array.from(container.querySelectorAll('.cfg-drag-item:not(.cfg-dragging)'));
+  var closest={offset:Number.NEGATIVE_INFINITY,element:null};
+  elements.forEach(function(child){
+    var box=child.getBoundingClientRect();
+    var offset=y-box.top-box.height/2;
+    if(offset<0&&offset>closest.offset){closest={offset:offset,element:child};}
+  });
+  return closest.element;
+}
 
 // ══════════════════════════════════════════════════════════════
 // ── BACKUP ──
