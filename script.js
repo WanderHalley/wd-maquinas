@@ -19,6 +19,13 @@ let vendasFilterSit = '';
 let fluxoFilterText = '';
 let fluxoFilterTipo = '';
 
+// ── HISTÓRICO UNDO/REDO ──
+var undoHistory = [];
+var redoHistory = [];
+var undoMaxSteps = 10;
+var undoSaving = false;
+var backupSubTab = 'autosave';
+
 // ── HELPERS ──
 function nextId(arr) { if (!arr || arr.length === 0) return 1; return Math.max(...arr.map(function(i){ return i.id||0; }))+1; }
 function formatCurrency(val) { return 'R$ '+(val||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
@@ -131,9 +138,29 @@ async function loadData(){
   appData=getDefaultData();
 }
 async function saveData(){
+  // Salva snapshot para undo (máx 10)
+  if(!undoSaving){
+    undoSaving=true;
+    try{
+      var snapshot=JSON.stringify(appData);
+      // Evita duplicar se igual ao último
+      if(undoHistory.length===0||undoHistory[undoHistory.length-1]!==snapshot){
+        undoHistory.push(snapshot);
+        if(undoHistory.length>undoMaxSteps) undoHistory.shift();
+        redoHistory=[];// limpa redo ao fazer nova ação
+      }
+    }catch(e){}
+    undoSaving=false;
+  }
   try{localStorage.setItem('wdmaquinas_data',JSON.stringify(appData));}catch(e){}
   if(supabaseClient){try{await supabaseClient.from('wdmaquinas_data').upsert({id:1,payload:appData,updated_at:new Date().toISOString()});}catch(e){}}
+  updateBackupBadge();
 }
+function updateBackupBadge(){
+  var el=document.getElementById('undoCount');if(el) el.textContent=undoHistory.length;
+  var el2=document.getElementById('redoCount');if(el2) el2.textContent=redoHistory.length;
+}
+
 function ensureDefaults(){
   var def=getDefaultData();
   Object.keys(def).forEach(function(k){if(appData[k]===undefined) appData[k]=def[k];});
@@ -946,7 +973,7 @@ function filtrarPorAnoMes(arr){
 }
 
 // ══════════════════════════════════════════════════════════════
-// ── CONFIGURAÇÕES ──
+// ── CONFIGURAÇÕES (com drag & drop em todas as seções) ──
 // ══════════════════════════════════════════════════════════════
 function renderConfiguracoesPage(){
   var pg=document.getElementById('page-configuracoes');if(!pg)return;
@@ -985,33 +1012,34 @@ function renderConfiguracoesPage(){
       '</div>'+
     '</div>';
 
-  // ─ Vendedores ─
-  var vendedoresItems='';
-  (appData.vendedores||[]).forEach(function(v,i){
-    vendedoresItems+='<div class="cfg-drag-item" draggable="true" data-cfg-list="vendedores" data-cfg-idx="'+i+'">'+
-      '<span class="cfg-drag-handle">⠿</span>'+
-      '<input class="cfg-inline-input form-control" value="'+v+'" onchange="updateCfgItem(\'vendedores\','+i+',this.value)">'+
-      '<button class="btn-tag-remove" onclick="removeCfgItem(\'vendedores\','+i+')">✕</button>'+
-    '</div>';
-  });
-
-  var vendedoresHtml=
-    '<div class="cfg-section">'+
-      '<div class="cfg-section-header"><span class="cfg-section-icon">👤</span><h3>Vendedores</h3></div>'+
+  // ─ Função genérica para seção drag & drop com input editável ─
+  function buildDragSection(icon,title,key,placeholder){
+    var items='';
+    (appData[key]||[]).forEach(function(v,i){
+      items+='<div class="cfg-drag-item" draggable="true" data-cfg-list="'+key+'" data-cfg-idx="'+i+'">'+
+        '<span class="cfg-drag-handle">⠿</span>'+
+        '<input class="cfg-inline-input form-control" value="'+v+'" onchange="updateCfgItem(\''+key+'\','+i+',this.value)">'+
+        '<button class="btn-tag-remove" onclick="removeCfgItem(\''+key+'\','+i+')">✕</button>'+
+      '</div>';
+    });
+    return '<div class="cfg-section">'+
+      '<div class="cfg-section-header"><span class="cfg-section-icon">'+icon+'</span><h3>'+title+'</h3></div>'+
       '<div class="cfg-section-body">'+
-        '<div class="cfg-drag-list" id="cfgList_vendedores">'+vendedoresItems+'</div>'+
+        '<div class="cfg-drag-list" id="cfgList_'+key+'">'+items+'</div>'+
         '<div class="cfg-add-row">'+
-          '<input class="form-control" id="cfgAdd_vendedores" placeholder="Novo vendedor...">'+
-          '<button class="btn btn-primary btn-sm" onclick="addCfgItem(\'vendedores\')">+ Adicionar</button>'+
+          '<input class="form-control" id="cfgAdd_'+key+'" placeholder="'+placeholder+'" onkeydown="if(event.key===\'Enter\')addCfgItem(\''+key+'\')">'+
+          '<button class="btn btn-primary btn-sm" onclick="addCfgItem(\''+key+'\')">+ Adicionar</button>'+
         '</div>'+
       '</div>'+
     '</div>';
+  }
 
-  // ─ Helper genérico para listas de tags ─
+  // ─ Função genérica para seção drag & drop com tags (sem input editável) ─
   function buildTagSection(icon,title,key,placeholder){
     var items='';
     (appData[key]||[]).forEach(function(v,i){
       items+='<div class="cfg-drag-item" draggable="true" data-cfg-list="'+key+'" data-cfg-idx="'+i+'">'+
+        '<span class="cfg-drag-handle">⠿</span>'+
         '<span class="cfg-tag-text">'+v+'</span>'+
         '<button class="btn-tag-remove" onclick="removeCfgItem(\''+key+'\','+i+')">✕</button>'+
       '</div>';
@@ -1021,13 +1049,14 @@ function renderConfiguracoesPage(){
       '<div class="cfg-section-body">'+
         '<div class="cfg-drag-list cfg-tags-list" id="cfgList_'+key+'">'+items+'</div>'+
         '<div class="cfg-add-row">'+
-          '<input class="form-control" id="cfgAdd_'+key+'" placeholder="'+placeholder+'">'+
+          '<input class="form-control" id="cfgAdd_'+key+'" placeholder="'+placeholder+'" onkeydown="if(event.key===\'Enter\')addCfgItem(\''+key+'\')">'+
           '<button class="btn btn-primary btn-sm" onclick="addCfgItem(\''+key+'\')">+ Adicionar</button>'+
         '</div>'+
       '</div>'+
     '</div>';
   }
 
+  var vendedoresHtml=buildDragSection('👤','Vendedores','vendedores','Novo vendedor...');
   var formasPgtoHtml=buildTagSection('💳','Formas de Pagamento (Compras)','formasPagamento','Nova forma de pagamento...');
   var formasPgtoVendasHtml=buildTagSection('💳','Formas de Pagamento (Vendas)','formasPagamentoVendas','Nova forma de pagamento vendas...');
   var tipoUnidadeHtml=buildTagSection('📏','Tipos de Unidade','tipoUnidade','Nova unidade...');
@@ -1039,7 +1068,7 @@ function renderConfiguracoesPage(){
   var sitGarantiaHtml=buildTagSection('🛡️','Situação (Garantias)','situacaoGarantia','Nova situação...');
   var sitBoletoHtml=buildTagSection('🔖','Situação (Boletos)','situacaoBoleto','Nova situação...');
 
-  // ─ Categorias do Fluxo de Caixa ─
+  // ─ Categorias do Fluxo de Caixa (drag & drop especial com tipo) ─
   var catItems='';
   (appData.categoriasFluxo||[]).forEach(function(c,i){
     var isEntrada=c.tipo==='entrada';
@@ -1050,14 +1079,13 @@ function renderConfiguracoesPage(){
       '<button class="btn-tag-remove" onclick="removeCfgCat('+i+')">✕</button>'+
     '</div>';
   });
-
   var categoriasHtml=
     '<div class="cfg-section">'+
       '<div class="cfg-section-header"><span class="cfg-section-icon">📊</span><h3>Categorias do Fluxo de Caixa</h3></div>'+
       '<div class="cfg-section-body">'+
         '<div class="cfg-drag-list" id="cfgList_categoriasFluxo">'+catItems+'</div>'+
         '<div class="cfg-add-row">'+
-          '<input class="form-control" id="cfgAdd_catNome" placeholder="Nome da categoria...">'+
+          '<input class="form-control" id="cfgAdd_catNome" placeholder="Nome da categoria..." onkeydown="if(event.key===\'Enter\')addCfgCat()">'+
           '<select class="form-control" id="cfgAdd_catTipo" style="max-width:150px"><option value="entrada">Entrada</option><option value="saida">Saída</option></select>'+
           '<button class="btn btn-primary btn-sm" onclick="addCfgCat()">+ Adicionar</button>'+
         '</div>'+
@@ -1069,10 +1097,7 @@ function renderConfiguracoesPage(){
     empresaHtml+vendedoresHtml+formasPgtoHtml+formasPgtoVendasHtml+tipoUnidadeHtml+tipoVendaHtml+
     sitCompraHtml+sitVendaHtml+sitEntregaHtml+sitChequeHtml+sitGarantiaHtml+sitBoletoHtml+categoriasHtml;
 
-  // Drag and drop
   setTimeout(function(){initCfgDragDrop();},100);
-
-  // Image uploads
   handleImageUpload('cfgLogoInput','cfgLogoPreview');
   handleImageUpload('cfgAssInput','cfgAssPreview');
   applyMask('cfgCnpj',maskCNPJ);
@@ -1087,8 +1112,7 @@ function saveCfgEmpresa(){
   if(logoInput&&logoInput.getAttribute('data-base64')) appData.empresa.logo=logoInput.getAttribute('data-base64');
   var assInput=document.getElementById('cfgAssInput');
   if(assInput&&assInput.getAttribute('data-base64')) appData.empresa.assinatura=assInput.getAttribute('data-base64');
-  updateSidebarInfo();
-  saveData();
+  updateSidebarInfo();saveData();
   showToast('Dados da empresa salvos!','success');
 }
 
@@ -1097,23 +1121,20 @@ function addCfgItem(key){
   if(!input||!input.value.trim())return;
   if(!appData[key]) appData[key]=[];
   appData[key].push(input.value.trim());
-  saveData();
-  renderConfiguracoesPage();
+  saveData();renderConfiguracoesPage();
   showToast('Item adicionado!','success');
 }
 
 function removeCfgItem(key,idx){
   if(!appData[key])return;
   appData[key].splice(idx,1);
-  saveData();
-  renderConfiguracoesPage();
+  saveData();renderConfiguracoesPage();
   showToast('Item removido','success');
 }
 
 function updateCfgItem(key,idx,val){
   if(!appData[key])return;
-  appData[key][idx]=val;
-  saveData();
+  appData[key][idx]=val;saveData();
 }
 
 function addCfgCat(){
@@ -1122,23 +1143,20 @@ function addCfgCat(){
   if(!nome||!nome.value.trim())return;
   if(!appData.categoriasFluxo) appData.categoriasFluxo=[];
   appData.categoriasFluxo.push({nome:nome.value.trim(),tipo:tipo.value});
-  saveData();
-  renderConfiguracoesPage();
+  saveData();renderConfiguracoesPage();
   showToast('Categoria adicionada!','success');
 }
 
 function removeCfgCat(idx){
   if(!appData.categoriasFluxo)return;
   appData.categoriasFluxo.splice(idx,1);
-  saveData();
-  renderConfiguracoesPage();
+  saveData();renderConfiguracoesPage();
   showToast('Categoria removida','success');
 }
 
 function updateCfgCatNome(idx,val){
   if(!appData.categoriasFluxo||!appData.categoriasFluxo[idx])return;
-  appData.categoriasFluxo[idx].nome=val;
-  saveData();
+  appData.categoriasFluxo[idx].nome=val;saveData();
 }
 
 function initCfgDragDrop(){
@@ -1151,9 +1169,7 @@ function initCfgDragDrop(){
         e.dataTransfer.effectAllowed='move';
         e.dataTransfer.setData('text/plain',item.getAttribute('data-cfg-idx'));
       });
-      item.addEventListener('dragend',function(){
-        item.classList.remove('cfg-dragging');
-      });
+      item.addEventListener('dragend',function(){item.classList.remove('cfg-dragging');});
     });
     list.addEventListener('dragover',function(e){
       e.preventDefault();
@@ -1170,17 +1186,13 @@ function initCfgDragDrop(){
       list.querySelectorAll('.cfg-drag-item').forEach(function(el){
         var idx=parseInt(el.getAttribute('data-cfg-idx'));
         if(!isNaN(idx)){
-          if(listKey==='categoriasFluxo'){
-            newOrder.push(appData.categoriasFluxo[idx]);
-          } else {
-            newOrder.push(appData[listKey][idx]);
-          }
+          if(listKey==='categoriasFluxo') newOrder.push(appData.categoriasFluxo[idx]);
+          else newOrder.push(appData[listKey][idx]);
         }
       });
-      if(listKey==='categoriasFluxo'){appData.categoriasFluxo=newOrder;}
-      else{appData[listKey]=newOrder;}
-      saveData();
-      renderConfiguracoesPage();
+      if(listKey==='categoriasFluxo') appData.categoriasFluxo=newOrder;
+      else appData[listKey]=newOrder;
+      saveData();renderConfiguracoesPage();
     });
   });
 }
@@ -1191,18 +1203,298 @@ function getDragAfterElement(container,y){
   elements.forEach(function(child){
     var box=child.getBoundingClientRect();
     var offset=y-box.top-box.height/2;
-    if(offset<0&&offset>closest.offset){closest={offset:offset,element:child};}
+    if(offset<0&&offset>closest.offset) closest={offset:offset,element:child};
   });
   return closest.element;
 }
 
 // ══════════════════════════════════════════════════════════════
-// ── BACKUP ──
+// ── BACKUP (Sub-abas + Auto-save + Undo/Redo 10 passos) ──
 // ══════════════════════════════════════════════════════════════
-function renderBackupPage(){var pg=document.getElementById('page-backup');if(!pg)return;pg.innerHTML='<div class="page-header"><h2>💾 Backup</h2></div><div class="card" style="padding:20px;max-width:600px"><h3 style="margin-bottom:16px">Exportar / Importar Dados</h3><p style="color:var(--text-muted);margin-bottom:16px">Exporte seus dados para um arquivo JSON ou importe um backup existente.</p><div style="display:flex;gap:12px;flex-wrap:wrap"><button class="btn btn-primary" onclick="exportBackup()">📥 Exportar Backup</button><label class="btn btn-outline" style="cursor:pointer">📤 Importar Backup<input type="file" accept=".json" onchange="importBackup(this)" style="display:none"></label><button class="btn btn-danger" onclick="resetAllData()">🗑️ Resetar Tudo</button></div></div>';}
-function exportBackup(){var blob=new Blob([JSON.stringify(appData,null,2)],{type:'application/json'});var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download='wdmaquinas_backup_'+todayStr()+'.json';a.click();URL.revokeObjectURL(url);showToast('Backup exportado!','success');}
-function importBackup(input){var file=input.files[0];if(!file)return;var reader=new FileReader();reader.onload=function(e){try{var data=JSON.parse(e.target.result);if(!confirm('Importar backup? Todos os dados atuais serão substituídos.'))return;appData=data;ensureDefaults();saveData();updateSidebarInfo();navigateTo('dashboard');showToast('Backup importado!','success');}catch(err){showToast('Arquivo inválido!','error');}};reader.readAsText(file);}
-function resetAllData(){if(!confirm('ATENÇÃO: Isso apagará TODOS os dados! Deseja continuar?'))return;if(!confirm('Tem certeza absoluta? Essa ação não pode ser desfeita.'))return;appData=getDefaultData();saveData();updateSidebarInfo();navigateTo('dashboard');showToast('Dados resetados!','success');}
+var backupSubTab = 'autosave';
+
+function renderBackupPage(){
+  var pg=document.getElementById('page-backup');if(!pg)return;
+
+  var tabs=[
+    {id:'autosave',label:'💾 Auto-Save',icon:'💾'},
+    {id:'manual',label:'📥 Backup Manual',icon:'📥'},
+    {id:'historico',label:'🕐 Histórico (Undo/Redo)',icon:'🕐'},
+    {id:'supabase',label:'☁️ Supabase (Nuvem)',icon:'☁️'}
+  ];
+
+  var tabBtns='';
+  tabs.forEach(function(t){
+    var active=backupSubTab===t.id?'background:var(--accent-primary);color:#fff;border-color:var(--accent-primary)':'';
+    tabBtns+='<button class="btn btn-outline" style="'+active+'" onclick="backupSubTab=\''+t.id+'\';renderBackupPage()">'+t.label+'</button>';
+  });
+
+  var content='';
+
+  // ─ SUB-ABA: AUTO-SAVE ─
+  if(backupSubTab==='autosave'){
+    var lastSave='';
+    try{
+      var raw=localStorage.getItem('wdmaquinas_data');
+      if(raw) lastSave='Dados encontrados no localStorage ('+Math.round(raw.length/1024)+' KB)';
+      else lastSave='Nenhum dado salvo localmente';
+    }catch(e){lastSave='Erro ao verificar localStorage';}
+
+    content=
+      '<div class="card" style="margin-bottom:16px">'+
+        '<div class="card-header"><span>💾 Salvamento Automático</span></div>'+
+        '<div style="padding:20px">'+
+          '<p style="color:var(--text-secondary);margin-bottom:12px">O sistema salva automaticamente a cada alteração no localStorage e no Supabase (se configurado).</p>'+
+          '<div style="background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:var(--radius-sm);padding:12px;margin-bottom:16px">'+
+            '<span style="color:var(--text-muted);font-size:0.8rem">Status: </span>'+
+            '<span style="color:var(--success);font-weight:600">'+lastSave+'</span>'+
+          '</div>'+
+          '<button class="btn btn-primary" onclick="saveData();showToast(\'Dados salvos com sucesso!\',\'success\')">💾 Forçar Salvamento Agora</button>'+
+        '</div>'+
+      '</div>';
+  }
+
+  // ─ SUB-ABA: BACKUP MANUAL ─
+  if(backupSubTab==='manual'){
+    content=
+      '<div class="card" style="margin-bottom:16px">'+
+        '<div class="card-header"><span>📤 Exportar Backup</span></div>'+
+        '<div style="padding:20px">'+
+          '<p style="color:var(--text-secondary);margin-bottom:12px">Baixe todos os dados do sistema em um arquivo JSON.</p>'+
+          '<button class="btn btn-primary" onclick="exportBackup()">📤 Exportar Backup (JSON)</button>'+
+        '</div>'+
+      '</div>'+
+      '<div class="card" style="margin-bottom:16px">'+
+        '<div class="card-header"><span>📥 Importar Backup</span></div>'+
+        '<div style="padding:20px">'+
+          '<p style="color:var(--text-secondary);margin-bottom:12px">Restaure dados a partir de um arquivo JSON exportado anteriormente. <strong style="color:var(--danger)">Atenção: isso substituirá todos os dados atuais!</strong></p>'+
+          '<input type="file" id="importBackupInput" accept=".json" style="display:none" onchange="importBackup(this)">'+
+          '<button class="btn btn-warning" onclick="document.getElementById(\'importBackupInput\').click()">📥 Importar Backup (JSON)</button>'+
+        '</div>'+
+      '</div>'+
+      '<div class="card">'+
+        '<div class="card-header"><span>🗑️ Limpar Dados</span></div>'+
+        '<div style="padding:20px">'+
+          '<p style="color:var(--text-secondary);margin-bottom:12px">Apaga todos os dados e restaura as configurações padrão. <strong style="color:var(--danger)">Esta ação não pode ser desfeita!</strong></p>'+
+          '<button class="btn btn-danger" onclick="resetAllData()">🗑️ Limpar Todos os Dados</button>'+
+        '</div>'+
+      '</div>';
+  }
+
+  // ─ SUB-ABA: HISTÓRICO (UNDO/REDO) ─
+  if(backupSubTab==='historico'){
+    var histRows='';
+    if(undoHistory.length===0){
+      histRows='<tr><td colspan="3" style="text-align:center;color:var(--text-muted)">Nenhum histórico ainda. As alterações serão registradas automaticamente.</td></tr>';
+    } else {
+      // Mostra os últimos 10 snapshots (do mais recente ao mais antigo)
+      var arr=undoHistory.slice().reverse();
+      arr.forEach(function(snap,i){
+        var idx=undoHistory.length-1-i;
+        var tamanho=Math.round(snap.length/1024);
+        histRows+='<tr>'+
+          '<td style="text-align:center">'+(idx+1)+'</td>'+
+          '<td>Snapshot #'+(idx+1)+' ('+tamanho+' KB)</td>'+
+          '<td style="text-align:center"><button class="btn btn-sm btn-outline" onclick="restoreSnapshot('+idx+')">Restaurar</button></td>'+
+        '</tr>';
+      });
+    }
+
+    content=
+      '<div class="card" style="margin-bottom:16px">'+
+        '<div class="card-header"><span>🕐 Desfazer / Refazer — Histórico de Alterações</span></div>'+
+        '<div style="padding:20px">'+
+          '<p style="color:var(--text-secondary);margin-bottom:16px">O sistema guarda até <strong>10 snapshots</strong> automáticos a cada salvamento. Use os botões abaixo ou os atalhos <kbd style="background:var(--bg-tertiary);padding:2px 8px;border-radius:4px;border:1px solid var(--border-color);font-size:0.8rem">Ctrl+Z</kbd> (Desfazer) e <kbd style="background:var(--bg-tertiary);padding:2px 8px;border-radius:4px;border:1px solid var(--border-color);font-size:0.8rem">Ctrl+Y</kbd> (Refazer).</p>'+
+          '<div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;align-items:center">'+
+            '<button class="btn btn-primary" onclick="undoAction()" '+(undoHistory.length===0?'disabled style="opacity:0.5"':'')+'>↩️ Desfazer (Ctrl+Z) <span id="undoCount" style="background:rgba(255,255,255,0.2);padding:2px 8px;border-radius:10px;font-size:0.75rem;margin-left:4px">'+undoHistory.length+'</span></button>'+
+            '<button class="btn btn-secondary" onclick="redoAction()" '+(redoHistory.length===0?'disabled style="opacity:0.5"':'')+'>↪️ Refazer (Ctrl+Y) <span id="redoCount" style="background:rgba(255,255,255,0.2);padding:2px 8px;border-radius:10px;font-size:0.75rem;margin-left:4px">'+redoHistory.length+'</span></button>'+
+            '<span style="color:var(--text-muted);font-size:0.8rem">|</span>'+
+            '<button class="btn btn-outline btn-sm" onclick="clearUndoHistory()">🗑️ Limpar Histórico</button>'+
+          '</div>'+
+          '<div class="table-responsive"><table class="table"><thead><tr><th style="width:60px;text-align:center">#</th><th>Snapshot</th><th style="width:100px;text-align:center">Ação</th></tr></thead><tbody>'+histRows+'</tbody></table></div>'+
+        '</div>'+
+      '</div>';
+  }
+
+  // ─ SUB-ABA: SUPABASE ─
+  if(backupSubTab==='supabase'){
+    var sStatus=supabaseClient?'<span style="color:var(--success);font-weight:600">✅ Conectado</span>':'<span style="color:var(--danger);font-weight:600">❌ Desconectado</span>';
+    content=
+      '<div class="card">'+
+        '<div class="card-header"><span>☁️ Sincronização Supabase</span></div>'+
+        '<div style="padding:20px">'+
+          '<div style="background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:var(--radius-sm);padding:12px;margin-bottom:16px">'+
+            '<span style="color:var(--text-muted);font-size:0.8rem">Status da conexão: </span>'+sStatus+
+          '</div>'+
+          '<p style="color:var(--text-secondary);margin-bottom:12px">URL: <code style="color:var(--accent-secondary)">'+SUPABASE_URL+'</code></p>'+
+          '<div style="display:flex;gap:12px;flex-wrap:wrap">'+
+            '<button class="btn btn-primary" onclick="forceSyncSupabase()">☁️ Forçar Sincronização</button>'+
+            '<button class="btn btn-secondary" onclick="loadFromSupabase()">📥 Carregar do Supabase</button>'+
+          '</div>'+
+        '</div>'+
+      '</div>';
+  }
+
+  pg.innerHTML=
+    '<div class="page-header"><h2>💾 Backup</h2></div>'+
+    '<div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap">'+tabBtns+'</div>'+
+    content;
+}
+
+// ── Undo / Redo ──
+function undoAction(){
+  if(undoHistory.length===0){showToast('Nada para desfazer','error');return;}
+  // Salva estado atual no redo
+  redoHistory.push(JSON.stringify(appData));
+  if(redoHistory.length>undoMaxSteps) redoHistory.shift();
+  // Restaura último snapshot
+  var snapshot=undoHistory.pop();
+  undoSaving=true;
+  appData=JSON.parse(snapshot);
+  try{localStorage.setItem('wdmaquinas_data',JSON.stringify(appData));}catch(e){}
+  undoSaving=false;
+  showToast('Ação desfeita!','success');
+  refreshCurrentPage();
+}
+
+function redoAction(){
+  if(redoHistory.length===0){showToast('Nada para refazer','error');return;}
+  // Salva estado atual no undo
+  undoHistory.push(JSON.stringify(appData));
+  if(undoHistory.length>undoMaxSteps) undoHistory.shift();
+  // Restaura do redo
+  var snapshot=redoHistory.pop();
+  undoSaving=true;
+  appData=JSON.parse(snapshot);
+  try{localStorage.setItem('wdmaquinas_data',JSON.stringify(appData));}catch(e){}
+  undoSaving=false;
+  showToast('Ação refeita!','success');
+  refreshCurrentPage();
+}
+
+function restoreSnapshot(idx){
+  if(!undoHistory[idx]){showToast('Snapshot não encontrado','error');return;}
+  if(!confirm('Restaurar snapshot #'+(idx+1)+'? Os dados atuais serão substituídos.')) return;
+  redoHistory.push(JSON.stringify(appData));
+  if(redoHistory.length>undoMaxSteps) redoHistory.shift();
+  undoSaving=true;
+  appData=JSON.parse(undoHistory[idx]);
+  try{localStorage.setItem('wdmaquinas_data',JSON.stringify(appData));}catch(e){}
+  undoSaving=false;
+  showToast('Snapshot restaurado!','success');
+  refreshCurrentPage();
+}
+
+function clearUndoHistory(){
+  if(!confirm('Limpar todo o histórico de undo/redo?')) return;
+  undoHistory=[];redoHistory=[];
+  showToast('Histórico limpo','success');
+  renderBackupPage();
+}
+
+function refreshCurrentPage(){
+  // Re-renderiza a página atual
+  var active=document.querySelector('.nav-item.active');
+  if(active){
+    var onclick=active.getAttribute('onclick')||'';
+    var match=onclick.match(/navigateTo\('(.+?)'\)/);
+    if(match) navigateTo(match[1]);
+    else renderBackupPage();
+  } else {
+    renderBackupPage();
+  }
+}
+
+// ── Export / Import ──
+function exportBackup(){
+  var json=JSON.stringify(appData,null,2);
+  var blob=new Blob([json],{type:'application/json'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url;
+  a.download='wdmaquinas_backup_'+todayStr()+'.json';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('Backup exportado com sucesso!','success');
+}
+
+function importBackup(input){
+  var file=input.files[0];if(!file)return;
+  if(!confirm('Importar backup? Todos os dados atuais serão substituídos!')) return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      var data=JSON.parse(e.target.result);
+      // Salva snapshot antes de importar
+      undoHistory.push(JSON.stringify(appData));
+      if(undoHistory.length>undoMaxSteps) undoHistory.shift();
+      appData=data;
+      ensureDefaults();
+      saveData();
+      updateSidebarInfo();
+      showToast('Backup importado com sucesso!','success');
+      navigateTo('dashboard');
+    }catch(err){
+      showToast('Erro ao ler o arquivo: '+err.message,'error');
+    }
+  };
+  reader.readAsText(file);
+}
+
+function resetAllData(){
+  if(!confirm('ATENÇÃO: Isso apagará TODOS os dados! Deseja continuar?')) return;
+  if(!confirm('Tem certeza MESMO? Esta ação NÃO pode ser desfeita!')) return;
+  undoHistory.push(JSON.stringify(appData));
+  if(undoHistory.length>undoMaxSteps) undoHistory.shift();
+  appData=getDefaultData();
+  saveData();
+  updateSidebarInfo();
+  showToast('Todos os dados foram apagados','success');
+  navigateTo('dashboard');
+}
+
+async function forceSyncSupabase(){
+  if(!supabaseClient){showToast('Supabase não conectado','error');return;}
+  try{
+    await supabaseClient.from('wdmaquinas_data').upsert({id:1,payload:appData,updated_at:new Date().toISOString()});
+    showToast('Dados sincronizados com Supabase!','success');
+  }catch(e){showToast('Erro: '+e.message,'error');}
+}
+
+async function loadFromSupabase(){
+  if(!supabaseClient){showToast('Supabase não conectado','error');return;}
+  if(!confirm('Carregar dados do Supabase? Os dados locais serão substituídos!')) return;
+  try{
+    var r=await supabaseClient.from('wdmaquinas_data').select('*').eq('id',1).single();
+    if(r.data&&r.data.payload){
+      undoHistory.push(JSON.stringify(appData));
+      if(undoHistory.length>undoMaxSteps) undoHistory.shift();
+      appData=typeof r.data.payload==='string'?JSON.parse(r.data.payload):r.data.payload;
+      ensureDefaults();
+      try{localStorage.setItem('wdmaquinas_data',JSON.stringify(appData));}catch(e){}
+      updateSidebarInfo();
+      showToast('Dados carregados do Supabase!','success');
+      navigateTo('dashboard');
+    } else {
+      showToast('Nenhum dado encontrado no Supabase','error');
+    }
+  }catch(e){showToast('Erro: '+e.message,'error');}
+}
+// ── ATALHOS CTRL+Z / CTRL+Y ──
+document.addEventListener('keydown',function(e){
+  // Não captura quando está digitando em input/textarea/select
+  var tag=(e.target.tagName||'').toLowerCase();
+  if(tag==='input'||tag==='textarea'||tag==='select') return;
+
+  if((e.ctrlKey||e.metaKey)&&e.key==='z'){
+    e.preventDefault();
+    undoAction();
+  }
+  if((e.ctrlKey||e.metaKey)&&e.key==='y'){
+    e.preventDefault();
+    redoAction();
+  }
+});
 
 // ══════════════════════════════════════════════════════════════
 // ── INICIALIZAÇÃO ──
