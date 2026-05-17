@@ -856,74 +856,323 @@ function printMeiPage(){
 // ══════════════════════════════════════════════════════════════
 // ── RELATÓRIOS ──
 // ══════════════════════════════════════════════════════════════
+var relatorioMetricasSelecionadas = [];
+
 function renderRelatoriosPage(){
   var pg=document.getElementById('page-relatorios');if(!pg)return;
-  var ano=new Date().getFullYear();
-  var mNomes=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-  var mKeys=['janeiro','fevereiro','marco','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
-  var vendas=appData.vendas||[];var compras=appData.compras||[];var boletos=appData.boletos||[];var cheques=appData.cheques||[];var estoque=appData.estoque||[];
 
-  // 1) Projeção de Lucro Mensal
-  var projRows='';var totalProjLucro=0;
-  mKeys.forEach(function(m,i){
-    var vM=vendas.filter(function(v){if(!v.data)return false;var d=new Date(v.data+'T00:00:00');return d.getMonth()===i&&d.getFullYear()===ano;});
-    var cM=compras.filter(function(c){if(!c.data)return false;var d=new Date(c.data+'T00:00:00');return d.getMonth()===i&&d.getFullYear()===ano;});
-    var tV=vM.reduce(function(s,v){return s+((v.quantidade||1)*(v.valorUnit||0));},0);
-    var tC=cM.reduce(function(s,c){return s+((c.quantidade||1)*(c.valorUnit||0));},0);
-    var lucro=tV-tC;totalProjLucro+=lucro;
-    projRows+='<tr><td>'+mNomes[i]+'</td><td class="text-success">'+formatCurrency(tV)+'</td><td class="text-danger">'+formatCurrency(tC)+'</td><td style="color:'+(lucro>=0?'#38a169':'#e53e3e')+';font-weight:600">'+formatCurrency(lucro)+'</td></tr>';
+  var metricas=[
+    {id:'resumoCompras',label:'📊 Resumo de Compras',icon:'🛒'},
+    {id:'resumoVendas',label:'📊 Resumo de Vendas',icon:'💰'},
+    {id:'lucroPrejuizo',label:'📈 Lucro / Prejuízo',icon:'📉'},
+    {id:'fluxoMensal',label:'📅 Fluxo de Caixa Mensal',icon:'📅'},
+    {id:'topProdutos',label:'🏆 Top Produtos Vendidos',icon:'🏷️'},
+    {id:'topClientes',label:'👥 Top Clientes',icon:'👥'},
+    {id:'topFornecedores',label:'🏭 Top Fornecedores',icon:'🏭'},
+    {id:'boletosVencer',label:'🔖 Boletos a Vencer',icon:'🔖'},
+    {id:'chequesAbertos',label:'📝 Cheques Abertos',icon:'📝'},
+    {id:'prestacoesResumo',label:'💳 Resumo Prestações',icon:'💳'},
+    {id:'garantiasAtivas',label:'🛡️ Garantias Ativas',icon:'🛡️'},
+    {id:'estoqueResumo',label:'📦 Resumo do Estoque',icon:'📦'},
+    {id:'pagClientesPend',label:'🤝 Pag. Clientes Pendentes',icon:'🤝'},
+    {id:'projetosResumo',label:'📐 Resumo de Projetos',icon:'📐'}
+  ];
+
+  var checkboxes='';
+  metricas.forEach(function(m){
+    var checked=relatorioMetricasSelecionadas.indexOf(m.id)>-1?'checked':'';
+    checkboxes+='<label style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:var(--radius-sm);cursor:pointer;transition:all .2s;font-size:0.85rem" onmouseover="this.style.borderColor=\'var(--accent-primary)\'" onmouseout="this.style.borderColor=\'var(--border-color)\'">'+
+      '<input type="checkbox" value="'+m.id+'" '+checked+' onchange="toggleRelMetrica(this.value,this.checked)" style="accent-color:var(--accent-primary);width:16px;height:16px">'+
+      '<span>'+m.label+'</span>'+
+    '</label>';
   });
-  projRows+='<tr style="background:var(--bg-tertiary);font-weight:700"><td>TOTAL '+ano+'</td><td></td><td></td><td style="color:'+(totalProjLucro>=0?'#38a169':'#e53e3e')+'">'+formatCurrency(totalProjLucro)+'</td></tr>';
-
-  // 2) Compras por Fornecedor
-  var fornMap={};compras.forEach(function(c){var f=c.fornecedor||'Sem Fornecedor';if(!fornMap[f])fornMap[f]={total:0,qtd:0};fornMap[f].total+=((c.quantidade||1)*(c.valorUnit||0));fornMap[f].qtd++;});
-  var fornRows='';Object.keys(fornMap).sort().forEach(function(f){fornRows+='<tr><td>'+f+'</td><td>'+fornMap[f].qtd+'</td><td>'+formatCurrency(fornMap[f].total)+'</td></tr>';});
-  if(!fornRows) fornRows='<tr><td colspan="3" style="text-align:center;color:var(--text-muted)">Nenhuma compra</td></tr>';
-
-  // 3) Vendas por Cliente
-  var cliMap={};vendas.forEach(function(v){var c=v.cliente||'Sem Cliente';if(!cliMap[c])cliMap[c]={total:0,qtd:0};cliMap[c].total+=((v.quantidade||1)*(v.valorUnit||0));cliMap[c].qtd++;});
-  var cliRows='';Object.keys(cliMap).sort().forEach(function(c){cliRows+='<tr><td>'+c+'</td><td>'+cliMap[c].qtd+'</td><td>'+formatCurrency(cliMap[c].total)+'</td></tr>';});
-  if(!cliRows) cliRows='<tr><td colspan="3" style="text-align:center;color:var(--text-muted)">Nenhuma venda</td></tr>';
-
-  // 4) Fluxo Mensal
-  var fluxoRows='';var totalEnt=0;var totalSai=0;
-  mKeys.forEach(function(m,i){
-    var lancs=(appData.fluxoCaixa&&appData.fluxoCaixa[m])?appData.fluxoCaixa[m]:[];
-    var ent=lancs.filter(function(l){return l.tipo==='entrada';}).reduce(function(s,l){return s+(l.valor||0);},0);
-    var sai=lancs.filter(function(l){return l.tipo==='saida';}).reduce(function(s,l){return s+(l.valor||0);},0);
-    totalEnt+=ent;totalSai+=sai;var sal=ent-sai;
-    fluxoRows+='<tr><td>'+mNomes[i]+'</td><td class="text-success">'+formatCurrency(ent)+'</td><td class="text-danger">'+formatCurrency(sai)+'</td><td style="color:'+(sal>=0?'#38a169':'#e53e3e')+';font-weight:600">'+formatCurrency(sal)+'</td></tr>';
-  });
-  fluxoRows+='<tr style="background:var(--bg-tertiary);font-weight:700"><td>TOTAL</td><td class="text-success">'+formatCurrency(totalEnt)+'</td><td class="text-danger">'+formatCurrency(totalSai)+'</td><td style="color:'+(totalEnt-totalSai>=0?'#38a169':'#e53e3e')+'">'+formatCurrency(totalEnt-totalSai)+'</td></tr>';
-
-  // 5) Boletos pendentes
-  var bolPend=boletos.filter(function(b){return b.situacao!=='Pago';});
-  var bolRows='';bolPend.forEach(function(b){var dias=calcDiasRestantes(b.vencimento);bolRows+='<tr><td>'+b.descricao+'</td><td>'+formatCurrency(b.valor)+'</td><td>'+formatDate(b.vencimento)+'</td><td>'+formatDiasRestantes(dias,b.situacao)+'</td></tr>';});
-  if(!bolRows) bolRows='<tr><td colspan="4" style="text-align:center;color:var(--text-muted)">Nenhum boleto pendente</td></tr>';
-
-  // 6) Cheques pendentes
-  var chPend=cheques.filter(function(ch){return ch.situacao!=='Compensado';});
-  var chRows='';chPend.forEach(function(ch){var dias=calcDiasRestantes(ch.bomPara);chRows+='<tr><td>'+(ch.numero||'-')+'</td><td>'+(ch.emitente||'-')+'</td><td>'+formatCurrency(ch.valor)+'</td><td>'+formatDate(ch.bomPara)+'</td><td>'+formatDiasRestantes(dias,ch.situacao)+'</td></tr>';});
-  if(!chRows) chRows='<tr><td colspan="5" style="text-align:center;color:var(--text-muted)">Nenhum cheque pendente</td></tr>';
-
-  // 7) Estoque valorizado
-  var estTotal=estoque.reduce(function(s,e){return s+((e.quantidade||0)*(e.valorUnit||0));},0);
-  var estRows='';estoque.forEach(function(e){estRows+='<tr><td>'+e.produto+'</td><td>'+(e.quantidade||0)+'</td><td>'+formatCurrency(e.valorUnit)+'</td><td>'+formatCurrency((e.quantidade||0)*(e.valorUnit||0))+'</td></tr>';});
-  if(!estRows) estRows='<tr><td colspan="4" style="text-align:center;color:var(--text-muted)">Estoque vazio</td></tr>';
 
   pg.innerHTML=
-    '<div class="page-header"><h2>📈 Relatórios</h2></div>'+
-    '<div class="card" style="margin-bottom:16px;padding:16px"><h3 style="margin-bottom:12px">📊 Projeção de Lucro Mensal '+ano+'</h3><div class="table-responsive"><table class="table" style="margin:0"><thead><tr><th>Mês</th><th>Vendas</th><th>Compras</th><th>Lucro</th></tr></thead><tbody>'+projRows+'</tbody></table></div></div>'+
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">'+
-      '<div class="card" style="padding:16px"><h3 style="margin-bottom:12px">🛒 Compras por Fornecedor</h3><div class="table-responsive"><table class="table" style="margin:0"><thead><tr><th>Fornecedor</th><th>Qtd</th><th>Total</th></tr></thead><tbody>'+fornRows+'</tbody></table></div></div>'+
-      '<div class="card" style="padding:16px"><h3 style="margin-bottom:12px">💰 Vendas por Cliente</h3><div class="table-responsive"><table class="table" style="margin:0"><thead><tr><th>Cliente</th><th>Qtd</th><th>Total</th></tr></thead><tbody>'+cliRows+'</tbody></table></div></div>'+
+    '<div class="page-header"><h2>📈 Relatórios</h2>'+
+      '<div style="display:flex;gap:8px">'+
+        '<button class="btn btn-primary" onclick="gerarRelatorios()">📊 Gerar Relatório</button>'+
+        '<button class="btn btn-secondary" onclick="selecionarTodasMetricas()">✅ Selecionar Todas</button>'+
+        '<button class="btn btn-outline" onclick="limparMetricas()">✖ Limpar</button>'+
+        '<button class="btn btn-secondary" onclick="printRelatorios()">🖨️ Imprimir</button>'+
+      '</div>'+
     '</div>'+
-    '<div class="card" style="margin-bottom:16px;padding:16px"><h3 style="margin-bottom:12px">📅 Fluxo de Caixa Mensal '+ano+'</h3><div class="table-responsive"><table class="table" style="margin:0"><thead><tr><th>Mês</th><th>Entradas</th><th>Saídas</th><th>Saldo</th></tr></thead><tbody>'+fluxoRows+'</tbody></table></div></div>'+
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">'+
-      '<div class="card" style="padding:16px"><h3 style="margin-bottom:12px">🔖 Boletos Pendentes</h3><div class="table-responsive"><table class="table" style="margin:0"><thead><tr><th>Descrição</th><th>Valor</th><th>Vencimento</th><th>Dias</th></tr></thead><tbody>'+bolRows+'</tbody></table></div></div>'+
-      '<div class="card" style="padding:16px"><h3 style="margin-bottom:12px">📝 Cheques Pendentes</h3><div class="table-responsive"><table class="table" style="margin:0"><thead><tr><th>Nº</th><th>Emitente</th><th>Valor</th><th>Bom Para</th><th>Dias</th></tr></thead><tbody>'+chRows+'</tbody></table></div></div>'+
+    '<div class="card" style="margin-bottom:20px">'+
+      '<div class="card-header"><span>Selecione as métricas que deseja visualizar:</span></div>'+
+      '<div style="padding:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px" id="relMetricasGrid">'+
+        checkboxes+
+      '</div>'+
     '</div>'+
-    '<div class="card" style="padding:16px"><h3 style="margin-bottom:12px">📦 Estoque Valorizado (Total: '+formatCurrency(estTotal)+')</h3><div class="table-responsive"><table class="table" style="margin:0"><thead><tr><th>Produto</th><th>Qtd</th><th>V.Unit</th><th>Total</th></tr></thead><tbody>'+estRows+'</tbody></table></div></div>';
+    '<div id="relResultado"></div>';
+}
+
+function toggleRelMetrica(id,checked){
+  if(checked){
+    if(relatorioMetricasSelecionadas.indexOf(id)===-1) relatorioMetricasSelecionadas.push(id);
+  } else {
+    relatorioMetricasSelecionadas=relatorioMetricasSelecionadas.filter(function(m){return m!==id;});
+  }
+}
+
+function selecionarTodasMetricas(){
+  relatorioMetricasSelecionadas=['resumoCompras','resumoVendas','lucroPrejuizo','fluxoMensal','topProdutos','topClientes','topFornecedores','boletosVencer','chequesAbertos','prestacoesResumo','garantiasAtivas','estoqueResumo','pagClientesPend','projetosResumo'];
+  renderRelatoriosPage();
+}
+
+function limparMetricas(){
+  relatorioMetricasSelecionadas=[];
+  renderRelatoriosPage();
+}
+
+function gerarRelatorios(){
+  var container=document.getElementById('relResultado');if(!container)return;
+  if(relatorioMetricasSelecionadas.length===0){showToast('Selecione pelo menos uma métrica','error');return;}
+  var html='';
+  var sel=relatorioMetricasSelecionadas;
+
+  var compras=appData.compras||[];
+  var vendas=appData.vendas||[];
+  var boletos=appData.boletos||[];
+  var cheques=appData.cheques||[];
+  var prestacoes=appData.prestacoes||[];
+  var garantias=appData.garantias||[];
+  var estoque=appData.estoque||[];
+  var pagClientes=appData.pagClientes||[];
+  var projetos=appData.projetos||[];
+  var meses=['janeiro','fevereiro','marco','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  var mesesLabel=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
+  var totalCompras=compras.reduce(function(s,c){return s+((c.quantidade||1)*(c.valorUnit||0));},0);
+  var totalVendas=vendas.reduce(function(s,v){return s+((v.quantidade||1)*(v.valorUnit||0));},0);
+  var lucro=totalVendas-totalCompras;
+
+  // ─ Resumo de Compras ─
+  if(sel.indexOf('resumoCompras')>-1){
+    var cPago=compras.filter(function(c){return c.situacao==='Pago';}).reduce(function(s,c){return s+((c.quantidade||1)*(c.valorUnit||0));},0);
+    var cDevendo=compras.filter(function(c){return c.situacao==='Devendo';}).reduce(function(s,c){return s+((c.quantidade||1)*(c.valorUnit||0));},0);
+    html+='<div class="card" style="margin-bottom:16px"><div class="card-header"><span>🛒 Resumo de Compras</span></div><div style="padding:16px">'+
+      '<div class="dashboard-grid">'+
+        '<div class="card"><div class="card-header"><span>Total Compras</span></div><div class="card-value text-danger">'+formatCurrency(totalCompras)+'</div><div class="card-sub">'+compras.length+' registros</div></div>'+
+        '<div class="card"><div class="card-header"><span>Pagas</span></div><div class="card-value text-success">'+formatCurrency(cPago)+'</div></div>'+
+        '<div class="card"><div class="card-header"><span>Devendo</span></div><div class="card-value text-danger">'+formatCurrency(cDevendo)+'</div></div>'+
+      '</div></div></div>';
+  }
+
+  // ─ Resumo de Vendas ─
+  if(sel.indexOf('resumoVendas')>-1){
+    var vPago=vendas.filter(function(v){return v.situacao==='Pago';}).reduce(function(s,v){return s+((v.quantidade||1)*(v.valorUnit||0));},0);
+    var vDevendo=vendas.filter(function(v){return v.situacao==='Devendo';}).reduce(function(s,v){return s+((v.quantidade||1)*(v.valorUnit||0));},0);
+    var vParcial=vendas.filter(function(v){return v.situacao==='Parcial';}).reduce(function(s,v){return s+((v.quantidade||1)*(v.valorUnit||0));},0);
+    html+='<div class="card" style="margin-bottom:16px"><div class="card-header"><span>💰 Resumo de Vendas</span></div><div style="padding:16px">'+
+      '<div class="dashboard-grid">'+
+        '<div class="card"><div class="card-header"><span>Total Vendas</span></div><div class="card-value text-success">'+formatCurrency(totalVendas)+'</div><div class="card-sub">'+vendas.length+' registros</div></div>'+
+        '<div class="card"><div class="card-header"><span>Recebidas</span></div><div class="card-value text-success">'+formatCurrency(vPago)+'</div></div>'+
+        '<div class="card"><div class="card-header"><span>Devendo</span></div><div class="card-value text-danger">'+formatCurrency(vDevendo)+'</div></div>'+
+        '<div class="card"><div class="card-header"><span>Parcial</span></div><div class="card-value text-warning">'+formatCurrency(vParcial)+'</div></div>'+
+      '</div></div></div>';
+  }
+
+  // ─ Lucro / Prejuízo ─
+  if(sel.indexOf('lucroPrejuizo')>-1){
+    html+='<div class="card" style="margin-bottom:16px"><div class="card-header"><span>📈 Lucro / Prejuízo</span></div><div style="padding:16px">'+
+      '<div class="dashboard-grid">'+
+        '<div class="card"><div class="card-header"><span>Total Compras</span></div><div class="card-value text-danger">'+formatCurrency(totalCompras)+'</div></div>'+
+        '<div class="card"><div class="card-header"><span>Total Vendas</span></div><div class="card-value text-success">'+formatCurrency(totalVendas)+'</div></div>'+
+        '<div class="card card-accent"><div class="card-header"><span>'+(lucro>=0?'Lucro':'Prejuízo')+'</span></div><div class="card-value '+(lucro>=0?'text-success':'text-danger')+'">'+formatCurrency(lucro)+'</div></div>'+
+      '</div></div></div>';
+  }
+
+  // ─ Fluxo de Caixa Mensal ─
+  if(sel.indexOf('fluxoMensal')>-1){
+    var fluxoRows='';
+    var totalEnt=0,totalSai=0;
+    meses.forEach(function(m,i){
+      var lancs=(appData.fluxoCaixa&&appData.fluxoCaixa[m])?appData.fluxoCaixa[m]:[];
+      var ent=lancs.filter(function(l){return l.tipo==='entrada';}).reduce(function(s,l){return s+(l.valor||0);},0);
+      var sai=lancs.filter(function(l){return l.tipo==='saida';}).reduce(function(s,l){return s+(l.valor||0);},0);
+      var sal=ent-sai;totalEnt+=ent;totalSai+=sai;
+      fluxoRows+='<tr><td>'+mesesLabel[i]+'</td><td class="text-success">'+formatCurrency(ent)+'</td><td class="text-danger">'+formatCurrency(sai)+'</td><td class="'+(sal>=0?'text-success':'text-danger')+'">'+formatCurrency(sal)+'</td></tr>';
+    });
+    fluxoRows+='<tr style="font-weight:700;background:var(--bg-tertiary)"><td>TOTAL</td><td class="text-success">'+formatCurrency(totalEnt)+'</td><td class="text-danger">'+formatCurrency(totalSai)+'</td><td class="'+((totalEnt-totalSai)>=0?'text-success':'text-danger')+'">'+formatCurrency(totalEnt-totalSai)+'</td></tr>';
+    html+='<div class="card" style="margin-bottom:16px"><div class="card-header"><span>📅 Fluxo de Caixa Mensal</span></div>'+
+      '<div class="table-responsive" style="border:0"><table class="table"><thead><tr><th>Mês</th><th>Entradas</th><th>Saídas</th><th>Saldo</th></tr></thead><tbody>'+fluxoRows+'</tbody></table></div></div>';
+  }
+
+  // ─ Top Produtos Vendidos ─
+  if(sel.indexOf('topProdutos')>-1){
+    var prodMap={};
+    vendas.forEach(function(v){
+      var p=v.produto||'Sem nome';
+      if(!prodMap[p]) prodMap[p]={qtd:0,total:0};
+      prodMap[p].qtd+=(v.quantidade||1);
+      prodMap[p].total+=((v.quantidade||1)*(v.valorUnit||0));
+    });
+    var prodArr=Object.keys(prodMap).map(function(k){return{nome:k,qtd:prodMap[k].qtd,total:prodMap[k].total};});
+    prodArr.sort(function(a,b){return b.total-a.total;});
+    var topRows='';
+    if(prodArr.length===0){topRows='<tr><td colspan="4" style="text-align:center;color:var(--text-muted)">Nenhuma venda registrada</td></tr>';}
+    else{prodArr.slice(0,10).forEach(function(p,i){topRows+='<tr><td>'+(i+1)+'º</td><td>'+p.nome+'</td><td>'+p.qtd+'</td><td>'+formatCurrency(p.total)+'</td></tr>';});}
+    html+='<div class="card" style="margin-bottom:16px"><div class="card-header"><span>🏆 Top Produtos Vendidos</span></div>'+
+      '<div class="table-responsive" style="border:0"><table class="table"><thead><tr><th>#</th><th>Produto</th><th>Qtd</th><th>Total</th></tr></thead><tbody>'+topRows+'</tbody></table></div></div>';
+  }
+
+  // ─ Top Clientes ─
+  if(sel.indexOf('topClientes')>-1){
+    var cliMap={};
+    vendas.forEach(function(v){
+      var c=v.cliente||'Sem cliente';
+      if(!cliMap[c]) cliMap[c]={qtd:0,total:0};
+      cliMap[c].qtd+=1;
+      cliMap[c].total+=((v.quantidade||1)*(v.valorUnit||0));
+    });
+    var cliArr=Object.keys(cliMap).map(function(k){return{nome:k,qtd:cliMap[k].qtd,total:cliMap[k].total};});
+    cliArr.sort(function(a,b){return b.total-a.total;});
+    var cliRows='';
+    if(cliArr.length===0){cliRows='<tr><td colspan="4" style="text-align:center;color:var(--text-muted)">Nenhuma venda registrada</td></tr>';}
+    else{cliArr.slice(0,10).forEach(function(c,i){cliRows+='<tr><td>'+(i+1)+'º</td><td>'+c.nome+'</td><td>'+c.qtd+' compra(s)</td><td>'+formatCurrency(c.total)+'</td></tr>';});}
+    html+='<div class="card" style="margin-bottom:16px"><div class="card-header"><span>👥 Top Clientes</span></div>'+
+      '<div class="table-responsive" style="border:0"><table class="table"><thead><tr><th>#</th><th>Cliente</th><th>Compras</th><th>Total</th></tr></thead><tbody>'+cliRows+'</tbody></table></div></div>';
+  }
+
+  // ─ Top Fornecedores ─
+  if(sel.indexOf('topFornecedores')>-1){
+    var fnMap={};
+    compras.forEach(function(c){
+      var f=c.fornecedor||'Sem fornecedor';
+      if(!fnMap[f]) fnMap[f]={qtd:0,total:0};
+      fnMap[f].qtd+=1;
+      fnMap[f].total+=((c.quantidade||1)*(c.valorUnit||0));
+    });
+    var fnArr=Object.keys(fnMap).map(function(k){return{nome:k,qtd:fnMap[k].qtd,total:fnMap[k].total};});
+    fnArr.sort(function(a,b){return b.total-a.total;});
+    var fnRows='';
+    if(fnArr.length===0){fnRows='<tr><td colspan="4" style="text-align:center;color:var(--text-muted)">Nenhuma compra registrada</td></tr>';}
+    else{fnArr.slice(0,10).forEach(function(f,i){fnRows+='<tr><td>'+(i+1)+'º</td><td>'+f.nome+'</td><td>'+f.qtd+' compra(s)</td><td>'+formatCurrency(f.total)+'</td></tr>';});}
+    html+='<div class="card" style="margin-bottom:16px"><div class="card-header"><span>🏭 Top Fornecedores</span></div>'+
+      '<div class="table-responsive" style="border:0"><table class="table"><thead><tr><th>#</th><th>Fornecedor</th><th>Compras</th><th>Total</th></tr></thead><tbody>'+fnRows+'</tbody></table></div></div>';
+  }
+
+  // ─ Boletos a Vencer ─
+  if(sel.indexOf('boletosVencer')>-1){
+    var bolPend=boletos.filter(function(b){return b.situacao!=='Pago';});
+    bolPend.sort(function(a,b){return(a.dataVencimento||'').localeCompare(b.dataVencimento||'');});
+    var bolRows='';
+    if(bolPend.length===0){bolRows='<tr><td colspan="5" style="text-align:center;color:var(--text-muted)">Nenhum boleto pendente</td></tr>';}
+    else{bolPend.forEach(function(b){
+      var dias=calcDiasRestantes(b.dataVencimento);
+      bolRows+='<tr><td>'+(b.descricao||'-')+'</td><td>'+formatCurrency(b.valor)+'</td><td>'+formatDate(b.dataVencimento)+'</td><td>'+formatDiasRestantes(dias,b.situacao)+'</td><td>'+situacaoBadge(b.situacao)+'</td></tr>';
+    });}
+    html+='<div class="card" style="margin-bottom:16px"><div class="card-header"><span>🔖 Boletos a Vencer</span></div>'+
+      '<div class="table-responsive" style="border:0"><table class="table"><thead><tr><th>Descrição</th><th>Valor</th><th>Vencimento</th><th>Dias</th><th>Situação</th></tr></thead><tbody>'+bolRows+'</tbody></table></div></div>';
+  }
+
+  // ─ Cheques Abertos ─
+  if(sel.indexOf('chequesAbertos')>-1){
+    var chAbertos=cheques.filter(function(ch){return ch.situacao!=='Compensado';});
+    var chRows='';
+    if(chAbertos.length===0){chRows='<tr><td colspan="5" style="text-align:center;color:var(--text-muted)">Nenhum cheque aberto</td></tr>';}
+    else{chAbertos.forEach(function(ch){
+      chRows+='<tr><td>'+(ch.numero||'-')+'</td><td>'+(ch.emitente||'-')+'</td><td>'+formatCurrency(ch.valor)+'</td><td>'+formatDate(ch.dataVencimento||ch.data)+'</td><td>'+situacaoBadge(ch.situacao)+'</td></tr>';
+    });}
+    html+='<div class="card" style="margin-bottom:16px"><div class="card-header"><span>📝 Cheques Abertos</span></div>'+
+      '<div class="table-responsive" style="border:0"><table class="table"><thead><tr><th>Nº Cheque</th><th>Emitente</th><th>Valor</th><th>Vencimento</th><th>Situação</th></tr></thead><tbody>'+chRows+'</tbody></table></div></div>';
+  }
+
+  // ─ Resumo Prestações ─
+  if(sel.indexOf('prestacoesResumo')>-1){
+    var totalPrest=prestacoes.reduce(function(s,p){return s+(p.valor||0);},0);
+    var prestPago=prestacoes.filter(function(p){return p.situacao==='Pago';}).reduce(function(s,p){return s+(p.valor||0);},0);
+    var prestPend=prestacoes.filter(function(p){return p.situacao!=='Pago';}).reduce(function(s,p){return s+(p.valor||0);},0);
+    html+='<div class="card" style="margin-bottom:16px"><div class="card-header"><span>💳 Resumo Prestações</span></div><div style="padding:16px">'+
+      '<div class="dashboard-grid">'+
+        '<div class="card"><div class="card-header"><span>Total Prestações</span></div><div class="card-value text-info">'+formatCurrency(totalPrest)+'</div><div class="card-sub">'+prestacoes.length+' prestação(ões)</div></div>'+
+        '<div class="card"><div class="card-header"><span>Pagas</span></div><div class="card-value text-success">'+formatCurrency(prestPago)+'</div></div>'+
+        '<div class="card"><div class="card-header"><span>Pendentes</span></div><div class="card-value text-warning">'+formatCurrency(prestPend)+'</div></div>'+
+      '</div></div></div>';
+  }
+
+  // ─ Garantias Ativas ─
+  if(sel.indexOf('garantiasAtivas')>-1){
+    var garAtivas=garantias.filter(function(g){
+      var sit=getGarantiaSituacaoAuto(g.dataFim,g.situacao);
+      return sit==='Ativa';
+    });
+    var garRows='';
+    if(garAtivas.length===0){garRows='<tr><td colspan="5" style="text-align:center;color:var(--text-muted)">Nenhuma garantia ativa</td></tr>';}
+    else{garAtivas.forEach(function(g){
+      var dias=calcDiasGarantia(g.dataFim);
+      garRows+='<tr><td>'+(g.produto||'-')+'</td><td>'+(g.cliente||'-')+'</td><td>'+formatDate(g.dataInicio)+'</td><td>'+formatDate(g.dataFim)+'</td><td>'+formatDiasGarantia(dias,g.situacao)+'</td></tr>';
+    });}
+    html+='<div class="card" style="margin-bottom:16px"><div class="card-header"><span>🛡️ Garantias Ativas</span></div>'+
+      '<div class="table-responsive" style="border:0"><table class="table"><thead><tr><th>Produto</th><th>Cliente</th><th>Início</th><th>Fim</th><th>Dias Rest.</th></tr></thead><tbody>'+garRows+'</tbody></table></div></div>';
+  }
+
+  // ─ Resumo do Estoque ─
+  if(sel.indexOf('estoqueResumo')>-1){
+    var totalEstoque=estoque.reduce(function(s,e){return s+((e.quantidade||0)*(e.valorUnit||0));},0);
+    var totalItens=estoque.reduce(function(s,e){return s+(e.quantidade||0);},0);
+    var estRows='';
+    if(estoque.length===0){estRows='<tr><td colspan="4" style="text-align:center;color:var(--text-muted)">Estoque vazio</td></tr>';}
+    else{estoque.slice(0,15).forEach(function(e){
+      estRows+='<tr><td>'+(e.produto||'-')+'</td><td>'+(e.quantidade||0)+'</td><td>'+formatCurrency(e.valorUnit||0)+'</td><td>'+formatCurrency((e.quantidade||0)*(e.valorUnit||0))+'</td></tr>';
+    });}
+    html+='<div class="card" style="margin-bottom:16px"><div class="card-header"><span>📦 Resumo do Estoque</span></div><div style="padding:16px">'+
+      '<div class="dashboard-grid" style="margin-bottom:12px">'+
+        '<div class="card"><div class="card-header"><span>Valor Total em Estoque</span></div><div class="card-value text-info">'+formatCurrency(totalEstoque)+'</div></div>'+
+        '<div class="card"><div class="card-header"><span>Itens Totais</span></div><div class="card-value">'+totalItens+'</div></div>'+
+      '</div>'+
+      '<div class="table-responsive" style="border:0"><table class="table"><thead><tr><th>Produto</th><th>Qtd</th><th>Valor Unit.</th><th>Subtotal</th></tr></thead><tbody>'+estRows+'</tbody></table></div>'+
+    '</div></div>';
+  }
+
+  // ─ Pag. Clientes Pendentes ─
+  if(sel.indexOf('pagClientesPend')>-1){
+    var pcPend=pagClientes.filter(function(p){return p.situacao!=='Pago';});
+    var pcTotalPend=pcPend.reduce(function(s,p){return s+(p.valor||0);},0);
+    var pcRows='';
+    if(pcPend.length===0){pcRows='<tr><td colspan="5" style="text-align:center;color:var(--text-muted)">Nenhum pagamento pendente</td></tr>';}
+    else{pcPend.forEach(function(p){
+      var dias=calcDiasRestantes(p.dataVencimento);
+      pcRows+='<tr><td>'+(p.cliente||'-')+'</td><td>'+(p.descricao||'-')+'</td><td>'+formatCurrency(p.valor)+'</td><td>'+formatDate(p.dataVencimento)+'</td><td>'+formatDiasRestantes(dias,p.situacao)+'</td></tr>';
+    });}
+    html+='<div class="card" style="margin-bottom:16px"><div class="card-header"><span>🤝 Pag. Clientes Pendentes — Total: '+formatCurrency(pcTotalPend)+'</span></div>'+
+      '<div class="table-responsive" style="border:0"><table class="table"><thead><tr><th>Cliente</th><th>Descrição</th><th>Valor</th><th>Vencimento</th><th>Dias</th></tr></thead><tbody>'+pcRows+'</tbody></table></div></div>';
+  }
+
+  // ─ Resumo de Projetos ─
+  if(sel.indexOf('projetosResumo')>-1){
+    var projRows='';
+    if(projetos.length===0){projRows='<tr><td colspan="5" style="text-align:center;color:var(--text-muted)">Nenhum projeto registrado</td></tr>';}
+    else{projetos.forEach(function(p){
+      projRows+='<tr><td>'+(p.nome||'-')+'</td><td>'+(p.cliente||'-')+'</td><td>'+formatCurrency(p.valor||0)+'</td><td>'+formatDate(p.dataInicio)+'</td><td>'+situacaoBadge(p.situacao)+'</td></tr>';
+    });}
+    html+='<div class="card" style="margin-bottom:16px"><div class="card-header"><span>📐 Resumo de Projetos</span></div>'+
+      '<div class="table-responsive" style="border:0"><table class="table"><thead><tr><th>Projeto</th><th>Cliente</th><th>Valor</th><th>Início</th><th>Situação</th></tr></thead><tbody>'+projRows+'</tbody></table></div></div>';
+  }
+
+  if(!html){html='<p style="color:var(--text-muted);text-align:center;padding:40px">Selecione as métricas e clique em "Gerar Relatório"</p>';}
+
+  container.innerHTML='<div id="relPrintArea">'+html+'</div>';
+}
+
+function printRelatorios(){
+  var area=document.getElementById('relPrintArea');
+  if(!area||!area.innerHTML.trim()){showToast('Gere o relatório primeiro','error');return;}
+  var win=window.open('','','width=900,height=700');
+  win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Relatórios</title>'+
+    '<style>@page{size:A4;margin:10mm}body{font-family:Arial,sans-serif;margin:0;padding:16px;color:#000;background:#fff;font-size:12px}'+
+    '.card{border:1px solid #ccc;border-radius:8px;margin-bottom:12px;overflow:hidden;page-break-inside:avoid}'+
+    '.card-header{background:#f0f0f0;padding:10px 14px;font-weight:700;border-bottom:1px solid #ccc;font-size:12px}'+
+    '.card-header span{color:#000}'+
+    '.dashboard-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;padding:12px}'+
+    '.card .card{border:1px solid #ddd}'+
+    '.card-value{font-size:16px;font-weight:800;padding:4px 0}'+
+    '.card-sub{font-size:10px;color:#666}'+
+    'table{width:100%;border-collapse:collapse}th{background:#e8e8e8;padding:6px 10px;text-align:left;font-size:10px;border-bottom:1px solid #ccc;color:#000}'+
+    'td{padding:6px 10px;border-bottom:1px solid #eee;font-size:11px;color:#000}'+
+    '.text-success{color:#00a040!important}.text-danger{color:#d00!important}.text-warning{color:#c80!important}.text-info{color:#06a!important}'+
+    '</style></head><body>'+area.innerHTML+'</body></html>');
+  win.document.close();
+  setTimeout(function(){win.print();},500);
 }
 
 // ══════════════════════════════════════════════════════════════
