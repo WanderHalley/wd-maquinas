@@ -528,21 +528,17 @@ function viewNotaSaida(id){var n=(appData.notasSaida||[]).find(function(x){retur
 function deleteNotaSaida(id){if(!confirm('Excluir nota?'))return;appData.notasSaida=(appData.notasSaida||[]).filter(function(n){return n.id!==id;});saveData();renderNotasSaidaPage();showToast('Excluído!','success');}
 function filterNotasSaida(q){var list=appData.notasSaida||[];if(q)list=list.filter(function(n){return(n.numero||'').toLowerCase().includes(q.toLowerCase())||(n.cliente||'').toLowerCase().includes(q.toLowerCase());});renderNotasSaidaTable(list);}
 
-// ══════════════════════════════════════════════════════════════
+// ══// ══════════════════════════════════════════════════════════════
 // ── RECEITAS MEI ──
 // ══════════════════════════════════════════════════════════════
 function renderReceitasMeiPage(){
   var pg=document.getElementById('page-receitasmei');if(!pg)return;
   var meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
   var mesesKey=['janeiro','fevereiro','marco','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
-
-  // Selector
   var selOpts='<option value="">Selecione o mês</option>';
   selOpts+='<option value="todos">📊 Todos (Resumo Anual)</option>';
   meses.forEach(function(m,i){ selOpts+='<option value="'+mesesKey[i]+'">'+m+'</option>'; });
-
   var selectedMei=pg.getAttribute('data-mei-mes')||'';
-
   pg.innerHTML=
     '<div class="page-header"><h2>📄 Receitas MEI</h2></div>'+
     '<div style="margin-bottom:20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">'+
@@ -550,7 +546,6 @@ function renderReceitasMeiPage(){
       '<button class="btn btn-primary" onclick="printMeiPage()">🖨️ Imprimir</button>'+
     '</div>'+
     '<div id="meiContent"></div>';
-
   var sel=document.getElementById('meiMesSelect');
   if(sel&&selectedMei){sel.value=selectedMei;changeMeiMes(selectedMei);}
 }
@@ -564,281 +559,270 @@ function changeMeiMes(val){
   renderMeiMensal(container,val);
 }
 
-function renderMeiMensal(container,mesKey){
+function getMeiDadosMes(mesKey){
   var meses=['janeiro','fevereiro','marco','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
-  var mesesNome=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
   var mi=meses.indexOf(mesKey);
-  var mesNome=mi>-1?mesesNome[mi]:mesKey;
   var mesNum=mi+1;
   var ano=new Date().getFullYear();
-
-  // Coletar receitas do mês a partir de vendas
   var vendas=(appData.vendas||[]).filter(function(v){
     if(!v.data) return false;
     var p=v.data.split('-');
     return parseInt(p[1])===mesNum && parseInt(p[0])===ano;
   });
-
-  // Receitas manuais do fluxo (entradas)
   var lancs=(appData.fluxoCaixa&&appData.fluxoCaixa[mesKey])?appData.fluxoCaixa[mesKey]:[];
   var entradas=lancs.filter(function(l){return l.tipo==='entrada';});
 
-  // Montar linhas - formato oficial MEI (colunas: I a X)
-  // I-Nº Ordem, II-Data, III-Operação, IV-Valor Revenda, V-Valor Industria,
-  // VI-Valor Prestação Serviço, VII-Valor Comissão, VIII-Valor Outras, IX-Total, X-Obs
+  // I - Revenda sem nota (vendas tipo Revenda)
+  var revendaSemNota=vendas.filter(function(v){
+    return (v.tipoVenda||'').toLowerCase().includes('revenda');
+  }).reduce(function(s,v){return s+((v.quantidade||1)*(v.valorUnit||0));},0);
+  // II - Revenda com nota
+  var revendaComNota=0;
+  // III - Total revenda
+  var totalRevenda=revendaSemNota+revendaComNota;
 
-  var linhas=[];var ordem=1;
+  // IV - Industria sem nota
+  var industriaSemNota=0;
+  // V - Industria com nota
+  var industriaComNota=0;
+  // VI - Total industria
+  var totalIndustria=industriaSemNota+industriaComNota;
 
-  vendas.forEach(function(v){
-    var total=(v.quantidade||1)*(v.valorUnit||0);
-    var tipoV=(v.tipoVenda||'Direta').toLowerCase();
-    var isRevenda=tipoV.includes('revenda');
-    linhas.push({
-      ordem:ordem++,
-      data:formatDate(v.data),
-      operacao:(v.produto||'Venda')+(v.cliente?' - '+v.cliente:''),
-      revenda:isRevenda?total:0,
-      industria:0,
-      servico:0,
-      comissao:0,
-      outras:!isRevenda?total:0,
-      total:total,
-      obs:(v.formaPagamento||'')
-    });
-  });
-
-  entradas.forEach(function(l){
+  // VII - Serviço sem nota (entradas de fluxo categoria serviço)
+  var servicoSemNota=entradas.filter(function(l){
     var cat=(l.categoria||'').toLowerCase();
-    var isServico=cat.includes('serviço')||cat.includes('servico');
-    linhas.push({
-      ordem:ordem++,
-      data:l.data?formatDate(l.data):'-',
-      operacao:l.descricao||(l.categoria||'Entrada'),
-      revenda:0,
-      industria:0,
-      servico:isServico?(l.valor||0):0,
-      comissao:0,
-      outras:!isServico?(l.valor||0):0,
-      total:l.valor||0,
-      obs:(l.categoria||'')
-    });
-  });
+    return cat.includes('serviço')||cat.includes('servico');
+  }).reduce(function(s,l){return s+(l.valor||0);},0);
+  // VIII - Serviço com nota
+  var servicoComNota=0;
+  // IX - Total serviço
+  var totalServico=servicoSemNota+servicoComNota;
 
-  // Preencher até pelo menos 20 linhas
-  while(linhas.length<20){
-    linhas.push({ordem:ordem++,data:'',operacao:'',revenda:0,industria:0,servico:0,comissao:0,outras:0,total:0,obs:''});
+  // Vendas diretas vão para I (revenda sem nota) por padrão
+  var diretaSemNota=vendas.filter(function(v){
+    return !(v.tipoVenda||'').toLowerCase().includes('revenda');
+  }).reduce(function(s,v){return s+((v.quantidade||1)*(v.valorUnit||0));},0);
+  revendaSemNota+=diretaSemNota;
+  totalRevenda=revendaSemNota+revendaComNota;
+
+  // Outras entradas de fluxo (não serviço) vão para I
+  var outrasEntradas=entradas.filter(function(l){
+    var cat=(l.categoria||'').toLowerCase();
+    return !cat.includes('serviço')&&!cat.includes('servico')&&!cat.includes('salário')&&!cat.includes('salario');
+  }).reduce(function(s,l){return s+(l.valor||0);},0);
+  revendaSemNota+=outrasEntradas;
+  totalRevenda=revendaSemNota+revendaComNota;
+
+  // X - Total geral
+  var totalGeral=totalRevenda+totalIndustria+totalServico;
+
+  return {
+    revendaSemNota:revendaSemNota,revendaComNota:revendaComNota,totalRevenda:totalRevenda,
+    industriaSemNota:industriaSemNota,industriaComNota:industriaComNota,totalIndustria:totalIndustria,
+    servicoSemNota:servicoSemNota,servicoComNota:servicoComNota,totalServico:totalServico,
+    totalGeral:totalGeral
+  };
+}
+
+function renderMeiMensal(container,mesKey){
+  var meses=['janeiro','fevereiro','marco','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  var mesesNome=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  var mesesNomeFull=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  var mi=meses.indexOf(mesKey);
+  var mesNome=mi>-1?mesesNomeFull[mi]:mesKey;
+  var ano=new Date().getFullYear();
+  var emp=appData.empresa||{};
+  var d=getMeiDadosMes(mesKey);
+
+  var assinaturaHtml='';
+  if(emp.assinatura){
+    assinaturaHtml='<img src="'+emp.assinatura+'" style="max-height:50px;max-width:180px;object-fit:contain">';
+  } else {
+    assinaturaHtml='<div style="min-width:180px;border-bottom:1px solid #000;height:40px"></div>';
   }
 
-  // Totais
-  var totRevenda=0,totIndustria=0,totServico=0,totComissao=0,totOutras=0,totGeral=0;
-  linhas.forEach(function(l){totRevenda+=l.revenda;totIndustria+=l.industria;totServico+=l.servico;totComissao+=l.comissao;totOutras+=l.outras;totGeral+=l.total;});
-
-  var rows='';
-  linhas.forEach(function(l){
-    rows+='<tr>'+
-      '<td style="text-align:center">'+l.ordem+'</td>'+
-      '<td style="text-align:center">'+l.data+'</td>'+
-      '<td>'+l.operacao+'</td>'+
-      '<td style="text-align:right">'+(l.revenda?formatCurrency(l.revenda):'')+'</td>'+
-      '<td style="text-align:right">'+(l.industria?formatCurrency(l.industria):'')+'</td>'+
-      '<td style="text-align:right">'+(l.servico?formatCurrency(l.servico):'')+'</td>'+
-      '<td style="text-align:right">'+(l.comissao?formatCurrency(l.comissao):'')+'</td>'+
-      '<td style="text-align:right">'+(l.outras?formatCurrency(l.outras):'')+'</td>'+
-      '<td style="text-align:right;font-weight:600">'+(l.total?formatCurrency(l.total):'')+'</td>'+
-      '<td>'+l.obs+'</td>'+
-    '</tr>';
-  });
-
-  var empresa=appData.empresa||{};
+  // Estilo da tabela idêntico à imagem
+  var cs='border:1px solid #000;padding:5px 8px;color:#000;font-size:11px;'; // cell style
+  var hs='border:1px solid #000;padding:6px 8px;color:#000;font-size:11px;font-weight:700;background:#e0e0e0;'; // header style
+  var vs='border:1px solid #000;padding:5px 8px;color:#000;font-size:11px;text-align:right;white-space:nowrap;'; // value style
+  var ts='border:1px solid #000;padding:6px 8px;color:#000;font-size:12px;font-weight:700;text-align:right;white-space:nowrap;'; // total style
 
   container.innerHTML=
-    '<div id="meiPrintArea" style="background:#fff;color:#000;padding:24px;border-radius:8px;border:1px solid #ccc">'+
-      '<div style="text-align:center;margin-bottom:12px">'+
-        '<h3 style="color:#000;margin:0;font-size:14px">RELATÓRIO MENSAL DAS RECEITAS BRUTAS — MEI</h3>'+
-        '<p style="color:#333;margin:4px 0;font-size:11px">CNPJ: '+(empresa.cnpj||'')+'</p>'+
-        '<p style="color:#333;margin:2px 0;font-size:11px">Empreendedor(a): '+(empresa.empreendedor||empresa.nome||'')+'</p>'+
-        '<p style="color:#333;margin:2px 0;font-size:11px">Período de Apuração: '+mesNome+'/'+ano+'</p>'+
-      '</div>'+
-      '<table style="width:100%;border-collapse:collapse;font-size:9px;color:#000">'+
-        '<thead>'+
-          '<tr style="background:#e8e8e8">'+
-            '<th style="border:1px solid #999;padding:4px;text-align:center;color:#000;font-size:8px">I<br>Nº</th>'+
-            '<th style="border:1px solid #999;padding:4px;text-align:center;color:#000;font-size:8px">II<br>Data</th>'+
-            '<th style="border:1px solid #999;padding:4px;text-align:center;color:#000;font-size:8px">III<br>Operação (Nota/Recibo)</th>'+
-            '<th style="border:1px solid #999;padding:4px;text-align:center;color:#000;font-size:8px">IV<br>Receita Bruta<br>Revenda Mercadorias</th>'+
-            '<th style="border:1px solid #999;padding:4px;text-align:center;color:#000;font-size:8px">V<br>Receita Bruta<br>Venda Ind/Art</th>'+
-            '<th style="border:1px solid #999;padding:4px;text-align:center;color:#000;font-size:8px">VI<br>Receita Bruta<br>Prest. Serviços</th>'+
-            '<th style="border:1px solid #999;padding:4px;text-align:center;color:#000;font-size:8px">VII<br>Receita Bruta<br>Comissão Agente</th>'+
-            '<th style="border:1px solid #999;padding:4px;text-align:center;color:#000;font-size:8px">VIII<br>Receita Bruta<br>Outras</th>'+
-            '<th style="border:1px solid #999;padding:4px;text-align:center;color:#000;font-size:8px">IX<br>Total<br>(IV+V+VI+VII+VIII)</th>'+
-            '<th style="border:1px solid #999;padding:4px;text-align:center;color:#000;font-size:8px">X<br>Obs</th>'+
-          '</tr>'+
-        '</thead>'+
-        '<tbody>'+rows+'</tbody>'+
-        '<tfoot>'+
-          '<tr style="background:#e8e8e8;font-weight:700">'+
-            '<td colspan="3" style="border:1px solid #999;padding:4px;text-align:right;color:#000">TOTAIS:</td>'+
-            '<td style="border:1px solid #999;padding:4px;text-align:right;color:#000">'+(totRevenda?formatCurrency(totRevenda):'')+'</td>'+
-            '<td style="border:1px solid #999;padding:4px;text-align:right;color:#000">'+(totIndustria?formatCurrency(totIndustria):'')+'</td>'+
-            '<td style="border:1px solid #999;padding:4px;text-align:right;color:#000">'+(totServico?formatCurrency(totServico):'')+'</td>'+
-            '<td style="border:1px solid #999;padding:4px;text-align:right;color:#000">'+(totComissao?formatCurrency(totComissao):'')+'</td>'+
-            '<td style="border:1px solid #999;padding:4px;text-align:right;color:#000">'+(totOutras?formatCurrency(totOutras):'')+'</td>'+
-            '<td style="border:1px solid #999;padding:4px;text-align:right;color:#000">'+formatCurrency(totGeral)+'</td>'+
-            '<td style="border:1px solid #999;padding:4px;color:#000"></td>'+
-          '</tr>'+
-        '</tfoot>'+
-      '</table>'+
-      '<div style="margin-top:16px;display:flex;justify-content:space-between;font-size:10px;color:#000">'+
-        '<div>Local e Data: '+(empresa.cidade||'_____________')+', ____/____/'+ano+'</div>'+
-        '<div style="text-align:center;border-top:1px solid #000;padding-top:4px;min-width:200px">'+(empresa.empreendedor||empresa.nome||'Assinatura do Empreendedor')+'</div>'+
-      '</div>'+
-    '</div>';
+  '<div id="meiPrintArea" style="background:#fff;color:#000;padding:20px;border-radius:4px;max-width:210mm">'+
+    '<table style="width:100%;border-collapse:collapse;border:2px solid #000">'+
+      // Cabeçalho
+      '<tr><td colspan="2" style="'+hs+'text-align:center;font-size:13px;border:2px solid #000">RELATÓRIO MENSAL DAS RECEITAS BRUTAS</td></tr>'+
+      '<tr><td style="'+cs+'width:30%">CNPJ:</td><td style="'+cs+'">'+(emp.cnpj||'')+'</td></tr>'+
+      '<tr><td style="'+cs+'">Empreendedor individual:</td><td style="'+cs+'">'+(emp.cnpj?emp.cnpj.replace(/[.\-\/]/g,'').substring(0,10):'')+' '+(emp.empreendedor||emp.nome||'')+'</td></tr>'+
+      '<tr><td style="'+cs+'">Período de apuração:</td><td style="'+cs+'">'+mesNome.toUpperCase()+' DE '+ano+'</td></tr>'+
 
-  // Estilo inline para as linhas da tabela
-  var tds=container.querySelectorAll('#meiPrintArea table tbody td');
-  tds.forEach(function(td){
-    td.style.border='1px solid #ccc';
-    td.style.padding='3px 4px';
-    td.style.color='#000';
-  });
+      // SEÇÃO 1 - REVENDA DE MERCADORIAS (COMÉRCIO)
+      '<tr><td colspan="2" style="'+hs+'background:#c0c0c0;font-size:11px;border:2px solid #000">RECEITA BRUTA MENSAL – REVENDA DE MERCADORIAS (COMÉRCIO)</td></tr>'+
+      '<tr><td style="'+cs+'">I – Revenda de mercadorias com dispensa de emissão de documento fiscal</td><td style="'+vs+'">'+formatCurrency(d.revendaSemNota)+'</td></tr>'+
+      '<tr><td style="'+cs+'">II – Revenda de mercadorias com documento fiscal emitido</td><td style="'+vs+'">'+formatCurrency(d.revendaComNota)+'</td></tr>'+
+      '<tr><td style="'+cs+'font-weight:600">III – Total das receitas com revenda de mercadorias (I + II)</td><td style="'+ts+'">'+formatCurrency(d.totalRevenda)+'</td></tr>'+
+
+      // SEÇÃO 2 - VENDA DE PRODUTOS INDUSTRIALIZADOS (INDÚSTRIA)
+      '<tr><td colspan="2" style="'+hs+'background:#c0c0c0;font-size:11px;border:2px solid #000">RECEITA BRUTA MENSAL – VENDA DE PRODUTOS INDUSTRIALIZADOS (INDÚSTRIA)</td></tr>'+
+      '<tr><td style="'+cs+'">IV – Venda de produtos industrializados com dispensa de emissão de documento fiscal</td><td style="'+vs+'">'+formatCurrency(d.industriaSemNota)+'</td></tr>'+
+      '<tr><td style="'+cs+'">V – Venda de produtos industrializados com documento fiscal emitido</td><td style="'+vs+'">'+formatCurrency(d.industriaComNota)+'</td></tr>'+
+      '<tr><td style="'+cs+'font-weight:600">VI – Total das receitas com venda de produtos industrializados (IV + V)</td><td style="'+ts+'">'+formatCurrency(d.totalIndustria)+'</td></tr>'+
+
+      // SEÇÃO 3 - PRESTAÇÃO DE SERVIÇOS
+      '<tr><td colspan="2" style="'+hs+'background:#c0c0c0;font-size:11px;border:2px solid #000">RECEITA BRUTA MENSAL – PRESTAÇÃO DE SERVIÇOS</td></tr>'+
+      '<tr><td style="'+cs+'">VII – Receita com prestação de serviços com dispensa de emissão de documento fiscal</td><td style="'+vs+'">'+formatCurrency(d.servicoSemNota)+'</td></tr>'+
+      '<tr><td style="'+cs+'">VIII – Receita com prestação de serviços com documento fiscal emitido</td><td style="'+vs+'">'+formatCurrency(d.servicoComNota)+'</td></tr>'+
+      '<tr><td style="'+cs+'font-weight:600">IX – Total das receitas com prestação de serviços (VII + VIII)</td><td style="'+ts+'">'+formatCurrency(d.totalServico)+'</td></tr>'+
+
+      // TOTAL GERAL
+      '<tr><td style="'+hs+'font-size:12px;border:2px solid #000">X - Total geral das receitas brutas no mês (III + VI + IX)</td><td style="border:2px solid #000;padding:8px;color:#000;font-size:14px;font-weight:800;text-align:right;white-space:nowrap">'+formatCurrency(d.totalGeral)+'</td></tr>'+
+
+      // LOCAL E DATA + ASSINATURA
+      '<tr>'+
+        '<td style="'+cs+'vertical-align:top">LOCAL E DATA:<br><br>'+(emp.cidade||'Franca, SP')+' - 01 de '+mesNome+' de '+ano+'</td>'+
+        '<td style="'+cs+'text-align:center;vertical-align:top">ASSINATURA DO EMPRESÁRIO:<br><br>'+assinaturaHtml+'</td>'+
+      '</tr>'+
+
+      // ANEXOS
+      '<tr><td colspan="2" style="'+cs+'font-size:9px">'+
+        'ENCONTRAM-SE ANEXADOS A ESTE RELATÓRIO:<br>'+
+        '- Os documentos fiscais comprobatórios das entradas de mercadorias e serviços tomados referentes ao período.<br>'+
+        '- As notas fiscais relativas às operações ou prestações realizadas eventualmente emitidas.'+
+      '</td></tr>'+
+    '</table>'+
+  '</div>';
 }
 
 function renderMeiAnual(container){
   var ano=new Date().getFullYear();
   var meses=['janeiro','fevereiro','marco','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
   var mesesNome=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  var emp=appData.empresa||{};
 
-  var dados=[];
-  var totalAnualRevenda=0,totalAnualIndustria=0,totalAnualServico=0,totalAnualComissao=0,totalAnualOutras=0,totalAnualGeral=0;
+  var totalAnualRevenda=0,totalAnualIndustria=0,totalAnualServico=0,totalAnualGeral=0;
+  var dadosMeses=[];
 
-  meses.forEach(function(mesKey,mi){
-    var mesNum=mi+1;
-    var vendas=(appData.vendas||[]).filter(function(v){
-      if(!v.data) return false;
-      var p=v.data.split('-');
-      return parseInt(p[1])===mesNum && parseInt(p[0])===ano;
-    });
-    var lancs=(appData.fluxoCaixa&&appData.fluxoCaixa[mesKey])?appData.fluxoCaixa[mesKey]:[];
-    var entradas=lancs.filter(function(l){return l.tipo==='entrada';});
-
-    var revenda=0,industria=0,servico=0,comissao=0,outras=0;
-
-    vendas.forEach(function(v){
-      var total=(v.quantidade||1)*(v.valorUnit||0);
-      var tipoV=(v.tipoVenda||'Direta').toLowerCase();
-      if(tipoV.includes('revenda')) revenda+=total;
-      else outras+=total;
-    });
-
-    entradas.forEach(function(l){
-      var cat=(l.categoria||'').toLowerCase();
-      if(cat.includes('serviço')||cat.includes('servico')) servico+=(l.valor||0);
-      else outras+=(l.valor||0);
-    });
-
-    var totalMes=revenda+industria+servico+comissao+outras;
-    totalAnualRevenda+=revenda;totalAnualIndustria+=industria;totalAnualServico+=servico;totalAnualComissao+=comissao;totalAnualOutras+=outras;totalAnualGeral+=totalMes;
-
-    dados.push({mes:mesesNome[mi],revenda:revenda,industria:industria,servico:servico,comissao:comissao,outras:outras,total:totalMes});
+  meses.forEach(function(mesKey,i){
+    var d=getMeiDadosMes(mesKey);
+    totalAnualRevenda+=d.totalRevenda;
+    totalAnualIndustria+=d.totalIndustria;
+    totalAnualServico+=d.totalServico;
+    totalAnualGeral+=d.totalGeral;
+    dadosMeses.push(d);
   });
 
-  var rows='';
-  dados.forEach(function(d){
-    rows+='<tr>'+
-      '<td style="border:1px solid #999;padding:6px 8px;color:#000;font-weight:600">'+d.mes+'</td>'+
-      '<td style="border:1px solid #999;padding:6px 8px;text-align:right;color:#000">'+(d.revenda?formatCurrency(d.revenda):'-')+'</td>'+
-      '<td style="border:1px solid #999;padding:6px 8px;text-align:right;color:#000">'+(d.industria?formatCurrency(d.industria):'-')+'</td>'+
-      '<td style="border:1px solid #999;padding:6px 8px;text-align:right;color:#000">'+(d.servico?formatCurrency(d.servico):'-')+'</td>'+
-      '<td style="border:1px solid #999;padding:6px 8px;text-align:right;color:#000">'+(d.comissao?formatCurrency(d.comissao):'-')+'</td>'+
-      '<td style="border:1px solid #999;padding:6px 8px;text-align:right;color:#000">'+(d.outras?formatCurrency(d.outras):'-')+'</td>'+
-      '<td style="border:1px solid #999;padding:6px 8px;text-align:right;color:#000;font-weight:700">'+formatCurrency(d.total)+'</td>'+
+  var cs='border:1px solid #000;padding:4px 6px;color:#000;font-size:10px;';
+  var hs='border:1px solid #000;padding:5px 6px;color:#000;font-size:10px;font-weight:700;background:#e0e0e0;';
+  var vs='border:1px solid #000;padding:4px 6px;color:#000;font-size:10px;text-align:right;white-space:nowrap;';
+
+  // Tabela resumo mensal
+  var resumoRows='';
+  mesesNome.forEach(function(m,i){
+    var d=dadosMeses[i];
+    resumoRows+='<tr>'+
+      '<td style="'+cs+'font-weight:600">'+m+'</td>'+
+      '<td style="'+vs+'">'+(d.totalRevenda?formatCurrency(d.totalRevenda):'R$ 0,00')+'</td>'+
+      '<td style="'+vs+'">'+(d.totalIndustria?formatCurrency(d.totalIndustria):'R$ 0,00')+'</td>'+
+      '<td style="'+vs+'">'+(d.totalServico?formatCurrency(d.totalServico):'R$ 0,00')+'</td>'+
+      '<td style="'+vs+'font-weight:700">'+formatCurrency(d.totalGeral)+'</td>'+
     '</tr>';
   });
 
-  // Limite MEI 2026
+  // Limite MEI
   var limiteMei=81000;
-  var percentual=totalAnualGeral>0?((totalAnualGeral/limiteMei)*100).toFixed(1):0;
   var restante=limiteMei-totalAnualGeral;
-  var situacaoMei=totalAnualGeral>limiteMei?
-    '<span style="color:#c00;font-weight:700">⚠️ ULTRAPASSOU O LIMITE MEI!</span>':
-    '<span style="color:#080;font-weight:700">✅ Dentro do limite MEI</span>';
+  var percentual=totalAnualGeral>0?((totalAnualGeral/limiteMei)*100).toFixed(1):0;
 
-  var empresa=appData.empresa||{};
+  // Parcela isenta IRPF
+  var isentoComercio=totalAnualRevenda*0.08;
+  var isentoIndustria=totalAnualIndustria*0.08;
+  var isentoServico=totalAnualServico*0.32;
+  var totalIsento=isentoComercio+isentoIndustria+isentoServico;
+
+  var assinaturaHtml='';
+  if(emp.assinatura){
+    assinaturaHtml='<img src="'+emp.assinatura+'" style="max-height:40px;max-width:160px;object-fit:contain">';
+  } else {
+    assinaturaHtml='<div style="min-width:160px;border-bottom:1px solid #000;height:35px"></div>';
+  }
 
   container.innerHTML=
-    '<div id="meiPrintArea" style="background:#fff;color:#000;padding:24px;border-radius:8px;border:1px solid #ccc">'+
-      '<div style="text-align:center;margin-bottom:16px">'+
-        '<h3 style="color:#000;margin:0;font-size:16px">RESUMO ANUAL DAS RECEITAS BRUTAS — MEI</h3>'+
-        '<p style="color:#333;margin:4px 0;font-size:12px">CNPJ: '+(empresa.cnpj||'')+'</p>'+
-        '<p style="color:#333;margin:2px 0;font-size:12px">Empreendedor(a): '+(empresa.empreendedor||empresa.nome||'')+'</p>'+
-        '<p style="color:#333;margin:2px 0;font-size:12px">Ano-calendário: '+ano+'</p>'+
-      '</div>'+
+  '<div id="meiPrintArea" style="background:#fff;color:#000;padding:16px;border-radius:4px;max-width:210mm">'+
 
-      '<table style="width:100%;border-collapse:collapse;font-size:11px;color:#000;margin-bottom:20px">'+
-        '<thead>'+
-          '<tr style="background:#e8e8e8">'+
-            '<th style="border:1px solid #999;padding:8px;text-align:center;color:#000">Mês</th>'+
-            '<th style="border:1px solid #999;padding:8px;text-align:center;color:#000">Revenda<br>Mercadorias</th>'+
-            '<th style="border:1px solid #999;padding:8px;text-align:center;color:#000">Venda<br>Ind/Art</th>'+
-            '<th style="border:1px solid #999;padding:8px;text-align:center;color:#000">Prestação<br>Serviços</th>'+
-            '<th style="border:1px solid #999;padding:8px;text-align:center;color:#000">Comissão<br>Agente</th>'+
-            '<th style="border:1px solid #999;padding:8px;text-align:center;color:#000">Outras<br>Receitas</th>'+
-            '<th style="border:1px solid #999;padding:8px;text-align:center;color:#000">Total</th>'+
-          '</tr>'+
-        '</thead>'+
-        '<tbody>'+rows+'</tbody>'+
-        '<tfoot>'+
-          '<tr style="background:#e8e8e8;font-weight:700">'+
-            '<td style="border:1px solid #999;padding:8px;text-align:right;color:#000">TOTAL ANUAL:</td>'+
-            '<td style="border:1px solid #999;padding:8px;text-align:right;color:#000">'+formatCurrency(totalAnualRevenda)+'</td>'+
-            '<td style="border:1px solid #999;padding:8px;text-align:right;color:#000">'+formatCurrency(totalAnualIndustria)+'</td>'+
-            '<td style="border:1px solid #999;padding:8px;text-align:right;color:#000">'+formatCurrency(totalAnualServico)+'</td>'+
-            '<td style="border:1px solid #999;padding:8px;text-align:right;color:#000">'+formatCurrency(totalAnualComissao)+'</td>'+
-            '<td style="border:1px solid #999;padding:8px;text-align:right;color:#000">'+formatCurrency(totalAnualOutras)+'</td>'+
-            '<td style="border:1px solid #999;padding:8px;text-align:right;color:#000;font-size:13px">'+formatCurrency(totalAnualGeral)+'</td>'+
-          '</tr>'+
-        '</tfoot>'+
-      '</table>'+
+    // ═══ RESUMO ANUAL ═══
+    '<table style="width:100%;border-collapse:collapse;border:2px solid #000;margin-bottom:12px">'+
+      '<tr><td colspan="5" style="'+hs+'text-align:center;font-size:13px;border:2px solid #000">RESUMO ANUAL DAS RECEITAS BRUTAS — MEI — '+ano+'</td></tr>'+
+      '<tr><td style="'+cs+'">CNPJ:</td><td colspan="4" style="'+cs+'">'+(emp.cnpj||'')+'</td></tr>'+
+      '<tr><td style="'+cs+'">Empreendedor:</td><td colspan="4" style="'+cs+'">'+(emp.empreendedor||emp.nome||'')+'</td></tr>'+
+    '</table>'+
 
-      '<div style="background:#f5f5f5;border:1px solid #ccc;border-radius:8px;padding:16px;margin-bottom:16px">'+
-        '<h4 style="color:#000;margin:0 0 10px 0;font-size:13px">📊 Situação MEI — Ano '+ano+'</h4>'+
-        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;font-size:12px">'+
-          '<div><strong style="color:#555">Receita Bruta Total:</strong><br><span style="font-size:16px;font-weight:700;color:#000">'+formatCurrency(totalAnualGeral)+'</span></div>'+
-          '<div><strong style="color:#555">Limite MEI Anual:</strong><br><span style="font-size:16px;font-weight:700;color:#000">'+formatCurrency(limiteMei)+'</span></div>'+
-          '<div><strong style="color:#555">Restante disponível:</strong><br><span style="font-size:16px;font-weight:700;color:'+(restante>=0?'#080':'#c00')+'">'+formatCurrency(restante)+'</span></div>'+
-        '</div>'+
-        '<div style="margin-top:8px">'+
-          '<div style="background:#ddd;border-radius:4px;height:12px;overflow:hidden"><div style="background:'+(parseFloat(percentual)>100?'#c00':'#3B82F6')+';height:100%;width:'+Math.min(parseFloat(percentual),100)+'%;border-radius:4px"></div></div>'+
-          '<div style="text-align:center;margin-top:4px;font-size:11px;color:#333">'+percentual+'% utilizado</div>'+
-        '</div>'+
-        '<div style="text-align:center;margin-top:8px">'+situacaoMei+'</div>'+
-      '</div>'+
+    '<table style="width:100%;border-collapse:collapse;border:2px solid #000;margin-bottom:12px">'+
+      '<thead>'+
+        '<tr style="background:#c0c0c0">'+
+          '<th style="'+hs+'text-align:center">Mês</th>'+
+          '<th style="'+hs+'text-align:center">Revenda<br>Mercadorias (III)</th>'+
+          '<th style="'+hs+'text-align:center">Venda Prod.<br>Industrializados (VI)</th>'+
+          '<th style="'+hs+'text-align:center">Prestação de<br>Serviços (IX)</th>'+
+          '<th style="'+hs+'text-align:center">Total Geral<br>do Mês (X)</th>'+
+        '</tr>'+
+      '</thead>'+
+      '<tbody>'+resumoRows+'</tbody>'+
+      '<tfoot>'+
+        '<tr style="background:#e0e0e0">'+
+          '<td style="'+hs+'text-align:right;font-size:11px">TOTAL ANUAL:</td>'+
+          '<td style="border:1px solid #000;padding:5px 6px;color:#000;font-size:11px;font-weight:800;text-align:right">'+formatCurrency(totalAnualRevenda)+'</td>'+
+          '<td style="border:1px solid #000;padding:5px 6px;color:#000;font-size:11px;font-weight:800;text-align:right">'+formatCurrency(totalAnualIndustria)+'</td>'+
+          '<td style="border:1px solid #000;padding:5px 6px;color:#000;font-size:11px;font-weight:800;text-align:right">'+formatCurrency(totalAnualServico)+'</td>'+
+          '<td style="border:2px solid #000;padding:5px 6px;color:#000;font-size:13px;font-weight:800;text-align:right">'+formatCurrency(totalAnualGeral)+'</td>'+
+        '</tr>'+
+      '</tfoot>'+
+    '</table>'+
 
-      '<div style="background:#f5f5f5;border:1px solid #ccc;border-radius:8px;padding:16px;margin-bottom:16px">'+
-        '<h4 style="color:#000;margin:0 0 10px 0;font-size:13px">📋 Dados para Declaração Anual (DASN-SIMEI) e Imposto de Renda</h4>'+
-        '<table style="width:100%;border-collapse:collapse;font-size:12px;color:#000">'+
-          '<tr><td style="border:1px solid #ccc;padding:8px;background:#e8e8e8;font-weight:700;width:55%">Receita Bruta Total Anual (Comércio/Revenda)</td><td style="border:1px solid #ccc;padding:8px;font-weight:600">'+formatCurrency(totalAnualRevenda)+'</td></tr>'+
-          '<tr><td style="border:1px solid #ccc;padding:8px;background:#e8e8e8;font-weight:700">Receita Bruta Total Anual (Indústria/Artesanato)</td><td style="border:1px solid #ccc;padding:8px;font-weight:600">'+formatCurrency(totalAnualIndustria)+'</td></tr>'+
-          '<tr><td style="border:1px solid #ccc;padding:8px;background:#e8e8e8;font-weight:700">Receita Bruta Total Anual (Prestação de Serviços)</td><td style="border:1px solid #ccc;padding:8px;font-weight:600">'+formatCurrency(totalAnualServico)+'</td></tr>'+
-          '<tr><td style="border:1px solid #ccc;padding:8px;background:#e8e8e8;font-weight:700">Receita Bruta Total (Todas as Atividades)</td><td style="border:1px solid #ccc;padding:8px;font-weight:700;font-size:14px;color:#000">'+formatCurrency(totalAnualGeral)+'</td></tr>'+
-          '<tr><td style="border:1px solid #ccc;padding:8px;background:#e8e8e8;font-weight:700">Contratou empregado(a) no período?</td><td style="border:1px solid #ccc;padding:8px">( ) Sim &nbsp;&nbsp; ( ) Não</td></tr>'+
-        '</table>'+
-      '</div>'+
+    // ═══ SITUAÇÃO MEI ═══
+    '<table style="width:100%;border-collapse:collapse;border:2px solid #000;margin-bottom:12px">'+
+      '<tr><td colspan="2" style="'+hs+'text-align:center;font-size:11px;background:#c0c0c0;border:2px solid #000">SITUAÇÃO DO LIMITE MEI — '+ano+'</td></tr>'+
+      '<tr><td style="'+cs+'width:60%;font-weight:600">Receita Bruta Total Anual</td><td style="border:1px solid #000;padding:5px 8px;color:#000;font-size:12px;font-weight:700;text-align:right">'+formatCurrency(totalAnualGeral)+'</td></tr>'+
+      '<tr><td style="'+cs+'font-weight:600">Limite MEI Anual</td><td style="border:1px solid #000;padding:5px 8px;color:#000;font-size:12px;font-weight:700;text-align:right">'+formatCurrency(limiteMei)+'</td></tr>'+
+      '<tr><td style="'+cs+'font-weight:600">Restante disponível</td><td style="border:1px solid #000;padding:5px 8px;color:'+(restante>=0?'#006600':'#cc0000')+';font-size:12px;font-weight:700;text-align:right">'+formatCurrency(restante)+'</td></tr>'+
+      '<tr><td style="'+cs+'font-weight:600">Percentual utilizado</td><td style="border:1px solid #000;padding:5px 8px;color:#000;font-size:12px;font-weight:700;text-align:right">'+percentual+'%</td></tr>'+
+      '<tr><td colspan="2" style="'+cs+'text-align:center;font-weight:700;font-size:11px">'+(totalAnualGeral>limiteMei?'⚠️ ULTRAPASSOU O LIMITE MEI!':'✅ Dentro do limite MEI')+'</td></tr>'+
+    '</table>'+
 
-      '<div style="background:#fffbe6;border:1px solid #e8d44d;border-radius:8px;padding:12px;margin-bottom:16px;font-size:11px;color:#333">'+
-        '<strong style="color:#8B6914">📌 Parcela Isenta do IRPF (para copiar na declaração):</strong><br><br>'+
-        '• Comércio/Revenda: 8% x '+formatCurrency(totalAnualRevenda)+' = <strong>'+formatCurrency(totalAnualRevenda*0.08)+'</strong> (parcela isenta)<br>'+
-        '• Indústria: 8% x '+formatCurrency(totalAnualIndustria)+' = <strong>'+formatCurrency(totalAnualIndustria*0.08)+'</strong> (parcela isenta)<br>'+
-        '• Serviços: 32% x '+formatCurrency(totalAnualServico)+' = <strong>'+formatCurrency(totalAnualServico*0.32)+'</strong> (parcela isenta)<br>'+
-        '• <strong>Total Parcela Isenta: '+formatCurrency((totalAnualRevenda*0.08)+(totalAnualIndustria*0.08)+(totalAnualServico*0.32))+'</strong><br><br>'+
-        '<em>Preencha este valor no campo "Rendimentos Isentos e Não Tributáveis" da sua declaração de IRPF.</em>'+
-      '</div>'+
+    // ═══ DECLARAÇÃO ANUAL (DASN-SIMEI) ═══
+    '<table style="width:100%;border-collapse:collapse;border:2px solid #000;margin-bottom:12px">'+
+      '<tr><td colspan="2" style="'+hs+'text-align:center;font-size:11px;background:#c0c0c0;border:2px solid #000">DADOS PARA DECLARAÇÃO ANUAL DO SIMEI (DASN-SIMEI) — '+ano+'</td></tr>'+
+      '<tr><td style="'+cs+'width:60%;font-weight:600">Receita Bruta Total — Comércio (Revenda de Mercadorias)</td><td style="border:1px solid #000;padding:5px 8px;color:#000;font-size:11px;font-weight:700;text-align:right">'+formatCurrency(totalAnualRevenda)+'</td></tr>'+
+      '<tr><td style="'+cs+'font-weight:600">Receita Bruta Total — Indústria (Venda Prod. Industrializados)</td><td style="border:1px solid #000;padding:5px 8px;color:#000;font-size:11px;font-weight:700;text-align:right">'+formatCurrency(totalAnualIndustria)+'</td></tr>'+
+      '<tr><td style="'+cs+'font-weight:600">Receita Bruta Total — Prestação de Serviços</td><td style="border:1px solid #000;padding:5px 8px;color:#000;font-size:11px;font-weight:700;text-align:right">'+formatCurrency(totalAnualServico)+'</td></tr>'+
+      '<tr><td style="'+cs+'font-weight:700;font-size:11px">RECEITA BRUTA TOTAL (Todas as Atividades)</td><td style="border:2px solid #000;padding:6px 8px;color:#000;font-size:13px;font-weight:800;text-align:right">'+formatCurrency(totalAnualGeral)+'</td></tr>'+
+      '<tr><td style="'+cs+'font-weight:600">Contratou empregado(a) no período?</td><td style="'+cs+'text-align:center">( &nbsp; ) Sim &nbsp;&nbsp;&nbsp;&nbsp; ( &nbsp; ) Não</td></tr>'+
+    '</table>'+
 
-      '<div style="margin-top:16px;display:flex;justify-content:space-between;font-size:10px;color:#000">'+
-        '<div>Local e Data: '+(empresa.cidade||'_____________')+', ____/____/'+ano+'</div>'+
-        '<div style="text-align:center;border-top:1px solid #000;padding-top:4px;min-width:200px">'+(empresa.empreendedor||empresa.nome||'Assinatura do Empreendedor')+'</div>'+
-      '</div>'+
-    '</div>';
+    // ═══ PARCELA ISENTA IRPF ═══
+    '<table style="width:100%;border-collapse:collapse;border:2px solid #000;margin-bottom:12px">'+
+      '<tr><td colspan="3" style="'+hs+'text-align:center;font-size:11px;background:#c0c0c0;border:2px solid #000">PARCELA ISENTA DO IRPF — RENDIMENTOS DO MEI — '+ano+'</td></tr>'+
+      '<tr style="background:#e0e0e0"><th style="'+hs+'text-align:left">Atividade</th><th style="'+hs+'text-align:center">Receita × Alíquota</th><th style="'+hs+'text-align:right">Parcela Isenta</th></tr>'+
+      '<tr><td style="'+cs+'">Comércio / Revenda (8%)</td><td style="'+cs+'text-align:center">'+formatCurrency(totalAnualRevenda)+' × 8%</td><td style="border:1px solid #000;padding:5px 8px;color:#000;font-size:11px;font-weight:700;text-align:right">'+formatCurrency(isentoComercio)+'</td></tr>'+
+      '<tr><td style="'+cs+'">Indústria (8%)</td><td style="'+cs+'text-align:center">'+formatCurrency(totalAnualIndustria)+' × 8%</td><td style="border:1px solid #000;padding:5px 8px;color:#000;font-size:11px;font-weight:700;text-align:right">'+formatCurrency(isentoIndustria)+'</td></tr>'+
+      '<tr><td style="'+cs+'">Prestação de Serviços (32%)</td><td style="'+cs+'text-align:center">'+formatCurrency(totalAnualServico)+' × 32%</td><td style="border:1px solid #000;padding:5px 8px;color:#000;font-size:11px;font-weight:700;text-align:right">'+formatCurrency(isentoServico)+'</td></tr>'+
+      '<tr style="background:#e0e0e0"><td colspan="2" style="'+hs+'text-align:right;font-size:11px">TOTAL PARCELA ISENTA (Rendimentos Isentos e Não Tributáveis):</td><td style="border:2px solid #000;padding:6px 8px;color:#000;font-size:13px;font-weight:800;text-align:right">'+formatCurrency(totalIsento)+'</td></tr>'+
+    '</table>'+
+
+    '<div style="font-size:9px;color:#333;border:1px solid #999;padding:8px;margin-bottom:12px;background:#f9f9f0">'+
+      '<strong>📌 Instruções para o IRPF:</strong><br>'+
+      'Preencha o valor de <strong>'+formatCurrency(totalIsento)+'</strong> no campo "Rendimentos Isentos e Não Tributáveis" da sua declaração de Imposto de Renda Pessoa Física.<br>'+
+      'O restante (Receita Total – Parcela Isenta – Despesas comprovadas) deve ser declarado como "Rendimentos Tributáveis recebidos de PJ".'+
+    '</div>'+
+
+    // LOCAL E DATA + ASSINATURA
+    '<table style="width:100%;border-collapse:collapse;border:2px solid #000">'+
+      '<tr>'+
+        '<td style="'+cs+'vertical-align:top;width:50%">LOCAL E DATA:<br><br>'+(emp.cidade||'Franca, SP')+', ____/____/'+ano+'</td>'+
+        '<td style="'+cs+'text-align:center;vertical-align:top">ASSINATURA DO EMPRESÁRIO:<br><br>'+assinaturaHtml+'</td>'+
+      '</tr>'+
+    '</table>'+
+
+  '</div>';
 }
 
 function printMeiPage(){
@@ -846,12 +830,11 @@ function printMeiPage(){
   if(!area){showToast('Selecione um mês ou "Todos" primeiro','error');return;}
   var win=window.open('','','width=900,height=700');
   win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Receitas MEI</title>'+
-    '<style>@page{size:A4 portrait;margin:10mm}body{font-family:Arial,sans-serif;margin:0;padding:0;color:#000;background:#fff}table{page-break-inside:auto}tr{page-break-inside:avoid;page-break-after:auto}</style>'+
+    '<style>@page{size:A4 portrait;margin:8mm 10mm}body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:0;color:#000;background:#fff}table{width:100%;page-break-inside:auto}tr{page-break-inside:avoid}img{max-height:50px}</style>'+
     '</head><body>'+area.innerHTML+'</body></html>');
   win.document.close();
   setTimeout(function(){win.print();},500);
 }
-
 
 // ══════════════════════════════════════════════════════════════
 // ── RELATÓRIOS ──
