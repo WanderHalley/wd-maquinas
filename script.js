@@ -306,7 +306,7 @@ function renderFluxoMes(mesIdx){
   var salW=salLancs.filter(function(l){return(l.descricao||'').toLowerCase().includes('wander');}).reduce(function(s,l){return s+(l.valor||0);},0);
   var salD=salLancs.filter(function(l){return(l.descricao||'').toLowerCase().includes('daniel');}).reduce(function(s,l){return s+(l.valor||0);},0);
   pg.innerHTML=
-    '<div class="page-header"><h2>📅 '+mesesNomes[mesIdx]+' 2026</h2><button class="btn btn-primary" onclick="openLancamentoModal('+mesIdx+')">+ Novo Lançamento</button></div>'+
+    '<div class="page-header"><h2>📅 '+mesesNomes[mesIdx]+' 2026</h2><button class="btn btn-primary" onclick="openLancamentoModal(\''+mesKey+'\')">+ Novo Lançamento</button></div>'+
     '<div class="dashboard-grid">'+
       '<div class="card"><div class="card-header"><span>Saldo Anterior</span></div><div class="card-value '+(saldoAnterior>=0?'text-success':'text-danger')+'">'+formatCurrency(saldoAnterior)+'</div></div>'+
       '<div class="card"><div class="card-header"><span>Entradas</span></div><div class="card-value text-success">'+formatCurrency(entradas)+'</div></div>'+
@@ -315,48 +315,185 @@ function renderFluxoMes(mesIdx){
       '<div class="card"><div class="card-header"><span>💵 Dinheiro em Notas</span></div><div class="card-value">'+formatCurrency(dinhNotas)+'</div></div>'+
       '<div class="card"><div class="card-header"><span>💼 Total Salário</span></div><div class="card-value">'+formatCurrency(totalSal)+'</div><div class="card-sub">Wander: '+formatCurrency(salW)+' | Daniel: '+formatCurrency(salD)+'</div></div>'+
     '</div>'+
-    '<div class="filter-bar"><input type="text" class="form-control" style="max-width:250px" placeholder="Buscar..." oninput="fluxoFilterText=this.value.toLowerCase();renderFluxoTable('+mesIdx+')"><select class="form-control" style="max-width:160px" onchange="fluxoFilterTipo=this.value;renderFluxoTable('+mesIdx+')"><option value="">Tipo (todos)</option><option value="entrada">Entrada</option><option value="saida">Saída</option></select></div>'+
-    '<div class="table-responsive"><table class="table"><thead><tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Tipo</th><th>Valor</th><th>Ações</th></tr></thead><tbody id="fluxoBody"></tbody></table></div>';
-  fluxoFilterText='';fluxoFilterTipo='';renderFluxoTable(mesIdx);
+    '<div class="filter-bar"><input type="text" class="form-control" style="max-width:250px" placeholder="Buscar..." oninput="fluxoFilterText=this.value.toLowerCase();renderFluxoTable(\''+mesKey+'\')"><select class="form-control" style="max-width:160px" onchange="fluxoFilterTipo=this.value;renderFluxoTable(\''+mesKey+'\')"><option value="">Tipo (todos)</option><option value="entrada">Entrada</option><option value="saida">Saída</option></select></div>'+
+    '<div class="table-responsive"><table class="table"><thead><tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Tipo</th><th>Valor</th><th>F.Pgto</th><th>Ações</th></tr></thead><tbody id="fluxoTableBody-'+mesKey+'"></tbody></table></div>';
+  fluxoFilterText='';fluxoFilterTipo='';renderFluxoTable(mesKey);
 }
-function renderFluxoTable(mesIdx){
-  var mesKey=mesesKeys[mesIdx];var lancs=(appData.fluxoCaixa&&appData.fluxoCaixa[mesKey])?appData.fluxoCaixa[mesKey]:[];
-  if(fluxoFilterText) lancs=lancs.filter(function(l){return(l.descricao||'').toLowerCase().includes(fluxoFilterText)||(l.categoria||'').toLowerCase().includes(fluxoFilterText);});
-  if(fluxoFilterTipo) lancs=lancs.filter(function(l){return l.tipo===fluxoFilterTipo;});
-  var tbody=document.getElementById('fluxoBody');if(!tbody)return;
-  if(lancs.length===0){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhum lançamento</td></tr>';return;}
-  tbody.innerHTML=lancs.map(function(l){
-    var corValor=l.tipo==='entrada'?'text-success':'text-danger';var sinal=l.tipo==='entrada'?'+':'-';
-    return'<tr><td>'+formatDate(l.data)+'</td><td>'+l.descricao+'</td><td>'+l.categoria+'</td><td>'+(l.tipo==='entrada'?'<span class="text-success">Entrada</span>':'<span class="text-danger">Saída</span>')+'</td><td class="'+corValor+'">'+sinal+' '+formatCurrency(l.valor)+'</td><td><button class="btn btn-sm btn-primary" onclick="editLancamento('+mesIdx+','+l.id+')">✏️</button> <button class="btn btn-sm btn-danger" onclick="deleteLancamento('+mesIdx+','+l.id+')">🗑️</button></td></tr>';
-  }).join('');
+
+function renderFluxoTable(mesKey){
+  var container=document.getElementById('fluxoTableBody-'+mesKey);if(!container)return;
+  var lancs=(appData.fluxoCaixa&&appData.fluxoCaixa[mesKey])?appData.fluxoCaixa[mesKey]:[];
+  
+  // Filtros
+  var filtered=lancs.filter(function(l){
+    if(fluxoFilterText){
+      var txt=fluxoFilterText.toLowerCase();
+      var desc=(l.descricao||'').toLowerCase();
+      var cat=(l.categoria||'').toLowerCase();
+      if(desc.indexOf(txt)===-1&&cat.indexOf(txt)===-1) return false;
+    }
+    if(fluxoFilterTipo&&fluxoFilterTipo!==''){
+      if(l.tipo!==fluxoFilterTipo) return false;
+    }
+    return true;
+  });
+
+  if(filtered.length===0){
+    container.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:20px">Nenhum lançamento encontrado</td></tr>';
+    return;
+  }
+
+  // Ordenar por data
+  filtered.sort(function(a,b){return(a.data||'').localeCompare(b.data||'');});
+
+  var rows='';
+  filtered.forEach(function(l){
+    var isEntrada=l.tipo==='entrada';
+    var valorClass=isEntrada?'text-success':'text-danger';
+    var tipoLabel=isEntrada?'<span style="color:var(--success);font-weight:600">Entrada</span>':'<span style="color:var(--danger);font-weight:600">Saída</span>';
+    // Encontrar o índice real no array original para editar/excluir
+    var realIdx=lancs.indexOf(l);
+    rows+='<tr>'+
+      '<td>'+formatDate(l.data)+'</td>'+
+      '<td>'+(l.descricao||'-')+'</td>'+
+      '<td>'+(l.categoria||'-')+'</td>'+
+      '<td>'+tipoLabel+'</td>'+
+      '<td class="'+valorClass+'" style="font-weight:600">'+formatCurrency(l.valor)+'</td>'+
+      '<td>'+(l.formaPagamento||'-')+'</td>'+
+      '<td>'+
+        '<button class="btn btn-sm btn-outline" onclick="editLancamento(\''+mesKey+'\','+realIdx+')" title="Editar">✏️</button> '+
+        '<button class="btn btn-sm btn-danger" onclick="deleteLancamento(\''+mesKey+'\','+realIdx+')" title="Excluir">🗑️</button>'+
+      '</td>'+
+    '</tr>';
+  });
+  container.innerHTML=rows;
 }
-function openLancamentoModal(mesIdx,lanc){
-  var isEdit=!!lanc;var tipoVal=lanc?lanc.tipo:'entrada';
+
+function saveLancamento(mesKey){
+  var data=document.getElementById('flxData').value;
+  var descricao=document.getElementById('flxDescricao').value;
+  var categoria=document.getElementById('flxCategoria').value;
+  var tipo=document.getElementById('flxTipo').value;
+  var valorStr=document.getElementById('flxValor').value;
+  var formaPagamento=document.getElementById('flxFormaPgto')?document.getElementById('flxFormaPgto').value:'';
+
+  if(!data||!descricao||!valorStr){showToast('Preencha Data, Descrição e Valor','error');return;}
+
+  var valor=parseFloat(valorStr.toString().replace(/[^\d,.-]/g,'').replace(',','.'));
+  if(isNaN(valor)||valor<=0){showToast('Valor inválido','error');return;}
+
+  var lancamento={
+    id:Date.now(),
+    data:data,
+    descricao:descricao,
+    categoria:categoria,
+    tipo:tipo,
+    valor:valor,
+    formaPagamento:formaPagamento
+  };
+
+  // Garantir que a estrutura existe
+  if(!appData.fluxoCaixa) appData.fluxoCaixa={};
+  if(!appData.fluxoCaixa[mesKey]) appData.fluxoCaixa[mesKey]=[];
+
+  // Se estiver editando
+  var editIdx=document.getElementById('flxEditIdx');
+  if(editIdx&&editIdx.value!==''){
+    var idx=parseInt(editIdx.value);
+    appData.fluxoCaixa[mesKey][idx]=lancamento;
+    showToast('Lançamento atualizado!','success');
+  } else {
+    appData.fluxoCaixa[mesKey].push(lancamento);
+    showToast('Lançamento adicionado!','success');
+  }
+
+  saveData();
+  closeCadastroModal();
+  renderFluxoMes(getMesIndex(mesKey));
+}
+
+function getMesIndex(mesKey){
+  var meses=['janeiro','fevereiro','marco','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  return meses.indexOf(mesKey);
+}
+
+function editLancamento(mesKey,idx){
+  var lancs=(appData.fluxoCaixa&&appData.fluxoCaixa[mesKey])?appData.fluxoCaixa[mesKey]:[];
+  var l=lancs[idx];if(!l)return;
+  openLancamentoModal(mesKey,l,idx);
+}
+
+function deleteLancamento(mesKey,idx){
+  if(!confirm('Excluir este lançamento?'))return;
+  if(!appData.fluxoCaixa||!appData.fluxoCaixa[mesKey])return;
+  appData.fluxoCaixa[mesKey].splice(idx,1);
+  saveData();
+  renderFluxoMes(getMesIndex(mesKey));
+  showToast('Lançamento excluído','success');
+}
+
+function openLancamentoModal(mesKey,lancamento,editIdx){
+  var isEdit=!!lancamento;
+  var l=lancamento||{};
+  
+  var catOpts='';
+  (appData.categoriasFluxo||[]).forEach(function(c){
+    var sel=(l.categoria===c.nome)?'selected':'';
+    catOpts+='<option value="'+c.nome+'" data-tipo="'+c.tipo+'" '+sel+'>'+c.nome+(c.tipo==='entrada'?' (Entrada)':' (Saída)')+'</option>';
+  });
+
+  var pgtoOpts='<option value="">-- Opcional --</option>';
+  (appData.formasPagamento||[]).forEach(function(f){
+    var sel=(l.formaPagamento===f)?'selected':'';
+    pgtoOpts+='<option value="'+f+'" '+sel+'>'+f+'</option>';
+  });
+
+  var tipoSel=l.tipo||'entrada';
+
   document.getElementById('cadastroModalTitle').textContent=isEdit?'Editar Lançamento':'Novo Lançamento';
   document.getElementById('cadastroModalBody').innerHTML=
-    '<div class="form-row"><div class="form-group"><label>Data</label><input type="date" class="form-control" id="flxData" value="'+(lanc?lanc.data:todayStr())+'"></div><div class="form-group"><label>Descrição *</label><input type="text" class="form-control" id="flxDesc" value="'+(lanc?lanc.descricao:'')+'"></div></div>'+
-    '<div class="form-row"><div class="form-group"><label>Tipo</label><select class="form-control" id="flxTipo" onchange="updateFlxCatOptions()"><option value="entrada"'+(tipoVal==='entrada'?' selected':'')+'>Entrada</option><option value="saida"'+(tipoVal==='saida'?' selected':'')+'>Saída</option></select></div><div class="form-group"><label>Categoria</label><select class="form-control" id="flxCat"></select></div></div>'+
-    '<div class="form-group"><label>Valor *</label><input type="number" class="form-control" id="flxValor" value="'+(lanc?lanc.valor||'':'')+'" step="0.01"></div>';
-  document.getElementById('cadastroModalFooter').innerHTML='<button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button><button class="btn btn-primary" onclick="saveLancamento('+mesIdx+','+(isEdit?lanc.id:'null')+')">Salvar</button>';
+    '<input type="hidden" id="flxEditIdx" value="'+(isEdit?editIdx:'')+'">'+
+    '<input type="hidden" id="flxMesKey" value="'+mesKey+'">'+
+    '<div class="form-row">'+
+      '<div class="form-group"><label>Data</label><input type="date" class="form-control" id="flxData" value="'+(l.data||todayStr())+'"></div>'+
+      '<div class="form-group"><label>Tipo</label>'+
+        '<div style="display:flex;gap:8px">'+
+          '<button type="button" class="fluxo-tipo-btn '+(tipoSel==='entrada'?'entrada-active':'')+'" id="btnTipoEntrada" onclick="setFlxTipo(\'entrada\')">Entrada</button>'+
+          '<button type="button" class="fluxo-tipo-btn '+(tipoSel==='saida'?'saida-active':'')+'" id="btnTipoSaida" onclick="setFlxTipo(\'saida\')">Saída</button>'+
+        '</div>'+
+        '<input type="hidden" id="flxTipo" value="'+tipoSel+'">'+
+      '</div>'+
+    '</div>'+
+    '<div class="form-group"><label>Descrição</label><input class="form-control" id="flxDescricao" value="'+(l.descricao||'')+'"></div>'+
+    '<div class="form-row">'+
+      '<div class="form-group"><label>Categoria</label><select class="form-control" id="flxCategoria" onchange="updateFlxTipoFromCat()">'+catOpts+'</select></div>'+
+      '<div class="form-group"><label>Valor (R$)</label><input type="text" class="form-control" id="flxValor" value="'+(l.valor||'')+'"></div>'+
+    '</div>'+
+    '<div class="form-group"><label>Forma de Pagamento</label><select class="form-control" id="flxFormaPgto">'+pgtoOpts+'</select></div>';
+
+  document.getElementById('cadastroModalFooter').innerHTML=
+    '<button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button>'+
+    '<button class="btn btn-primary" onclick="saveLancamento(\''+mesKey+'\')">💾 Salvar</button>';
+
   openCadastroModal();
-  setTimeout(function(){updateFlxCatOptions();if(lanc)document.getElementById('flxCat').value=lanc.categoria||'';},50);
 }
-function updateFlxCatOptions(){
-  var tipo=document.getElementById('flxTipo').value;var catSel=document.getElementById('flxCat');
-  var cats=(appData.categoriasFluxo||[]).filter(function(c){return c.tipo===tipo;});
-  catSel.innerHTML=cats.map(function(c){return'<option value="'+c.nome+'">'+c.nome+'</option>';}).join('');
+
+function setFlxTipo(tipo){
+  document.getElementById('flxTipo').value=tipo;
+  var btnE=document.getElementById('btnTipoEntrada');
+  var btnS=document.getElementById('btnTipoSaida');
+  if(btnE){btnE.className='fluxo-tipo-btn '+(tipo==='entrada'?'entrada-active':'');}
+  if(btnS){btnS.className='fluxo-tipo-btn '+(tipo==='saida'?'saida-active':'');}
 }
-function saveLancamento(mesIdx,id){
-  var mesKey=mesesKeys[mesIdx];
-  var obj={data:document.getElementById('flxData').value,descricao:document.getElementById('flxDesc').value.trim(),tipo:document.getElementById('flxTipo').value,categoria:document.getElementById('flxCat').value,valor:parseFloat(document.getElementById('flxValor').value)||0};
-  if(!obj.descricao){showToast('Informe a descrição','error');return;}if(!obj.valor){showToast('Informe o valor','error');return;}
-  if(!appData.fluxoCaixa) appData.fluxoCaixa={};if(!appData.fluxoCaixa[mesKey]) appData.fluxoCaixa[mesKey]=[];
-  if(id){var idx=appData.fluxoCaixa[mesKey].findIndex(function(l){return l.id===id;});if(idx>-1){obj.id=id;appData.fluxoCaixa[mesKey][idx]=obj;}}
-  else{obj.id=nextId(appData.fluxoCaixa[mesKey]);appData.fluxoCaixa[mesKey].push(obj);}
-  saveData();closeCadastroModal();renderFluxoMes(mesIdx);showToast(id?'Atualizado!':'Cadastrado!','success');
+
+function updateFlxTipoFromCat(){
+  var sel=document.getElementById('flxCategoria');
+  if(!sel)return;
+  var opt=sel.options[sel.selectedIndex];
+  if(opt&&opt.getAttribute('data-tipo')){
+    setFlxTipo(opt.getAttribute('data-tipo'));
+  }
 }
-function editLancamento(mesIdx,id){var mesKey=mesesKeys[mesIdx];var lanc=(appData.fluxoCaixa[mesKey]||[]).find(function(l){return l.id===id;});if(lanc)openLancamentoModal(mesIdx,lanc);}
-function deleteLancamento(mesIdx,id){if(!confirm('Excluir lançamento?'))return;var mesKey=mesesKeys[mesIdx];appData.fluxoCaixa[mesKey]=(appData.fluxoCaixa[mesKey]||[]).filter(function(l){return l.id!==id;});saveData();renderFluxoMes(mesIdx);showToast('Excluído!','success');}
 
 // ══════════════════════════════════════════════════════════════
 // ── COMPRAS ──
@@ -994,14 +1131,14 @@ function renderConfiguracoesPage(){
         '</div>'+
         '<div class="form-row">'+
           '<div class="form-group"><label>Logo</label>'+
-            '<div class="logo-upload-area" onclick="document.getElementById(\'cfgLogoInput\').click()">'+
+            '<div class="logo-upload-area" id="cfgLogoPreview" onclick="document.getElementById(\'cfgLogoInput\').click()">'+
               (emp.logo?'<img src="'+emp.logo+'" style="max-width:200px;max-height:80px;object-fit:contain">':'<div class="upload-text">Clique para enviar a logo</div>')+
               '<div class="upload-hint">JPG, PNG ou WEBP — máx 2 MB</div>'+
               '<input type="file" id="cfgLogoInput" accept="image/*" style="display:none">'+
             '</div>'+
           '</div>'+
           '<div class="form-group"><label>Assinatura (imagem)</label>'+
-            '<div class="logo-upload-area" onclick="document.getElementById(\'cfgAssInput\').click()">'+
+            '<div class="logo-upload-area" id="cfgAssPreview" onclick="document.getElementById(\'cfgAssInput\').click()">'+
               (emp.assinatura?'<img src="'+emp.assinatura+'" style="max-width:200px;max-height:80px;object-fit:contain">':'<div class="upload-text">Clique para enviar</div>')+
               '<div class="upload-hint">JPG, PNG ou WEBP — máx 2 MB</div>'+
               '<input type="file" id="cfgAssInput" accept="image/*" style="display:none">'+
@@ -1081,7 +1218,140 @@ function renderConfiguracoesPage(){
   applyMask('cfgCnpj',maskCNPJ);
 }
 
-// ══════════════════════════════════════════════════════════════
+// ── CONFIGURATION ACTIONS ──
+function saveCfgEmpresa() {
+  const nome = document.getElementById('cfgNome').value.trim();
+  const cnpj = document.getElementById('cfgCnpj').value.trim();
+  const empreendedor = document.getElementById('cfgEmpreendedor').value.trim();
+  const cidade = document.getElementById('cfgCidade').value.trim();
+  const logo = document.getElementById('cfgLogoInput').getAttribute('data-base64') || (appData.empresa ? appData.empresa.logo : "");
+  const assinatura = document.getElementById('cfgAssInput').getAttribute('data-base64') || (appData.empresa ? appData.empresa.assinatura : "");
+
+  appData.empresa = { nome, cnpj, empreendedor, cidade, logo, assinatura };
+  saveData();
+  updateSidebarInfo();
+  showToast('Dados da empresa salvos!', 'success');
+  renderConfiguracoesPage();
+}
+
+function addCfgItem(key) {
+  const input = document.getElementById('cfgAdd_' + key);
+  const val = input.value.trim();
+  if (!val) return;
+  if (!appData[key]) appData[key] = [];
+  appData[key].push(val);
+  input.value = '';
+  saveData();
+  renderConfiguracoesPage();
+}
+
+function updateCfgItem(key, idx, val) {
+  if (appData[key] && appData[key][idx] !== undefined) {
+    appData[key][idx] = val;
+    saveData();
+  }
+}
+
+function removeCfgItem(key, idx) {
+  if (!confirm('Remover item?')) return;
+  if (appData[key]) {
+    appData[key].splice(idx, 1);
+    saveData();
+    renderConfiguracoesPage();
+  }
+}
+
+function addCfgCat() {
+  const nome = document.getElementById('cfgAdd_catNome').value.trim();
+  const tipo = document.getElementById('cfgAdd_catTipo').value;
+  if (!nome) return;
+  if (!appData.categoriasFluxo) appData.categoriasFluxo = [];
+  appData.categoriasFluxo.push({ nome, tipo });
+  document.getElementById('cfgAdd_catNome').value = '';
+  saveData();
+  renderConfiguracoesPage();
+}
+
+function updateCfgCatNome(idx, val) {
+  if (appData.categoriasFluxo && appData.categoriasFluxo[idx]) {
+    appData.categoriasFluxo[idx].nome = val;
+    saveData();
+  }
+}
+
+function removeCfgCat(idx) {
+  if (!confirm('Remover categoria?')) return;
+  if (appData.categoriasFluxo) {
+    appData.categoriasFluxo.splice(idx, 1);
+    saveData();
+    renderConfiguracoesPage();
+  }
+}
+
+function initCfgDragDrop() {
+  const draggables = document.querySelectorAll('.cfg-drag-item');
+  const containers = document.querySelectorAll('.cfg-drag-list');
+
+  draggables.forEach(draggable => {
+    draggable.addEventListener('dragstart', () => {
+      draggable.classList.add('cfg-dragging');
+    });
+
+    draggable.addEventListener('dragend', () => {
+      draggable.classList.remove('cfg-dragging');
+      const listKey = draggable.getAttribute('data-cfg-list');
+      const container = document.getElementById('cfgList_' + listKey);
+      if (!container) return;
+      const items = Array.from(container.querySelectorAll('.cfg-drag-item'));
+      
+      let newOrder = [];
+      if (listKey === 'categoriasFluxo') {
+        newOrder = items.map(item => {
+          const idx = parseInt(item.getAttribute('data-cfg-idx'));
+          return appData.categoriasFluxo[idx];
+        });
+        appData.categoriasFluxo = newOrder;
+      } else {
+        newOrder = items.map(item => {
+          const idx = parseInt(item.getAttribute('data-cfg-idx'));
+          return appData[listKey][idx];
+        });
+        appData[listKey] = newOrder;
+      }
+      saveData();
+      renderConfiguracoesPage();
+    });
+  });
+
+  containers.forEach(container => {
+    container.addEventListener('dragover', e => {
+      e.preventDefault();
+      const draggable = document.querySelector('.cfg-dragging');
+      if (!draggable) return;
+      const afterElement = getDragAfterElement(container, e.clientY);
+      if (afterElement == null) {
+        container.appendChild(draggable);
+      } else {
+        container.insertBefore(draggable, afterElement);
+      }
+    });
+  });
+}
+
+function getDragAfterElement(container, y) {
+  const draggableElements = [...container.querySelectorAll('.cfg-drag-item:not(.cfg-dragging)')];
+
+  return draggableElements.reduce((closest, child) => {
+    const box = child.getBoundingClientRect();
+    const offset = y - box.top - box.height / 2;
+    if (offset < 0 && offset > closest.offset) {
+      return { offset: offset, element: child };
+    } else {
+      return closest;
+    }
+  }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+
 // ── BACKUP (Sub-abas + Auto-save + Undo/Redo 10 passos) ──
 // ══════════════════════════════════════════════════════════════
 var backupSubTab = 'autosave';
