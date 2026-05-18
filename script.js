@@ -319,44 +319,185 @@ function renderFluxoMes(mesIdx){
     '<div class="table-responsive"><table class="table"><thead><tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Tipo</th><th>Valor</th><th>Ações</th></tr></thead><tbody id="fluxoBody"></tbody></table></div>';
   fluxoFilterText='';fluxoFilterTipo='';renderFluxoTable(mesIdx);
 }
-function renderFluxoTable(mesIdx){
-  var mesKey=mesesKeys[mesIdx];var lancs=(appData.fluxoCaixa&&appData.fluxoCaixa[mesKey])?appData.fluxoCaixa[mesKey]:[];
-  if(fluxoFilterText) lancs=lancs.filter(function(l){return(l.descricao||'').toLowerCase().includes(fluxoFilterText)||(l.categoria||'').toLowerCase().includes(fluxoFilterText);});
-  if(fluxoFilterTipo) lancs=lancs.filter(function(l){return l.tipo===fluxoFilterTipo;});
-  var tbody=document.getElementById('fluxoBody');if(!tbody)return;
-  if(lancs.length===0){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhum lançamento</td></tr>';return;}
-  tbody.innerHTML=lancs.map(function(l){
-    var corValor=l.tipo==='entrada'?'text-success':'text-danger';var sinal=l.tipo==='entrada'?'+':'-';
-    return'<tr><td>'+formatDate(l.data)+'</td><td>'+l.descricao+'</td><td>'+l.categoria+'</td><td>'+(l.tipo==='entrada'?'<span class="text-success">Entrada</span>':'<span class="text-danger">Saída</span>')+'</td><td class="'+corValor+'">'+sinal+' '+formatCurrency(l.valor)+'</td><td><button class="btn btn-sm btn-primary" onclick="editLancamento('+mesIdx+','+l.id+')">✏️</button> <button class="btn btn-sm btn-danger" onclick="deleteLancamento('+mesIdx+','+l.id+')">🗑️</button></td></tr>';
-  }).join('');
+ffunction renderFluxoTable(mesKey){
+  var container=document.getElementById('fluxoTableBody');if(!container)return;
+  var lancs=(appData.fluxoCaixa&&appData.fluxoCaixa[mesKey])?appData.fluxoCaixa[mesKey]:[];
+  
+  // Filtros
+  var filtered=lancs.filter(function(l){
+    if(fluxoFilterText){
+      var txt=fluxoFilterText.toLowerCase();
+      var desc=(l.descricao||'').toLowerCase();
+      var cat=(l.categoria||'').toLowerCase();
+      if(desc.indexOf(txt)===-1&&cat.indexOf(txt)===-1) return false;
+    }
+    if(fluxoFilterTipo&&fluxoFilterTipo!==''){
+      if(l.tipo!==fluxoFilterTipo) return false;
+    }
+    return true;
+  });
+
+  if(filtered.length===0){
+    container.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:20px">Nenhum lançamento encontrado</td></tr>';
+    return;
+  }
+
+  // Ordenar por data
+  filtered.sort(function(a,b){return(a.data||'').localeCompare(b.data||'');});
+
+  var rows='';
+  filtered.forEach(function(l,i){
+    var isEntrada=l.tipo==='entrada';
+    var valorClass=isEntrada?'text-success':'text-danger';
+    var tipoLabel=isEntrada?'<span style="color:var(--success);font-weight:600">Entrada</span>':'<span style="color:var(--danger);font-weight:600">Saída</span>';
+    // Encontrar o índice real no array original para editar/excluir
+    var realIdx=lancs.indexOf(l);
+    rows+='<tr>'+
+      '<td>'+formatDate(l.data)+'</td>'+
+      '<td>'+(l.descricao||'-')+'</td>'+
+      '<td>'+(l.categoria||'-')+'</td>'+
+      '<td>'+tipoLabel+'</td>'+
+      '<td class="'+valorClass+'" style="font-weight:600">'+formatCurrency(l.valor)+'</td>'+
+      '<td>'+(l.formaPagamento||'-')+'</td>'+
+      '<td>'+
+        '<button class="btn btn-sm btn-outline" onclick="editLancamento(\''+mesKey+'\','+realIdx+')" title="Editar">✏️</button> '+
+        '<button class="btn btn-sm btn-danger" onclick="deleteLancamento(\''+mesKey+'\','+realIdx+')" title="Excluir">🗑️</button>'+
+      '</td>'+
+    '</tr>';
+  });
+  container.innerHTML=rows;
 }
-function openLancamentoModal(mesIdx,lanc){
-  var isEdit=!!lanc;var tipoVal=lanc?lanc.tipo:'entrada';
+
+function openLancamentoModal(mesKey,lancamento,editIdx){
+  var isEdit=!!lancamento;
+  var l=lancamento||{};
+  
+  var catOpts='';
+  (appData.categoriasFluxo||[]).forEach(function(c){
+    var sel=(l.categoria===c.nome)?'selected':'';
+    catOpts+='<option value="'+c.nome+'" data-tipo="'+c.tipo+'" '+sel+'>'+c.nome+(c.tipo==='entrada'?' (Entrada)':' (Saída)')+'</option>';
+  });
+
+  var pgtoOpts='<option value="">-- Opcional --</option>';
+  (appData.formasPagamento||[]).forEach(function(f){
+    var sel=(l.formaPagamento===f)?'selected':'';
+    pgtoOpts+='<option value="'+f+'" '+sel+'>'+f+'</option>';
+  });
+
+  var tipoSel=l.tipo||'entrada';
+
   document.getElementById('cadastroModalTitle').textContent=isEdit?'Editar Lançamento':'Novo Lançamento';
   document.getElementById('cadastroModalBody').innerHTML=
-    '<div class="form-row"><div class="form-group"><label>Data</label><input type="date" class="form-control" id="flxData" value="'+(lanc?lanc.data:todayStr())+'"></div><div class="form-group"><label>Descrição *</label><input type="text" class="form-control" id="flxDesc" value="'+(lanc?lanc.descricao:'')+'"></div></div>'+
-    '<div class="form-row"><div class="form-group"><label>Tipo</label><select class="form-control" id="flxTipo" onchange="updateFlxCatOptions()"><option value="entrada"'+(tipoVal==='entrada'?' selected':'')+'>Entrada</option><option value="saida"'+(tipoVal==='saida'?' selected':'')+'>Saída</option></select></div><div class="form-group"><label>Categoria</label><select class="form-control" id="flxCat"></select></div></div>'+
-    '<div class="form-group"><label>Valor *</label><input type="number" class="form-control" id="flxValor" value="'+(lanc?lanc.valor||'':'')+'" step="0.01"></div>';
-  document.getElementById('cadastroModalFooter').innerHTML='<button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button><button class="btn btn-primary" onclick="saveLancamento('+mesIdx+','+(isEdit?lanc.id:'null')+')">Salvar</button>';
+    '<input type="hidden" id="flxEditIdx" value="'+(isEdit?editIdx:'')+'">'+
+    '<input type="hidden" id="flxMesKey" value="'+mesKey+'">'+
+    '<div class="form-row">'+
+      '<div class="form-group"><label>Data</label><input type="date" class="form-control" id="flxData" value="'+(l.data||todayStr())+'"></div>'+
+      '<div class="form-group"><label>Tipo</label>'+
+        '<div style="display:flex;gap:8px">'+
+          '<button type="button" class="fluxo-tipo-btn '+(tipoSel==='entrada'?'entrada-active':'')+'" id="btnTipoEntrada" onclick="setFlxTipo(\'entrada\')">Entrada</button>'+
+          '<button type="button" class="fluxo-tipo-btn '+(tipoSel==='saida'?'saida-active':'')+'" id="btnTipoSaida" onclick="setFlxTipo(\'saida\')">Saída</button>'+
+        '</div>'+
+        '<input type="hidden" id="flxTipo" value="'+tipoSel+'">'+
+      '</div>'+
+    '</div>'+
+    '<div class="form-group"><label>Descrição</label><input class="form-control" id="flxDescricao" value="'+(l.descricao||'')+'"></div>'+
+    '<div class="form-row">'+
+      '<div class="form-group"><label>Categoria</label><select class="form-control" id="flxCategoria" onchange="updateFlxTipoFromCat()">'+catOpts+'</select></div>'+
+      '<div class="form-group"><label>Valor (R$)</label><input type="text" class="form-control" id="flxValor" value="'+(l.valor||'')+'"></div>'+
+    '</div>'+
+    '<div class="form-group"><label>Forma de Pagamento</label><select class="form-control" id="flxFormaPgto">'+pgtoOpts+'</select></div>';
+
+  document.getElementById('cadastroModalFooter').innerHTML=
+    '<button class="btn btn-secondary" onclick="closeCadastroModal()">Cancelar</button>'+
+    '<button class="btn btn-primary" onclick="saveLancamento(\''+mesKey+'\')">💾 Salvar</button>';
+
   openCadastroModal();
-  setTimeout(function(){updateFlxCatOptions();if(lanc)document.getElementById('flxCat').value=lanc.categoria||'';},50);
 }
+
+function setFlxTipo(tipo){
+  document.getElementById('flxTipo').value=tipo;
+  var btnE=document.getElementById('btnTipoEntrada');
+  var btnS=document.getElementById('btnTipoSaida');
+  if(btnE){btnE.className='fluxo-tipo-btn '+(tipo==='entrada'?'entrada-active':'');}
+  if(btnS){btnS.className='fluxo-tipo-btn '+(tipo==='saida'?'saida-active':'');}
+}
+
+function updateFlxTipoFromCat(){
+  var sel=document.getElementById('flxCategoria');
+  if(!sel)return;
+  var opt=sel.options[sel.selectedIndex];
+  if(opt&&opt.getAttribute('data-tipo')){
+    setFlxTipo(opt.getAttribute('data-tipo'));
+  }
+}
+
 function updateFlxCatOptions(){
   var tipo=document.getElementById('flxTipo').value;var catSel=document.getElementById('flxCat');
   var cats=(appData.categoriasFluxo||[]).filter(function(c){return c.tipo===tipo;});
   catSel.innerHTML=cats.map(function(c){return'<option value="'+c.nome+'">'+c.nome+'</option>';}).join('');
 }
-function saveLancamento(mesIdx,id){
-  var mesKey=mesesKeys[mesIdx];
-  var obj={data:document.getElementById('flxData').value,descricao:document.getElementById('flxDesc').value.trim(),tipo:document.getElementById('flxTipo').value,categoria:document.getElementById('flxCat').value,valor:parseFloat(document.getElementById('flxValor').value)||0};
-  if(!obj.descricao){showToast('Informe a descrição','error');return;}if(!obj.valor){showToast('Informe o valor','error');return;}
-  if(!appData.fluxoCaixa) appData.fluxoCaixa={};if(!appData.fluxoCaixa[mesKey]) appData.fluxoCaixa[mesKey]=[];
-  if(id){var idx=appData.fluxoCaixa[mesKey].findIndex(function(l){return l.id===id;});if(idx>-1){obj.id=id;appData.fluxoCaixa[mesKey][idx]=obj;}}
-  else{obj.id=nextId(appData.fluxoCaixa[mesKey]);appData.fluxoCaixa[mesKey].push(obj);}
-  saveData();closeCadastroModal();renderFluxoMes(mesIdx);showToast(id?'Atualizado!':'Cadastrado!','success');
+function saveLancamento(mesKey){
+  var data=document.getElementById('flxData').value;
+  var descricao=document.getElementById('flxDescricao').value;
+  var categoria=document.getElementById('flxCategoria').value;
+  var tipo=document.getElementById('flxTipo').value;
+  var valorStr=document.getElementById('flxValor').value;
+  var formaPagamento=document.getElementById('flxFormaPgto')?document.getElementById('flxFormaPgto').value:'';
+
+  if(!data||!descricao||!valorStr){showToast('Preencha Data, Descrição e Valor','error');return;}
+
+  var valor=parseFloat(valorStr.replace(/[^\d,.-]/g,'').replace(',','.'));
+  if(isNaN(valor)||valor<=0){showToast('Valor inválido','error');return;}
+
+  var lancamento={
+    id:Date.now(),
+    data:data,
+    descricao:descricao,
+    categoria:categoria,
+    tipo:tipo,
+    valor:valor,
+    formaPagamento:formaPagamento
+  };
+
+  // Garantir que a estrutura existe
+  if(!appData.fluxoCaixa) appData.fluxoCaixa={};
+  if(!appData.fluxoCaixa[mesKey]) appData.fluxoCaixa[mesKey]=[];
+
+  // Se estiver editando
+  var editIdx=document.getElementById('flxEditIdx');
+  if(editIdx&&editIdx.value!==''){
+    var idx=parseInt(editIdx.value);
+    appData.fluxoCaixa[mesKey][idx]=lancamento;
+    showToast('Lançamento atualizado!','success');
+  } else {
+    appData.fluxoCaixa[mesKey].push(lancamento);
+    showToast('Lançamento adicionado!','success');
+  }
+
+  saveData();
+  closeCadastroModal();
+  renderFluxoMes(getMesIndex(mesKey));
 }
-function editLancamento(mesIdx,id){var mesKey=mesesKeys[mesIdx];var lanc=(appData.fluxoCaixa[mesKey]||[]).find(function(l){return l.id===id;});if(lanc)openLancamentoModal(mesIdx,lanc);}
-function deleteLancamento(mesIdx,id){if(!confirm('Excluir lançamento?'))return;var mesKey=mesesKeys[mesIdx];appData.fluxoCaixa[mesKey]=(appData.fluxoCaixa[mesKey]||[]).filter(function(l){return l.id!==id;});saveData();renderFluxoMes(mesIdx);showToast('Excluído!','success');}
+
+function getMesIndex(mesKey){
+  var meses=['janeiro','fevereiro','marco','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  return meses.indexOf(mesKey);
+}
+
+function editLancamento(mesKey,idx){
+  var lancs=(appData.fluxoCaixa&&appData.fluxoCaixa[mesKey])?appData.fluxoCaixa[mesKey]:[];
+  var l=lancs[idx];if(!l)return;
+  openLancamentoModal(mesKey,l,idx);
+}
+
+function deleteLancamento(mesKey,idx){
+  if(!confirm('Excluir este lançamento?'))return;
+  if(!appData.fluxoCaixa||!appData.fluxoCaixa[mesKey])return;
+  appData.fluxoCaixa[mesKey].splice(idx,1);
+  saveData();
+  renderFluxoMes(getMesIndex(mesKey));
+  showToast('Lançamento excluído','success');
+}
 
 // ══════════════════════════════════════════════════════════════
 // ── COMPRAS ──
